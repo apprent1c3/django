@@ -16,7 +16,7 @@ class TimeInputTest(WidgetTest):
 
     def test_render_value(self):
         """
-        The microseconds are trimmed on display, by default.
+        Tests the rendering of time values in an HTML widget, verifying that microseconds are trimmed from display by default.
         """
         t = time(12, 51, 34, 482548)
         self.assertEqual(str(t), "12:51:34.482548")
@@ -69,6 +69,9 @@ class TimeInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests that a form field is rendered without a fieldset by default.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

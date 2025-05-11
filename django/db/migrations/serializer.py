@@ -45,6 +45,13 @@ class BaseSequenceSerializer(BaseSerializer):
         )
 
     def serialize(self):
+        """
+        Serializes the object's value into a formatted string, collecting all required imports.
+
+        Returns:
+            tuple: A string representation of the object's value and a set of imports required to use it.
+
+        """
         imports = set()
         strings = []
         for item in self.value:
@@ -95,6 +102,14 @@ class DecimalSerializer(BaseSerializer):
 class DeconstructableSerializer(BaseSerializer):
     @staticmethod
     def serialize_deconstructed(path, args, kwargs):
+        """
+
+        Serialize a deconstructed function call into a string representation.
+
+        This method takes a function path, positional and keyword arguments, 
+        and returns a serialized string along with a set of required imports.
+
+        """
         name, imports = DeconstructableSerializer._serialize_path(path)
         strings = []
         for arg in args:
@@ -109,6 +124,14 @@ class DeconstructableSerializer(BaseSerializer):
 
     @staticmethod
     def _serialize_path(path):
+        """
+
+        Serialize a module path into a usable import and name.
+
+        This function takes a dotted path as input and returns a tuple containing
+        the serialized name and a set of required import statements.
+
+        """
         module, name = path.rsplit(".", 1)
         if module == "django.db.models":
             imports = {"from django.db import models"}
@@ -124,6 +147,12 @@ class DeconstructableSerializer(BaseSerializer):
 
 class DictionarySerializer(BaseSerializer):
     def serialize(self):
+        """
+
+        Serialize the object into a string representation, conforming to a dictionary format.
+        Returns a tuple containing the serialized string and a set of required imports.
+
+        """
         imports = set()
         strings = []
         for k, v in sorted(self.value.items()):
@@ -137,6 +166,13 @@ class DictionarySerializer(BaseSerializer):
 
 class EnumSerializer(BaseSerializer):
     def serialize(self):
+        """
+        Serializes an enum value into a string representation, including the module and enum class name.
+
+         Returns a tuple containing the serialized string and a set of required imports.
+
+         Useful for storing or transmitting enum values in a human-readable format, while preserving the necessary context for deserialization.
+        """
         enum_class = self.value.__class__
         module = enum_class.__module__
         if issubclass(enum_class, enum.Flag):
@@ -172,6 +208,12 @@ class FrozensetSerializer(BaseUnorderedSequenceSerializer):
 
 class FunctionTypeSerializer(BaseSerializer):
     def serialize(self):
+        """
+        Serializes a function value into a string representation.
+
+        The serialized form includes the function's fully qualified name and the import statement needed to access it.
+        Raises a ValueError if the function cannot be serialized, such as for lambda functions or functions without a defined module.
+        """
         if getattr(self.value, "__self__", None) and isinstance(
             self.value.__self__, type
         ):
@@ -201,6 +243,15 @@ class FunctionTypeSerializer(BaseSerializer):
 class FunctoolsPartialSerializer(BaseSerializer):
     def serialize(self):
         # Serialize functools.partial() arguments
+        """
+        Serialize a function call into a string representation.
+
+        Returns a tuple containing the serialized function call as a string and a set of imports required to use the serialized function.
+
+        The serialized function call is in the format of a functools call, where the function name, arguments, and keyword arguments are serialized separately.
+
+        The imports returned include any necessary imports for the function, arguments, and keyword arguments, as well as the functools import. 
+        """
         func_string, func_imports = serializer_factory(self.value.func).serialize()
         args_string, args_imports = serializer_factory(self.value.args).serialize()
         keywords_string, keywords_imports = serializer_factory(
@@ -222,6 +273,15 @@ class FunctoolsPartialSerializer(BaseSerializer):
 
 class IterableSerializer(BaseSerializer):
     def serialize(self):
+        """
+
+        Serialize the object's value into a string representation.
+
+        Returns a tuple containing the serialized string and a set of required imports.
+        The serialized string is a comma-separated list of item representations, 
+        wrapped in parentheses. Each item is recursively serialized using the serializer factory.
+
+        """
         imports = set()
         strings = []
         for item in self.value:
@@ -242,6 +302,9 @@ class ModelFieldSerializer(DeconstructableSerializer):
 
 class ModelManagerSerializer(DeconstructableSerializer):
     def serialize(self):
+        """
+        Serializes the value into a string representation, handling both manager and non-manager cases, returning a tuple of the serialized string and necessary imports.
+        """
         as_manager, manager_path, qs_path, args, kwargs = self.value.deconstruct()
         if as_manager:
             name, imports = self._serialize_path(qs_path)
@@ -274,6 +337,16 @@ class PathSerializer(BaseSerializer):
 
 class RegexSerializer(BaseSerializer):
     def serialize(self):
+        """
+
+        Serialize a regular expression object into a compilable Python string.
+
+        Returns a tuple containing the compiled regular expression as a string and
+        a set of required import statements.
+
+        The serialization process includes the regex pattern and flags.
+
+        """
         regex_pattern, pattern_imports = serializer_factory(
             self.value.pattern
         ).serialize()
@@ -316,6 +389,17 @@ class TupleSerializer(BaseSequenceSerializer):
 
 class TypeSerializer(BaseSerializer):
     def serialize(self):
+        """
+
+        Returns a string representation of the current value, along with any necessary import statements.
+
+        The representation is in the form of a tuple, where the first element is the string representation
+        of the value, and the second element is a set of import statements required to use the value.
+
+        Special cases are handled for certain built-in types, and otherwise the representation is
+        determined by the module and qualified name of the value.
+
+        """
         special_cases = [
             (models.Model, "models.Model", ["from django.db import models"]),
             (types.NoneType, "types.NoneType", ["import types"]),
@@ -377,6 +461,11 @@ class Serializer:
 
 
 def serializer_factory(value):
+    """
+    Returns a serializer instance for the given value, supporting various Django model fields, managers, operations, and other types.
+
+    The factory automatically detects the type of value and returns a suitable serializer. If no serializer is found, a ValueError is raised with a link to Django's migration documentation for troubleshooting.
+    """
     if isinstance(value, Promise):
         value = str(value)
     elif isinstance(value, LazyObject):

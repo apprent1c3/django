@@ -21,6 +21,9 @@ from .models import (
 
 class ManagersRegressionTests(TestCase):
     def test_managers(self):
+        """
+        Tests custom database managers for various model classes, verifying that each manager returns the correct set of objects.
+        """
         a1 = Child1.objects.create(name="fred", data="a1")
         a2 = Child1.objects.create(name="barney", data="a2")
         b1 = Child2.objects.create(name="fred", data="b1", value=1)
@@ -91,6 +94,9 @@ class ManagersRegressionTests(TestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="managers_regress.Parent")
     @isolate_apps("managers_regress")
     def test_swappable_manager(self):
+        """
+        Tests that attempting to use a manager on a swappable model that has been swapped out raises the expected AttributeError, ensuring correct behavior when models are swapped at runtime.
+        """
         class SwappableModel(models.Model):
             class Meta:
                 swappable = "TEST_SWAPPABLE_MODEL"
@@ -107,6 +113,9 @@ class ManagersRegressionTests(TestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="managers_regress.Parent")
     @isolate_apps("managers_regress")
     def test_custom_swappable_manager(self):
+        """
+        Tests that a custom swappable manager is not available when its model has been swapped, ensuring the correct exception is raised with a descriptive error message.
+        """
         class SwappableModel(models.Model):
             stuff = models.Manager()
 
@@ -126,6 +135,9 @@ class ManagersRegressionTests(TestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="managers_regress.Parent")
     @isolate_apps("managers_regress")
     def test_explicit_swappable_manager(self):
+        """
+        Checks that an explicit swappable manager raises an AttributeError when attempting to access the manager of a swapped model.
+        """
         class SwappableModel(models.Model):
             objects = models.Manager()
 
@@ -143,6 +155,9 @@ class ManagersRegressionTests(TestCase):
             SwappableModel.objects.all()
 
     def test_regress_3871(self):
+        """
+        Tests the regression issue #3871 by verifying that foreign key, generic foreign key, and many-to-many field relationships are correctly resolved in template rendering.
+        """
         related = RelatedModel.objects.create()
 
         relation = RelationModel()
@@ -173,6 +188,9 @@ class ManagersRegressionTests(TestCase):
 @isolate_apps("managers_regress")
 class TestManagerInheritance(SimpleTestCase):
     def test_implicit_inheritance(self):
+        """
+        Tests the implicit inheritance of custom model managers in various model inheritance scenarios, verifying that the base and default managers are correctly set on the model classes.
+        """
         class CustomManager(models.Manager):
             pass
 
@@ -208,6 +226,9 @@ class TestManagerInheritance(SimpleTestCase):
         self.assertIsInstance(MTIModel._default_manager, CustomManager)
 
     def test_default_manager_inheritance(self):
+        """
+        Tests that default manager is correctly inherited from parent models in various scenarios, including abstract base classes and proxy models. Verifies that the default manager's type is preserved across model inheritance hierarchies.
+        """
         class CustomManager(models.Manager):
             pass
 
@@ -245,6 +266,12 @@ class TestManagerInheritance(SimpleTestCase):
         self.assertIsInstance(MTIModel._default_manager, CustomManager)
 
     def test_base_manager_inheritance(self):
+        """
+        Tests the inheritance of base managers in model classes, 
+        ensuring that the base manager name specified in the Meta class is 
+        correctly applied to the model and its subclasses, including 
+        proxy models and multi-table inheritance models.
+        """
         class CustomManager(models.Manager):
             pass
 
@@ -282,6 +309,9 @@ class TestManagerInheritance(SimpleTestCase):
         self.assertIsInstance(MTIModel._base_manager, CustomManager)
 
     def test_manager_no_duplicates(self):
+        """
+        Verifies that a custom manager instance is properly set on a model, ensuring there are no duplicate managers, when an abstract model has a manager defined and a concrete subclass defines its own custom manager.
+        """
         class CustomManager(models.Manager):
             pass
 

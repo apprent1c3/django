@@ -196,6 +196,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_input_value(self):
+        """
+        Checks that widget rendering does not localize input values, using various types of choices such as integers and times.
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -243,8 +246,7 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     def test_label(self):
         """
-        CheckboxSelectMultiple doesn't contain 'for="field_0"' in the <label>
-        because clicking that would toggle the first checkbox.
+        Tests that the CheckboxSelectMultiple widget correctly omits the 'for' attribute in the label tag to prevent unintentional checkbox toggling when clicked.
         """
 
         class TestForm(forms.Form):
@@ -256,6 +258,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
         self.assertEqual(bound_field.legend_tag(), "<legend>F:</legend>")
 
     def test_fieldset(self):
+        """
+        Test the rendering of a form using a fieldset, ensuring the fieldset is correctly wrapped around the form fields.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(widget=self.widget, choices=self.beatles)

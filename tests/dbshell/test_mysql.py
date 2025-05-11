@@ -44,6 +44,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_options_override_settings_proper_values(self):
+        """
+        Tests that command arguments and environment are correctly generated when options override settings, verifying that the correct database credentials and connection details are used when both settings and options are provided.
+        """
         settings_port = 444
         options_port = 555
         self.assertNotEqual(settings_port, options_port, "test pre-req")
@@ -203,6 +206,10 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
     def test_crash_password_does_not_leak(self):
         # The password doesn't leak in an exception that results from a client
         # crash.
+        """
+        ssi
+        Checks that a database client's password is not leaked in case of a crash by verifying that it is not present in the error message when the client process fails.
+        """
         args, env = DatabaseClient.settings_to_cmd_args_env(
             {
                 "NAME": "somedbname",
@@ -224,7 +231,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
 
     @skipUnless(connection.vendor == "mysql", "Requires a MySQL connection")
     def test_sigint_handler(self):
-        """SIGINT is ignored in Python and passed to mysql to abort queries."""
+        """
+        Verifies that SIGINT signals are ignored by Python and properly passed to the MySQL connection to abort ongoing queries during the test case execution.
+        """
 
         def _mock_subprocess_run(*args, **kwargs):
             handler = signal.getsignal(signal.SIGINT)

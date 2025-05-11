@@ -17,6 +17,9 @@ class DjangoTemplates(BaseEngine):
     app_dirname = "templates"
 
     def __init__(self, params):
+        """
+        Initializes the template engine, setting default options and parsing libraries for templating functionality.
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         options.setdefault("autoescape", True)
@@ -47,6 +50,9 @@ class DjangoTemplates(BaseEngine):
         return []
 
     def _check_for_template_tags_with_the_same_name(self):
+        """
+        Checks for template tag libraries with duplicate names and returns a list of warnings for such conflicts.
+        """
         libraries = defaultdict(set)
 
         for module_name, module_path in get_template_tag_modules():
@@ -100,6 +106,19 @@ class Template:
         return self.template.origin
 
     def render(self, context=None, request=None):
+        """
+
+        Render the template using the provided context and request.
+
+        The context and request are used to create a rendered version of the template.
+        If the template does not exist, a TemplateDoesNotExist exception is raised.
+
+        :param context: The context used for rendering the template.
+        :param request: The request used for rendering the template.
+        :raises TemplateDoesNotExist: If the template does not exist.
+        :return: The rendered template.
+
+        """
         context = make_context(
             context, request, autoescape=self.backend.engine.autoescape
         )
@@ -111,9 +130,7 @@ class Template:
 
 def copy_exception(exc, backend=None):
     """
-    Create a new TemplateDoesNotExist. Preserve its declared attributes and
-    template debug data but discard __traceback__, __context__, and __cause__
-    to make this object suitable for keeping around (in a cache, for example).
+    Create a copy of a given exception, preserving its relevant attributes and template debug data while discarding internal Python exception tracking details, making it suitable for caching or storage.
     """
     backend = backend or exc.backend
     new = exc.__class__(*exc.args, tried=exc.tried, backend=backend, chain=exc.chain)
@@ -132,8 +149,8 @@ def reraise(exc, backend):
 
 def get_template_tag_modules():
     """
-    Yield (module_name, module_path) pairs for all installed template tag
-    libraries.
+    Yield (module_name, module_path) pairs for all installed template tag libraries, 
+    allowing access to available template tag modules and their locations.
     """
     candidates = ["django.templatetags"]
     candidates.extend(
@@ -166,8 +183,9 @@ def get_installed_libraries():
 
 def get_package_libraries(pkg):
     """
-    Recursively yield template tag libraries defined in submodules of a
-    package.
+    _searches a package for template tag libraries and returns them. 
+    The function recursively traverses the package's submodules to find libraries 
+    that can be used for template tagging._
     """
     for entry in walk_packages(pkg.__path__, pkg.__name__ + "."):
         try:

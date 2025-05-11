@@ -26,6 +26,14 @@ class Command(BaseCommand):
         parameters.add_argument("parameters", nargs="*")
 
     def handle(self, **options):
+        """
+        Handles running a shell command for a specified database connection.
+
+        Runs a command-line program with provided parameters, handling potential file not found and non-zero exit status errors.
+
+        :param options: Dictionary containing 'database' and 'parameters' to be used for the execution.
+        :raises CommandError: If the required program is not installed, not on the path, or returns a non-zero exit status.
+        """
         connection = connections[options["database"]]
         try:
             connection.client.runshell(options["parameters"])

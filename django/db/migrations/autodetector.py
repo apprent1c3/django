@@ -60,9 +60,14 @@ class MigrationAutodetector:
 
     def changes(self, graph, trim_to_apps=None, convert_apps=None, migration_name=None):
         """
-        Main entry point to produce a list of applicable changes.
-        Take a graph to base names on and an optional set of apps
-        to try and restrict to (restriction is not guaranteed)
+
+            Main entry point to produce a list of applicable changes.
+
+            Generates a list of changes based on the provided graph, with optional
+            filtering by application and conversion. The result can be further customized
+            for a specific migration. The function does not guarantee restriction to the
+            specified applications.
+
         """
         changes = self._detect_changes(convert_apps, graph)
         changes = self.arrange_for_graph(changes, graph, migration_name)
@@ -72,9 +77,7 @@ class MigrationAutodetector:
 
     def deep_deconstruct(self, obj):
         """
-        Recursive deconstruction for a field and its arguments.
-        Used for full comparison for rename/alter; sometimes a single-level
-        deconstruction will not compare correctly.
+        Recursive deconstruction of nested objects, enabling full comparison of complex data structures by breaking them down into their constituent parts, handling various object types including lists, tuples, dictionaries, functions, and custom objects with a `deconstruct` method.
         """
         if isinstance(obj, list):
             return [self.deep_deconstruct(value) for value in obj]
@@ -110,9 +113,7 @@ class MigrationAutodetector:
 
     def only_relation_agnostic_fields(self, fields):
         """
-        Return a definition of the fields that ignores field names and
-        what related fields actually relate to. Used for detecting renames (as
-        the related fields change during renames).
+        Returns a definition of the given fields, ignoring field names and related field targets, allowing for the detection of field renames.
         """
         fields_def = []
         for name, field in sorted(fields.items()):
@@ -124,18 +125,14 @@ class MigrationAutodetector:
 
     def _detect_changes(self, convert_apps=None, graph=None):
         """
-        Return a dict of migration plans which will achieve the
-        change from from_state to to_state. The dict has app labels
-        as keys and a list of migrations as values.
+        Returns a dictionary of migration plans to achieve the change from the initial to the target state, 
+        with application labels as keys and lists of migrations as values.
 
-        The resulting migrations aren't specially named, but the names
-        do matter for dependencies inside the set.
+        This function takes into account changes in model fields, indexes, and constraints, and can convert 
+        non-migration-based apps to use migrations. It can also utilize a provided dependency graph to 
+        improve dependency generation and avoid circular dependencies.
 
-        convert_apps is the list of apps to convert to use migrations
-        (i.e. to make initial migrations for, in the usual case)
-
-        graph is an optional argument that, if provided, can help improve
-        dependency generation and avoid potential circular dependencies.
+        The resulting migration plans are suitable for updating the database schema to match the target state.
         """
         # The first phase is generating all the operations for each app
         # and gathering them into a big per-app list.
@@ -229,9 +226,8 @@ class MigrationAutodetector:
 
     def _prepare_field_lists(self):
         """
-        Prepare field lists and a list of the fields that used through models
-        in the old state so dependencies can be made from the through model
-        deletion to the field that uses it.
+        Prepare field lists to handle dependencies between model fields and through models, 
+        enabling proper deletion handling by identifying fields that use through models.
         """
         self.kept_model_keys = self.old_model_keys & self.new_model_keys
         self.kept_proxy_keys = self.old_proxy_keys & self.new_proxy_keys
@@ -251,7 +247,10 @@ class MigrationAutodetector:
         }
 
     def _generate_through_model_map(self):
-        """Through model map generation."""
+        """
+        Generates a mapping of through models used by the current model, 
+        associating each through model with its corresponding app label, model name, and field name.
+        """
         for app_label, model_name in sorted(self.old_model_keys):
             old_model_name = self.renamed_models.get(
                 (app_label, model_name), model_name
@@ -273,8 +272,7 @@ class MigrationAutodetector:
     @staticmethod
     def _resolve_dependency(dependency):
         """
-        Return the resolved dependency and a boolean denoting whether or not
-        it was swappable.
+        Resolve a dependency by checking if it's swappable and returning the resolved dependency along with a boolean indicating swap status.
         """
         if dependency.app_label != "__setting__":
             return dependency, False
@@ -293,14 +291,7 @@ class MigrationAutodetector:
 
     def _build_migration_list(self, graph=None):
         """
-        Chop the lists of operations up into migrations with dependencies on
-        each other. Do this by going through an app's list of operations until
-        one is found that has an outgoing dependency that isn't in another
-        app's migration yet (hasn't been chopped off its list). Then chop off
-        the operations before it into a migration and move onto the next app.
-        If the loops completes without doing anything, there's a circular
-        dependency (which _should_ be impossible as the operations are
-        all split at this point so they can't depend and be depended on).
+        Divide a list of operations into migrations, ensuring that each migration depends only on previous migrations and there are no circular dependencies.
         """
         self.migrations = {}
         num_ops = sum(len(x) for x in self.generated_operations.values())
@@ -413,8 +404,7 @@ class MigrationAutodetector:
 
     def _sort_migrations(self):
         """
-        Reorder to make things possible. Reordering may be needed so FKs work
-        nicely inside the same app.
+        Sorts the generated operations for each app label to ensure foreign key dependencies are resolved correctly, allowing operations to be applied in a valid order within the same app.
         """
         for app_label, ops in sorted(self.generated_operations.items()):
             ts = TopologicalSorter()
@@ -431,6 +421,13 @@ class MigrationAutodetector:
 
     def _optimize_migrations(self):
         # Add in internal dependencies among the migrations
+        """
+
+        Optimizes the migration operations by automatically populating dependencies between consecutive migrations and deduplicating dependencies.
+
+        Additionally, it optimizes the individual operations within each migration using a MigrationOptimizer instance.
+
+        """
         for app_label, migrations in self.migrations.items():
             for m1, m2 in zip(migrations, migrations[1:]):
                 m2.dependencies.append((app_label, m1.name))
@@ -449,8 +446,13 @@ class MigrationAutodetector:
 
     def check_dependency(self, operation, dependency):
         """
-        Return True if the given operation depends on the given dependency,
-        False otherwise.
+        Determines whether a given operation depends on a specified dependency.
+
+        The dependency is evaluated based on its type and field name, and the operation is checked to see if it matches the dependency's requirements.
+
+        Returns True if the operation depends on the dependency, False otherwise.
+
+        Raises ValueError if the dependency type is not supported.
         """
         # Created model
         if (
@@ -534,6 +536,14 @@ class MigrationAutodetector:
     def add_operation(self, app_label, operation, dependencies=None, beginning=False):
         # Dependencies are
         # (app_label, model_name, field_name, create/delete as True/False)
+        """
+        Add an operation to the list of generated operations for a given application label.
+
+        :param app_label: The label of the application to which the operation belongs.
+        :param operation: The operation to be added.
+        :param dependencies: Optional list of dependencies for the operation.
+        :param beginning: Whether the operation should be inserted at the beginning of the list (default: False).
+        """
         operation._auto_deps = dependencies or []
         if beginning:
             self.generated_operations.setdefault(app_label, []).insert(0, operation)
@@ -542,8 +552,7 @@ class MigrationAutodetector:
 
     def swappable_first_key(self, item):
         """
-        Place potential swappable models first in lists of created models (only
-        real way to solve #22783).
+        Prioritizes potentially swappable models by placing them first in lists of created models, supporting special handling for user models and swappable models defined in the model_state options.
         """
         try:
             model_state = self.to_state.models[item]
@@ -565,9 +574,11 @@ class MigrationAutodetector:
 
     def generate_renamed_models(self):
         """
-        Find any renamed models, generate the operations for them, and remove
-        the old entry from the model lists. Must be run before other
-        model-level generation.
+
+        Detect renamed models by comparing the new and old model states, 
+        generate the necessary operations for these renames, and update the model lists accordingly.
+        This function must be executed before other model-level generation operations.
+
         """
         self.renamed_models = {}
         self.renamed_models_rel = {}
@@ -633,13 +644,9 @@ class MigrationAutodetector:
 
     def generate_created_models(self):
         """
-        Find all new models (both managed and unmanaged) and make create
-        operations for them as well as separate operations to create any
-        foreign key or M2M relationships (these are optimized later, if
-        possible).
-
-        Defer any model options that refer to collections of fields that might
-        be deferred (e.g. unique_together).
+        Generate create operations for new managed and unmanaged models, including foreign key and M2M relationships. 
+        Additionally, add operations for indexes, constraints, and unique together constraints, and defers any model options 
+        that might be deferred like unique_together.
         """
         old_keys = self.old_model_keys | self.old_unmanaged_keys
         added_models = self.new_model_keys - old_keys
@@ -854,9 +861,7 @@ class MigrationAutodetector:
 
     def generate_created_proxies(self):
         """
-        Make CreateModel statements for proxy models. Use the same statements
-        as that way there's less code duplication, but for proxy models it's
-        safe to skip all the pointless field stuff and chuck out an operation.
+        Generates CreateModel statements for proxy models by creating operations that skip unnecessary field information, reducing code duplication.
         """
         added = self.new_proxy_keys - self.old_proxy_keys
         for app_label, model_name in sorted(added):
@@ -896,13 +901,7 @@ class MigrationAutodetector:
 
     def generate_deleted_models(self):
         """
-        Find all deleted models (managed and unmanaged) and make delete
-        operations for them as well as separate operations to delete any
-        foreign key or M2M relationships (these are optimized later, if
-        possible).
-
-        Also bring forward removal of any model options that refer to
-        collections of fields - the inverse of generate_created_models().
+        Generates delete operations for models that have been deleted, including managed and unmanaged models, and handles the removal of foreign key and many-to-many relationships, as well as model options that reference field collections.
         """
         new_keys = self.new_model_keys | self.new_unmanaged_keys
         deleted_models = self.old_model_keys - new_keys
@@ -990,7 +989,11 @@ class MigrationAutodetector:
             )
 
     def generate_deleted_proxies(self):
-        """Make DeleteModel options for proxy models."""
+        """
+        Generate DeleteModel operations for proxy models that have been deleted.
+
+        Removes proxy models that are no longer present in the current state.
+        """
         deleted = self.old_proxy_keys - self.new_proxy_keys
         for app_label, model_name in sorted(deleted):
             model_state = self.from_state.models[app_label, model_name]
@@ -1003,7 +1006,11 @@ class MigrationAutodetector:
             )
 
     def create_renamed_fields(self):
-        """Work out renamed fields."""
+        """
+        Identify fields in a model that have been renamed between two states and determine the corresponding renamed operations.
+
+        The function compares fields from the old and new field sets to detect renames. It uses the field's attributes, such as its deconstructed definition, to determine if the fields are equivalent. If the fields are considered renamed, the function adds the corresponding rename operation to the list of renamed operations and updates the field mappings accordingly.
+        """
         self.renamed_operations = []
         old_field_keys = self.old_field_keys.copy()
         for app_label, model_name, field_name in sorted(
@@ -1065,7 +1072,9 @@ class MigrationAutodetector:
                             break
 
     def generate_renamed_fields(self):
-        """Generate RenameField operations."""
+        """
+        Generates RenameField operations to handle field renames across different models and applications.
+        """
         for (
             rem_app_label,
             rem_model_name,
@@ -1109,6 +1118,15 @@ class MigrationAutodetector:
             self._generate_added_field(app_label, model_name, field_name)
 
     def _generate_added_field(self, app_label, model_name, field_name):
+        """
+        :param app_label: The label of the Django application that the model belongs to.
+        :param model_name: The name of the Django model.
+        :param field_name: The name of the field being added.
+        :returns: None
+        :raises: No specific exceptions are raised by this function.
+
+        Generates and adds a field to the specified model, handling dependencies and default values as necessary. This function is used internally to support the addition of new fields during a migration.
+        """
         field = self.to_state.models[app_label, model_name].get_field(field_name)
         # Adding a field always depends at least on its removal.
         dependencies = [
@@ -1201,8 +1219,9 @@ class MigrationAutodetector:
 
     def generate_altered_fields(self):
         """
-        Make AlterField operations, or possibly RemovedField/AddField if alter
-        isn't possible.
+        Generates database operations to modify existing fields when the field's definition has changed.
+        This includes altering existing fields, or adding and removing fields if altering is not possible.
+        The operation preserves the field's default value whenever possible, unless the user is prompted to change it.
         """
         for app_label, model_name, field_name in sorted(
             self.old_field_keys & self.new_field_keys
@@ -1323,6 +1342,9 @@ class MigrationAutodetector:
                     self._generate_added_field(app_label, model_name, field_name)
 
     def create_altered_indexes(self):
+        """
+        Identifies and records changes to database indexes, including additions, removals, and renames, by comparing the index configurations of two model states.
+        """
         option_name = operations.AddIndex.option_name
         self.renamed_index_together_values = defaultdict(list)
 
@@ -1451,6 +1473,14 @@ class MigrationAutodetector:
                 )
 
     def create_altered_constraints(self):
+        """
+        Identifies constraints added or removed between old and new model states for each kept model.
+
+        Compares constraints of models in the from_state and to_state, and stores the differences in altered_constraints.
+
+        Returns:
+            None, but populates self.altered_constraints with a mapping of model keys to their respective added and removed constraints.
+        """
         option_name = operations.AddConstraint.option_name
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
@@ -1505,6 +1535,16 @@ class MigrationAutodetector:
 
     @staticmethod
     def _get_dependencies_for_foreign_key(app_label, model_name, field, project_state):
+        """
+
+        Determines the dependencies required for a foreign key in a Django model.
+
+        This function takes into account the remote field model, swappable settings, and through models
+        to construct a list of dependencies that need to be created before the foreign key can be established.
+
+        :returns: A list of OperationDependency objects representing the dependencies for the foreign key.
+
+        """
         remote_field_model = None
         if hasattr(field.remote_field, "model"):
             remote_field_model = field.remote_field.model
@@ -1550,6 +1590,11 @@ class MigrationAutodetector:
         return dependencies
 
     def _get_dependencies_for_generated_field(self, field):
+        """
+        (arg1) Retrieves dependencies for a generated field based on referenced base fields and newly added fields.
+        (arg2) Examines the relationships between models and fields to determine dependencies required for the field's generation.
+        :returns: A list of :class:`~OperationDependency` instances representing the dependencies for the given field.
+        """
         dependencies = []
         referenced_base_fields = models.Q(field.expression).referenced_base_fields
         newly_added_fields = sorted(self.new_field_keys - self.old_field_keys)
@@ -1571,7 +1616,9 @@ class MigrationAutodetector:
         return dependencies
 
     def _get_dependencies_for_model(self, app_label, model_name):
-        """Return foreign key dependencies of the given model."""
+        """
+        Return a list of foreign key dependencies for the specified model, allowing for the navigation of relationships between models.
+        """
         dependencies = []
         model_state = self.to_state.models[app_label, model_name]
         for field in model_state.fields.values():
@@ -1587,6 +1634,12 @@ class MigrationAutodetector:
         return dependencies
 
     def _get_altered_foo_together_operations(self, option_name):
+        """
+        Generates a sequence of altered foo_together operations for models 
+        in the to_state and from_state, comparing their foo_together options 
+        and yielding tuples containing the old value, new value, app label, 
+        model name, and any dependent models for each altered operation.
+        """
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
                 (app_label, model_name), model_name
@@ -1634,6 +1687,9 @@ class MigrationAutodetector:
                 )
 
     def _generate_removed_altered_foo_together(self, operation):
+        """
+        Generates removed or altered foo together operations based on the provided operation. It identifies changes between old and new values, determines the removal values, and adds the corresponding operation to the list of operations. This function is used to handle changes to foo together operations in the database schema.
+        """
         for (
             old_value,
             new_value,
@@ -1681,6 +1737,14 @@ class MigrationAutodetector:
         self._generate_altered_foo_together(operations.AlterUniqueTogether)
 
     def generate_altered_db_table(self):
+        """
+
+        Generates operations to alter database tables when model table names have changed.
+
+        This function checks for differences in the database table names between the current and previous states of models,
+        and adds AlterModelTable operations to the operations list when changes are detected.
+
+        """
         models_to_check = self.kept_model_keys.union(
             self.kept_proxy_keys, self.kept_unmanaged_keys
         )
@@ -1702,6 +1766,13 @@ class MigrationAutodetector:
                 )
 
     def generate_altered_db_table_comment(self):
+        """
+        Generate altered database table comments for modified models.
+
+        This function identifies models with changed table comments and creates
+        operations to update the comments accordingly, ensuring the database
+        schema remains up-to-date with the application's model changes.
+        """
         models_to_check = self.kept_model_keys.union(
             self.kept_proxy_keys, self.kept_unmanaged_keys
         )
@@ -1725,9 +1796,7 @@ class MigrationAutodetector:
 
     def generate_altered_options(self):
         """
-        Work out if any non-schema-affecting options have changed and make an
-        operation to represent them in state changes (in case Python code in
-        migrations needs them).
+        Generates operations to represent non-schema-affecting options that have changed between the old and new model states.
         """
         models_to_check = self.kept_model_keys.union(
             self.kept_proxy_keys,
@@ -1764,6 +1833,9 @@ class MigrationAutodetector:
                 )
 
     def generate_altered_order_with_respect_to(self):
+        """
+        Generates alter order with respect to operations for models whose ordering dependencies have changed between the old and new states.
+        """
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
                 (app_label, model_name), model_name
@@ -1798,6 +1870,9 @@ class MigrationAutodetector:
                 )
 
     def generate_altered_managers(self):
+        """
+        Generates operations to alter Django model managers for models where the manager definitions have changed between two states.
+        """
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
                 (app_label, model_name), model_name
@@ -1815,9 +1890,7 @@ class MigrationAutodetector:
 
     def arrange_for_graph(self, changes, graph, migration_name=None):
         """
-        Take a result from changes() and a MigrationGraph, and fix the names
-        and dependencies of the changes so they extend the graph from the leaf
-        nodes for each app.
+        Adjusts changes to extend the migration graph from leaf nodes for each application, renaming migrations and updating dependencies as necessary. The function takes changes and a migration graph as input and modifies the changes to create a valid migration sequence, optionally using a provided migration name as a prefix.
         """
         leaves = graph.leaf_nodes()
         name_map = {}
@@ -1867,10 +1940,9 @@ class MigrationAutodetector:
 
     def _trim_to_apps(self, changes, app_labels):
         """
-        Take changes from arrange_for_graph() and set of app labels, and return
-        a modified set of changes which trims out as many migrations that are
-        not in app_labels as possible. Note that some other migrations may
-        still be present as they may be required dependencies.
+        Trims changes to only include migrations for specified applications and their dependencies. 
+        Reduces the set of migrations to the minimum required, while preserving dependencies. 
+        The function takes a dictionary of changes and a set of app labels, and returns a modified dictionary with non-essential migrations removed.
         """
         # Gather other app dependencies in a first pass
         app_dependencies = {}
@@ -1895,9 +1967,7 @@ class MigrationAutodetector:
     @classmethod
     def parse_number(cls, name):
         """
-        Given a migration name, try to extract a number from the beginning of
-        it. For a squashed migration such as '0001_squashed_0004…', return the
-        second number. If no number is found, return None.
+        Extracts a version number from a migration name, prioritizing the second number in squashed migrations, or returns the first number if not squashed, and returns None if no number is found.
         """
         if squashed_match := re.search(r".*_squashed_(\d+)", name):
             return int(squashed_match[1])

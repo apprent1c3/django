@@ -46,6 +46,9 @@ class BaseGeneratedFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_contribute_to_class(self):
+        """
+        Tests that a generated field can be successfully contributed to a model class.
+        """
         class BareModel(Model):
             pass
 
@@ -93,6 +96,9 @@ class BaseGeneratedFieldTests(SimpleTestCase):
             )
 
     def test_db_persist_required(self):
+        """
+        Tests that the db_persist parameter of a GeneratedField is either True or False, raising a ValueError for invalid values.
+        """
         msg = "GeneratedField.db_persist must be True or False."
         with self.assertRaisesMessage(ValueError, msg):
             GeneratedField(
@@ -106,6 +112,9 @@ class BaseGeneratedFieldTests(SimpleTestCase):
             )
 
     def test_deconstruct(self):
+        """
+        Tests that the deconstruct method of a GeneratedField instance correctly returns its path, arguments, and keyword arguments, ensuring proper serialization and reconstruction of the field.
+        """
         field = GeneratedField(
             expression=F("a") + F("b"), output_field=IntegerField(), db_persist=True
         )
@@ -120,6 +129,9 @@ class BaseGeneratedFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_get_col(self):
+        """
+        Tests the get_col method of Model fields, specifically for generated fields with different output field types, to ensure correct column generation and output field type handling.
+        """
         class Square(Model):
             side = IntegerField()
             area = GeneratedField(
@@ -154,6 +166,12 @@ class BaseGeneratedFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_cached_col(self):
+        """
+        Tests the functionality of a generated field's cached column.
+
+        Verifies that the cached column is correctly retrieved and handles different 
+        scenarios, including table aliases and field types.
+        """
         class Sum(Model):
             a = IntegerField()
             b = IntegerField()
@@ -184,6 +202,9 @@ class GeneratedFieldTestMixin:
             m.field
 
     def test_full_clean(self):
+        """
+        Tests the full_clean method of the base model, verifying that it correctly calculates the field value based on inputs a and b, and saves the result successfully.
+        """
         m = self.base_model(a=1, b=2)
         # full_clean() ignores GeneratedFields.
         m.full_clean()
@@ -193,6 +214,12 @@ class GeneratedFieldTestMixin:
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_full_clean_with_check_constraint(self):
+        """
+        Tests the full_clean method on a model instance with a check constraint.
+
+        Verifies that a model instance with valid data can be cleaned and saved successfully,
+        and that an instance with invalid data raises a ValidationError with the expected message.
+        """
         model_name = self.check_constraint_model._meta.verbose_name.capitalize()
 
         m = self.check_constraint_model(a=2)
@@ -211,6 +238,10 @@ class GeneratedFieldTestMixin:
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_full_clean_with_unique_constraint_expression(self):
+        """
+        Tests that a model instance's full clean method correctly handles unique constraint 
+        expressions and raises a ValidationError when the constraint is violated.
+        """
         model_name = self.unique_constraint_model._meta.verbose_name.capitalize()
 
         m = self.unique_constraint_model(a=2)
@@ -238,6 +269,9 @@ class GeneratedFieldTestMixin:
 
     def test_save(self):
         # Insert.
+        """
+        Verifies the correct saving of model instances by testing the persistence of attribute changes and recalculated fields.
+        """
         m = self.base_model(a=2, b=4)
         m.save()
         m = self._refresh_if_needed(m)
@@ -255,6 +289,9 @@ class GeneratedFieldTestMixin:
         self.assertEqual(m.field, 3)
 
     def test_save_model_with_foreign_key(self):
+        """
+        Checks that a model instance can be saved successfully when it contains a foreign key field, and verifies that the saved instance has the expected field value after refresh.
+        """
         fk_object = Foo.objects.create(a="abc", d=Decimal("12.34"))
         m = self.base_model(a=1, b=2, fk=fk_object)
         m.save()
@@ -274,6 +311,14 @@ class GeneratedFieldTestMixin:
         self.assertEqual(m.field, 4)
 
     def test_bulk_create(self):
+        """
+
+        Tests the bulk creation of model instances to verify the correct computation of a field.
+
+        The test case creates a model instance, saves it using bulk creation, and then
+        asserts that the field value is correctly calculated.
+
+        """
         m = self.base_model(a=3, b=4)
         (m,) = self.base_model.objects.bulk_create([m])
         if not connection.features.can_return_rows_from_bulk_insert:
@@ -281,6 +326,9 @@ class GeneratedFieldTestMixin:
         self.assertEqual(m.field, 7)
 
     def test_bulk_update(self):
+        """
+        Tests the bulk update functionality of the model, verifying that it correctly updates the specified fields and triggers any necessary post-update calculations.
+        """
         m = self.base_model.objects.create(a=1, b=2)
         m.a = 3
         self.base_model.objects.bulk_update([m], fields=["a"])
@@ -288,7 +336,10 @@ class GeneratedFieldTestMixin:
         self.assertEqual(m.field, 5)
 
     def test_output_field_lookups(self):
-        """Lookups from the output_field are available on GeneratedFields."""
+        """
+        Tests that lookups from the output_field are correctly handled by GeneratedFields, 
+        including underflow and overflow conditions that raise a model DoesNotExist error.
+        """
         internal_type = IntegerField().get_internal_type()
         min_value, max_value = connection.ops.integer_field_range(internal_type)
         if min_value is None:
@@ -314,6 +365,9 @@ class GeneratedFieldTestMixin:
             self.base_model.objects.get(field__gte=overflow_value)
 
     def test_output_field_db_collation(self):
+        """
+        Tests that the database collation for an output field is correctly set to the test collation when the field is used in a Django model. Verifies that the collation and type of the output field match the expected values when retrieved from the database parameters.
+        """
         collation = connection.features.test_collations["virtual"]
         m = self.output_field_db_collation_model.objects.create(name="NAME")
         field = m._meta.get_field("lower_name")
@@ -333,6 +387,9 @@ class GeneratedFieldTestMixin:
         self.assertEqual(m.field, "Constant")
 
     def test_nullable(self):
+        """
+        Tests the behavior of a nullable field, ensuring it correctly handles null and non-null values, and checks the conversion of the input string to lowercase.
+        """
         m1 = self.nullable_model.objects.create()
         m1 = self._refresh_if_needed(m1)
         none_val = "" if connection.features.interprets_empty_strings_as_nulls else None

@@ -7,6 +7,9 @@ from .models import Organiser, Pool, PoolStyle, Tournament
 class ExistingRelatedInstancesTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class, creating tournaments, organisers, pools and pool styles for use in tests.
+        """
         cls.t1 = Tournament.objects.create(name="Tourney 1")
         cls.t2 = Tournament.objects.create(name="Tourney 2")
         cls.o1 = Organiser.objects.create(name="Organiser 1")
@@ -43,6 +46,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(tournament, pool.tournament)
 
     def test_foreign_key_multiple_prefetch(self):
+        """
+        Tests that prefetching related objects on a foreign key relationship works correctly for multiple related objects, ensuring that the relationship between the parent and child objects is preserved.
+        """
         with self.assertNumQueries(2):
             tournaments = list(
                 Tournament.objects.prefetch_related("pool_set").order_by("pk")
@@ -53,6 +59,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(tournaments[1], pool2.tournament)
 
     def test_queryset_or(self):
+        """
+        Tests that the queryset union operation for pool sets of multiple tournaments returns the correct related tournaments.
+        """
         tournament_1 = self.t1
         tournament_2 = self.t2
         with self.assertNumQueries(1):
@@ -61,6 +70,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertEqual(related_objects, {tournament_1, tournament_2})
 
     def test_queryset_or_different_cached_items(self):
+        """
+        Tests the union of querysets from different models, ensuring proper caching and query optimization, and verifies that the resulting objects retain their original attributes.
+        """
         tournament = self.t1
         organiser = self.o1
         with self.assertNumQueries(1):
@@ -70,6 +82,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(first.organiser, organiser)
 
     def test_queryset_or_only_one_with_precache(self):
+        """
+        Tests the union of a queryset and a single object from another queryset, ensuring that related objects are correctly precached and the expected number of database queries are executed.
+        """
         tournament_1 = self.t1
         tournament_2 = self.t2
         # 2 queries here as pool 3 has tournament 2, which is not cached
@@ -84,6 +99,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertEqual(related_objects, {tournament_1, tournament_2})
 
     def test_queryset_and(self):
+        """
+        Tests that the intersection of a tournament's pools and an organiser's pools results in a QuerySet that can be filtered and returns objects with correct tournament and organiser references.
+        """
         tournament = self.t1
         organiser = self.o1
         with self.assertNumQueries(1):

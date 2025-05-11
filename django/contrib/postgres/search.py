@@ -16,6 +16,9 @@ class SearchVectorExact(Lookup):
     lookup_name = "exact"
 
     def process_rhs(self, qn, connection):
+        """
+        Ensures the right-hand side (RHS) of a query is a SearchQuery instance, configuring it if necessary, and then processes it along with its parameters using the parent class's implementation.
+        """
         if not isinstance(self.rhs, (SearchQuery, CombinedSearchQuery)):
             config = getattr(self.lhs, "config", None)
             self.rhs = SearchQuery(self.rhs, config=config)
@@ -72,6 +75,19 @@ class SearchVectorCombinable:
     ADD = "||"
 
     def _combine(self, other, connector, reversed):
+        """
+        Combines the current search vector with another search vector using the specified connector.
+
+        The other search vector must be an instance of SearchVectorCombinable. If not, a TypeError is raised.
+
+        The resulting combined search vector can be created with either the current search vector as the primary or the other search vector as the primary, depending on the reversed parameter.
+
+        :param other: The other search vector to combine with.
+        :param connector: The connector to use for combining the search vectors.
+        :param reversed: Whether to reverse the order of the search vectors in the combination.
+        :return: A CombinedSearchVector instance representing the combined search vectors.
+        :raises TypeError: If the other search vector is not an instance of SearchVectorCombinable.
+        """
         if not isinstance(other, SearchVectorCombinable):
             raise TypeError(
                 "SearchVector can only be combined with other SearchVector "
@@ -93,6 +109,11 @@ class SearchVector(SearchVectorCombinable, Func):
     output_field = SearchVectorField()
 
     def __init__(self, *expressions, config=None, weight=None):
+        """
+        Initializes a search object with the given expressions, configuration, and weight.
+
+         The configuration is parsed from the provided parameter, and the weight is resolved to an expression if necessary.
+        """
         super().__init__(*expressions)
         self.config = SearchConfig.from_parameter(config)
         if weight is not None and not hasattr(weight, "resolve_expression"):
@@ -112,6 +133,15 @@ class SearchVector(SearchVectorCombinable, Func):
         return resolved
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+
+        Generates the SQL representation of a search vector.
+
+        This method compiles the search vector into an SQL query, handling configuration,
+        expressions, and weights. It returns a tuple containing the generated SQL string
+        and the parameters to be used with the query.
+
+        """
         clone = self.copy()
         clone.set_source_expressions(
             [
@@ -160,6 +190,15 @@ class SearchQueryCombinable:
     BITOR = "||"
 
     def _combine(self, other, connector, reversed):
+        """
+        Combines the current search query with another query using a specified connector.
+
+        :param other: The other query to combine with.
+        :param connector: The connector to use for combining the queries.
+        :param reversed: Whether to reverse the order of the queries in the combination.
+        :raises TypeError: If the other query is not a SearchQueryCombinable instance.
+        :return: A new CombinedSearchQuery instance representing the combined query.
+        """
         if not isinstance(other, SearchQueryCombinable):
             raise TypeError(
                 "SearchQuery can only be combined with other SearchQuery "
@@ -203,6 +242,9 @@ class SearchQuery(SearchQueryCombinable, Func):
         invert=False,
         search_type="plain",
     ):
+        """
+        Initializes an object for performing searches based on a given value and optional configuration, allowing for customization of the search type and output field. The object can be configured to invert the search results and supports various search types, including 'plain'.
+        """
         self.function = self.SEARCH_TYPES.get(search_type)
         if self.function is None:
             raise ValueError("Unknown search_type argument '%s'." % search_type)
@@ -252,6 +294,20 @@ class SearchRank(Func):
         normalization=None,
         cover_density=False,
     ):
+        """
+        Initializes a full-text search ranking function.
+
+        This function is used to calculate the relevance of documents based on a search query and a document's search vector.
+        It supports optional weights and normalization parameters to fine-tune the ranking.
+        Additionally, it can be configured to use the cover density ranking algorithm.
+
+        :param vector: The document's search vector.
+        :param query: The search query.
+        :param weights: Optional weights to apply to the search vector.
+        :param normalization: Optional normalization parameter.
+        :param cover_density: Whether to use the cover density ranking algorithm.
+
+        """
         from .fields.array import ArrayField
 
         if not hasattr(vector, "resolve_expression"):
@@ -293,6 +349,16 @@ class SearchHeadline(Func):
         max_fragments=None,
         fragment_delimiter=None,
     ):
+        """
+        Initialize a search object with a given expression and query.
+
+        This constructor takes a search expression and query, and optionally various configuration parameters
+        to control the search process, such as start and stop selectors, word limits, and highlighting options.
+
+        The query can be either a string or an object with a resolve_expression method, which is wrapped in a
+        SearchQuery object if necessary. The resulting search object is then configured with the provided
+        options and initialized with the given expressions and configuration, if any.
+        """
         if not hasattr(query, "resolve_expression"):
             query = SearchQuery(query)
         options = {
@@ -315,6 +381,16 @@ class SearchHeadline(Func):
         super().__init__(*expressions)
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+        :param compiler: The SQL compiler to use
+        :param connection: The database connection
+        :param function: Optional function to apply
+        :param template: Optional SQL template
+        :return: A tuple containing the SQL string and parameters
+        :rtype: tuple
+
+        Generates SQL for the current object, incorporating options if provided, and applies a given function or template if specified.
+        """
         options_sql = ""
         options_params = []
         if self.options:

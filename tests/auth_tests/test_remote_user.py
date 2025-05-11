@@ -31,7 +31,9 @@ class RemoteUserTest(TestCase):
         super().setUpClass()
 
     def test_no_remote_user(self):
-        """Users are not created when remote user is not specified."""
+        """
+        Tests that no user is created when the remote user is not specified, ensuring that the user count remains unchanged and the user is anonymous.
+        """
         num_users = User.objects.count()
 
         response = self.client.get("/remote_user/")
@@ -48,9 +50,8 @@ class RemoteUserTest(TestCase):
 
     def test_csrf_validation_passes_after_process_request_login(self):
         """
-        CSRF check must access the CSRF token from the session or cookie,
-        rather than the request, as rotate_token() may have been called by an
-        authentication middleware during the process_request() phase.
+        Tests that CSRF validation passes after a login processed by the request, 
+        ensuring that the token is accessed correctly from the session or cookie.
         """
         csrf_client = Client(enforce_csrf_checks=True)
         csrf_secret = _get_new_csrf_string()
@@ -77,8 +78,7 @@ class RemoteUserTest(TestCase):
 
     def test_unknown_user(self):
         """
-        Tests the case where the username passed in the header does not exist
-        as a User.
+        Tests the handling of an unknown user by sending a request with a non-existent username and verifying that a new user is created.
         """
         num_users = User.objects.count()
         response = self.client.get("/remote_user/", **{self.header: "newuser"})
@@ -92,7 +92,7 @@ class RemoteUserTest(TestCase):
 
     def test_known_user(self):
         """
-        Tests the case where the username passed in the header is a valid User.
+        Verifies that the remote user view correctly handles requests with a valid username in the header, without creating or deleting any users.
         """
         User.objects.create(username="knownuser")
         User.objects.create(username="knownuser2")
@@ -108,8 +108,7 @@ class RemoteUserTest(TestCase):
 
     def test_last_login(self):
         """
-        A user's last_login is set the first time they make a
-        request but not updated in subsequent requests with the same session.
+        Tests the behavior of updating a user's last login timestamp, verifying it is set on the first request but not updated on subsequent requests with the same session.
         """
         user = User.objects.create(username="knownuser")
         # Set last_login to something so we can determine if it changes.
@@ -130,8 +129,7 @@ class RemoteUserTest(TestCase):
 
     def test_header_disappears(self):
         """
-        A logged in user is logged out automatically when
-        the REMOTE_USER header disappears during the same browser session.
+        Tests that a user's session is terminated when the REMOTE_USER header is removed, verifying automatic logout functionality.
         """
         User.objects.create(username="knownuser")
         # Known user authenticates
@@ -150,8 +148,7 @@ class RemoteUserTest(TestCase):
 
     def test_user_switch_forces_new_login(self):
         """
-        If the username in the header changes between requests
-        that the original user is logged out
+        Verifies that switching to a different user via the request header forces a new login, effectively logging out the original user.
         """
         User.objects.create(username="knownuser")
         # Known user authenticates
@@ -215,8 +212,7 @@ class CustomRemoteUserBackend(RemoteUserBackend):
 
     def configure_user(self, request, user, created=True):
         """
-        Sets user's email address using the email specified in an HTTP header.
-        Sets user's last name for existing users.
+        Configures a user object by setting their email address based on an HTTP header and updating their last name for existing users.
         """
         user.email = request.META.get(RemoteUserTest.email_header, "")
         if not created:
@@ -239,8 +235,7 @@ class RemoteUserCustomTest(RemoteUserTest):
 
     def test_known_user(self):
         """
-        The strings passed in REMOTE_USER should be cleaned and the known users
-        should not have been configured with an email address.
+        Checks that known users have no email address configured and verifies their last name.
         """
         super().test_known_user()
         knownuser = User.objects.get(username="knownuser")
@@ -252,8 +247,7 @@ class RemoteUserCustomTest(RemoteUserTest):
 
     def test_unknown_user(self):
         """
-        The unknown user created should be configured with an email address
-        provided in the request header.
+        Tests the creation of a new user when an unknown username is provided in the request header, with email address configuration from the request headers.
         """
         num_users = User.objects.count()
         response = self.client.get(
@@ -300,8 +294,7 @@ class PersistentRemoteUserTest(RemoteUserTest):
 
     def test_header_disappears(self):
         """
-        A logged in user is kept logged in even if the REMOTE_USER header
-        disappears during the same browser session.
+        Tests that a logged-in user's session remains active even if the REMOTE_USER header is removed during the same browser session.
         """
         User.objects.create(username="knownuser")
         # Known user authenticates

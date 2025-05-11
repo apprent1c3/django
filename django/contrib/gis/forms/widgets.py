@@ -24,6 +24,9 @@ class BaseGeometryWidget(Widget):
     template_name = ""  # set on subclasses
 
     def __init__(self, attrs=None):
+        """
+        Initializes the object's attributes, setting default values for geom_type, map_srid, and display_raw, and optionally updates them with provided attributes.
+        """
         self.attrs = {}
         for key in ("geom_type", "map_srid", "display_raw"):
             self.attrs[key] = getattr(self, key)
@@ -34,6 +37,11 @@ class BaseGeometryWidget(Widget):
         return value.wkt if value else ""
 
     def deserialize(self, value):
+        """
+        Deserialize a given value into a GEOSGeometry object.
+
+        Attempts to create a geometry from the provided value, handling potential errors and logging any exceptions that occur. Returns the deserialized geometry if successful, or None if the value cannot be deserialized.
+        """
         try:
             return GEOSGeometry(value)
         except (GEOSException, ValueError, TypeError) as err:
@@ -41,6 +49,12 @@ class BaseGeometryWidget(Widget):
         return None
 
     def get_context(self, name, value, attrs):
+        """
+        .. method:: get_context(name, value, attrs)
+
+            Builds widget context for a geometry field, transforming and serializing the geometry value as needed, 
+            and updating the context with relevant attributes for rendering the widget.
+        """
         context = super().get_context(name, value, attrs)
         # If a string reaches here (via a validation error on another
         # field) then just reconstruct the Geometry.
@@ -118,6 +132,9 @@ class OSMWidget(OpenLayersWidget):
     default_zoom = 12
 
     def __init__(self, attrs=None):
+        """
+        Initializes a new instance, setting default geographic attributes and optionally overriding them with custom values.
+        """
         super().__init__()
         for key in ("default_lon", "default_lat", "default_zoom"):
             self.attrs[key] = getattr(self, key)

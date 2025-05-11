@@ -51,6 +51,13 @@ if os.name == "nt":
         unlink = os.unlink
 
         def close(self):
+            """
+            Closes the underlying file and removes the associated file if necessary.
+
+            This method ensures that the file is properly closed and any system resources are released, and also attempts to remove the file if possible.
+
+            Raises no exceptions, as any potential errors during file closure or removal are silently ignored.
+            """
             if not self.close_called:
                 self.close_called = True
                 try:

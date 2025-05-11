@@ -20,7 +20,8 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_single_receiver(self):
         """
-        The mail is sent with the correct subject and recipient.
+        Tests that an email is sent to a single recipient with the correct subject.\"\"\"
+        ```
         """
         recipient = "joe@example.com"
         call_command("sendtestemail", recipient)
@@ -31,7 +32,7 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_multiple_receivers(self):
         """
-        The mail may be sent with multiple recipients.
+        Tests if an email can be successfully sent to multiple recipients. Verifies that only one email is sent and that both recipients receive the email with the correct subject.
         """
         recipients = ["joe@example.com", "jane@example.com"]
         call_command("sendtestemail", recipients[0], recipients[1])
@@ -60,8 +61,9 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_manager_receivers(self):
         """
-        The mail should be sent to the email addresses specified in
-        settings.MANAGERS.
+
+        Verifies email sending to managers, ensuring that test emails are delivered to the email addresses specified in settings.MANAGERS.
+
         """
         call_command("sendtestemail", "--managers")
         self.assertEqual(len(mail.outbox), 1)
@@ -76,8 +78,7 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_admin_receivers(self):
         """
-        The mail should be sent to the email addresses specified in
-        settings.ADMIN.
+        Tests that the admin receivers correctly receive an email when the sendtestemail command is run with the --admins option.
         """
         call_command("sendtestemail", "--admins")
         self.assertEqual(len(mail.outbox), 1)
@@ -92,8 +93,12 @@ class SendTestEmailManagementCommand(SimpleTestCase):
 
     def test_manager_and_admin_receivers(self):
         """
-        The mail should be sent to the email addresses specified in both
-        settings.MANAGERS and settings.ADMINS.
+
+        Tests that the sendtestemail command sends mail to both managers and admins.
+
+        Verifies that email addresses specified in settings.MANAGERS and settings.ADMINS
+        receive the test email, with email content and recipients validated accordingly.
+
         """
         call_command("sendtestemail", "--managers", "--admins")
         self.assertEqual(len(mail.outbox), 2)

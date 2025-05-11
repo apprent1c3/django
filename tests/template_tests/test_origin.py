@@ -11,6 +11,9 @@ class OriginTestCase(TestCase):
         self.engine = Engine(dirs=[TEMPLATE_DIR])
 
     def test_origin_compares_equal(self):
+        """
+        Verifies that two templates with the same origin compare as equal.
+        """
         a = self.engine.get_template("index.html")
         b = self.engine.get_template("index.html")
         self.assertEqual(a.origin, b.origin)
@@ -19,6 +22,9 @@ class OriginTestCase(TestCase):
         self.assertIs(a.origin != b.origin, False)
 
     def test_origin_compares_not_equal(self):
+        """
+        Tests that template origins from different paths are not equal. Verifies the equality and inequality comparison operators return the expected boolean values.
+        """
         a = self.engine.get_template("first/test.html")
         b = self.engine.get_template("second/test.html")
         self.assertNotEqual(a.origin, b.origin)

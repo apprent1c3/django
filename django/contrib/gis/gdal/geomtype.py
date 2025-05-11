@@ -79,7 +79,9 @@ class OGRGeomType:
     _str_types = {v.lower(): k for k, v in _types.items()}
 
     def __init__(self, type_input):
-        "Figure out the correct OGR Type based upon the input."
+        """
+        Initializes the object by determining the correct OGR Type based on the provided input, which can be an OGRGeomType object, a string representation of the type, or an integer representing the type number.
+        """
         if isinstance(type_input, OGRGeomType):
             num = type_input.num
         elif isinstance(type_input, str):
@@ -108,8 +110,7 @@ class OGRGeomType:
 
     def __eq__(self, other):
         """
-        Do an equivalence test on the OGR type with the given
-        other OGRGeomType, the short-hand string, or the integer.
+        Checks if the current OGRGeomType is equivalent to another OGRGeomType, a short-hand string, or an integer representation of the type. Supports comparisons with OGRGeomType instances, type names, and type numbers.
         """
         if isinstance(other, OGRGeomType):
             return self.num == other.num
@@ -127,7 +128,10 @@ class OGRGeomType:
 
     @property
     def django(self):
-        "Return the Django GeometryField for this OGR Type."
+        """
+        Return the Django GeometryField equivalent to the current OGR type, 
+        converting OGR type names to their corresponding Django field names.
+        """
         s = self.name.replace("25D", "")
         if s in ("LinearRing", "None"):
             return None

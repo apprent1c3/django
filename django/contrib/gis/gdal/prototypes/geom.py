@@ -17,7 +17,9 @@ from django.contrib.gis.gdal.prototypes.generation import (
 
 # ### Generation routines specific to this module ###
 def env_func(f, argtypes):
-    "For getting OGREnvelopes."
+    """
+    Configure a function for OGREnvelope retrieval, setting its argument types, return type, and error checking behavior.
+    """
     f.argtypes = argtypes
     f.restype = None
     f.errcheck = check_envelope

@@ -5,6 +5,13 @@ from django.core.checks import Error
 
 
 def check_generic_foreign_keys(app_configs=None, **kwargs):
+    """
+    Checks the integrity of generic foreign key fields across all models in the application.
+
+    It inspects each generic foreign key field to ensure it is correctly configured and reports any errors that are found.
+
+    If application configurations are provided, only models from those applications are checked; otherwise, all models in the application are verified.
+    """
     from .fields import GenericForeignKey
 
     if app_configs is None:
@@ -26,6 +33,13 @@ def check_generic_foreign_keys(app_configs=None, **kwargs):
 
 
 def check_model_name_lengths(app_configs=None, **kwargs):
+    """
+    Checks if the names of all models in an application exceed the maximum allowed length.
+
+    Takes an optional list of application configurations to check, or all models if none are provided.
+
+    Returns a list of errors for any models with names longer than 100 characters.
+    """
     if app_configs is None:
         models = apps.get_models()
     else:

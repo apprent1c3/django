@@ -38,6 +38,11 @@ re_escaped = _lazy_re_compile(r"\\(.)")
 
 class Formatter:
     def format(self, formatstr):
+        """
+        Formats the object's data according to the provided format string, replacing format specifiers with their corresponding values. 
+        The format string may contain specifiers as attributes of the object, which are replaced with their string representation. 
+        Date objects are subject to additional restrictions, prohibiting the use of time-related format specifiers.
+        """
         pieces = []
         for i, piece in enumerate(re_formatchars.split(str(formatstr))):
             if i % 2:
@@ -54,6 +59,12 @@ class Formatter:
 
 class TimeFormat(Formatter):
     def __init__(self, obj):
+        """
+        Initializes a timezone-aware object from a given date/time object.
+
+        Stores the input object and determines its associated timezone, defaulting to the local timezone if not specified.
+
+        """
         self.data = obj
         self.timezone = None
 
@@ -82,9 +93,7 @@ class TimeFormat(Formatter):
 
     def e(self):
         """
-        Timezone name.
-
-        If timezone information is not available, return an empty string.
+        Returns the timezone name associated with the data, or an empty string if timezone information is unavailable.
         """
         if not self.timezone:
             return ""
@@ -129,9 +138,7 @@ class TimeFormat(Formatter):
 
     def O(self):  # NOQA: E743, E741
         """
-        Difference to Greenwich time in hours; e.g. '+0200', '-0430'.
-
-        If timezone information is not available, return an empty string.
+        Returns the timezone offset from Greenwich time in hours as a string, formatted as '+HHMM' or '-HHMM', or an empty string if timezone information is not available.
         """
         if self.timezone is None:
             return ""
@@ -144,10 +151,7 @@ class TimeFormat(Formatter):
 
     def P(self):
         """
-        Time, in 12-hour hours, minutes and 'a.m.'/'p.m.', with minutes left off
-        if they're zero and the strings 'midnight' and 'noon' if appropriate.
-        Examples: '1 a.m.', '1:30 p.m.', 'midnight', 'noon', '12:30 p.m.'
-        Proprietary extension.
+        Returns a human-readable 12-hour time string, omitting minutes if they are zero, and using 'midnight' and 'noon' for the respective times.
         """
         if self.data.minute == 0 and self.data.hour == 0:
             return _("midnight")
@@ -176,11 +180,7 @@ class TimeFormat(Formatter):
 
     def Z(self):
         """
-        Time zone offset in seconds (i.e. '-43200' to '43200'). The offset for
-        timezones west of UTC is always negative, and for those east of UTC is
-        always positive.
-
-        If timezone information is not available, return an empty string.
+        Time zone offset in seconds, with negative values for timezones west of UTC and positive values for those east of UTC. Returns an empty string if timezone information is not available.
         """
         if self.timezone is None:
             return ""
@@ -261,7 +261,9 @@ class DateFormat(TimeFormat):
         return self.data.isocalendar().year
 
     def r(self):
-        "RFC 5322 formatted date; e.g. 'Thu, 21 Dec 2000 16:01:07 +0200'"
+        """
+        Returns the date in RFC 5322 format, converting the internal date value to a timezone-aware datetime object if necessary.
+        """
         value = self.data
         if not isinstance(value, datetime):
             # Assume midnight in default timezone if datetime.date provided.
@@ -273,8 +275,7 @@ class DateFormat(TimeFormat):
 
     def S(self):
         """
-        English ordinal suffix for the day of the month, 2 characters; i.e.
-        'st', 'nd', 'rd' or 'th'.
+        Returns the English ordinal suffix for the day of the month, such as 'st', 'nd', 'rd', or 'th'.
         """
         if self.data.day in (11, 12, 13):  # Special case
             return "th"
@@ -292,7 +293,9 @@ class DateFormat(TimeFormat):
         return calendar.monthrange(self.data.year, self.data.month)[1]
 
     def U(self):
-        "Seconds since the Unix epoch (January 1 1970 00:00:00 GMT)"
+        """
+        Returns the number of seconds since the Unix epoch, January 1 1970 00:00:00 GMT, based on the instance's data.
+        """
         value = self.data
         if not isinstance(value, datetime):
             value = datetime.combine(value, time.min)

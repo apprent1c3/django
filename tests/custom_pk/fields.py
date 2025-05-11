@@ -26,6 +26,9 @@ class MyWrapperField(models.CharField):
         super().__init__(*args, **kwargs)
 
     def pre_save(self, instance, add):
+        """
+        Automatically generates and assigns a unique value to the attribute specified by `self.attname` if it is empty, ensuring it is populated before saving the instance.
+        """
         value = getattr(instance, self.attname, None)
         if not value:
             value = MyWrapper("".join(random.sample(string.ascii_lowercase, 10)))
@@ -33,6 +36,9 @@ class MyWrapperField(models.CharField):
         return value
 
     def to_python(self, value):
+        """
+        Ensures the provided value is wrapped in a :class:`MyWrapper` instance, returning the wrapped value or None if the input value is empty.
+        """
         if not value:
             return
         if not isinstance(value, MyWrapper):
@@ -45,6 +51,9 @@ class MyWrapperField(models.CharField):
         return MyWrapper(value)
 
     def get_db_prep_save(self, value, connection):
+        """
+        Prepares a database value for saving by converting it to a string if it's an instance of MyWrapper, or returning the original value otherwise. Returns None if the value is empty.
+        """
         if not value:
             return
         if isinstance(value, MyWrapper):
@@ -52,6 +61,9 @@ class MyWrapperField(models.CharField):
         return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        Returns a database-prepared value, converting wrapped values to strings if necessary.
+        """
         if not value:
             return
         if isinstance(value, MyWrapper):

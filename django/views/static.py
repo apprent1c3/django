@@ -27,19 +27,7 @@ def builtin_template_path(name):
 
 def serve(request, path, document_root=None, show_indexes=False):
     """
-    Serve static files below a given point in the directory structure.
-
-    To use, put a URL pattern such as::
-
-        from django.views.static import serve
-
-        path('<path:path>', serve, {'document_root': '/path/to/my/files/'})
-
-    in your URLconf. You must provide the ``document_root`` param. You may
-    also set ``show_indexes`` to ``True`` if you'd like to serve a basic index
-    of the directory.  This index view will use the template hardcoded below,
-    but if you'd like to override it, you can create a template called
-    ``static/directory_index.html``.
+    Serves static files from a specified directory, optionally displaying an index of the directory contents if enabled.
     """
     path = posixpath.normpath(path).lstrip("/")
     fullpath = Path(safe_join(document_root, path))
@@ -69,6 +57,14 @@ template_translatable = gettext_lazy("Index of %(directory)s")
 
 
 def directory_index(path, fullpath):
+    """
+    Generates an HTTP response displaying a directory index at the specified path.
+
+    The response includes a list of files and directories within the specified path, 
+    excluding any entries that start with a dot (.). The resulting HTML page is 
+    rendered using a template, with the file list and directory path provided as 
+    context variables.
+    """
     try:
         t = loader.select_template(
             [
@@ -104,12 +100,9 @@ def was_modified_since(header=None, mtime=0):
     """
     Was something modified since the user last downloaded it?
 
-    header
-      This is the value of the If-Modified-Since header.  If this is None,
-      I'll just return True.
-
-    mtime
-      This is the modification time of the item we're talking about.
+        :param header: The value of the If-Modified-Since HTTP header, or None to assume modification
+        :param mtime: The modification time of the item in question
+        :return: True if the item was modified since the specified time, False otherwise
     """
     try:
         if header is None:

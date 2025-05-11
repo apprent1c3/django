@@ -24,7 +24,9 @@ class EmailBackend(BaseEmailBackend):
             mail.outbox = []
 
     def send_messages(self, messages):
-        """Redirect messages to the dummy outbox"""
+        """
+        Sends a list of messages to a dummy outbox, allowing for testing and verification of message content without actual delivery, and returns the number of messages sent.
+        """
         msg_count = 0
         for message in messages:  # .message() triggers header validation
             message.message()

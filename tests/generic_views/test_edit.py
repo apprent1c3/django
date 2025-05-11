@@ -15,14 +15,18 @@ class FormMixinTests(SimpleTestCase):
     request_factory = RequestFactory()
 
     def test_initial_data(self):
-        """Test instance independence of initial data dict (see #16138)"""
+        """
+        Verifies that the initial data dictionary is instance-independent, ensuring each instance of FormMixin generates a unique initial data set.
+        """
         initial_1 = FormMixin().get_initial()
         initial_1["foo"] = "bar"
         initial_2 = FormMixin().get_initial()
         self.assertNotEqual(initial_1, initial_2)
 
     def test_get_prefix(self):
-        """Test prefix can be set (see #18872)"""
+        """
+        Tests the functionality of setting and retrieving the prefix in a FormMixin instance.
+        """
         test_string = "test"
 
         get_request = self.request_factory.get("/")
@@ -39,6 +43,9 @@ class FormMixinTests(SimpleTestCase):
         self.assertEqual(test_string, set_kwargs.get("prefix"))
 
     def test_get_form(self):
+        """
+        Tests the get_form method to ensure it returns an instance of the provided form class, or falls back to the form_class attribute if none is provided.
+        """
         class TestFormMixin(FormMixin):
             request = self.request_factory.get("/")
 
@@ -93,6 +100,9 @@ class ModelFormMixinTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="generic_views.urls")
 class CreateViewTests(TestCase):
     def test_create(self):
+        """
+        Tests the creation of a new author, ensuring the creation page is accessible, displays the correct form and template, and successfully redirects to the author list after submission.
+        """
         res = self.client.get("/edit/authors/create/")
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], forms.ModelForm)
@@ -112,6 +122,9 @@ class CreateViewTests(TestCase):
         )
 
     def test_create_invalid(self):
+        """
+        Tests that creating an author with an invalid name (exceeding the maximum character limit) results in a form error and prevents the author from being saved.
+        """
         res = self.client.post(
             "/edit/authors/create/", {"name": "A" * 101, "slug": "randall-munroe"}
         )
@@ -121,6 +134,9 @@ class CreateViewTests(TestCase):
         self.assertEqual(Author.objects.count(), 0)
 
     def test_create_with_object_url(self):
+        """
+        Tests the creation of a new artist via POST request to the '/edit/artists/create/' endpoint, verifying a successful redirect to the artist's detail page and the correct addition of the artist to the database.
+        """
         res = self.client.post("/edit/artists/create/", {"name": "Rene Magritte"})
         self.assertEqual(res.status_code, 302)
         artist = Artist.objects.get(name="Rene Magritte")
@@ -139,6 +155,9 @@ class CreateViewTests(TestCase):
         )
 
     def test_create_with_interpolated_redirect(self):
+        """
+        Tests the creation of an author with an interpolated redirect after a successful POST request, verifying that the author is created, a redirect to the author's update page occurs, and non-ASCII characters are correctly handled in the redirect URL.
+        """
         res = self.client.post(
             "/edit/authors/create/interpolate_redirect/",
             {"name": "Randall Munroe", "slug": "randall-munroe"},
@@ -159,6 +178,9 @@ class CreateViewTests(TestCase):
         self.assertRedirects(res, "/%C3%A9dit/author/{}/update/".format(pk))
 
     def test_create_with_special_properties(self):
+        """
+        Tests the creation of a new author with special properties, verifying that the form is correctly rendered and that the author is successfully created and redirected to the author detail page.
+        """
         res = self.client.get("/edit/authors/create/special/")
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], views.AuthorForm)
@@ -213,6 +235,9 @@ class CreateViewTests(TestCase):
         )
 
     def test_create_view_without_explicit_fields(self):
+        """
+        Tests that creating a view without explicitly defining fields raises an ImproperlyConfigured exception.
+        """
         class MyCreateView(CreateView):
             model = Author
 
@@ -224,6 +249,9 @@ class CreateViewTests(TestCase):
             MyCreateView().get_form_class()
 
     def test_define_both_fields_and_form_class(self):
+        """
+        Tests that defining both 'fields' and 'form_class' in a CreateView raises an ImproperlyConfigured error, as this configuration is not permitted.
+        """
         class MyCreateView(CreateView):
             model = Author
             form_class = AuthorForm
@@ -245,6 +273,9 @@ class UpdateViewTests(TestCase):
         )
 
     def test_update_post(self):
+        """
+        Tests the update post functionality for an author, verifying that the update form is successfully rendered and that the update operation redirects to the author list page after successfully updating the author's information.
+        """
         res = self.client.get("/edit/author/%d/update/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], forms.ModelForm)
@@ -265,6 +296,9 @@ class UpdateViewTests(TestCase):
         )
 
     def test_update_invalid(self):
+        """
+        Tests the updating of an author with invalid input, verifying that the update fails and the original author data remains unchanged, with an error message displayed to the user.
+        """
         res = self.client.post(
             "/edit/author/%d/update/" % self.author.pk,
             {"name": "A" * 101, "slug": "randall-munroe"},
@@ -276,6 +310,13 @@ class UpdateViewTests(TestCase):
         self.assertEqual(res.context["view"].get_form_called_count, 1)
 
     def test_update_with_object_url(self):
+        """
+        ..: Tests the update functionality for an artist object using a URL. 
+
+            This checks that the update request is successful, with a 302 status code, 
+            and that the response redirects to the artist's detail page. It also 
+            verifies that the artist object remains unchanged in the database.
+        """
         a = Artist.objects.create(name="Rene Magritte")
         res = self.client.post(
             "/edit/artists/%d/update/" % a.pk, {"name": "Rene Magritte"}
@@ -297,6 +338,11 @@ class UpdateViewTests(TestCase):
         )
 
     def test_update_with_interpolated_redirect(self):
+        """
+        Tests that the update view correctly handles redirects after updating an author,
+        including cases where the redirect URL contains non-ASCII characters, ensuring
+        the user is sent to the correct edit page following a successful update.
+        """
         res = self.client.post(
             "/edit/author/%d/update/interpolate_redirect/" % self.author.pk,
             {"name": "Randall Munroe (author of xkcd)", "slug": "randall-munroe"},
@@ -318,6 +364,9 @@ class UpdateViewTests(TestCase):
         self.assertRedirects(res, "/%C3%A9dit/author/{}/update/".format(pk))
 
     def test_update_with_special_properties(self):
+        """
+        Tests the special update view for authors, ensuring it renders the correct form and template, and correctly handles GET and POST requests to update an author's properties.
+        """
         res = self.client.get("/edit/author/%d/update/special/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], views.AuthorForm)
@@ -349,6 +398,13 @@ class UpdateViewTests(TestCase):
             )
 
     def test_update_get_object(self):
+        """
+        \".. 
+            Tests the update functionality of the author object, verifying that a GET request 
+            returns a 200 status code with the correct form and context, and that a POST request 
+            successfully updates the author object and redirects to the authors list page. 
+        \"
+        """
         res = self.client.get("/edit/author/update/")
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], forms.ModelForm)
@@ -379,6 +435,14 @@ class DeleteViewTests(TestCase):
         )
 
     def test_delete_by_post(self):
+        """
+
+        Tests the deletion of an author object via a POST request.
+
+        Verifies that the deletion page is correctly rendered, the object is properly removed,
+        and the user is redirected to the authors list page after deletion.
+
+        """
         res = self.client.get("/edit/author/%d/delete/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author)
@@ -405,6 +469,13 @@ class DeleteViewTests(TestCase):
         self.assertQuerySetEqual(Author.objects.all(), [])
 
     def test_delete_with_interpolated_redirect(self):
+        """
+        Tests deletion of an author object with interpolated redirect.
+
+        Checks that deleting an author redirects to the create author page with a 
+        deleted parameter, and that the author is successfully removed from the database.
+        Also tests non-ASCII character handling in the redirect URL.
+        """
         res = self.client.post(
             "/edit/author/%d/delete/interpolate_redirect/" % self.author.pk
         )
@@ -422,6 +493,11 @@ class DeleteViewTests(TestCase):
         self.assertRedirects(res, "/%C3%A9dit/authors/create/?deleted={}".format(a.pk))
 
     def test_delete_with_special_properties(self):
+        """
+        Tests deletion of an author object using a special delete view, 
+        verifying the response and template used in the GET request, as well as 
+        the redirect and deletion of the object after a POST request.
+        """
         res = self.client.get("/edit/author/%d/delete/special/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author)
@@ -440,6 +516,9 @@ class DeleteViewTests(TestCase):
             self.client.post("/edit/author/%d/delete/naive/" % self.author.pk)
 
     def test_delete_with_form_as_post(self):
+        """
+        Tests the deletion of an author via a POST form submission, verifying that the deletion form is correctly rendered and that the author is successfully removed after confirmation.
+        """
         res = self.client.get("/edit/author/%d/delete/form/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author)
@@ -453,6 +532,9 @@ class DeleteViewTests(TestCase):
         self.assertSequenceEqual(Author.objects.all(), [])
 
     def test_delete_with_form_as_post_with_validation_error(self):
+        """
+        Tests the author deletion form handles POST requests with validation errors, ensuring the form is rendered correctly and error messages are displayed when required fields are not provided.
+        """
         res = self.client.get("/edit/author/%d/delete/form/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author)

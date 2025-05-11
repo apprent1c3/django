@@ -24,6 +24,12 @@ class HStoreField(forms.CharField):
         return value
 
     def to_python(self, value):
+        """
+        Converts a given value to a Python dictionary, where all non-None values are converted to strings.
+
+        Raises:
+            ValidationError: If the input value is not valid JSON or not a dictionary.
+        """
         if not value:
             return {}
         if not isinstance(value, dict):

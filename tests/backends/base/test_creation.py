@@ -32,6 +32,11 @@ def get_connection_copy():
 class TestDbSignatureTests(SimpleTestCase):
     def test_default_name(self):
         # A test db name isn't set.
+        """
+        Verify that a test database name is generated correctly when a default name is not specified.
+
+        The test checks if the generated name for the test database is prefixed with the test database prefix and the production database name.
+        """
         prod_name = "hodor"
         test_connection = get_connection_copy()
         test_connection.settings_dict["NAME"] = prod_name
@@ -41,6 +46,9 @@ class TestDbSignatureTests(SimpleTestCase):
 
     def test_custom_test_name(self):
         # A regular test db name is set.
+        """
+        Verifies that a custom test database name is correctly reflected in the database signature.
+        """
         test_name = "hodor"
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"] = {"NAME": test_name}
@@ -49,6 +57,9 @@ class TestDbSignatureTests(SimpleTestCase):
 
     def test_custom_test_name_with_test_prefix(self):
         # A test db name prefixed with TEST_DATABASE_PREFIX is set.
+        """
+        Verifies the test database name is correctly included in the database signature
+        """
         test_name = TEST_DATABASE_PREFIX + "hodor"
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"] = {"NAME": test_name}
@@ -70,6 +81,13 @@ class TestDbCreationTests(SimpleTestCase):
     def test_migrate_test_setting_false(
         self, mocked_migrate, mocked_sync_apps, *mocked_objects
     ):
+        """
+        Tests the behavior of test database creation when the MIGRATE setting is False.
+
+        Verifies that the migration executor's migrate method is called with an empty plan
+        and that the sync apps method is called with the correct arguments, while preventing
+        actual database creation and destruction during the test.
+        """
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = False
         creation = test_connection.creation_class(test_connection)
@@ -100,6 +118,9 @@ class TestDbCreationTests(SimpleTestCase):
         mocked_sync_apps,
         *mocked_objects,
     ):
+        """
+        Tests that the MigrationRecorder's ensure_schema method is not called when the 'MIGRATE' setting is False in the test database configuration, while still performing database synchronization.
+        """
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = False
         creation = test_connection.creation_class(test_connection)
@@ -124,6 +145,9 @@ class TestDbCreationTests(SimpleTestCase):
     def test_migrate_test_setting_true(
         self, mocked_migrate, mocked_sync_apps, *mocked_objects
     ):
+        """
+        Tests that migrations are executed when the 'MIGRATE' test setting is True, by creating a test database and verifying that the MigrationExecutor's migrate method is called with the expected migration plan.
+        """
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = True
         creation = test_connection.creation_class(test_connection)
@@ -152,8 +176,11 @@ class TestDbCreationTests(SimpleTestCase):
         self, mark_expected_failures_and_skips, *mocked_objects
     ):
         """
-        mark_expected_failures_and_skips() isn't called unless
-        RUNNING_DJANGOS_TEST_SUITE is 'true'.
+        Test that mark_expected_failures_and_skips is not called unless RUNNING_DJANGOS_TEST_SUITE is 'true'.
+
+        Verifies the correct behavior of the test database creation process, specifically 
+        ensuring the mark_expected_failures_and_skips method is not invoked when the 
+        RUNNING_DJANGOS_TEST_SUITE environment variable is not set to 'true'.
         """
         test_connection = get_connection_copy()
         creation = test_connection.creation_class(test_connection)
@@ -175,6 +202,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
 
     def test_circular_reference(self):
         # deserialize_db_from_string() handles circular references.
+        """
+        Tests that circular references between model instances are correctly resolved during deserialization.
+        """
         data = """
         [
             {
@@ -198,6 +228,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
     def test_self_reference(self):
         # serialize_db_to_string() and deserialize_db_from_string() handles
         # self references.
+        """
+        Tests the successful creation, serialization, and deserialization of self-referential objects, ensuring that their relationships are preserved.
+        """
         obj_1 = ObjectSelfReference.objects.create(key="X")
         obj_2 = ObjectSelfReference.objects.create(key="Y", obj=obj_1)
         obj_1.obj = obj_2
@@ -220,6 +253,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
     def test_circular_reference_with_natural_key(self):
         # serialize_db_to_string() and deserialize_db_from_string() handles
         # circular references for models with natural keys.
+        """
+        Tests the loading and saving of objects with circular references using natural keys, verifying the relationships are correctly re-established after serialization and deserialization of the database state.
+        """
         obj_a = CircularA.objects.create(key="A")
         obj_b = CircularB.objects.create(key="B", obj=obj_a)
         obj_a.obj = obj_b
@@ -241,6 +277,11 @@ class TestDeserializeDbFromString(TransactionTestCase):
         self.assertEqual(obj_b.obj, obj_a)
 
     def test_serialize_db_to_string_base_manager(self):
+        """
+        Tests the serialization of a database to a string using the base database manager.
+
+        Verifies that database contents, specifically a SchoolClass object, are correctly serialized and contained within the output string.
+        """
         SchoolClass.objects.create(year=1000, last_updated=datetime.datetime.now())
         with mock.patch("django.db.migrations.loader.MigrationLoader") as loader:
             # serialize_db_to_string() serializes only migrated apps, so mark
@@ -252,6 +293,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
         self.assertIn('"year": 1000', data)
 
     def test_serialize_db_to_string_base_manager_with_prefetch_related(self):
+        """
+        Tests the serialization of the database to a string, specifically with prefetch related objects, to ensure that related models are properly included in the serialized data.
+        """
         sclass = SchoolClass.objects.create(
             year=2000, last_updated=datetime.datetime.now()
         )
@@ -283,6 +327,9 @@ def expected_failure_test_function():
 
 class TestMarkTests(SimpleTestCase):
     def test_mark_expected_failures_and_skips(self):
+        """
+        Tests that the mark_expected_failures_and_skips method correctly marks test functions and classes as expected failures or skips based on the django_test_expected_failures and django_test_skips settings.
+        """
         test_connection = get_connection_copy()
         creation = BaseDatabaseCreation(test_connection)
         creation.connection.features.django_test_expected_failures = {

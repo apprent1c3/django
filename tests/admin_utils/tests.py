@@ -64,6 +64,9 @@ class NestedObjectsTests(TestCase):
         self._check([0])
 
     def test_cyclic(self):
+        """
+        Tests the functionality of handling cyclic connections between nodes, ensuring correct collection and hierarchical representation of the connected nodes.
+        """
         self._connect(0, 2)
         self._connect(1, 0)
         self._connect(2, 1)
@@ -80,7 +83,7 @@ class NestedObjectsTests(TestCase):
 
     def test_on_delete_do_nothing(self):
         """
-        The nested collector doesn't query for DO_NOTHING objects.
+        Tests that the nested collector correctly handles the case where the 'on_delete' action is set to DO_NOTHING, verifying that it does not query for these objects unnecessarily.
         """
         n = NestedObjects(using=DEFAULT_DB_ALIAS)
         objs = [Event.objects.create()]
@@ -105,7 +108,7 @@ class UtilsTests(SimpleTestCase):
 
     def test_values_from_lookup_field(self):
         """
-        Regression test for #12654: lookup_field
+        Tests the functionality of the lookup_field function by verifying that it correctly retrieves and resolves values from different fields and methods of an object, including model fields, model admin methods, instance attributes, and related model fields, ensuring that the resolved values match the expected values.
         """
         SITE_NAME = "example.com"
         TITLE_TEXT = "Some title"
@@ -152,6 +155,9 @@ class UtilsTests(SimpleTestCase):
             self.assertEqual(value, resolved_value)
 
     def test_empty_value_display_for_field(self):
+        """
+        Tests that various model fields display their empty values correctly, ensures that the display_for_field function returns the expected empty value for different field types when given an empty value.
+        """
         tests = [
             models.CharField(),
             models.DateField(),
@@ -197,6 +203,9 @@ class UtilsTests(SimpleTestCase):
                 )
 
     def test_number_formats_display_for_field(self):
+        """
+        Tests the display format for numeric fields, verifying that float, decimal, and integer values are displayed as strings without modification.
+        """
         display_value = display_for_field(
             12345.6789, models.FloatField(), self.empty_value
         )
@@ -214,6 +223,9 @@ class UtilsTests(SimpleTestCase):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_number_formats_with_thousand_separator_display_for_field(self):
+        """
+        Tests the display format of numeric fields, ensuring that numbers are displayed with thousand separators when the USE_THOUSAND_SEPARATOR setting is enabled.
+        """
         display_value = display_for_field(
             12345.6789, models.FloatField(), self.empty_value
         )
@@ -259,7 +271,15 @@ class UtilsTests(SimpleTestCase):
 
     def test_label_for_field(self):
         """
-        Tests for label_for_field
+
+        Get a human-friendly label for a given field on a model.
+
+        This function returns a label suitable for display in the UI for the given field.
+        It can also return the actual attribute associated with the field if requested.
+
+        The field can be specified by name, or can be passed directly as a callable attribute or method.
+        If the field is not found on the model, an AttributeError is raised.
+
         """
         self.assertEqual(label_for_field("title", Article), "title")
         self.assertEqual(label_for_field("hist", Article), "History")
@@ -303,6 +323,12 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_label_for_field_failed_lookup(self):
+        """
+
+        Tests the label_for_field function to ensure it handles failed lookups and 
+        model admin overrides correctly.
+
+        """
         msg = "Unable to lookup 'site__unknown' on Article"
         with self.assertRaisesMessage(AttributeError, msg):
             label_for_field("site__unknown", Article)
@@ -324,6 +350,11 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_label_for_field_form_argument(self):
+        """
+        Determines the human-readable label for a given field in a model, taking into account a provided form instance. 
+
+        This function retrieves the label from the form field if available, otherwise it attempts to retrieve it from the model field, returning the label in title case. It raises an AttributeError if the field does not exist in either the model or the form.
+        """
         class ArticleForm(forms.ModelForm):
             extra_form_field = forms.BooleanField()
 
@@ -340,6 +371,19 @@ class UtilsTests(SimpleTestCase):
             label_for_field("nonexistent", Article, form=ArticleForm())
 
     def test_label_for_property(self):
+        """
+        Returns the label for a given model field or property.
+
+        The label is determined by the description attribute on the field or property,
+        if available. This function is used to provide a human-readable label for fields
+        and properties in the admin interface.
+
+        :param field_name: The name of the field or property.
+        :param model: The model that the field or property belongs to.
+        :param model_admin: The model admin instance, which can provide additional metadata.
+        :rtype: str
+
+        """
         class MockModelAdmin:
             @property
             @admin.display(description="property short description")
@@ -380,6 +424,9 @@ class UtilsTests(SimpleTestCase):
 
     def test_safestring_in_field_label(self):
         # safestring should not be escaped
+        """
+        Tests that field labels in forms are correctly escaped and rendered as HTML, ensuring that safe strings and special characters are handled properly.
+        """
         class MyForm(forms.Form):
             text = forms.CharField(label=mark_safe("<i>text</i>"))
             cb = forms.BooleanField(label=mark_safe("<i>cb</i>"))
@@ -423,7 +470,7 @@ class UtilsTests(SimpleTestCase):
 
     def test_flatten_fieldsets(self):
         """
-        Regression test for #18051
+        Test that the flatten_fieldsets function correctly handles nested fieldsets, including tuples and lists, by verifying that it returns a flat list of field names.
         """
         fieldsets = ((None, {"fields": ("url", "title", ("content", "sites"))}),)
         self.assertEqual(

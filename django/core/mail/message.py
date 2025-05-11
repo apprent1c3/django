@@ -54,7 +54,9 @@ ADDRESS_HEADERS = {
 
 
 def forbid_multi_line_headers(name, val, encoding):
-    """Forbid multi-line headers to prevent header injection."""
+    """
+    Validate and sanitize HTTP header values to prevent header injection attacks, ensuring they do not contain newline characters and are properly encoded.
+    """
     encoding = encoding or settings.DEFAULT_CHARSET
     val = str(val)  # val may be lazy
     if "\n" in val or "\r" in val:
@@ -78,7 +80,8 @@ def forbid_multi_line_headers(name, val, encoding):
 
 def sanitize_address(addr, encoding):
     """
-    Format a pair of (name, address) or an email address string.
+    Sanitizes and formats an address string, which can be either an email address or a tuple containing a name and an address, into a standardized format. 
+    The function checks for valid address structure, encodes non-ASCII characters, and handles potential encoding errors, ultimately returning a formatted address string.
     """
     address = None
     if not isinstance(addr, tuple):
@@ -124,12 +127,18 @@ def sanitize_address(addr, encoding):
 
 class MIMEMixin:
     def as_string(self, unixfrom=False, linesep="\n"):
-        """Return the entire formatted message as a string.
-        Optional `unixfrom' when True, means include the Unix From_ envelope
-        header.
+        """
+        Return the entire formatted message as a string.
 
-        This overrides the default as_string() implementation to not mangle
-        lines that begin with 'From '. See bug #13433 for details.
+        Parameters
+        ----------
+        unixfrom : bool, optional
+            Include the Unix From_ envelope header if True.
+        linesep : str, optional
+            Line separator to use (default is newline).
+
+        The returned string preserves lines starting with 'From ' to prevent mangling.
+
         """
         fp = StringIO()
         g = generator.Generator(fp, mangle_from_=False)
@@ -137,12 +146,14 @@ class MIMEMixin:
         return fp.getvalue()
 
     def as_bytes(self, unixfrom=False, linesep="\n"):
-        """Return the entire formatted message as bytes.
-        Optional `unixfrom' when True, means include the Unix From_ envelope
-        header.
+        """
+        Return the entire formatted message as bytes.
 
-        This overrides the default as_bytes() implementation to not mangle
-        lines that begin with 'From '. See bug #13433 for details.
+            :param bool unixfrom: Include the Unix From_ envelope header when True.
+            :param str linesep: Line separator to use (default is '\\n').
+
+            Generates the message with the specified options, preserving lines starting with 'From '. 
+
         """
         fp = BytesIO()
         g = generator.BytesGenerator(fp, mangle_from_=False)
@@ -216,8 +227,7 @@ class EmailMessage:
         reply_to=None,
     ):
         """
-        Initialize a single email message (which can be sent to multiple
-        recipients).
+        Initialize an email message, defining its recipients, content, and optional parameters such as attachments and custom headers.
         """
         if to:
             if isinstance(to, str):
@@ -264,6 +274,12 @@ class EmailMessage:
         return self.connection
 
     def message(self):
+        """
+        -message(self)
+                Creates a formatted email message with the specified subject, from address, 
+                recipient addresses, and message body, while also handling additional 
+                headers and date/time settings as necessary.
+        """
         encoding = self.encoding or settings.DEFAULT_CHARSET
         msg = SafeMIMEText(self.body, self.content_subtype, encoding)
         msg = self._create_message(msg)
@@ -308,15 +324,11 @@ class EmailMessage:
 
     def attach(self, filename=None, content=None, mimetype=None):
         """
-        Attach a file with the given filename and content. The filename can
-        be omitted and the mimetype is guessed, if not provided.
+        Attach a file to an email with optional filename, content, and MIME type.
 
-        If the first parameter is a MIMEBase subclass, insert it directly
-        into the resulting message attachments.
-
-        For a text/* mimetype (guessed or specified), when a bytes object is
-        specified as content, decode it as UTF-8. If that fails, set the
-        mimetype to DEFAULT_ATTACHMENT_MIME_TYPE and don't decode the content.
+         The function either attaches a MIMEBase object directly or creates a new
+         attachment with guessed or specified MIME type. Text content is decoded as
+         UTF-8 if possible, otherwise a default MIME type is used.
         """
         if isinstance(filename, MIMEBase):
             if content is not None or mimetype is not None:
@@ -348,14 +360,7 @@ class EmailMessage:
 
     def attach_file(self, path, mimetype=None):
         """
-        Attach a file from the filesystem.
-
-        Set the mimetype to DEFAULT_ATTACHMENT_MIME_TYPE if it isn't specified
-        and cannot be guessed.
-
-        For a text/* mimetype (guessed or specified), decode the file's content
-        as UTF-8. If that fails, set the mimetype to
-        DEFAULT_ATTACHMENT_MIME_TYPE and don't decode the content.
+        Attach a file from the local filesystem to the current object, automatically detecting the file's mimetype if not specified.
         """
         path = Path(path)
         with path.open("rb") as file:
@@ -366,6 +371,15 @@ class EmailMessage:
         return self._create_attachments(msg)
 
     def _create_attachments(self, msg):
+        """
+        Create a multipart message with attachments.
+
+        Adds attachments from the list to the provided message, handling both MIMEBase 
+        instances and attachment data to be constructed into MIMEBase instances. 
+        The message encoding is set according to the specified or default charset.
+
+        Returns the resulting multipart message with attachments included.
+        """
         if self.attachments:
             encoding = self.encoding or settings.DEFAULT_CHARSET
             body_msg = msg
@@ -381,10 +395,7 @@ class EmailMessage:
 
     def _create_mime_attachment(self, content, mimetype):
         """
-        Convert the content, mimetype pair into a MIME attachment object.
-
-        If the mimetype is message/rfc822, content may be an
-        email.Message or EmailMessage object, as well as a str.
+        Converts a given content string and MIME type into a MIME attachment object, handling different content types such as text, message/rfc822, and others, and applying necessary encoding and payload settings accordingly.
         """
         basetype, subtype = mimetype.split("/", 1)
         if basetype == "text":
@@ -411,8 +422,7 @@ class EmailMessage:
 
     def _create_attachment(self, filename, content, mimetype=None):
         """
-        Convert the filename, content, mimetype triple into a MIME attachment
-        object.
+        Converts a file's metadata and content into a MIME attachment object, suitable for inclusion in an email or other message, with optional support for non-ASCII filenames.
         """
         attachment = self._create_mime_attachment(content, mimetype)
         if filename:
@@ -427,8 +437,7 @@ class EmailMessage:
 
     def _set_list_header_if_not_empty(self, msg, header, values):
         """
-        Set msg's header, either from self.extra_headers, if present, or from
-        the values argument if not empty.
+        Sets a message header with a value from self.extra_headers or a comma-separated string of values if the header is not preset and values are provided.
         """
         try:
             msg[header] = self.extra_headers[header]
@@ -490,6 +499,17 @@ class EmailMultiAlternatives(EmailMessage):
         return self._create_attachments(self._create_alternatives(msg))
 
     def _create_alternatives(self, msg):
+        """
+        Creates an email message with alternative content types.
+
+        If alternative content is provided, a multipart message is created with the
+        main body and each alternative attached, allowing email clients to choose
+        the best format to display. The message is encoded using the specified or
+        default encoding.
+
+        :param msg: The main message body.
+        :return: The created message with alternative content attached if applicable.
+        """
         encoding = self.encoding or settings.DEFAULT_CHARSET
         if self.alternatives:
             body_msg = msg
@@ -508,8 +528,7 @@ class EmailMultiAlternatives(EmailMessage):
 
     def body_contains(self, text):
         """
-        Checks that ``text`` occurs in the email body and in all attached MIME
-        type text/* alternatives.
+        Checks if a given text occurs in the email body and all attached text alternatives.
         """
         if text not in self.body:
             return False

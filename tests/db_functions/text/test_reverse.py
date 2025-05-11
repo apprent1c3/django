@@ -51,6 +51,14 @@ class ReverseTests(TestCase):
             )
 
     def test_expressions(self):
+        """
+
+        Tests the functionality of custom Django lookup expressions.
+
+        Verifies that the Reverse lookup correctly reverses a string and that chaining
+        lookups (e.g., Reverse and Length) works as expected.
+
+        """
         author = Author.objects.annotate(backward=Reverse(Trim("name"))).get(
             pk=self.john.pk
         )

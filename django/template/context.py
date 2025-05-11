@@ -29,6 +29,11 @@ class BaseContext:
         self._reset_dicts(dict_)
 
     def _reset_dicts(self, value=None):
+        """
+        Resets the list of dictionaries to a base state and optionally appends additional dictionaries.
+
+        The base state includes a dictionary of built-in values. If a BaseContext instance is provided, its dictionaries (excluding the built-in values) are appended. Otherwise, the provided value is appended as a new dictionary.
+        """
         builtins = {"True": True, "False": False, "None": None}
         self.dicts = [builtins]
         if isinstance(value, BaseContext):
@@ -48,6 +53,16 @@ class BaseContext:
         return reversed(self.dicts)
 
     def push(self, *args, **kwargs):
+        """
+        Create a new ContextDict instance by merging the current context with the provided dictionaries and keyword arguments. 
+
+            Args:
+                *args: Variable number of dictionaries or BaseContext instances to merge.
+                **kwargs: Keyword arguments to include in the new ContextDict.
+
+            Returns:
+                ContextDict: A new context dictionary instance with the merged data.
+        """
         dicts = []
         for d in args:
             if isinstance(d, BaseContext):
@@ -67,8 +82,9 @@ class BaseContext:
 
     def set_upward(self, key, value):
         """
-        Set a variable in one of the higher contexts if it exists there,
-        otherwise in the current context.
+        Set a variable in the highest context where it is already defined, 
+        otherwise set it in the current context, ensuring a shared variable 
+        is updated consistently across contexts.
         """
         context = self.dicts[-1]
         for d in reversed(self.dicts):
@@ -78,7 +94,11 @@ class BaseContext:
         context[key] = value
 
     def __getitem__(self, key):
-        "Get a variable's value, starting at the current context and going upward"
+        """
+        Get a variable's value, starting at the current context and going upward.
+
+        Raises a KeyError if the variable is not found in the current or any outer context.
+        """
         for d in reversed(self.dicts):
             if key in d:
                 return d[key]
@@ -98,6 +118,13 @@ class BaseContext:
         return otherwise
 
     def setdefault(self, key, default=None):
+        """
+        Sets a value for the given key if it does not exist in the dictionary.
+
+        :param key: The key to set a default value for.
+        :param default: The default value to set if the key is not present, defaulting to None if not provided.
+        :return: The value for the given key, either existing or newly set to the default value.
+        """
         try:
             return self[key]
         except KeyError:
@@ -115,7 +142,7 @@ class BaseContext:
 
     def flatten(self):
         """
-        Return self.dicts as one dictionary.
+        Combine multiple dictionaries into a single dictionary, merging their key-value pairs.
         """
         flat = {}
         for d in self.dicts:
@@ -136,6 +163,15 @@ class Context(BaseContext):
     "A stack container for variable context"
 
     def __init__(self, dict_=None, autoescape=True, use_l10n=None, use_tz=None):
+        """
+        Initializes a new instance with optional template configuration settings.
+
+        :param dict_: the dictionary to initialize with
+        :param autoescape: whether to enable autoescaping
+        :param use_l10n: whether to use localization
+        :param use_tz: whether to use time zone-aware settings
+        :returns: None
+        """
         self.autoescape = autoescape
         self.use_l10n = use_l10n
         self.use_tz = use_tz
@@ -148,6 +184,14 @@ class Context(BaseContext):
 
     @contextmanager
     def bind_template(self, template):
+        """
+        Temporarily binds a template to the current context.
+
+        Allows for a template to be associated with the context for a scoped duration,
+        ensuring that only one template can be bound at a time. Automatically unbinds
+        the template when the context is exited, regardless of whether an exception is
+        thrown or not.
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
         self.template = template
@@ -162,7 +206,9 @@ class Context(BaseContext):
         return duplicate
 
     def update(self, other_dict):
-        "Push other_dict to the stack of dictionaries in the Context"
+        """
+        Updates the context by adding another dictionary to its stack, allowing for nested configuration and overriding of existing settings. The provided dictionary is expected to be a mapping object, and if it's an instance of BaseContext, only the last added dictionary is considered.
+        """
         if not hasattr(other_dict, "__getitem__"):
             raise TypeError("other_dict must be a mapping (dictionary-like) object.")
         if isinstance(other_dict, BaseContext):
@@ -202,6 +248,14 @@ class RenderContext(BaseContext):
 
     @contextmanager
     def push_state(self, template, isolated_context=True):
+        """
+        Temporarily sets the template and optionally creates an isolated context, reverting to the original template after use.
+
+        This context manager facilitates safe and efficient template switching, ensuring the original state is restored regardless of the outcome.
+
+        :param template: The template to be used temporarily
+        :param isolated_context: Whether to create an isolated context, defaults to True
+        """
         initial = self.template
         self.template = template
         if isolated_context:
@@ -231,6 +285,9 @@ class RequestContext(Context):
         use_tz=None,
         autoescape=True,
     ):
+        """
+        Initialize a template context object, setting up the environment with a request, optional dictionary, processors, localization, timezone, and autoescaping.
+        """
         super().__init__(dict_, use_l10n=use_l10n, use_tz=use_tz, autoescape=autoescape)
         self.request = request
         self._processors = () if processors is None else tuple(processors)
@@ -245,6 +302,18 @@ class RequestContext(Context):
 
     @contextmanager
     def bind_template(self, template):
+        """
+        Context manager that binds the current context to a given template.
+
+        It sets up the template's context by running all applicable template context processors and
+        updating the context with their return values. The binding is automatically released when the
+        context manager exits.
+
+        Raises:
+            RuntimeError: If the context is already bound to a template.
+            TypeError: If a context processor does not return a dictionary.
+
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
 
@@ -282,7 +351,9 @@ class RequestContext(Context):
 
 def make_context(context, request=None, **kwargs):
     """
-    Create a suitable Context from a plain dict and optionally an HttpRequest.
+    Create a suitable Context from a plain dict and optionally an HttpRequest. 
+    The resulting Context can be used to encapsulate the application state for templating and other purposes, 
+    ensuring a request-based context is correctly initialized with the provided data.
     """
     if context is not None and not isinstance(context, dict):
         raise TypeError(

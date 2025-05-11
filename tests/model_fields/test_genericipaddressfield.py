@@ -8,8 +8,11 @@ from .models import GenericIPAddress
 class GenericIPAddressFieldTests(TestCase):
     def test_genericipaddressfield_formfield_protocol(self):
         """
-        GenericIPAddressField with a specified protocol does not generate a
-        formfield without a protocol.
+
+        Tests that GenericIPAddressField formfields enforce the specified IP protocol.
+
+        Verifies that providing an IP address with an incorrect protocol raises a ValidationError.
+
         """
         model_field = models.GenericIPAddressField(protocol="IPv4")
         form_field = model_field.formfield()
@@ -29,6 +32,10 @@ class GenericIPAddressFieldTests(TestCase):
         self.assertIsNone(o.ip)
 
     def test_blank_string_saved_as_null(self):
+        """
+        Tests that a blank string for an IP address is saved as null in the database, 
+        ensuring data consistency and integrity for GenericIPAddress objects.
+        """
         o = GenericIPAddress.objects.create(ip="")
         o.refresh_from_db()
         self.assertIsNone(o.ip)

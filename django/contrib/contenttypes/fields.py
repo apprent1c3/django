@@ -42,6 +42,14 @@ class GenericForeignKey(FieldCacheMixin, Field):
     def __init__(
         self, ct_field="content_type", fk_field="object_id", for_concrete_model=True
     ):
+        """
+        Initializes a generic foreign key field for Django models, allowing for flexible content types and object identifiers.
+
+        :param ct_field: Name of the field that stores the content type
+        :param fk_field: Name of the field that stores the object identifier
+        :param for_concrete_model: Flag indicating whether the field is for a concrete model or not
+        :note: The field is not editable by default and is considered a relation field.
+        """
         super().__init__(editable=False)
         self.ct_field = ct_field
         self.fk_field = fk_field
@@ -79,6 +87,9 @@ class GenericForeignKey(FieldCacheMixin, Field):
         ]
 
     def _check_object_id_field(self):
+        """
+        Checks if the object ID field referenced by the GenericForeignKey exists in the model.
+        """
         try:
             self.model._meta.get_field(self.fk_field)
         except FieldDoesNotExist:
@@ -95,8 +106,7 @@ class GenericForeignKey(FieldCacheMixin, Field):
 
     def _check_content_type_field(self):
         """
-        Check if field named `field_name` in model `model` exists and is a
-        valid content_type field (is a ForeignKey to ContentType).
+        Checks if a specified field in a model exists and is a valid content type field, i.e., a foreign key referencing the ContentType model. Returns a list of errors if the field does not exist or is not a valid content type field.
         """
         try:
             field = self.model._meta.get_field(self.ct_field)
@@ -145,6 +155,25 @@ class GenericForeignKey(FieldCacheMixin, Field):
         return self.name
 
     def get_content_type(self, obj=None, id=None, using=None, model=None):
+        """
+
+        Retrieve a ContentType instance.
+
+        Determines the ContentType based on the provided object, ID, or model. 
+        If an object is provided, the ContentType for that object's model is returned.
+        If an ID is provided, the ContentType for the corresponding ID is returned.
+        If a model is provided, the ContentType for that model is returned.
+
+        Args:
+            obj: The object to determine the ContentType for.
+            id: The ID of the ContentType to retrieve.
+            using: The database alias to use for the query.
+            model: The model to determine the ContentType for.
+
+        Raises:
+            Exception: If no valid arguments are provided.
+
+        """
         if obj is not None:
             return ContentType.objects.db_manager(obj._state.db).get_for_model(
                 obj, for_concrete_model=self.for_concrete_model
@@ -171,6 +200,9 @@ class GenericForeignKey(FieldCacheMixin, Field):
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+        Gets prefetch querysets for a list of instances, returning a tuple containing the querysets and a key function to use with prefetch_related. This function helps optimize database queries by fetching related objects in a single query, reducing the need for additional database calls.
+        """
         custom_queryset_dict = {}
         if querysets is not None:
             for queryset in querysets:
@@ -211,6 +243,13 @@ class GenericForeignKey(FieldCacheMixin, Field):
         # For doing the join in Python, we have to match both the FK val and the
         # content type, so we use a callable that returns a (fk, class) pair.
         def gfk_key(obj):
+            """
+            Returns a tuple identifying a Generic Foreign Key relation for the given object.
+
+            The returned tuple contains the value of the primary key for the related 
+            object, and the model class to which it belongs. If the object does not 
+            have a valid Generic Foreign Key relation, returns None.
+            """
             ct_id = getattr(obj, ct_attname)
             if ct_id is None:
                 return None
@@ -233,6 +272,14 @@ class GenericForeignKey(FieldCacheMixin, Field):
         )
 
     def __get__(self, instance, cls=None):
+        """
+        Descriptor that retrieves a related object from a generic foreign key relationship.
+
+        Returns the related object instance if it exists, otherwise returns None. The related object is
+        retrieved based on the content type and primary key stored in the instance's fields. If the related
+        object is cached, the cached value is returned. Otherwise, a database query is performed to retrieve
+        the related object, which is then cached for future access.
+        """
         if instance is None:
             return self
 
@@ -268,6 +315,9 @@ class GenericForeignKey(FieldCacheMixin, Field):
         return rel_obj
 
     def __set__(self, instance, value):
+        """
+        Sets the value of the descriptor on the given instance, updating the related content type and foreign key fields accordingly.
+        """
         ct = None
         fk = None
         if value is not None:
@@ -330,6 +380,18 @@ class GenericRelation(ForeignObject):
         limit_choices_to=None,
         **kwargs,
     ):
+        """
+        Initializes a generic relation field, enabling linking to different models.
+
+        :param to: Model to which the relation is established.
+        :param object_id_field: Name of the field storing the related object's ID.
+        :param content_type_field: Name of the field storing the related object's content type.
+        :param for_concrete_model: Whether the relation is for a concrete model.
+        :param related_query_name: Name to use for the relation in queries.
+        :param limit_choices_to: Constraints for limiting the choices.
+        :param kwargs: Additional keyword arguments.
+
+        """
         kwargs["rel"] = self.rel_class(
             self,
             to,
@@ -375,6 +437,9 @@ class GenericRelation(ForeignObject):
         )
 
     def _check_generic_foreign_key_existence(self):
+        """
+        Checks if a model referenced by a GenericRelation contains a GenericForeignKey, returning any errors if not.
+        """
         target = self.remote_field.model
         if isinstance(target, ModelBase):
             fields = target._meta.private_fields
@@ -404,9 +469,9 @@ class GenericRelation(ForeignObject):
 
     def _get_path_info_with_parent(self, filtered_relation):
         """
-        Return the path that joins the current model through any parent models.
-        The idea is that if you have a GFK defined on a parent model then we
-        need to join the parent model first, then the child model.
+        Return the path that joins the current model through any parent models, 
+        accounting for Generic Foreign Keys (GFKs) defined on parent models. 
+        This allows for correct join ordering when traversing relationships between models.
         """
         # With an inheritance chain ChildTag -> Tag and Tag defines the
         # GenericForeignKey, and a TaggedItem model has a GenericRelation to
@@ -445,6 +510,16 @@ class GenericRelation(ForeignObject):
         return path
 
     def get_path_info(self, filtered_relation=None):
+        """
+
+        Retrieves path information for a model, optionally filtered by a relation.
+
+        Returns a list of PathInfo objects representing the path from the current model to the related model.
+
+        :param filtered_relation: An optional relation to filter the path by.
+        :rtype: list[PathInfo]
+
+        """
         opts = self.remote_field.model._meta
         object_id_field = opts.get_field(self.object_id_field_name)
         if object_id_field.model != opts.model:
@@ -483,6 +558,9 @@ class GenericRelation(ForeignObject):
         return str([instance.pk for instance in qs])
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        Contribute this generic relation to a class, handling setup for both model inheritance and generic foreign key relationships. Provides necessary descriptors and sets up related model accessors.
+        """
         kwargs["private_only"] = True
         super().contribute_to_class(cls, name, **kwargs)
         self.model = cls
@@ -569,13 +647,17 @@ class ReverseGenericManyToOneDescriptor(ReverseManyToOneDescriptor):
 
 def create_generic_related_manager(superclass, rel):
     """
-    Factory function to create a manager that subclasses another manager
-    (generally the default manager of a given model) and adds behaviors
-    specific to generic relations.
+    Creates a generic related manager for a model, allowing for management of related objects in a generic foreign key relationship. 
+    This manager provides methods for adding, removing, and clearing related objects, as well as creating, getting, or updating related objects. 
+    It also handles bulk operations and asynchronous calls. 
+    The manager is bound to a specific instance, and its methods take into account the instance's related objects.
     """
 
     class GenericRelatedObjectManager(superclass, AltersData):
         def __init__(self, instance=None):
+            """
+            Initializes the instance of a related object descriptor, setting up the relationships between the instance, its model, and the related model's content type.
+            """
             super().__init__()
 
             self.instance = instance
@@ -620,6 +702,11 @@ def create_generic_related_manager(superclass, rel):
                 pass  # nothing to clear from cache
 
         def get_queryset(self):
+            """
+            Retrieves a prefetched queryset from the instance's cache if available, 
+            otherwise fetches the queryset using the superclass's method and applies 
+            relationship filters before returning the result.
+            """
             try:
                 return self.instance._prefetched_objects_cache[self.prefetch_cache_name]
             except (AttributeError, KeyError):
@@ -638,6 +725,9 @@ def create_generic_related_manager(superclass, rel):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+            Returns a queryset and functions necessary for prefetching related objects. The queryset is filtered to match the provided instances based on content type and object ID. The returned value is a tuple containing the queryset and functions for converting to and from the model's identifier.
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "
@@ -677,6 +767,22 @@ def create_generic_related_manager(superclass, rel):
             )
 
         def add(self, *objs, bulk=True):
+            """
+            Associates one or more objects with the instance.
+
+            Args:
+                *objs: One or more objects to associate.
+                bulk (bool, optional): Whether to update the objects in bulk. Defaults to True.
+
+            Raises:
+                TypeError: If an object is not an instance of the model.
+                ValueError: If bulk=True and an object is not saved or not on the database.
+
+            Note:
+                If bulk=False, each object is saved individually within a transaction.
+                If an object is not saved, you can either pass bulk=False or save the object first.
+
+            """
             self._remove_prefetched_objects()
             db = router.db_for_write(self.model, instance=self.instance)
 
@@ -742,6 +848,16 @@ def create_generic_related_manager(superclass, rel):
         aclear.alters_data = True
 
         def _clear(self, queryset, bulk):
+            """
+            Deletes a queryset of objects from the database.
+
+            This method removes the specified objects in either bulk or individual transactions,
+            depending on the bulk parameter. It ensures the objects are deleted from the correct
+            database as determined by the router for the model.
+
+            :param queryset: The queryset of objects to delete
+            :param bulk: Whether to delete the objects in bulk or individually
+            """
             self._remove_prefetched_objects()
             db = router.db_for_write(self.model, instance=self.instance)
             queryset = queryset.using(db)
@@ -759,6 +875,15 @@ def create_generic_related_manager(superclass, rel):
         def set(self, objs, *, bulk=True, clear=False):
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
+            """
+
+            Sets the objects associated with the instance, optionally replacing existing objects.
+
+            :param objs: The objects to associate with the instance
+            :param bulk: Whether to perform the operation in bulk (default: True)
+            :param clear: Whether to clear existing associations before setting new ones (default: False)
+
+            """
             objs = tuple(objs)
 
             db = router.db_for_write(self.model, instance=self.instance)
@@ -786,6 +911,9 @@ def create_generic_related_manager(superclass, rel):
         aset.alters_data = True
 
         def create(self, **kwargs):
+            """
+            Create a new instance of a related model, setting the content type and object ID to reference the current object.
+            """
             self._remove_prefetched_objects()
             kwargs[self.content_type_field_name] = self.content_type
             kwargs[self.object_id_field_name] = self.pk_val

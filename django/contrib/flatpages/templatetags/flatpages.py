@@ -8,6 +8,13 @@ register = template.Library()
 
 class FlatpageNode(template.Node):
     def __init__(self, context_name, starts_with=None, user=None):
+        """
+        Initializes a context filter with a given name and optional prefix and user filters.
+
+        :param context_name: The name of the context to filter.
+        :param starts_with: Optional prefix to filter the context by.
+        :param user: Optional user to filter the context by.
+        """
         self.context_name = context_name
         if starts_with:
             self.starts_with = template.Variable(starts_with)
@@ -19,6 +26,23 @@ class FlatpageNode(template.Node):
             self.user = None
 
     def render(self, context):
+        """
+        Renders a list of flatpages filtered by the current site, authentication status, and optional starts_with condition.
+
+        Parameters
+        ----------
+        context : dict
+            Template context containing the 'request' object (optional)
+
+        Returns
+        -------
+        str
+            Empty string. The filtered flatpages are stored in the context under the key specified by `context_name`.
+
+        Note
+        ----
+        The function applies the following filters: site ID (determined by the 'request' object or settings), starts_with condition (if specified), and authentication status (if user is not authenticated, only non-registration required flatpages are included).
+        """
         if "request" in context:
             site_pk = get_current_site(context["request"]).pk
         else:
@@ -46,29 +70,11 @@ class FlatpageNode(template.Node):
 @register.tag
 def get_flatpages(parser, token):
     """
-    Retrieve all flatpage objects available for the current site and
-    visible to the specific user (or visible to all users if no user is
-    specified). Populate the template context with them in a variable
-    whose name is defined by the ``as`` clause.
+    Retrieve all flatpage objects available for the current site and visible to the specific user, populating the template context with them in a variable.
 
-    An optional ``for`` clause controls the user whose permissions are used in
-    determining which flatpages are visible.
+    The function allows filtering by a user and a URL prefix, returning only the flatpages that match these criteria.
 
-    An optional argument, ``starts_with``, limits the returned flatpages to
-    those beginning with a particular base URL. This argument can be a variable
-    or a string, as it resolves from the template context.
-
-    Syntax::
-
-        {% get_flatpages ['url_starts_with'] [for user] as context_name %}
-
-    Example usage::
-
-        {% get_flatpages as flatpages %}
-        {% get_flatpages for someuser as flatpages %}
-        {% get_flatpages '/about/' as about_pages %}
-        {% get_flatpages prefix as about_pages %}
-        {% get_flatpages '/about/' for someuser as about_pages %}
+    Syntax and example usage are provided to facilitate template integration.
     """
     bits = token.split_contents()
     syntax_message = (

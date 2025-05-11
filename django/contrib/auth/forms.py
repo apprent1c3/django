@@ -35,6 +35,13 @@ class ReadOnlyPasswordHashWidget(forms.Widget):
     read_only = True
 
     def get_context(self, name, value, attrs):
+        """
+        Provides the context for rendering password information.
+
+        Determines whether a password is usable, identifies its hashing algorithm,
+        and generates a summary of the password's properties.
+
+        """
         context = super().get_context(name, value, attrs)
         usable_password = value and not value.startswith(UNUSABLE_PASSWORD_PREFIX)
         summary = []
@@ -144,6 +151,9 @@ class SetPasswordMixin:
         password2_field_name="password2",
         usable_password_field_name="usable_password",
     ):
+        """
+        Validate password fields in a form, ensuring that if a usable password is required, both password fields are filled and match.
+        """
         usable_password = (
             self.cleaned_data.pop(usable_password_field_name, None) != "false"
         )
@@ -176,6 +186,9 @@ class SetPasswordMixin:
             self.add_error(password2_field_name, error)
 
     def validate_password_for_user(self, user, password_field_name="password2"):
+        """
+        Validates a password for a given user against the password validation rules, checking for strength and other requirements. If the password is invalid, an error is added to the form.
+        """
         password = self.cleaned_data.get(password_field_name)
         if password and self.cleaned_data["set_usable_password"]:
             try:
@@ -184,6 +197,14 @@ class SetPasswordMixin:
                 self.add_error(password_field_name, error)
 
     def set_password_and_save(self, user, password_field_name="password1", commit=True):
+        """
+        Sets a user's password and optionally saves the changes to the database.
+
+        :param user: The user object to modify
+        :param password_field_name: The name of the password field in the cleaned data (default: 'password1')
+        :param commit: Whether to save the changes to the database (default: True)
+        :return: The modified user object
+        """
         if self.cleaned_data["set_usable_password"]:
             user.set_password(self.cleaned_data[password_field_name])
         else:
@@ -225,6 +246,13 @@ class BaseUserCreationForm(SetPasswordMixin, forms.ModelForm):
         self.validate_password_for_user(self.instance)
 
     def save(self, commit=True):
+        """
+        Saves the user instance, setting the password securely in the process. 
+
+        If commit is True, the changes are saved to the database immediately. 
+        Additionally, if the instance has a save_m2m method and commit is True, 
+        many-to-many relationships are saved after the instance has been saved.
+        """
         user = super().save(commit=False)
         user = self.set_password_and_save(user, commit=commit)
         if commit and hasattr(self, "save_m2m"):
@@ -234,7 +262,9 @@ class BaseUserCreationForm(SetPasswordMixin, forms.ModelForm):
 
 class UserCreationForm(BaseUserCreationForm):
     def clean_username(self):
-        """Reject usernames that differ only in case."""
+        """
+        Ensures that usernames are case-insensitive unique by checking for existing usernames with the same case-insensitive value, raising a validation error if a match is found.
+        """
         username = self.cleaned_data.get("username")
         if (
             username
@@ -268,6 +298,10 @@ class UserChangeForm(forms.ModelForm):
         field_classes = {"username": UsernameField}
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes a user form instance, customizing its fields to improve usability.
+        Customization includes setting help text for the password field and optimizing the user permissions field for faster queries.
+        """
         super().__init__(*args, **kwargs)
         password = self.fields.get("password")
         if password:
@@ -306,8 +340,14 @@ class AuthenticationForm(forms.Form):
 
     def __init__(self, request=None, *args, **kwargs):
         """
-        The 'request' parameter is set for custom auth use by subclasses.
-        The form data comes in via the standard 'data' kwarg.
+        Initializes the form instance, setting up authentication and form field configurations. 
+
+        Parameters:
+            request (optional): Used for custom authentication in subclasses.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments, including form data via the 'data' key.
+
+        The initialization process includes setting the username field's maximum length and label based on the underlying user model's configuration.
         """
         self.request = request
         self.user_cache = None
@@ -322,6 +362,9 @@ class AuthenticationForm(forms.Form):
             self.fields["username"].label = capfirst(self.username_field.verbose_name)
 
     def clean(self):
+        """
+        Validates and cleans the provided username and password, attempting to authenticate the user and logging them in if successful. 
+        """
         username = self.cleaned_data.get("username")
         password = self.cleaned_data.get("password")
 
@@ -381,7 +424,14 @@ class PasswordResetForm(forms.Form):
         html_email_template_name=None,
     ):
         """
-        Send a django.core.mail.EmailMultiAlternatives to `to_email`.
+        Sends an email to a specified recipient with renderable subject and body templates.
+
+            :param subject_template_name: Name of the template for the email subject
+            :param email_template_name: Name of the template for the email body
+            :param context: Dictionary containing data used to render the email templates
+            :param from_email: Email address of the sender
+            :param to_email: Email address of the recipient
+            :param html_email_template_name: Optional name of the template for the HTML email body
         """
         subject = loader.render_to_string(subject_template_name, context)
         # Email subject *must not* contain newlines
@@ -429,8 +479,9 @@ class PasswordResetForm(forms.Form):
         extra_email_context=None,
     ):
         """
-        Generate a one-use only link for resetting password and send it to the
-        user.
+        Sends a password reset email with a one-time use link to the user's registered email address.
+
+        It generates the reset link using the provided token generator and current site information, then sends the link to the user via email using customizable email templates. The email content can be modified using optional context parameters.
         """
         email = self.cleaned_data["email"]
         if not domain_override:
@@ -509,7 +560,7 @@ class PasswordChangeForm(SetPasswordForm):
 
     def clean_old_password(self):
         """
-        Validate that the old_password field is correct.
+        Validates the old password for the current user, raising a ValidationError if it is incorrect.
         """
         old_password = self.cleaned_data["old_password"]
         if not self.user.check_password(old_password):
@@ -533,6 +584,10 @@ class AdminPasswordChangeForm(SetPasswordMixin, forms.Form):
     password1, password2 = SetPasswordMixin.create_password_fields()
 
     def __init__(self, user, *args, **kwargs):
+        """
+        Initializes a form instance for a user, setting up the form fields and autofocus on the password field.
+        It also checks if the user has a usable password and adds a corresponding field to the form if necessary.
+        """
         self.user = user
         super().__init__(*args, **kwargs)
         self.fields["password1"].widget.attrs["autofocus"] = True

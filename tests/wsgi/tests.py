@@ -18,7 +18,11 @@ class WSGITest(SimpleTestCase):
 
     def test_get_wsgi_application(self):
         """
-        get_wsgi_application() returns a functioning WSGI callable.
+
+        Tests that get_wsgi_application() returns a functional WSGI application by verifying its response to a GET request.
+
+        The test checks for a successful status code (200 OK), correct headers, and the expected response content.
+
         """
         application = get_wsgi_application()
 
@@ -51,7 +55,7 @@ class WSGITest(SimpleTestCase):
 
     def test_file_wrapper(self):
         """
-        FileResponse uses wsgi.file_wrapper.
+        Tests that a FileResponse uses the wsgi.file_wrapper correctly, specifically with the custom FileWrapper class.
         """
 
         class FileWrapper:
@@ -93,8 +97,7 @@ class GetInternalWSGIApplicationTest(SimpleTestCase):
     @override_settings(WSGI_APPLICATION=None)
     def test_default(self):
         """
-        If ``WSGI_APPLICATION`` is ``None``, the return value of
-        ``get_wsgi_application`` is returned.
+        Tests that the internal WSGI application is correctly determined when the ``WSGI_APPLICATION`` setting is not provided.
         """
         # Mock out get_wsgi_application so we know its return value is used
         fake_app = object()

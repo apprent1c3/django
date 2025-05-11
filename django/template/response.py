@@ -23,6 +23,20 @@ class SimpleTemplateResponse(HttpResponse):
         # It would seem obvious to call these next two members 'template' and
         # 'context', but those names are reserved as part of the test Client
         # API. To avoid the name collision, we use different names.
+        """
+        Initializes a response object to render a template.
+
+        Args:
+            template (str): The name of the template to render.
+            context (dict, optional): Data to be used in the template. Defaults to None.
+            content_type (str, optional): The content type of the response. Defaults to None.
+            status (int, optional): The HTTP status code of the response. Defaults to None.
+            charset (str, optional): The character encoding of the response. Defaults to None.
+            using (str, optional): The template engine to use. Defaults to None.
+            headers (dict, optional): Additional HTTP headers for the response. Defaults to None.
+
+        Sets up the necessary attributes for rendering the template and prepares the response object.
+        """
         self.template_name = template
         self.context_data = context
 
@@ -52,8 +66,7 @@ class SimpleTemplateResponse(HttpResponse):
 
     def __getstate__(self):
         """
-        Raise an exception if trying to pickle an unrendered response. Pickle
-        only rendered data, not the data used to construct the response.
+        Raises an exception if attempting to pickle an unrendered response, ensuring only rendered data is pickled, excluding response construction data.
         """
         obj_dict = self.__dict__.copy()
         if not self._is_rendered:
@@ -67,7 +80,12 @@ class SimpleTemplateResponse(HttpResponse):
         return obj_dict
 
     def resolve_template(self, template):
-        """Accept a template object, path-to-template, or list of paths."""
+        """
+        Resolve a template reference into a concrete template object.
+
+        This function can handle different types of template references, including template objects, 
+        paths to templates, or lists of paths, and returns a corresponding template object.
+        """
         if isinstance(template, (list, tuple)):
             return select_template(template, using=self.using)
         elif isinstance(template, str):
@@ -92,10 +110,11 @@ class SimpleTemplateResponse(HttpResponse):
         return template.render(context, self._request)
 
     def add_post_render_callback(self, callback):
-        """Add a new post-rendering callback.
+        """
+        Registers a callback function to be executed after rendering has completed.
 
-        If the response has already been rendered,
-        invoke the callback immediately.
+            If rendering has already occurred, the callback is invoked immediately; otherwise,
+            it is stored for execution upon rendering completion.
         """
         if self._is_rendered:
             callback(self)
@@ -103,11 +122,8 @@ class SimpleTemplateResponse(HttpResponse):
             self._post_render_callbacks.append(callback)
 
     def render(self):
-        """Render (thereby finalizing) the content of the response.
-
-        If the content has already been rendered, this is a no-op.
-
-        Return the baked response instance.
+        """
+        Render the content of the response, finalizing it and triggering any post-render callbacks, returning the resulting response instance.
         """
         retval = self
         if not self._is_rendered:

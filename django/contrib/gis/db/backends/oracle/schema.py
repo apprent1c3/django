@@ -41,6 +41,9 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         return super().quote_value(value)
 
     def column_sql(self, model, field, include_default=False):
+        """
+        Generates the SQL for creating a column, extending the basic column creation logic to include additional SQL for geometric fields, such as adding geometry metadata and creating spatial indexes if necessary.
+        """
         column_sql = super().column_sql(model, field, include_default)
         if isinstance(field, GeometryField):
             db_table = model._meta.db_table
@@ -88,6 +91,9 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         self.run_geometry_sql()
 
     def remove_field(self, model, field):
+        """
+        Removes a field from a model, handling GeometryField metadata and spatial indexes if applicable.
+        """
         if isinstance(field, GeometryField):
             self.execute(
                 self.sql_clear_geometry_field_metadata

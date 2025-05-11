@@ -22,7 +22,9 @@ class StaticTests(SimpleTestCase):
     prefix = "site_media"
 
     def test_serve(self):
-        "The static view can serve static media"
+        """
+        Tests that the static view correctly serves static media files by verifying the response content and headers against the expected values from the original files.
+        """
         media_files = ["file.txt", "file.txt.gz", "%2F.txt"]
         for filename in media_files:
             response = self.client.get("/%s/%s" % (self.prefix, quote(filename)))
@@ -39,7 +41,9 @@ class StaticTests(SimpleTestCase):
             )
 
     def test_chunked(self):
-        "The static view should stream files in chunks to avoid large memory usage"
+        """
+        Tests that the static view streams files in chunks to prevent excessive memory usage, ensuring that the response is split into manageable blocks of data.
+        """
         response = self.client.get("/%s/%s" % (self.prefix, "long-line.txt"))
         response_iterator = iter(response)
         first_chunk = next(response_iterator)
@@ -55,6 +59,9 @@ class StaticTests(SimpleTestCase):
         response.close()
 
     def test_copes_with_empty_path_component(self):
+        """
+        Tests the handling of empty path components in URLs by verifying that the content of a file is correctly retrieved when the URL contains consecutive slashes.
+        """
         file_name = "file.txt"
         response = self.client.get("/%s//%s" % (self.prefix, file_name))
         response_content = b"".join(response)
@@ -62,6 +69,14 @@ class StaticTests(SimpleTestCase):
             self.assertEqual(fp.read(), response_content)
 
     def test_is_modified_since(self):
+        """
+        Tests if a file is returned when the 'If-Modified-Since' header is set to a date prior to the file's modification date.\"\"\"
+
+        Alternatively, a more detailed docstring could be:
+
+         \"\"\"Verifies that a GET request with an 'If-Modified-Since' header set to an early date returns the entire file content, 
+         ensuring that the server ignores the ancient date and returns the file regardless of its modification time.
+        """
         file_name = "file.txt"
         response = self.client.get(
             "/%s/%s" % (self.prefix, file_name),
@@ -84,10 +99,9 @@ class StaticTests(SimpleTestCase):
         self.assertIsInstance(response, HttpResponseNotModified)
 
     def test_invalid_if_modified_since(self):
-        """Handle bogus If-Modified-Since values gracefully
-
-        Assume that a file is modified since an invalid timestamp as per RFC
-        9110 Section 13.1.3.
+        """
+        Handle bogus If-Modified-Since values by verifying that a file is returned in its entirety 
+        when an invalid timestamp is provided in the request header, as per RFC 9110 Section 13.1.3.
         """
         file_name = "file.txt"
         invalid_date = "Mon, 28 May 999999999999 28:25:26 GMT"
@@ -101,10 +115,8 @@ class StaticTests(SimpleTestCase):
         self.assertEqual(len(response_content), int(response.headers["Content-Length"]))
 
     def test_invalid_if_modified_since2(self):
-        """Handle even more bogus If-Modified-Since values gracefully
-
-        Assume that a file is modified since an invalid timestamp as per RFC
-        9110 Section 13.1.3.
+        """
+        Tests the response to an HTTP request with an invalid If-Modified-Since header value, ensuring that the server handles it correctly and returns the full contents of the requested file.
         """
         file_name = "file.txt"
         invalid_date = ": 1291108438, Wed, 20 Oct 2010 14:05:00 GMT"
@@ -156,9 +168,9 @@ class StaticTests(SimpleTestCase):
 
     def test_template_encoding(self):
         """
-        The template is loaded directly, not via a template loader, and should
-        be opened as utf-8 charset as is the default specified on template
-        engines.
+
+        Tests that the template is loaded with the correct character encoding (utf-8).
+
         """
         from django.views.static import Path
 

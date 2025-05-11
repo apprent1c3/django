@@ -7,6 +7,9 @@ from django.test import SimpleTestCase
 
 class TypedMultipleChoiceFieldTest(SimpleTestCase):
     def test_typedmultiplechoicefield_1(self):
+        """
+        Tests the functionality of a TypedMultipleChoiceField with integer choices, verifying that it correctly cleans and validates input, including handling of invalid choices.
+        """
         f = TypedMultipleChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int)
         self.assertEqual([1], f.clean(["1"]))
         msg = "'Select a valid choice. 2 is not one of the available choices.'"
@@ -24,6 +27,9 @@ class TypedMultipleChoiceFieldTest(SimpleTestCase):
         self.assertEqual([True], f.clean(["-1"]))
 
     def test_typedmultiplechoicefield_4(self):
+        """
+        Tests the TypedMultipleChoiceField to ensure it correctly validates and cleans user input by checking that valid choices are returned as their coerced types and invalid choices raise a ValidationError.
+        """
         f = TypedMultipleChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int)
         self.assertEqual([1, -1], f.clean(["1", "-1"]))
         msg = "'Select a valid choice. 2 is not one of the available choices.'"
@@ -33,6 +39,9 @@ class TypedMultipleChoiceFieldTest(SimpleTestCase):
     def test_typedmultiplechoicefield_5(self):
         # Even more weirdness: if you have a valid choice but your coercion function
         # can't coerce, you'll still get a validation error. Don't do this!
+        """
+        Tests the validation behavior of a TypedMultipleChoiceField with specific choices when an invalid choice or an empty list is provided.
+        """
         f = TypedMultipleChoiceField(choices=[("A", "A"), ("B", "B")], coerce=int)
         msg = "'Select a valid choice. B is not one of the available choices.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -67,8 +76,7 @@ class TypedMultipleChoiceFieldTest(SimpleTestCase):
 
     def test_typedmultiplechoicefield_special_coerce(self):
         """
-        A coerce function which results in a value not present in choices
-        should raise an appropriate error (#21397).
+        Tests the behavior of TypedMultipleChoiceField when the coerce function returns a value not present in the available choices. Verifies that the field raises a ValidationError with an appropriate error message and that it correctly handles required fields and invalid input.
         """
 
         def coerce_func(val):

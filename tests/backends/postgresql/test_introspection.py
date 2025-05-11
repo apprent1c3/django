@@ -9,6 +9,14 @@ from ..models import Person
 @unittest.skipUnless(connection.vendor == "postgresql", "Test only for PostgreSQL")
 class DatabaseSequenceTests(TestCase):
     def test_get_sequences(self):
+        """
+        Tests the retrieval of sequences associated with a database table.
+
+        Verifies that the correct sequence information is returned before and after
+        renaming a sequence, ensuring that introspection accurately reflects sequence
+        changes.\"\"\"
+
+        """
         with connection.cursor() as cursor:
             seqs = connection.introspection.get_sequences(cursor, Person._meta.db_table)
             self.assertEqual(

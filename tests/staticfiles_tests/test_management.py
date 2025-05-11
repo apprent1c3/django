@@ -42,6 +42,10 @@ class TestRunserver(StaticFilesTestCase):
             self.assertEqual(mocked.call_count, 1)
 
     def test_404_response(self):
+        """
+        Verifies that a 404 response is returned when a static file is not found, 
+        regardless of the DEBUG setting. Tests both secure and insecure serving modes.
+        """
         command = runserver.Command()
         handler = command.get_handler(use_static_handler=True, insecure_serving=True)
         missing_static_file = os.path.join(settings.STATIC_URL, "unknown.css")
@@ -68,7 +72,7 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
 
     def test_all_files(self):
         """
-        findstatic returns all candidate files if run without --first and -v1.
+        Tests that the findstatic command returns all candidate files when run without --first and -v1 flags, verifying the output structure and content for a given test file.
         """
         result = call_command(
             "findstatic", "test/file.txt", verbosity=1, stdout=StringIO()
@@ -82,7 +86,7 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
 
     def test_all_files_less_verbose(self):
         """
-        findstatic returns all candidate files if run without --first and -v0.
+        Tests the behavior of the findstatic command when run without --first and -v0 flags, verifying it returns all candidate files.
         """
         result = call_command(
             "findstatic", "test/file.txt", verbosity=0, stdout=StringIO()
@@ -94,8 +98,7 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
 
     def test_all_files_more_verbose(self):
         """
-        findstatic returns all candidate files if run without --first and -v2.
-        Also, test that findstatic returns the searched locations with -v2.
+        Tests that the findstatic command returns all candidate files and searched locations when run with verbosity level 2.
         """
         result = call_command(
             "findstatic", "test/file.txt", verbosity=2, stdout=StringIO()
@@ -127,6 +130,9 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
 
 class TestConfiguration(StaticFilesTestCase):
     def test_location_empty(self):
+        """
+        Tests that attempting to collect static files when the STATIC_ROOT setting is not set to a valid filesystem path raises an ImproperlyConfigured error.
+        """
         msg = "without having set the STATIC_ROOT setting to a filesystem path"
         err = StringIO()
         for root in ["", None]:
@@ -137,6 +143,13 @@ class TestConfiguration(StaticFilesTestCase):
                     )
 
     def test_local_storage_detection_helper(self):
+        """
+        Helper function to test local storage detection.
+
+            This function checks if the `is_local_storage` method of the `collectstatic.Command` correctly identifies local storage backends.
+            It tests various storage configurations and verifies the expected behavior.
+
+        """
         staticfiles_storage = storage.staticfiles_storage
         try:
             storage.staticfiles_storage._wrapped = empty
@@ -237,6 +250,9 @@ class TestCollectionVerbosity(CollectionTestCase):
         self.assertEqual(stdout.getvalue(), "")
 
     def test_verbosity_1(self):
+        """
+        Tests the verbosity level 1 of the collectstatic command, ensuring that the static files copied message is displayed while the copying message is not.
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=1, stdout=stdout)
         output = stdout.getvalue()
@@ -244,6 +260,9 @@ class TestCollectionVerbosity(CollectionTestCase):
         self.assertNotIn(self.copying_msg, output)
 
     def test_verbosity_2(self):
+        """
+        Test that verbosity level 2 produces the expected output when collecting static files.
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=2, stdout=stdout)
         output = stdout.getvalue()
@@ -326,6 +345,13 @@ class TestInteractiveMessages(CollectionTestCase):
         return _input
 
     def test_warning_when_clearing_staticdir(self):
+        """
+
+        Checks if the correct warnings are displayed when clearing the static directory with collectstatic command.
+
+        Verifies that the overwrite warning is not shown and the delete warning is shown when clearing the static directory in interactive mode.
+
+        """
         stdout = StringIO()
         self.run_collectstatic()
         with mock.patch("builtins.input", side_effect=self.mock_input(stdout)):
@@ -336,6 +362,9 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertIn(self.delete_warning_msg, output)
 
     def test_warning_when_overwriting_files_in_staticdir(self):
+        """
+        _checks that a warning is displayed when overwriting files in the static directory during an interactive collectstatic command._
+        """
         stdout = StringIO()
         self.run_collectstatic()
         with mock.patch("builtins.input", side_effect=self.mock_input(stdout)):
@@ -345,6 +374,9 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertNotIn(self.delete_warning_msg, output)
 
     def test_no_warning_when_staticdir_does_not_exist(self):
+        """
+        Tests that running collectstatic does not produce warnings when the static directory does not exist. Verifies that files are copied successfully without prompting overwrite or delete warnings.
+        """
         stdout = StringIO()
         shutil.rmtree(settings.STATIC_ROOT)
         call_command("collectstatic", interactive=True, stdout=stdout)
@@ -354,6 +386,11 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertIn(self.files_copied_msg, output)
 
     def test_no_warning_for_empty_staticdir(self):
+        """
+
+        Tests that running collectstatic on an empty static directory does not produce overwrite or delete warnings.
+
+        """
         stdout = StringIO()
         with tempfile.TemporaryDirectory(
             prefix="collectstatic_empty_staticdir_test"
@@ -441,6 +478,13 @@ class TestCollectionFilesOverride(CollectionTestCase):
     """
 
     def setUp(self):
+        """
+
+        Sets up a temporary test environment with a custom application, files, and modified settings.
+        Creates a temporary directory with a test app, duplicate file, and adjusts file timestamps.
+        Sets up the environment with the test app's path and modifies Django settings accordingly.
+
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
 
@@ -524,7 +568,7 @@ class TestCollectionOverwriteWarning(CollectionTestCase):
 
     def test_warning(self):
         """
-        There is a warning when there are duplicate destinations.
+        Tests that a warning is raised when there are duplicate destinations in STATICFILES_DIRS.
         """
         with tempfile.TemporaryDirectory() as static_dir:
             duplicate = os.path.join(static_dir, "test", "file.txt")
@@ -582,11 +626,7 @@ class TestCollectionNeverCopyStorage(CollectionTestCase):
     )
     def test_skips_newer_files_in_remote_storage(self):
         """
-        collectstatic skips newer files in a remote storage.
-        run_collectstatic() in setUp() copies the static files, then files are
-        always skipped after NeverCopyRemoteStorage is activated since
-        NeverCopyRemoteStorage.get_modified_time() returns a datetime in the
-        future to simulate an unmodified file.
+        Tests that the collectstatic command skips files in remote storage that have a newer modification time, using a custom storage backend that simulates unmodified files.
         """
         stdout = StringIO()
         self.run_collectstatic(stdout=stdout, verbosity=2)
@@ -615,7 +655,7 @@ class TestCollectionLinks(TestDefaults, CollectionTestCase):
 
     def test_broken_symlink(self):
         """
-        Test broken symlink gets deleted.
+        Tests the removal of a broken symbolic link during the collectstatic process, verifying that the link remains in its original location after collection.
         """
         path = os.path.join(settings.STATIC_ROOT, "test.txt")
         os.unlink(path)
@@ -624,8 +664,7 @@ class TestCollectionLinks(TestDefaults, CollectionTestCase):
 
     def test_symlinks_and_files_replaced(self):
         """
-        Running collectstatic in non-symlink mode replaces symlinks with files,
-        while symlink mode replaces files with symlinks.
+        Tests the behavior of collectstatic in replacing symlinks with files and vice versa, ensuring correct functionality in both non-symlink and symlink modes.
         """
         path = os.path.join(settings.STATIC_ROOT, "test.txt")
         self.assertTrue(os.path.islink(path))
@@ -636,7 +675,7 @@ class TestCollectionLinks(TestDefaults, CollectionTestCase):
 
     def test_clear_broken_symlink(self):
         """
-        With ``--clear``, broken symbolic links are deleted.
+        Tests whether the collectstatic command with the --clear option correctly deletes broken symbolic links.
         """
         nonexistent_file_path = os.path.join(settings.STATIC_ROOT, "nonexistent.txt")
         broken_symlink_path = os.path.join(settings.STATIC_ROOT, "symlink.txt")

@@ -13,6 +13,9 @@ from .utils import DummyStorage
 
 class MessageTests(SimpleTestCase):
     def test_eq(self):
+        """
+        Tests the equality functionality of the Message class, ensuring that messages with the same type and content are considered equal, while messages with different types or content are not.
+        """
         msg_1 = Message(constants.INFO, "Test message 1")
         msg_2 = Message(constants.INFO, "Test message 2")
         msg_3 = Message(constants.WARNING, "Test message 1")
@@ -30,6 +33,9 @@ class MessageTests(SimpleTestCase):
         }
     )
     def test_repr(self):
+        """
+        Tests the representation of Message instances to ensure correct string formatting for different message levels and tags.
+        """
         tests = [
             (constants.INFO, "thing", "", "Message(level=20, message='thing')"),
             (
@@ -67,6 +73,9 @@ class TestLevelTags(SimpleTestCase):
         self.assertEqual(base.LEVEL_TAGS, self.message_tags)
 
     def test_lazy(self):
+        """
+        Tests that the Level Tags from django message storage base get updated based on the MESSAGE_TAGS setting.
+        """
         storage_base_import_path = "django.contrib.messages.storage.base"
         in_use_base = sys.modules.pop(storage_base_import_path)
         self.addCleanup(sys.modules.__setitem__, storage_base_import_path, in_use_base)
@@ -101,6 +110,9 @@ class FakeResponse:
 
 class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
     def test_assertion(self):
+        """
+        Tests that messages of various levels are correctly added to a response.
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.DEBUG, "DEBUG message.")
         add_message(response.wsgi_request, constants.INFO, "INFO message.")
@@ -119,6 +131,9 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
         )
 
     def test_with_tags(self):
+        """
+        Tests the addition of messages with various tags to a request, verifying they are correctly stored and retrieved.
+        """
         response = FakeResponse()
         add_message(
             response.wsgi_request,
@@ -161,6 +176,14 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
         self.assertMessages(response, [Message(42, "CUSTOM message.")])
 
     def test_ordered(self):
+        """
+
+        Verifies that messages are retrieved in the correct order when order is not guaranteed.
+
+        This test checks the behavior of the assertMessages method when the 'ordered' parameter is set to False,
+        and validates that it correctly handles messages that are not in the expected order.
+
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.INFO, "First message.")
         add_message(response.wsgi_request, constants.WARNING, "Second message.")
@@ -173,6 +196,15 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
             self.assertMessages(response, expected_messages)
 
     def test_mismatching_length(self):
+        """
+
+        Tests that an AssertionError is raised when comparing messages of different lengths.
+
+        This test case verifies that the assertMessages method correctly identifies and reports
+        a mismatch between the expected and actual messages, specifically when the actual messages
+        contain more elements than the expected messages.
+
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.INFO, "INFO message.")
         msg = (

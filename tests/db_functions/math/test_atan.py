@@ -16,6 +16,9 @@ class ATanTests(TestCase):
         self.assertIsNone(obj.null_atan)
 
     def test_decimal(self):
+        """
+        Checks the functionality of the ATan database function for Decimal fields. Verifies that it returns Decimal values and that the results match the math library's atan function.
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_atan=ATan("n1"), n2_atan=ATan("n2")
@@ -26,6 +29,11 @@ class ATanTests(TestCase):
         self.assertAlmostEqual(obj.n2_atan, Decimal(math.atan(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the calculation of the arctangent (inverse tangent) of float fields in a model.
+
+        Verifies that the ATan database function returns float values and produces accurate results equivalent to the math.atan function.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_atan=ATan("f1"), f2_atan=ATan("f2")
@@ -36,6 +44,11 @@ class ATanTests(TestCase):
         self.assertAlmostEqual(obj.f2_atan, math.atan(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the calculation of the arctangent of integers using the database arithmetic functions.
+
+        Verifies that the result of the arctangent function is correctly calculated for negative and positive integers and is of type float.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_atan=ATan("small"),
@@ -50,6 +63,12 @@ class ATanTests(TestCase):
         self.assertAlmostEqual(obj.big_atan, math.atan(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of decimal fields using the arctangent function.\"\"\"
+
+        \"\"\"Verifies that DecimalModel objects are correctly filtered based on the 
+        arctangent of their n1 field, ensuring the lookup is applied as expected.
+        """
         with register_lookup(DecimalField, ATan):
             DecimalModel.objects.create(n1=Decimal("3.12"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-5"), n2=Decimal("0"))

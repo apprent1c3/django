@@ -214,6 +214,9 @@ def _check_secret_key(secret_key):
 
 @register(Tags.security, deploy=True)
 def check_secret_key(app_configs, **kwargs):
+    """
+    Checks if a Django project's SECRET_KEY setting is properly configured, returning a warning if it does not meet security requirements.
+    """
     try:
         secret_key = settings.SECRET_KEY
     except (ImproperlyConfigured, AttributeError):
@@ -225,6 +228,9 @@ def check_secret_key(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_secret_key_fallbacks(app_configs, **kwargs):
+    """
+    Checks the SECRET_KEY_FALLBACKS setting for valid secret keys and returns warnings for any invalid or missing keys.
+    """
     warnings = []
     try:
         fallbacks = settings.SECRET_KEY_FALLBACKS
@@ -258,6 +264,9 @@ def check_allowed_hosts(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_referrer_policy(app_configs, **kwargs):
+    """
+    Checks the referrer policy configuration to ensure it is properly set and valid, raising warnings or errors if it is not. This function is part of the security checks and is performed during deployment.
+    """
     if _security_middleware():
         if settings.SECURE_REFERRER_POLICY is None:
             return [W022]

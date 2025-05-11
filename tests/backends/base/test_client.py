@@ -18,6 +18,9 @@ class SimpleDatabaseClientTests(SimpleTestCase):
             self.client.settings_to_cmd_args_env(None, None)
 
     def test_runshell_use_environ(self):
+        """
+        Checks that the runshell method correctly handles the environment variables when running a shell, testing both cases where environment variables are provided and where they are not.
+        """
         for env in [None, {}]:
             with self.subTest(env=env):
                 with mock.patch("subprocess.run") as run:

@@ -11,6 +11,10 @@ class RelatedObjectTests(TestCase):
             self.assertEqual(field_name, obj.field.related_query_name())
 
     def test_m2m_and_m2o(self):
+        """
+        Tests the Many-To-Many (m2m) and Many-To-One (m2o) relationships between Issues, Clients, and CC users.
+        Verifies that filtering Issues by client or cc user returns the correct results, handling both OR and separate queries.
+        """
         r = User.objects.create(username="russell")
         g = User.objects.create(username="gustav")
 
@@ -88,8 +92,8 @@ class RelatedObjectTests(TestCase):
 class RelatedObjectUnicodeTests(TestCase):
     def test_m2m_with_unicode_reference(self):
         """
-        Regression test for #6045: references to other models can be
-        strings, providing they are directly convertible to ASCII.
+        Tests that many-to-many relationships can handle models referenced by string, 
+        ensuring the reference is convertible to ASCII, as a regression for issue #6045.
         """
         m1 = StringReferenceModel.objects.create()
         m2 = StringReferenceModel.objects.create()

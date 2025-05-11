@@ -19,6 +19,9 @@ class MultiDBRemoveContentTypeNameTests(TransactionTestCase):
         # add_legacy_name() should update ContentType objects in the specified
         # database. Remove ContentTypes from the default database to distinct
         # from which database they are fetched.
+        """
+        Tests that adding legacy name to content types works correctly with the default database connection and fails as expected when using a different database connection.
+        """
         Permission.objects.all().delete()
         ContentType.objects.all().delete()
         # ContentType.name in the current version is a property and cannot be

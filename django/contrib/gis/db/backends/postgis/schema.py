@@ -23,6 +23,12 @@ class PostGISSchemaEditor(DatabaseSchemaEditor):
         return super()._field_should_be_indexed(model, field)
 
     def _create_index_sql(self, model, *, fields=None, **kwargs):
+        """
+        Creates an SQL statement for creating an index for a given model, 
+        overriding the standard index creation to support geodetic fields and 
+        raster data. It constructs the index name and specifies the index type, 
+        operator classes, and expressions as necessary for spatial indexing.
+        """
         if fields is None or len(fields) != 1 or not hasattr(fields[0], "geodetic"):
             return super()._create_index_sql(model, fields=fields, **kwargs)
 
@@ -54,7 +60,7 @@ class PostGISSchemaEditor(DatabaseSchemaEditor):
         self, table, old_field, new_field, new_type, old_collation, new_collation
     ):
         """
-        Special case when dimension changed.
+        Handles altering the type of a column in a table, with special handling for changes in dimension (2D to 3D or vice versa).
         """
         if not hasattr(old_field, "dim") or not hasattr(new_field, "dim"):
             return super()._alter_column_type_sql(

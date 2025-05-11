@@ -4,6 +4,9 @@ from django.db.models.expressions import OrderByList
 
 class OrderableAggMixin:
     def __init__(self, *expressions, ordering=(), **extra):
+        """
+        Initializes the query object with specified expressions and optional ordering criteria, allowing for customization of the query's result sorting.
+        """
         if not ordering:
             self.order_by = None
         elif isinstance(ordering, (list, tuple)):
@@ -25,6 +28,9 @@ class OrderableAggMixin:
         return super().set_source_expressions(exprs)
 
     def as_sql(self, compiler, connection):
+        """
+        Generate the SQL string and parameter list for the current query, incorporating any specified ordering and filtering expressions, and combining them with the source expressions.
+        """
         *source_exprs, filtering_expr, ordering_expr = self.get_source_expressions()
 
         order_by_sql = ""

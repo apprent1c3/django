@@ -11,6 +11,9 @@ def get_template_directories():
     # Iterate through each template backend and find
     # any template_loader that has a 'get_dirs' method.
     # Collect the directories, filtering out Django templates.
+    """
+    Gets a set of template directory paths for the current working directory, combining directories from Django template engines and their loaders.
+    """
     cwd = Path.cwd()
     items = set()
     for backend in engines.all():
@@ -31,6 +34,10 @@ def get_template_directories():
 
 
 def reset_loaders():
+    """
+    Resets all template loaders in Django template engines and the default renderer's engine, 
+    preparing them for reloading templates.
+    """
     from django.forms.renderers import get_default_renderer
 
     for backend in engines.all():
@@ -53,6 +60,9 @@ def watch_for_template_changes(sender, **kwargs):
 
 @receiver(file_changed, dispatch_uid="template_loaders_file_changed")
 def template_changed(sender, file_path, **kwargs):
+    """
+    Listens for file change events, resetting template loaders when a change occurs within a template directory, excluding Python files.
+    """
     if file_path.suffix == ".py":
         return
     for template_dir in get_template_directories():

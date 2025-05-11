@@ -53,6 +53,9 @@ class BaseDatabaseWrapper:
     def __init__(self, settings_dict, alias=DEFAULT_DB_ALIAS):
         # Connection related attributes.
         # The underlying database connection.
+        """
+        Initializes a database connection object with the given settings and alias, setting up internal state and thread safety mechanisms for managing the connection.
+        """
         self.connection = None
         # `settings_dict` should be a dictionary containing keys such as
         # NAME, USER, etc. It's called `settings_dict` instead of `settings`
@@ -134,18 +137,12 @@ class BaseDatabaseWrapper:
     @cached_property
     def timezone(self):
         """
-        Return a tzinfo of the database connection time zone.
 
-        This is only used when time zone support is enabled. When a datetime is
-        read from the database, it is always returned in this time zone.
+            Return the time zone of the database connection.
 
-        When the database backend supports time zones, it doesn't matter which
-        time zone Django uses, as long as aware datetimes are used everywhere.
-        Other users connecting to the database can choose their own time zone.
+            This property provides the timezone used when reading datetime objects from the database,
+            applicable when time zone support is enabled.
 
-        When the database backend doesn't support time zones, the time zone
-        Django uses may be constrained by the requirements of other users of
-        the database.
         """
         if not settings.USE_TZ:
             return None
@@ -157,7 +154,7 @@ class BaseDatabaseWrapper:
     @cached_property
     def timezone_name(self):
         """
-        Name of the time zone of the database connection.
+        Name of the time zone of the database connection, considering project settings and database configuration.
         """
         if not settings.USE_TZ:
             return settings.TIME_ZONE
@@ -188,8 +185,7 @@ class BaseDatabaseWrapper:
 
     def check_database_version_supported(self):
         """
-        Raise an error if the database version isn't supported by this
-        version of Django.
+        Checks if the database version is compatible with the current Django version, raising an error if it's not supported.
         """
         if (
             self.features.minimum_database_version is not None
@@ -219,7 +215,9 @@ class BaseDatabaseWrapper:
         )
 
     def init_connection_state(self):
-        """Initialize the database connection settings."""
+        """
+        Initializes the database connection state by checking if the database version is supported for the given alias, ensuring the version check is only performed once per alias.
+        """
         global RAN_DB_VERSION_CHECK
         if self.alias not in RAN_DB_VERSION_CHECK:
             self.check_database_version_supported()
@@ -235,7 +233,11 @@ class BaseDatabaseWrapper:
 
     @async_unsafe
     def connect(self):
-        """Connect to the database. Assume that the connection is closed."""
+        """
+        Establishes a connection to the database, resetting the connection state and 
+        initializing the necessary parameters. This method should be called when the 
+        connection is known to be closed.
+        """
         # Check for invalid configurations.
         self.check_settings()
         # In case the previous connection was closed while in an atomic block
@@ -269,7 +271,9 @@ class BaseDatabaseWrapper:
 
     @async_unsafe
     def ensure_connection(self):
-        """Guarantee that a connection to the database is established."""
+        """
+        Establish a connection to the database if one does not already exist, handling atomic block and connection state considerations to prevent incorrect usage.
+        """
         if self.connection is None:
             if self.in_atomic_block and self.closed_in_transaction:
                 raise ProgrammingError(
@@ -282,7 +286,8 @@ class BaseDatabaseWrapper:
 
     def _prepare_cursor(self, cursor):
         """
-        Validate the connection is usable and perform database cursor wrapping.
+        Validate the connection is usable and perform database cursor wrapping, 
+        optionally applying query logging if enabled.
         """
         self.validate_thread_sharing()
         if self.queries_logged:
@@ -321,7 +326,9 @@ class BaseDatabaseWrapper:
 
     @async_unsafe
     def commit(self):
-        """Commit a transaction and reset the dirty flag."""
+        """
+        Commits the current transaction and resets the internal state, allowing for a new transaction to begin. This involves validating the current state, performing the actual commit operation, and triggering any necessary hooks and resets.
+        """
         self.validate_thread_sharing()
         self.validate_no_atomic_block()
         self._commit()
@@ -331,7 +338,9 @@ class BaseDatabaseWrapper:
 
     @async_unsafe
     def rollback(self):
-        """Roll back a transaction and reset the dirty flag."""
+        """
+        Reverts a transaction to its previous state, discarding any pending changes and resetting the dirty flag.
+        """
         self.validate_thread_sharing()
         self.validate_no_atomic_block()
         self._rollback()
@@ -342,7 +351,9 @@ class BaseDatabaseWrapper:
 
     @async_unsafe
     def close(self):
-        """Close the connection to the database."""
+        """
+        Closes the database connection, releasing any associated resources. If called within an atomic block, the connection is marked for closure after the block completes, and a rollback is scheduled.
+        """
         self.validate_thread_sharing()
         self.run_on_commit = []
 
@@ -383,9 +394,11 @@ class BaseDatabaseWrapper:
     @async_unsafe
     def savepoint(self):
         """
-        Create a savepoint inside the current transaction. Return an
-        identifier for the savepoint that will be used for the subsequent
-        rollback or commit. Do nothing if savepoints are not supported.
+
+        Create a savepoint in the current transaction and return its identifier, 
+        used for subsequent rollback or commit operations. If savepoints are not supported, 
+        this function has no effect.
+
         """
         if not self._savepoint_allowed():
             return
@@ -404,7 +417,11 @@ class BaseDatabaseWrapper:
     @async_unsafe
     def savepoint_rollback(self, sid):
         """
-        Roll back to a savepoint. Do nothing if savepoints are not supported.
+
+        Revert changes to a specific savepoint. If savepoints are not supported, no action is taken.
+
+        :param sid: The ID of the savepoint to roll back to.
+
         """
         if not self._savepoint_allowed():
             return
@@ -422,7 +439,11 @@ class BaseDatabaseWrapper:
     @async_unsafe
     def savepoint_commit(self, sid):
         """
-        Release a savepoint. Do nothing if savepoints are not supported.
+
+        Releases a savepoint, committing any changes made since its creation. 
+        If savepoints are not supported, this function has no effect.
+        :param sid: The identifier of the savepoint to commit.
+
         """
         if not self._savepoint_allowed():
             return
@@ -458,15 +479,11 @@ class BaseDatabaseWrapper:
         self, autocommit, force_begin_transaction_with_broken_autocommit=False
     ):
         """
-        Enable or disable autocommit.
+        Enable or disable autocommit mode for database transactions.
 
-        The usual way to start a transaction is to turn autocommit off.
-        SQLite does not properly start a transaction when disabling
-        autocommit. To avoid this buggy behavior and to actually enter a new
-        transaction, an explicit BEGIN is required. Using
-        force_begin_transaction_with_broken_autocommit=True will issue an
-        explicit BEGIN with SQLite. This option will be ignored for other
-        backends.
+        Enabling autocommit allows each SQL statement to be executed as a separate transaction.
+        Disabling autocommit starts a new transaction, allowing multiple statements to be executed together.
+        The force_begin_transaction_with_broken_autocommit option is used to work around a bug in SQLite where disabling autocommit does not properly start a new transaction.
         """
         self.validate_no_atomic_block()
         self.close_if_health_check_failed()
@@ -528,7 +545,10 @@ class BaseDatabaseWrapper:
     @contextmanager
     def constraint_checks_disabled(self):
         """
-        Disable foreign key constraint checking.
+
+        Disable foreign key constraint checking temporarily, allowing for operations that would otherwise violate these constraints.
+        This context manager ensures that constraint checking is re-enabled once the contained block of code is executed, regardless of success or failure.
+
         """
         disabled = self.disable_constraint_checking()
         try:
@@ -576,7 +596,9 @@ class BaseDatabaseWrapper:
         )
 
     def close_if_health_check_failed(self):
-        """Close existing connection if it fails a health check."""
+        """
+        Closes the existing connection if it fails a health check, ensuring the connection is viable before further use.
+        """
         if (
             self.connection is None
             or not self.health_check_enabled
@@ -590,8 +612,7 @@ class BaseDatabaseWrapper:
 
     def close_if_unusable_or_obsolete(self):
         """
-        Close the current connection if unrecoverable errors have occurred
-        or if it outlived its maximum age.
+        Closes the current connection if it is no longer usable or has exceeded its maximum allowed age, ensuring resource cleanup and preventing further errors.
         """
         if self.connection is not None:
             self.health_check_done = False
@@ -684,11 +705,8 @@ class BaseDatabaseWrapper:
     @contextmanager
     def temporary_connection(self):
         """
-        Context manager that ensures that a connection is established, and
-        if it opened one, closes it to avoid leaving a dangling connection.
-        This is useful for operations outside of the request-response cycle.
-
-        Provide a cursor: with self.temporary_connection() as cursor: ...
+        Context manager that ensures a connection is established and closed after use, 
+        providing a cursor for operations outside of the request-response cycle.
         """
         must_close = self.connection is None
         try:
@@ -701,11 +719,7 @@ class BaseDatabaseWrapper:
     @contextmanager
     def _nodb_cursor(self):
         """
-        Return a cursor from an alternative connection to be used when there is
-        no need to access the main database, specifically for test db
-        creation/deletion. This also prevents the production database from
-        being exposed to potential child threads while (or after) the test
-        database is destroyed. Refs #10868, #17786, #16969.
+        Provides a temporary cursor from an alternative database connection to prevent exposing the main database to potential threading issues during test database creation and deletion.
         """
         conn = self.__class__({**self.settings_dict, "NAME": None}, alias=NO_DB_ALIAS)
         try:
@@ -725,6 +739,17 @@ class BaseDatabaseWrapper:
         return self.SchemaEditorClass(self, *args, **kwargs)
 
     def on_commit(self, func, robust=False):
+        """
+        Registers a callback function to be executed after the current database transaction has committed.
+
+        The callback function is guaranteed to be executed only once, after the transaction has successfully committed. If the transaction rolls back, the callback will not be executed.
+
+        :param func: The callback function to be executed.
+        :param robust: If True, the callback function will be executed even if an exception occurs, and the exception will be logged. If False, any exception raised by the callback function will be propagated.
+        :raises TypeError: If the callback function is not callable.
+        :raises TransactionManagementError: If on_commit is used in manual transaction management and not within an atomic block.
+
+        """
         if not callable(func):
             raise TypeError("on_commit()'s callback must be a callable.")
         if self.in_atomic_block:
@@ -750,6 +775,13 @@ class BaseDatabaseWrapper:
                 func()
 
     def run_and_clear_commit_hooks(self):
+        """
+        Runs all functions registered to be executed on commit, then clears the registration list.
+
+        Functions are run in the order they were registered. If a function is marked as robust, any exceptions it raises will be logged and it will not prevent other functions from running. If a function is not marked as robust, any exceptions it raises will propagate and prevent other functions from running.
+
+        This function is typically used to ensure that certain actions are taken after a database transaction has been committed, such as sending notifications or updating caches. 
+        """
         self.validate_no_atomic_block()
         current_run_on_commit = self.run_on_commit
         self.run_on_commit = []
@@ -771,8 +803,11 @@ class BaseDatabaseWrapper:
     @contextmanager
     def execute_wrapper(self, wrapper):
         """
-        Return a context manager under which the wrapper is applied to suitable
-        database query executions.
+
+            Temporarily applies a wrapper to database query executions within a specific context.
+
+            Provides a way to modify or extend the behavior of database queries without permanently changing their underlying implementation.
+
         """
         self.execute_wrappers.append(wrapper)
         try:
@@ -782,9 +817,7 @@ class BaseDatabaseWrapper:
 
     def copy(self, alias=None):
         """
-        Return a copy of this connection.
-
-        For tests that require two connections to the same database.
+        Return a copy of the current database connection, optionally using a different connection alias, suitable for testing scenarios that require multiple connections to the same database.
         """
         settings_dict = copy.deepcopy(self.settings_dict)
         if alias is None:

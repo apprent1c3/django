@@ -43,6 +43,14 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+
+        Handles the comparison and output of Django project settings.
+
+        Combines user settings with default or global settings, and generates output
+        in a specified format, such as a hash or unified diff, for the merged settings.
+
+        """
         from django.conf import Settings, global_settings, settings
 
         # Because settings are imported lazily, we need to explicitly load them.
@@ -62,6 +70,14 @@ class Command(BaseCommand):
 
     def output_hash(self, user_settings, default_settings, **options):
         # Inspired by Postfix's "postconf -n".
+        """
+
+        Generates a list of settings in a human-readable format, highlighting user-defined and non-default settings.
+
+        The output includes all settings from user_settings that differ from default_settings, 
+        as well as default settings if the 'all' option is specified.
+
+        """
         output = []
         for key in sorted(user_settings):
             if key not in default_settings:
@@ -73,6 +89,14 @@ class Command(BaseCommand):
         return output
 
     def output_unified(self, user_settings, default_settings, **options):
+        """
+        Compare user settings with default settings and generate a unified output.
+
+        The unified output highlights differences between the two sets of settings, indicating
+        added or changed settings with success messages and default values for changed settings
+        with error messages. If the 'all' option is specified, all settings are included in the
+        output, with matching settings displayed in a neutral format.
+        """
         output = []
         for key in sorted(user_settings):
             if key not in default_settings:

@@ -7,6 +7,9 @@ from . import PostgreSQLTestCase
 
 class InspectDBTests(PostgreSQLTestCase):
     def assertFieldsInModel(self, model, field_outputs):
+        """
+        Checks if specified fields are present in a Django model's database table schema. This function is used for validation and testing purposes, ensuring that the model's fields are correctly reflected in the database.
+        """
         out = StringIO()
         call_command(
             "inspectdb",

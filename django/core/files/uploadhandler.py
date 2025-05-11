@@ -74,6 +74,9 @@ class FileUploadHandler:
     chunk_size = 64 * 2**10  # : The default chunk size is 64 KB.
 
     def __init__(self, request=None):
+        """
+        Initializes a new instance of the class, optionally setting the request attribute.
+        """
         self.file_name = None
         self.content_type = None
         self.content_length = None
@@ -111,10 +114,16 @@ class FileUploadHandler:
         content_type_extra=None,
     ):
         """
-        Signal that a new file has been started.
 
-        Warning: As with any data from the client, you should not trust
-        content_length (and sometimes won't even get it).
+            Signal that a new file has been started.
+
+            Initializes the file metadata, including the field name, file name, 
+            content type, expected content length, and optional character set and 
+            extra content type information. 
+
+            Note: Client-provided data, such as content length, should be validated 
+            and not trusted.
+
         """
         self.field_name = field_name
         self.file_name = file_name
@@ -181,6 +190,9 @@ class TemporaryFileUploadHandler(FileUploadHandler):
         return self.file
 
     def upload_interrupted(self):
+        """
+        Deletes the temporary file of an interrupted upload, if it exists, to free up disk space.
+        """
         if hasattr(self, "file"):
             temp_location = self.file.temporary_file_path()
             try:
@@ -213,14 +225,18 @@ class MemoryFileUploadHandler(FileUploadHandler):
             raise StopFutureHandlers()
 
     def receive_data_chunk(self, raw_data, start):
-        """Add the data to the BytesIO file."""
+        """
+        Receives a chunk of raw data and either writes it to the internal file if activated or returns it otherwise.
+        """
         if self.activated:
             self.file.write(raw_data)
         else:
             return raw_data
 
     def file_complete(self, file_size):
-        """Return a file object if this handler is activated."""
+        """
+        Returns a file object if this handler is activated, providing the uploaded file contents for further processing.
+        """
         if not self.activated:
             return
 

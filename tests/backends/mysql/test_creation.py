@@ -28,6 +28,14 @@ class DatabaseCreationTests(SimpleTestCase):
     @mock.patch("sys.stderr", new_callable=StringIO)
     def test_create_test_db_database_exists(self, *mocked_objects):
         # Simulate test database creation raising "database exists"
+        """
+        Tests the creation of a test database when it already exists.
+
+        Verifies that an attempt to create the database fails with a SystemExit when 
+        autoclobber is False and the user declines to continue. Also checks that 
+        the database can be created when keepdb is True.
+
+        """
         creation = DatabaseCreation(connection)
         with self.patch_test_db_creation(self._execute_raise_database_exists):
             with mock.patch("builtins.input", return_value="no"):
@@ -50,6 +58,9 @@ class DatabaseCreationTests(SimpleTestCase):
                 creation._create_test_db(verbosity=0, autoclobber=False, keepdb=False)
 
     def test_clone_test_db_database_exists(self):
+        """
+        Tests that the test database is not cloned when it already exists and keepdb=True.
+        """
         creation = DatabaseCreation(connection)
         with self.patch_test_db_creation(self._execute_raise_database_exists):
             with mock.patch.object(DatabaseCreation, "_clone_db") as _clone_db:
@@ -57,6 +68,15 @@ class DatabaseCreationTests(SimpleTestCase):
                 _clone_db.assert_not_called()
 
     def test_clone_test_db_options_ordering(self):
+        """
+
+        Tests the ordering of database options during cloning of a test database.
+
+        Verifies that the 'OPTIONS' dictionary in the database settings is properly 
+        used when creating a database clone, specifically that the 'read_default_file' 
+        option is passed to the 'mysqldump' command.
+
+        """
         creation = DatabaseCreation(connection)
         try:
             saved_settings = connection.settings_dict

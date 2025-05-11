@@ -53,6 +53,9 @@ class JSONFieldTests(TestCase):
             )
 
     def test_custom_encoder_decoder(self):
+        """
+        Tests the custom encoder and decoder functionality of the NullableJSONModel by storing and retrieving a JSON object with a UUID value.
+        """
         value = {"uuid": uuid.UUID("{d85e2076-b67c-4ee7-8c3a-2bf5a2cc2475}")}
         obj = NullableJSONModel(value_custom=value)
         obj.clean_fields()
@@ -69,6 +72,9 @@ class JSONFieldTests(TestCase):
 
 class TestMethods(SimpleTestCase):
     def test_deconstruct(self):
+        """
+        Tests that a JSONField can be correctly deconstructed into its constituent parts, verifying the field's path, arguments, and keyword arguments are correctly identified.
+        """
         field = models.JSONField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.JSONField")
@@ -83,6 +89,9 @@ class TestMethods(SimpleTestCase):
 
     def test_get_transforms(self):
         @models.JSONField.register_lookup
+        """
+        Tests the retrieval of transforms from a JSONField, including custom transform registration and unregistration.
+        """
         class MyTransform(Transform):
             lookup_name = "my_transform"
 
@@ -103,6 +112,11 @@ class TestMethods(SimpleTestCase):
             KeyTransformTextLookupMixin(transform)
 
     def test_get_prep_value(self):
+        """
+        Test that get_prep_value correctly transforms boolean true into a JSON dictionary when preparing values for the database.
+
+        Checks that the transformation only occurs when preparing unprepared values, and that other values are left unchanged.
+        """
         class JSONFieldGetPrepValue(models.JSONField):
             def get_prep_value(self, value):
                 if value is True:
@@ -138,6 +152,11 @@ class TestValidation(SimpleTestCase):
             models.JSONField(decoder=CustomJSONDecoder())
 
     def test_validation_error(self):
+        """
+
+        Tests that a ValidationError is raised when the JSONField receives a value that cannot be serialized to JSON, such as a UUID object.
+
+        """
         field = models.JSONField()
         msg = "Value must be valid JSON."
         value = uuid.UUID("{d85e2076-b67c-4ee7-8c3a-2bf5a2cc2475}")
@@ -177,6 +196,9 @@ class TestSerialization(SimpleTestCase):
     )
 
     def test_dumping(self):
+        """
+        Tests the serialization of JSONModel instances to JSON data, ensuring the output matches the expected serialized format for a range of test values.
+        """
         for value, serialized in self.test_values:
             with self.subTest(value=value):
                 instance = JSONModel(value=value)
@@ -192,6 +214,9 @@ class TestSerialization(SimpleTestCase):
                 self.assertEqual(instance.value, value)
 
     def test_xml_serialization(self):
+        """
+        Tests the serialization and deserialization of NullableJSONModel instances to and from XML format, verifying that the data remains consistent throughout the process.
+        """
         test_xml_data = (
             '<django-objects version="1.0">'
             '<object model="model_fields.nullablejsonmodel">'
@@ -217,6 +242,13 @@ class TestSaveLoad(TestCase):
 
     @skipUnlessDBFeature("supports_primitives_in_json_field")
     def test_json_null_different_from_sql_null(self):
+        """
+        Tests the difference between JSON null and SQL null in a model field.
+
+        Verifies that a JSON null value is correctly differentiated from a SQL null value,
+        and that these values can be filtered and retrieved correctly from the database.
+
+        """
         json_null = NullableJSONModel.objects.create(value=Value(None, JSONField()))
         NullableJSONModel.objects.update(value=Value(None, JSONField()))
         json_null.refresh_from_db()
@@ -240,6 +272,9 @@ class TestSaveLoad(TestCase):
 
     @skipUnlessDBFeature("supports_primitives_in_json_field")
     def test_primitives(self):
+        """
+        Tests that a JSON field in the database can store and retrieve primitive data types (booleans, integers, floats, strings) correctly.
+        """
         values = [
             True,
             1,
@@ -255,6 +290,9 @@ class TestSaveLoad(TestCase):
                 self.assertEqual(obj.value, value)
 
     def test_dict(self):
+        """
+        Tests the creation of JSONModel objects with various dictionary values to ensure data consistency upon retrieval from the database.
+        """
         values = [
             {},
             {"name": "John", "age": 20, "height": 180.3},
@@ -267,6 +305,9 @@ class TestSaveLoad(TestCase):
                 self.assertEqual(obj.value, value)
 
     def test_list(self):
+        """
+        Tests JSONModel's ability to store and retrieve various list types, including empty lists, lists containing different data types, and nested lists.
+        """
         values = [
             [],
             ["John", 20, 180.3],
@@ -301,6 +342,9 @@ class TestSaveLoad(TestCase):
 class TestQuerying(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for testing JSON model fields, creating instances with various types of values and storing them in the database for use in subsequent tests.
+        """
         cls.primitives = [True, False, "yes", 7, 9.6]
         values = [
             None,
@@ -364,6 +408,10 @@ class TestQuerying(TestCase):
         )
 
     def test_ordering_by_transform(self):
+        """
+        #: Tests that the ordering of objects by a transformed field works as expected, 
+        #: covering cases for different database vendors, including MySQL, MariaDB, and Oracle.
+        """
         mariadb = connection.vendor == "mysql" and connection.mysql_is_mariadb
         values = [
             {"ord": 93, "name": "bar"},
@@ -388,6 +436,11 @@ class TestQuerying(TestCase):
                 self.assertSequenceEqual(query, expected)
 
     def test_ordering_grouping_by_key_transform(self):
+        """
+        Tests whether the ordering and grouping of query results by a nested key transformation works correctly. 
+        It checks that the results are correctly ordered by a specific key and that the grouping by key produces the expected count of objects.
+        The test also covers the handling of null values and empty strings depending on the database connection's features.
+        """
         base_qs = NullableJSONModel.objects.filter(value__d__0__isnull=False)
         for qs in (
             base_qs.order_by("value__d__0"),
@@ -583,6 +636,10 @@ class TestQuerying(TestCase):
                 )
 
     def test_has_key_list(self):
+        """
+        Tests whether a NullableJSONModel object can be correctly filtered based on the presence of a key within a nested list of dictionaries in its JSON value. 
+        The function verifies this functionality using various query conditions to ensure accurate and consistent results.
+        """
         obj = NullableJSONModel.objects.create(value=[{"a": 1}, {"b": "x"}])
         tests = [
             Q(value__1__has_key="b"),
@@ -610,6 +667,9 @@ class TestQuerying(TestCase):
         )
 
     def test_has_key_number(self):
+        """
+        Tests the functionality of the `has_key` and `has_keys` filters on NullableJSONModel objects, ensuring that objects can be correctly filtered based on the presence of specific keys within their JSON values.
+        """
         obj = NullableJSONModel.objects.create(
             value={
                 "123": "value",
@@ -638,6 +698,9 @@ class TestQuerying(TestCase):
 
     @skipUnlessDBFeature("supports_json_field_contains")
     def test_contains(self):
+        """
+        Tests the __contains lookup on a JSON field, verifying that it correctly filters objects containing the specified value.
+        """
         tests = [
             ({}, self.objs[2:5] + self.objs[6:8]),
             ({"baz": {"a": "b", "c": "d"}}, [self.objs[7]]),
@@ -697,6 +760,9 @@ class TestQuerying(TestCase):
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_deep_distinct(self):
+        """
+        Tests that the DISTINCT ON clause works correctly for nested fields in a QuerySet, including handling of NULL values.
+        """
         query = NullableJSONModel.objects.distinct("value__k__l").values_list(
             "value__k__l"
         )
@@ -740,6 +806,9 @@ class TestQuerying(TestCase):
         )
 
     def test_none_key_exclude(self):
+        """
+        Tests excluding objects with None value for a specific JSON key, accounting for differences in Oracle database behavior.
+        """
         obj = NullableJSONModel.objects.create(value={"j": 1})
         if connection.vendor == "oracle":
             # Oracle supports filtering JSON objects with NULL keys, but the
@@ -825,6 +894,12 @@ class TestQuerying(TestCase):
 
     def test_lookup_exclude_nonexistent_key(self):
         # Values without the key are ignored.
+        """
+        Tests the lookup functionality for excluding objects based on conditions.
+
+        Verifies that the exclude method correctly filters out objects that match a given condition,
+        and that the combination of exclude and filter methods works as expected with bitwise operators.
+        """
         condition = Q(value__foo="bax")
         objs_with_value = [self.objs[6]]
         objs_with_different_value = [self.objs[0], self.objs[7]]
@@ -919,6 +994,13 @@ class TestQuerying(TestCase):
                 )
 
     def test_key_values(self):
+        """
+        Tests that Django ORM's query lookups correctly retrieve values from NullableJSONModel instances.
+
+         Validates multiple key-value pairs for various data types, including booleans, integers, lists, dictionaries, floats, and None.
+
+         Ensures that the 'values_list' method returns the expected values when querying objects with specific key-value pairs.
+        """
         qs = NullableJSONModel.objects.filter(value__h=True)
         tests = [
             ("value__a", "b"),
@@ -937,6 +1019,9 @@ class TestQuerying(TestCase):
                 self.assertEqual(qs.values_list(lookup, flat=True).get(), expected)
 
     def test_key_values_boolean(self):
+        """
+        Verifies that query filter operations on nullable JSON fields return correct boolean values for specific key lookups.
+        """
         qs = NullableJSONModel.objects.filter(value__h=True, value__i=False)
         tests = [
             ("value__h", True),
@@ -1054,6 +1139,9 @@ class TestQuerying(TestCase):
 
     @skipUnlessDBFeature("supports_json_field_contains")
     def test_contains_contained_by_with_key_transform(self):
+        """
+        Tests the Django ORM's JSON field contains and contained_by lookups with various key transformations and values to ensure they work as expected.
+        """
         tests = [
             ("value__d__contains", "e"),
             ("value__d__contains", [{"f": "g"}]),
@@ -1115,6 +1203,9 @@ class TestQuerying(TestCase):
         self.assertSequenceEqual(qs, [self.objs[4]])
 
     def test_key_text_transform_from_lookup_invalid(self):
+        """
+        Tests that KeyTextTransform raises a ValueError when initialized with a lookup value that is empty or does not contain a key or index transform.
+        """
         msg = "Lookup must contain key or index transforms."
         with self.assertRaisesMessage(ValueError, msg):
             KT("value")

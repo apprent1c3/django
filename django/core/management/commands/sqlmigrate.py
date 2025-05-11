@@ -40,6 +40,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Get the database we're operating from
+        """
+        ..: handle: 
+            Handle the specified migration for the given application, generating SQL to apply or revert it.
+
+            :raises CommandError: If the application label is not found, does not have migrations, or if the migration name is ambiguous or not found.
+            :return: SQL statements to apply or revert the migration as a string.
+        """
         connection = connections[options["database"]]
 
         # Load up a loader to get all the migration data, but don't replace

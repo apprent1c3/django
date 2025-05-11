@@ -16,6 +16,9 @@ class ContentTypeManager(models.Manager):
         self._cache = {}
 
     def get_by_natural_key(self, app_label, model):
+        """
+        Retrieves a model's content type, first trying the cache, then falling back to a database query if necessary.
+        """
         try:
             ct = self._cache[self.db][(app_label, model)]
         except KeyError:
@@ -34,9 +37,10 @@ class ContentTypeManager(models.Manager):
 
     def get_for_model(self, model, for_concrete_model=True):
         """
+
         Return the ContentType object for a given model, creating the
-        ContentType if necessary. Lookups are cached so that subsequent lookups
-        for the same model don't hit the database.
+        ContentType if necessary. Lookups are cached to avoid repeated database queries.
+
         """
         opts = self._get_opts(model, for_concrete_model)
         try:
@@ -62,7 +66,7 @@ class ContentTypeManager(models.Manager):
 
     def get_for_models(self, *models, for_concrete_models=True):
         """
-        Given *models, return a dictionary mapping {model: content_type}.
+        Given a variable number of models, returns a dictionary mapping each model to its corresponding ContentType instance, looking up existing instances in the cache or creating new ones as necessary.
         """
         results = {}
         # Models that aren't already in the cache grouped by app labels.
@@ -103,8 +107,7 @@ class ContentTypeManager(models.Manager):
 
     def get_for_id(self, id):
         """
-        Lookup a ContentType by ID. Use the same shared cache as get_for_model
-        (though ContentTypes are not created on-the-fly by get_by_id).
+        Lookup a ContentType by its ID, utilizing a shared cache for improved performance.
         """
         try:
             ct = self._cache[self.db][id]
@@ -163,7 +166,9 @@ class ContentType(models.Model):
         )
 
     def model_class(self):
-        """Return the model class for this type of content."""
+        """
+        Returns the model class associated with this content type or None if it does not exist.
+        """
         try:
             return apps.get_model(self.app_label, self.model)
         except LookupError:

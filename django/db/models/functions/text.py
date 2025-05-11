@@ -157,8 +157,7 @@ class Left(Func):
 
     def __init__(self, expression, length, **extra):
         """
-        expression: the name of a field, or an expression returning a string
-        length: the number of characters to return from the start of the string
+        Initialize a string truncation object to extract a specified number of characters from a given string expression.
         """
         if not hasattr(length, "resolve_expression"):
             if length < 1:
@@ -347,9 +346,16 @@ class Substr(Func):
 
     def __init__(self, expression, pos, length=None, **extra):
         """
-        expression: the name of a field, or an expression returning a string
-        pos: an integer > 0, or an expression returning an integer
-        length: an optional number of characters to return
+        \".. _SubStringField:
+
+        Initializes a substring field object.
+
+        :param expression: A field name or an expression returning a string.
+        :param pos: An integer greater than 0 or an expression returning an integer, specifying the starting position.
+        :param length: Optional number of characters to return.
+        :param extra: Additional keyword arguments.
+
+        Represents a field object that extracts a substring from a given string field, allowing for dynamic positioning and length specification.\"
         """
         if not hasattr(pos, "resolve_expression"):
             if pos < 1:

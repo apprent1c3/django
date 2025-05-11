@@ -30,6 +30,17 @@ class ChoicesType(EnumType):
     """A metaclass for creating a enum choices."""
 
     def __new__(metacls, classname, bases, classdict, **kwds):
+        """
+
+        Meta class for automatically generating labels for enum members.
+
+        Automates the process of assigning human-readable labels to enum members,
+        reducing boilerplate code and improving readability. Labels are generated
+        based on the member name or can be explicitly provided as the last item in
+        the member's tuple definition. Ensures enum members have a consistent
+        naming convention and ease of use.
+
+        """
         labels = []
         for key in classdict._member_names:
             value = classdict[key]

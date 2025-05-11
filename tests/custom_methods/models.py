@@ -24,8 +24,7 @@ class Article(models.Model):
 
     def articles_from_same_day_2(self):
         """
-        Verbose version of get_articles_from_same_day_1, which does a custom
-        database query for the sake of demonstration.
+        Retrieves articles from the same publication day as the current object, excluding the current object itself, using a custom database query for demonstration purposes.
         """
         from django.db import connection
 

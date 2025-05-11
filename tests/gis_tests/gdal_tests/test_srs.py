@@ -218,7 +218,9 @@ class SpatialRefTest(SimpleTestCase):
             SpatialReference(s.wkt)
 
     def test02_bad_wkt(self):
-        "Testing initialization on invalid WKT."
+        """
+        Tests the initialization of a SpatialReference object with invalid Well-Known Text (WKT) strings, ensuring that it raises an exception when given malformed input.
+        """
         for bad in bad_srlist:
             try:
                 srs = SpatialReference(bad)
@@ -239,7 +241,9 @@ class SpatialRefTest(SimpleTestCase):
             )
 
     def test04_proj(self):
-        """PROJ import and export."""
+        """
+        Verifies that PROJ import and export processes include the expected projection components.
+        """
         proj_parts = [
             "+proj=longlat",
             "+ellps=WGS84",
@@ -253,7 +257,9 @@ class SpatialRefTest(SimpleTestCase):
         self.assertTrue(all(part in proj_parts for part in srs2.proj.split()))
 
     def test05_epsg(self):
-        "Test EPSG import."
+        """
+        Tests the import of SpatialReference objects using EPSG (European Petroleum Survey Group) codes, ensuring consistency across different import methods and attribute retrieval.
+        """
         for s in srlist:
             if s.epsg:
                 srs1 = SpatialReference(s.wkt)
@@ -265,14 +271,24 @@ class SpatialRefTest(SimpleTestCase):
                         self.assertEqual(expected, srs[attr])
 
     def test07_boolean_props(self):
-        "Testing the boolean properties."
+        """
+        Tests the boolean properties of spatial references, verifying that the projected and geographic status is correctly identified.
+        """
         for s in srlist:
             srs = SpatialReference(s.wkt)
             self.assertEqual(s.projected, srs.projected)
             self.assertEqual(s.geographic, srs.geographic)
 
     def test08_angular_linear(self):
-        "Testing the linear and angular units routines."
+        """
+
+        Tests the linear and angular units routines of the SpatialReference class.
+
+        Verifies that the angular and linear name and unit values are correctly
+        retrieved from the SpatialReference object, ensuring consistency with
+        the expected values.
+
+        """
         for s in srlist:
             srs = SpatialReference(s.wkt)
             self.assertEqual(s.ang_name, srs.angular_name)
@@ -281,7 +297,9 @@ class SpatialRefTest(SimpleTestCase):
             self.assertAlmostEqual(s.lin_units, srs.linear_units, 9)
 
     def test09_authority(self):
-        "Testing the authority name & code routines."
+        """
+        Tests the authority name and code routines of a spatial reference system by verifying the expected authority names and codes against actual values for a variety of spatial reference systems.
+        """
         for s in srlist:
             if hasattr(s, "auth"):
                 srs = SpatialReference(s.wkt)
@@ -290,7 +308,9 @@ class SpatialRefTest(SimpleTestCase):
                     self.assertEqual(tup[1], srs.auth_code(target))
 
     def test10_attributes(self):
-        "Testing the attribute retrieval routines."
+        """
+        Tests the retrieval of attributes from spatial reference objects to ensure they match the expected values.
+        """
         for s in srlist:
             srs = SpatialReference(s.wkt)
             for tup in s.attr:
@@ -299,7 +319,9 @@ class SpatialRefTest(SimpleTestCase):
                 self.assertEqual(exp, srs[att])
 
     def test11_wellknown(self):
-        "Testing Well Known Names of Spatial References."
+        """
+        Tests whether SpatialReference instances created from well-known identifiers have the expected names and attributes.
+        """
         for s in well_known:
             srs = SpatialReference(s.wk)
             self.assertEqual(s.name, srs.name)
@@ -318,7 +340,9 @@ class SpatialRefTest(SimpleTestCase):
         CoordTransform(SpatialReference(srlist[0].wkt), target)
 
     def test13_attr_value(self):
-        "Testing the attr_value() method."
+        """
+        Tests the behavior of the attr_value method for accessing attributes in a SpatialReference object, including valid and invalid access methods, and expected return values for different attribute keys.
+        """
         s1 = SpatialReference("WGS84")
         with self.assertRaises(TypeError):
             s1.__getitem__(0)
@@ -331,6 +355,9 @@ class SpatialRefTest(SimpleTestCase):
         self.assertIsNone(s1["FOOBAR"])
 
     def test_unicode(self):
+        """
+        Tests the handling of Unicode characters in SpatialReference objects, ensuring that attributes such as name, WKT, pretty WKT, and XML are correctly set and contain the expected Unicode characters.
+        """
         wkt = (
             'PROJCS["DHDN / Soldner 39 Langschoß",'
             'GEOGCS["DHDN",DATUM["Deutsches_Hauptdreiecksnetz",'
@@ -356,6 +383,9 @@ class SpatialRefTest(SimpleTestCase):
             self.assertIn("Langschoß", srs.xml)
 
     def test_axis_order(self):
+        """
+        Verifies the correct transformation of coordinates between different spatial reference systems with varying axis orders.
+        """
         wgs84_trad = SpatialReference(4326, axis_order=AxisOrder.TRADITIONAL)
         wgs84_auth = SpatialReference(4326, axis_order=AxisOrder.AUTHORITY)
         # Coordinate interpretation may depend on the srs axis predicate.
@@ -377,6 +407,11 @@ class SpatialRefTest(SimpleTestCase):
             SpatialReference(4326, axis_order="other")
 
     def test_esri(self):
+        """
+        Tests the conversion of a SpatialReference object to and from ESRI format.
+
+        Verifies that the Well-Known Text (WKT) representation of the SpatialReference object changes after conversion to ESRI format and back, and that the resulting WKT contains the expected DATUM information.
+        """
         srs = SpatialReference("NAD83")
         pre_esri_wkt = srs.wkt
         srs.to_esri()
@@ -386,7 +421,9 @@ class SpatialRefTest(SimpleTestCase):
         self.assertIn('DATUM["North_American_Datum_1983"', srs.wkt)
 
     def test_srid(self):
-        """The srid property returns top-level authority code."""
+        """
+        Tests that the SRID property of a SpatialReference object matches the EPSG code of its corresponding spatial reference system.
+        """
         for s in srlist:
             if hasattr(s, "epsg"):
                 srs = SpatialReference(s.wkt)

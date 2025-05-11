@@ -23,8 +23,10 @@ class AdminHistoryViewTests(TestCase):
 
     def test_changed_message_uses_form_labels(self):
         """
-        Admin's model history change messages use form labels instead of
-        field names.
+
+            Verifies that admin model history change messages utilize form labels 
+            instead of internal field names, providing a more user-friendly display.
+
         """
         state = State.objects.create(name="My State Name")
         city = City.objects.create(name="My City Name", state=state)
@@ -75,6 +77,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_pagination(self):
+        """
+        Tests the pagination functionality in the user history page, ensuring that the paginator is displayed and functions correctly, including navigation between pages and display of expected log entries.
+        """
         from selenium.webdriver.common.by import By
 
         user_history_url = reverse("admin:auth_user_history", args=(self.superuser.pk,))

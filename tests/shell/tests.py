@@ -41,6 +41,13 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")
     def test_stdin_read(self, select):
+        """
+        Tests reading from standard input when running the Django shell command.
+
+        Verifies that input provided to the shell is executed correctly and the output
+        is displayed on standard output. This test is skipped on Windows platforms due
+        to limitations with the select() function on file descriptors.
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write("print(100)\n")
             stdin.seek(0)
@@ -53,6 +60,25 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")  # [1]
     def test_stdin_read_globals(self, select):
+        """
+        Tests that stdin input is properly read and available in the Django shell globals.\"\"\"
+
+        Parameters
+        ----------
+        self : unittest.TestCase
+            The test case instance.
+        select : mock.MagicMock
+            A mock of the select function.
+
+        Note
+        ----
+        This test is skipped on Windows due to the platform's limited support for select() with file descriptors.
+
+        Returns
+        -------
+        None
+
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write(self.script_globals)
             stdin.seek(0)
@@ -65,6 +91,12 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")  # [1]
     def test_stdin_read_inline_function_call(self, select):
+        """
+        Tests reading from stdin with an inline function call in the Django shell command.
+
+        This test case verifies that the shell command correctly handles inline function calls
+        when reading input from standard input on non-Windows platforms.
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write(self.script_with_inline_function)
             stdin.seek(0)
@@ -72,6 +104,9 @@ class ShellCommandTestCase(SimpleTestCase):
         self.assertEqual(stdout.getvalue().strip(), __version__)
 
     def test_ipython(self):
+        """
+        Test that the ipython shell command is invoked correctly by mocking the IPython module and verifying the start_ipython method is called with an empty argv list.
+        """
         cmd = shell.Command()
         mock_ipython = mock.Mock(start_ipython=mock.MagicMock())
 
@@ -90,6 +125,9 @@ class ShellCommandTestCase(SimpleTestCase):
             call_command("shell", interface="ipython")
 
     def test_bpython(self):
+        """
+        Tests the bpython command by mocking the bpython module and verifying that it calls the embed function when executed.
+        """
         cmd = shell.Command()
         mock_bpython = mock.Mock(embed=mock.MagicMock())
 
@@ -108,6 +146,9 @@ class ShellCommandTestCase(SimpleTestCase):
             call_command("shell", interface="bpython")
 
     def test_python(self):
+        """
+        Verifies that the python command interact function is called correctly when 'no_startup' is specified, simulating the execution of Python interpreter with an empty local environment.
+        """
         cmd = shell.Command()
         mock_code = mock.Mock(interact=mock.MagicMock())
 

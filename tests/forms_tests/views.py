@@ -21,6 +21,13 @@ class ArticleFormView(UpdateView):
 
 
 def form_view(request):
+    """
+    Renders a simple HTML form containing a single float field.
+
+    Returns:
+        HttpResponse: The rendered HTML response containing the form.
+
+    """
     class Form(forms.Form):
         number = forms.FloatField()
 

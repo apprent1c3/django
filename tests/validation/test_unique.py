@@ -50,8 +50,7 @@ class GetUniqueCheckTests(unittest.TestCase):
 
     def test_unique_together_normalization(self):
         """
-        Test the Meta.unique_together normalization with different sorts of
-        objects.
+        Verifies the proper normalization of unique constraints defined in the Meta.unique_together attribute, ensuring consistency across different input formats.
         """
         data = {
             "2-tuple": (("foo", "bar"), (("foo", "bar"),)),
@@ -147,6 +146,11 @@ class PerformUniqueChecksTest(TestCase):
             mtv.full_clean()
 
     def test_unique_for_date(self):
+        """
+        Tests the uniqueness constraints of Post model fields for specific date periods. 
+        Ensures that titles must be unique for a given posted date, slugs must be unique for a given posted year, 
+        and subtitles must be unique for a given posted month. Also tests for the presence of a posted date.
+        """
         Post.objects.create(
             title="Django 1.0 is released",
             slug="Django 1.0",
@@ -194,8 +198,7 @@ class PerformUniqueChecksTest(TestCase):
 
     def test_unique_for_date_with_nullable_date(self):
         """
-        unique_for_date/year/month checks shouldn't trigger when the
-        associated DateField is None.
+        Tests that unique_for_date, unique_for_year, and unique_for_month constraints are not triggered when the associated DateField is None.
         """
         FlexibleDatePost.objects.create(
             title="Django 1.0 is released",
@@ -213,6 +216,9 @@ class PerformUniqueChecksTest(TestCase):
         p.full_clean()
 
     def test_unique_errors(self):
+        """
+        Tests the validation of unique constraints on the UniqueErrorsModel, ensuring that custom error messages are triggered when attempting to create duplicate entries for 'name' and 'no' fields.
+        """
         UniqueErrorsModel.objects.create(name="Some Name", no=10)
         m = UniqueErrorsModel(name="Some Name", no=11)
         with self.assertRaises(ValidationError) as cm:

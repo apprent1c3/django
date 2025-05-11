@@ -24,6 +24,10 @@ class MaxLengthArgumentsTests(unittest.TestCase):
 
 class MaxLengthORMTests(TestCase):
     def test_custom_max_lengths(self):
+        """
+        Tests that custom maximum lengths for PersonWithCustomMaxLengths model fields are respected, 
+        verifying that fields can store values up to their defined maximum length without truncation.
+        """
         args = {
             "email": "someone@example.com",
             "vcard": "vcard",

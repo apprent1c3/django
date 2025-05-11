@@ -27,22 +27,10 @@ class Loader(BaseLoader):
 
     def get_template(self, template_name, skip=None):
         """
-        Perform the caching that gives this loader its name. Often many of the
-        templates attempted will be missing, so memory use is of concern here.
-        To keep it in check, caching behavior is a little complicated when a
-        template is not found. See ticket #26306 for more details.
 
-        With template debugging disabled, cache the TemplateDoesNotExist class
-        for every missing template and raise a new instance of it after
-        fetching it from the cache.
+        Retrieves a template with the given name, applying caching behavior 
+        to optimize memory usage and support template debugging.
 
-        With template debugging enabled, a unique TemplateDoesNotExist object
-        is cached for each missing template to preserve debug data. When
-        raising an exception, Python sets __traceback__, __context__, and
-        __cause__ attributes on it. Those attributes can contain references to
-        all sorts of objects up the call chain and caching them creates a
-        memory leak. Thus, unraised copies of the exceptions are cached and
-        copies of those copies are raised after they're fetched from the cache.
         """
         key = self.cache_key(template_name, skip)
         cached = self.get_template_cache.get(key)
@@ -71,15 +59,7 @@ class Loader(BaseLoader):
 
     def cache_key(self, template_name, skip=None):
         """
-        Generate a cache key for the template name and skip.
-
-        If skip is provided, only origins that match template_name are included
-        in the cache key. This ensures each template is only parsed and cached
-        once if contained in different extend chains like:
-
-            x -> a -> a
-            y -> a -> a
-            z -> a -> a
+        Generate a unique cache key for a given template, considering its name and optional skip origins. The key ensures templates are only parsed and cached once, even if they appear in multiple extend chains.
         """
         skip_prefix = ""
 

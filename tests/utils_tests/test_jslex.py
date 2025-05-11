@@ -276,6 +276,15 @@ class JsTokensTest(SimpleTestCase):
 
 
 def make_function(input, toks):
+    """
+
+    Generates a test function that checks the output of a JavaScript lexer against expected tokens.
+
+    :arg input: The input string to be lexed.
+    :arg toks: The expected tokens.
+    :return: A test function that can be used to verify the correctness of the lexer.
+
+    """
     def test_func(self):
         lexer = JsLexer()
         result = [

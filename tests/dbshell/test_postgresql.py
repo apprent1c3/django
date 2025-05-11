@@ -160,7 +160,9 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "Requires a PostgreSQL connection")
     def test_sigint_handler(self):
-        """SIGINT is ignored in Python and passed to psql to abort queries."""
+        """
+        Tests the handling of the SIGINT signal when running queries through a PostgreSQL connection, verifying that SIGINT is ignored in Python and properly passed to psql to abort queries.
+        """
 
         def _mock_subprocess_run(*args, **kwargs):
             handler = signal.getsignal(signal.SIGINT)
@@ -177,6 +179,9 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
     def test_crash_password_does_not_leak(self):
         # The password doesn't leak in an exception that results from a client
         # crash.
+        """
+        Verifies that a password is not leaked in error output when a process crashes.
+        """
         args, env = self.settings_to_cmd_args_env({"PASSWORD": "somepassword"}, [])
         if env:
             env = {**os.environ, **env}

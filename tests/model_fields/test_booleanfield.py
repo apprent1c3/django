@@ -8,6 +8,9 @@ from .models import BooleanModel, FksToBooleans, NullBooleanModel
 
 class BooleanFieldTests(TestCase):
     def _test_get_prep_value(self, f):
+        """
+        Verifies that the `get_prep_value` method of a field correctly handles various input values, converting them to their corresponding boolean representations.
+        """
         self.assertIs(f.get_prep_value(True), True)
         self.assertIs(f.get_prep_value("1"), True)
         self.assertIs(f.get_prep_value(1), True)
@@ -55,6 +58,11 @@ class BooleanFieldTests(TestCase):
         self.assertIsInstance(f.formfield(), forms.NullBooleanField)
 
     def test_return_type(self):
+        """
+        _VERIFYματος of return types for Boolean and NullBoolean model fields.
+
+        Verifies that the return types for Boolean and NullBoolean model fields are correctly set to True or False after creation and refresh from the database._
+        """
         b = BooleanModel.objects.create(bfield=True)
         b.refresh_from_db()
         self.assertIs(b.bfield, True)
@@ -73,7 +81,7 @@ class BooleanFieldTests(TestCase):
 
     def test_select_related(self):
         """
-        Boolean fields retrieved via select_related() should return booleans.
+        Tests the correctness of retrieving boolean fields using the select_related() method, ensuring that boolean values are returned as expected.
         """
         bmt = BooleanModel.objects.create(bfield=True)
         bmf = BooleanModel.objects.create(bfield=False)
@@ -97,7 +105,7 @@ class BooleanFieldTests(TestCase):
 
     def test_null_default(self):
         """
-        A BooleanField defaults to None, which isn't a valid value (#15124).
+        Tests that a BooleanField with no default value is handled correctly, specifically checking that it defaults to None and attempting to save such an instance results in an IntegrityError, whereas a NullBooleanField allows saving with a null value.
         """
         boolean_field = BooleanModel._meta.get_field("bfield")
         self.assertFalse(boolean_field.has_default())

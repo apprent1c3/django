@@ -16,10 +16,8 @@ class SeleniumAuthTests(AdminSeleniumTestCase):
         )
 
     def test_add_new_user(self):
-        """A user with no password can be added.
-
-        Enabling/disabling the usable password field shows/hides the password
-        fields when adding a user.
+        """
+        Tests the functionality of adding a new user with or without a password, verifying that the password fields are shown or hidden accordingly when the \"usable password\" field is enabled or disabled.
         """
         from selenium.common import NoSuchElementException
         from selenium.webdriver.common.by import By
@@ -65,10 +63,8 @@ class SeleniumAuthTests(AdminSeleniumTestCase):
             self.selenium.find_element(By.ID, "id_unusable_warning")
 
     def test_change_password_for_existing_user(self):
-        """A user can have their password changed or unset.
-
-        Enabling/disabling the usable password field shows/hides the password
-        fields and the warning about password lost.
+        """
+        Tests the functionality of changing a password for an existing user, covering the scenarios of enabling and disabling the use of a password, including the display of relevant form fields and warnings.
         """
         from selenium.webdriver.common.by import By
 

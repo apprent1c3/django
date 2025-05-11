@@ -77,8 +77,8 @@ class MultiValueDict(dict):
 
     def __getitem__(self, key):
         """
-        Return the last data value for this key, or [] if it's an empty list;
-        raise KeyError if not found.
+        Returns the last value associated with the given key, or an empty list if the associated list is empty. 
+        Raises a MultiValueDictKeyError if the key is not found in the dictionary.
         """
         try:
             list_ = super().__getitem__(key)
@@ -96,6 +96,12 @@ class MultiValueDict(dict):
         return self.__class__([(k, v[:]) for k, v in self.lists()])
 
     def __deepcopy__(self, memo):
+        """
+        Implements deep copying of the object, creating a new instance with recursively copied attributes.\"\"\"
+
+            :param memo: Dictionary mapping id(object) to copy.
+            :return: A deep copy of the object.
+        """
         result = self.__class__()
         memo[id(self)] = result
         for key, value in dict.items(self):
@@ -115,8 +121,9 @@ class MultiValueDict(dict):
 
     def get(self, key, default=None):
         """
-        Return the last data value for the passed key. If key doesn't exist
-        or value is an empty list, return `default`.
+
+        Retrieves the value associated with the given key. If the key does not exist or its value is empty, returns a default value instead.
+
         """
         try:
             val = self[key]
@@ -128,10 +135,7 @@ class MultiValueDict(dict):
 
     def _getlist(self, key, default=None, force_list=False):
         """
-        Return a list of values for the key.
-
-        Used internally to manipulate values list. If force_list is True,
-        return a new copy of values.
+        Return a list of values associated with a given key, handling missing keys and optional value copying.
         """
         try:
             values = super().__getitem__(key)
@@ -162,6 +166,15 @@ class MultiValueDict(dict):
         return self[key]
 
     def setlistdefault(self, key, default_list=None):
+        """
+        Sets a default list value for the given key if it does not already exist.
+
+        Puts the key in the list with a default value if it does not exist, and returns the list associated with the key. If no default list is provided, an empty list is used.
+
+        :arg key: The key to set a default list for
+        :arg default_list: The default list to use if the key is missing
+        :return: The list associated with the key
+        """
         if key not in self:
             if default_list is None:
                 default_list = []
@@ -196,7 +209,13 @@ class MultiValueDict(dict):
         return copy.copy(self)
 
     def update(self, *args, **kwargs):
-        """Extend rather than replace existing key lists."""
+        """
+
+        Updates the object with new key-value pairs, extending existing key lists instead of replacing them.
+
+        Accepts either a single iterable or mapping of key-value pairs, or keyword arguments.
+
+        """
         if len(args) > 1:
             raise TypeError("update expected at most 1 argument, got %d" % len(args))
         if args:
@@ -271,9 +290,7 @@ class DictWrapper(dict):
 
     def __getitem__(self, key):
         """
-        Retrieve the real value after stripping the prefix string (if
-        present). If the prefix is present, pass the value through self.func
-        before returning, otherwise return the raw value.
+        Retrieve an item by key, optionally applying a transformation function if the key starts with a specified prefix, and return the resulting value.
         """
         use_func = key.startswith(self.prefix)
         key = key.removeprefix(self.prefix)
@@ -329,6 +346,15 @@ class CaseInsensitiveMapping(Mapping):
         # Explicitly test for dict first as the common case for performance,
         # avoiding abc's __instancecheck__ and _abc_instancecheck for the
         # general Mapping case.
+        """
+        Yields key-value pairs from the input data.
+
+        Unpacks dictionary-like objects or sequences of key-value pairs into individual items.
+
+        Raises:
+            ValueError: If the input data contains invalid or malformed key-value pairs.
+
+        """
         if isinstance(data, (dict, Mapping)):
             yield from data.items()
             return

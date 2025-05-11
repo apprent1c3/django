@@ -75,7 +75,10 @@ class DecoratorFromMiddlewareTests(SimpleTestCase):
 
     def test_full_dec_normal(self):
         """
-        All methods of middleware are called for normal HttpResponses
+
+        Tests that all middleware methods are called when a normal HttpResponse is generated, 
+        ensuring all processing steps are executed in the expected order.
+
         """
 
         @full_dec
@@ -93,8 +96,7 @@ class DecoratorFromMiddlewareTests(SimpleTestCase):
 
     def test_full_dec_templateresponse(self):
         """
-        All methods of middleware are called for TemplateResponses in
-        the right sequence.
+        Tests that a decorated view correctly calls all middleware methods in sequence for a TemplateResponse, including processing of the request, view, and template response, and verifies that the response is not rendered until explicitly called.
         """
 
         @full_dec

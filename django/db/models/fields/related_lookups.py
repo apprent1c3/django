@@ -38,6 +38,16 @@ class MultiColSource:
 
 
 def get_normalized_value(value, lhs):
+    """
+    Return a normalized tuple of values, handling Django model instances and scalar values.
+
+    If the input value is a Django model instance, it is expected to be saved.
+    The function normalizes the instance by extracting relevant attribute values,
+    following the foreign key relationships specified by the lhs (lookups handler).
+    If the input value is not a model instance, it is wrapped in a tuple if not already one.
+
+    Raises a ValueError if an unsaved model instance is provided.
+    """
     from django.db.models import Model
 
     if isinstance(value, Model):
@@ -64,6 +74,10 @@ def get_normalized_value(value, lhs):
 
 class RelatedIn(In):
     def get_prep_lookup(self):
+        """
+        Prepares the lookup for database operations by normalizing and preparing values on the right-hand side of the lookup, 
+        depending on the type of left-hand side field and the right-hand side value or query.
+        """
         if not isinstance(self.lhs, MultiColSource):
             if self.rhs_is_direct_value():
                 # If we get here, we are dealing with single-column relations.
@@ -98,6 +112,12 @@ class RelatedIn(In):
         return super().get_prep_lookup()
 
     def as_sql(self, compiler, connection):
+        """
+
+        Translates the lookup into SQL for cases where the left-hand side is a MultiColSource, 
+        handling both direct values and subqueries. Otherwise, it delegates to the parent class.
+
+        """
         if isinstance(self.lhs, MultiColSource):
             # For multicolumn lookups we need to build a multicolumn where clause.
             # This clause is either a SubqueryConstraint (for values that need
@@ -140,6 +160,9 @@ class RelatedIn(In):
 
 class RelatedLookupMixin:
     def get_prep_lookup(self):
+        """
+        Prepares the lookup for the current instance by normalizing and pre-processing the right-hand side value if necessary, ensuring it is in a suitable format for the underlying database operation.
+        """
         if not isinstance(self.lhs, MultiColSource) and not hasattr(
             self.rhs, "resolve_expression"
         ):
@@ -158,6 +181,18 @@ class RelatedLookupMixin:
         return super().get_prep_lookup()
 
     def as_sql(self, compiler, connection):
+        """
+
+        Generates the SQL representation of a complex database lookup.
+
+        This function is responsible for translating a multi-column lookup expression into
+        a valid SQL query, taking into account the relationships between the columns and
+        the provided lookup values.
+
+        It supports lookups involving multiple columns and returns a `WhereNode` object
+        that can be used to construct the final SQL query.
+
+        """
         if isinstance(self.lhs, MultiColSource):
             assert self.rhs_is_direct_value()
             self.rhs = get_normalized_value(self.rhs, self.lhs)

@@ -66,6 +66,9 @@ class TemplateTagIndexView(BaseAdminDocsView):
     template_name = "admin_doc/template_tag_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        Fetches and prepares template tag data to be included in the context. The data is collected from both built-in and application-specific template libraries, including documentation and metadata for each tag, and is returned along with other context data.
+        """
         tags = []
         try:
             engine = Engine.get_default()
@@ -103,6 +106,9 @@ class TemplateFilterIndexView(BaseAdminDocsView):
     template_name = "admin_doc/template_filter_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        Returns a dictionary of context data that includes a list of template filters (name, title, description, metadata, and library) to be used in templates, by parsing their docstrings and sorting them by library.
+        """
         filters = []
         try:
             engine = Engine.get_default()
@@ -142,6 +148,17 @@ class ViewIndexView(BaseAdminDocsView):
     template_name = "admin_doc/view_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        Get context data, including a list of views, for rendering in a template.
+
+        This function extends the default get_context_data behavior by including a list of views,
+        where each view is represented by its full name, URL, URL name, namespace, and name.
+        The list of views is generated from the URL configuration patterns.
+
+        Returns:
+            dict: The context data including the list of views.
+
+        """
         views = []
         url_resolver = get_resolver(get_urlconf())
         try:
@@ -166,6 +183,15 @@ class ViewDetailView(BaseAdminDocsView):
 
     @staticmethod
     def _get_view_func(view):
+        """
+        Retrieve the view function from the given view.
+
+        This method resolves the view to its corresponding function, whether it's a direct function reference or a class-based view method. It handles both module- and class-based view imports.
+
+        :param view: The view to resolve to a function
+        :rtype: The view function
+        :returns: The view function corresponding to the given view
+        """
         urlconf = get_urlconf()
         if get_resolver(urlconf)._is_callback(view):
             mod, func = get_mod_func(view)
@@ -182,6 +208,13 @@ class ViewDetailView(BaseAdminDocsView):
                 return getattr(getattr(import_module(mod), klass), func)
 
     def get_context_data(self, **kwargs):
+        """
+
+        Retrieves context data for a given view, parsing its docstring into title, body, and metadata components.
+
+        Returns a dictionary containing the view's name, summary, body, and metadata, which can be used to render the view's documentation.
+
+        """
         view = self.kwargs["view"]
         view_func = self._get_view_func(view)
         if view_func is None:
@@ -214,6 +247,14 @@ class ModelDetailView(BaseAdminDocsView):
     template_name = "admin_doc/model_detail.html"
 
     def get_context_data(self, **kwargs):
+        """
+        Get context data for a specific model, including its fields, methods and related objects.
+
+        This function retrieves a model from the given app label and model name, then parses its docstring to extract a title and a description.
+        It also collects metadata about the model's fields, including foreign keys and many-to-many relationships, and its methods, excluding those that are excluded by default.
+        The collected data is then used to update the context data, which is returned along with the name and description of the model.
+        The function raises a 404 error if the app or model is not found.
+        """
         model_name = self.kwargs["model_name"]
         # Get the model class.
         try:
@@ -396,6 +437,18 @@ class TemplateDetailView(BaseAdminDocsView):
     template_name = "admin_doc/template_detail.html"
 
     def get_context_data(self, **kwargs):
+        """
+        Retrieves context data for templates.
+
+        Locates template files with the specified name across multiple directories and 
+        returns their contents, existence, and order for further processing.
+
+        Returns a dictionary containing the template name and a list of dictionaries
+        representing the located templates, which include the template file, its existence,
+        contents, and order of discovery.
+
+        Extends the parent class's get_context_data method with additional template information.
+        """
         template = self.kwargs["template"]
         templates = []
         try:
@@ -439,7 +492,12 @@ class TemplateDetailView(BaseAdminDocsView):
 
 
 def get_return_data_type(func_name):
-    """Return a somewhat-helpful data type given a function name"""
+    """
+    Infers a data type based on the naming conventions of a given function name.
+
+    Returns a string indicating the likely data type, such as 'List' or 'Integer', 
+    or an empty string if no inference can be made. 
+    """
     if func_name.startswith("get_"):
         if func_name.endswith("_list"):
             return "List"
@@ -459,10 +517,13 @@ def get_readable_field_data_type(field):
 
 def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
     """
-    Return a list of views from a list of urlpatterns.
 
-    Each object in the returned list is a 4-tuple:
-    (view_func, regex, namespace, name)
+    Return a list of views from a list of urlpatterns, including nested patterns.
+
+    Each view is represented as a 4-tuple: (view_func, regex, namespace, name).
+    The function recursively traverses the url patterns, extracting views and
+    their associated metadata.
+
     """
     views = []
     for p in urlpatterns:
@@ -489,10 +550,9 @@ def extract_views_from_urlpatterns(urlpatterns, base="", namespace=None):
 
 
 def simplify_regex(pattern):
-    r"""
-    Clean up urlpattern regexes into something more readable by humans. For
-    example, turn "^(?P<sport_slug>\w+)/athletes/(?P<athlete_slug>\w+)/$"
-    into "/<sport_slug>/athletes/<athlete_slug>/".
+    """
+    Simplifies a regular expression URL pattern into a human-readable format, 
+    converting named and unnamed capture groups into path parameters.
     """
     pattern = remove_non_capturing_groups(pattern)
     pattern = replace_named_groups(pattern)

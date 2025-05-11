@@ -23,6 +23,12 @@ class ConnectionHandlerTests(SimpleTestCase):
                 self.assertImproperlyConfigured(DATABASES)
 
     def assertImproperlyConfigured(self, DATABASES):
+        """
+        Verify that an error is raised when the database ENGINE is not properly configured.
+
+        Checks that attempting to establish a connection with an improperly configured database
+        settings (missing ENGINE) results in an ImproperlyConfigured exception with a specific message.
+        """
         conns = ConnectionHandler(DATABASES)
         self.assertEqual(
             conns[DEFAULT_DB_ALIAS].settings_dict["ENGINE"], "django.db.backends.dummy"
@@ -35,6 +41,9 @@ class ConnectionHandlerTests(SimpleTestCase):
             conns[DEFAULT_DB_ALIAS].ensure_connection()
 
     def test_no_default_database(self):
+        """
+        Tests that attempting to establish a connection to a database without a defined default database raises an ImproperlyConfigured exception.
+        """
         DATABASES = {"other": {}}
         conns = ConnectionHandler(DATABASES)
         msg = "You must define a 'default' database."
@@ -63,6 +72,9 @@ class ConnectionHandlerTests(SimpleTestCase):
 class DatabaseErrorWrapperTests(TestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL test")
     def test_reraising_backend_specific_database_exception(self):
+        """
+        Tests that backend-specific PostgreSQL database exceptions are correctly reraised and contain the original error information.
+        """
         from django.db.backends.postgresql.psycopg_any import is_psycopg3
 
         with connection.cursor() as cursor:

@@ -138,6 +138,9 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return super().geo_quote_name(name).upper()
 
     def convert_extent(self, clob):
+        """
+        Converts a binary geometry object (clob) to a bounding box extent represented as a tuple of (xmin, ymin, xmax, ymax) coordinates, handling Polygon and Point geometry types.
+        """
         if clob:
             # Generally, Oracle returns a polygon for the extent -- however,
             # it can return a single point if there's only one Point in the
@@ -171,10 +174,8 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
 
     def get_distance(self, f, value, lookup_type):
         """
-        Return the distance parameters given the value and the lookup type.
-        On Oracle, geometry columns with a geodetic coordinate system behave
-        implicitly like a geography column, and thus meters will be used as
-        the distance parameter on them.
+        Return distance parameters for a given value and lookup type, 
+        considering the coordinate system of the geometry field
         """
         if not value:
             return []
@@ -228,6 +229,14 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return super().modify_insert_params(placeholder, params)
 
     def get_geometry_converter(self, expression):
+        """
+        Returns a function to convert a binary geometry value into a GEOSGeometry object.
+
+        The converter function takes a binary value and its associated expression and database connection,
+        and returns a GEOSGeometry object with the specified SRID (Spatial Reference System Identifier) if defined.
+
+        The SRID will be set to `None` if it is unknown (-1).
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:
@@ -235,6 +244,15 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         geom_class = expression.output_field.geom_class
 
         def converter(value, expression, connection):
+            """
+            Converts binary geometry data to a GEOSGeometry object.
+
+            :param value: Binary geometry data to be converted
+            :param expression: Expression to be used in the conversion (not utilized in this implementation)
+            :param connection: Database connection (not utilized in this implementation)
+            :returns: GEOSGeometry object representing the converted geometry data
+            :note: The srid of the resulting geometry is set to a predefined value if available
+            """
             if value is not None:
                 geom = GEOSGeometryBase(read(memoryview(value.read())), geom_class)
                 if srid:

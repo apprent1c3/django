@@ -19,6 +19,13 @@ class NaturalKeySerializerTests(TestCase):
 
 def natural_key_serializer_test(self, format):
     # Create all the objects defined in the test data
+    """
+
+    Tests serialization and deserialization of objects using natural foreign keys.
+    Verifies that the data remains consistent after serializing and deserializing.
+    The test covers objects with and without foreign key relationships.
+
+    """
     with connection.constraint_checks_disabled():
         objects = [
             NaturalKeyAnchor.objects.create(id=1100, data="Natural Key Anghor"),
@@ -52,6 +59,9 @@ def natural_key_serializer_test(self, format):
 
 
 def natural_key_test(self, format):
+    """
+    Tests serialization and deserialization of natural keys, verifying object relationships are preserved and deleted objects are handled correctly.
+    """
     book1 = {
         "data": "978-1590597255",
         "title": "The Definitive Guide to Django: Web Development Done Right",
@@ -89,10 +99,7 @@ def natural_key_test(self, format):
 
 def natural_pk_mti_test(self, format):
     """
-    If serializing objects in a multi-table inheritance relationship using
-    natural primary keys, the natural foreign key for the parent is output in
-    the fields of the child so it's possible to relate the child to the parent
-    when deserializing.
+    Tests the serialization and deserialization of objects in a multi-table inheritance relationship using natural primary keys, ensuring that the natural foreign key for the parent is correctly output and used to relate the child to the parent.
     """
     child_1 = Child.objects.create(parent_data="1", child_data="1")
     child_2 = Child.objects.create(parent_data="2", child_data="2")
@@ -115,6 +122,13 @@ def natural_pk_mti_test(self, format):
 
 
 def forward_ref_fk_test(self, format):
+    """
+    Tests serialization and deserialization with forward references in foreign keys.
+
+    Ensures that objects with circular dependencies can be successfully serialized, 
+    deserialized, and saved, with their relationships intact, using natural primary 
+    and foreign keys. Verifies that deferred fields are properly handled during this process.
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2", other_thing=t1)
     t1.other_thing = t2
@@ -142,6 +156,12 @@ def forward_ref_fk_test(self, format):
 
 
 def forward_ref_fk_with_error_test(self, format):
+    """
+    Tests deserialization of forward references with foreign keys in the specified format.
+
+    This test case creates objects with circular references, serializes them, and then attempts to deserialize and save the data, 
+    verifying that a DeserializationError is raised with the correct message when trying to save deferred fields on a deserialized object.
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2", other_thing=t1)
     t1.other_thing = t2
@@ -167,6 +187,12 @@ def forward_ref_fk_with_error_test(self, format):
 
 
 def forward_ref_m2m_test(self, format):
+    """
+    Tests serialization and deserialization of many-to-many relationships using natural keys.
+
+    Verifies that forward references are correctly handled during deserialization and that
+    relationships are properly restored after saving deferred fields.
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")
@@ -194,6 +220,9 @@ def forward_ref_m2m_test(self, format):
 
 
 def forward_ref_m2m_with_error_test(self, format):
+    """
+    Tests deserialization of models with many-to-many relationships using forward references to detect deserialization errors when a related object is missing.
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")
@@ -221,8 +250,7 @@ def forward_ref_m2m_with_error_test(self, format):
 
 def pk_with_default(self, format):
     """
-    The deserializer works with natural keys when the primary key has a default
-    value.
+    Tests that the deserializer correctly handles natural primary keys with default values, ensuring data integrity and consistency during serialization and deserialization processes.
     """
     obj = NaturalPKWithDefault.objects.create(name="name")
     string_data = serializers.serialize(
@@ -238,8 +266,7 @@ def pk_with_default(self, format):
 
 def fk_as_pk_natural_key_not_called(self, format):
     """
-    The deserializer doesn't rely on natural keys when a model has a custom
-    primary key that is a ForeignKey.
+    Verifies that deserialization works correctly when a model has a custom primary key that is a foreign key, by checking that the deserialized objects have the correct primary key.
     """
     o1 = NaturalKeyAnchor.objects.create(data="978-1590599969")
     o2 = FKAsPKNoNaturalKey.objects.create(pk_fk=o1)

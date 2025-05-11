@@ -80,8 +80,7 @@ if os.name == "nt":
 
 def std_call(func):
     """
-    Return the correct STDCALL function for certain OSR routines on Win32
-    platforms.
+    Return the correct STDCALL function for certain OSR routines depending on the platform, providing OS-specific function mapping for Win32 and other platforms.
     """
     if os.name == "nt":
         return lwingdal[func]
@@ -108,6 +107,9 @@ def gdal_full_version():
 
 
 def gdal_version_info():
+    """
+    Returns the version information of the GDAL library as a tuple of integers, containing the major, minor, and subminor version numbers, parsed from the GDAL version string. Raises a GDALException if the version string cannot be parsed.
+    """
     ver = gdal_version()
     m = re.match(rb"^(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<subminor>\d+))?", ver)
     if not m:

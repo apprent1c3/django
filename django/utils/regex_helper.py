@@ -40,24 +40,8 @@ class NonCapture(list):
 
 
 def normalize(pattern):
-    r"""
-    Given a reg-exp pattern, normalize it to an iterable of forms that
-    suffice for reverse matching. This does the following:
-
-    (1) For any repeating sections, keeps the minimum number of occurrences
-        permitted (this means zero for optional groups).
-    (2) If an optional group includes parameters, include one occurrence of
-        that group (along with the zero occurrence case from step (1)).
-    (3) Select the first (essentially an arbitrary) element from any character
-        class. Select an arbitrary character for any unordered class (e.g. '.'
-        or '\w') in the pattern.
-    (4) Ignore look-ahead and look-behind assertions.
-    (5) Raise an error on any disjunctive ('|') constructs.
-
-    Django's URLs for forward resolving are either all positional arguments or
-    all keyword arguments. That is assumed here, as well. Although reverse
-    resolving can be done using positional args when keyword args are
-    specified, the two cannot be mixed in the same reverse() call.
+    """
+    Given a regular expression pattern, normalizes it into an iterable of forms that can be used for reverse matching, following Django's URL resolving rules. This function handles repeating sections, optional groups, character classes, and look-ahead assertions, while raising an error on disjunctive constructs. The result is a set of normalized patterns, suitable for reverse URL matching with either positional or keyword arguments.
     """
     # Do a linear scan to work out the special features of this pattern. The
     # idea is that we scan once here and collect all the information we need to
@@ -194,14 +178,8 @@ def normalize(pattern):
 
 
 def next_char(input_iter):
-    r"""
-    An iterator that yields the next character from "pattern_iter", respecting
-    escape sequences. An escaped character is replaced by a representative of
-    its class (e.g. \w -> "x"). If the escaped character is one that is
-    skipped, it is not returned (the next character is returned instead).
-
-    Yield the next character, along with a boolean indicating whether it is a
-    raw (unescaped) character or not.
+    """
+    An iterator yielding next characters from an input iterator, handling escape sequences by replacing escaped characters with class representatives and skipping certain escaped characters. Each yielded character is accompanied by a boolean indicating whether it's raw (unescaped) or not.
     """
     for ch in input_iter:
         if ch != "\\":
@@ -216,9 +194,7 @@ def next_char(input_iter):
 
 def walk_to_end(ch, input_iter):
     """
-    The iterator is currently inside a capturing group. Walk to the close of
-    this group, skipping over any nested groups and handling escaped
-    parentheses correctly.
+    Walks the iterator to the end of the current capturing group in a pattern, handling nested groups and escaped parentheses.
     """
     if ch == "(":
         nesting = 1
@@ -237,12 +213,9 @@ def walk_to_end(ch, input_iter):
 
 def get_quantifier(ch, input_iter):
     """
-    Parse a quantifier from the input, where "ch" is the first character in the
-    quantifier.
+    Parse a quantifier from the input, handling both prefix and range-based quantifiers.
 
-    Return the minimum number of occurrences permitted by the quantifier and
-    either None or the next character from the input_iter if the next character
-    is not part of the quantifier.
+    Returns a tuple containing the minimum number of occurrences permitted by the quantifier and the next character from the input, or None if no next character is available.
     """
     if ch in "*?+":
         try:
@@ -274,8 +247,11 @@ def get_quantifier(ch, input_iter):
 
 def contains(source, inst):
     """
-    Return True if the "source" contains an instance of "inst". False,
-    otherwise.
+
+    Check if the source object contains an instance of a specified type.
+
+    Recursively searches within composite objects, such as NonCapture instances.
+
     """
     if isinstance(source, inst):
         return True
@@ -288,9 +264,7 @@ def contains(source, inst):
 
 def flatten_result(source):
     """
-    Turn the given source sequence into a list of reg-exp possibilities and
-    their arguments. Return a list of strings and a list of argument lists.
-    Each of the two lists will be of the same length.
+    Turn a given source sequence into a list of regular expression possibilities and their arguments, returning two lists of the same length: a list of strings representing the regex patterns and a list of lists representing their respective arguments.
     """
     if source is None:
         return [""], [[]]
@@ -341,10 +315,24 @@ def flatten_result(source):
 
 
 def _lazy_re_compile(regex, flags=0):
-    """Lazily compile a regex with flags."""
+    """
+    Lazily compile a regular expression pattern.
+
+    Allows passing either a pattern string or a pre-compiled regex object. 
+    Returns a SimpleLazyObject that compiles the regex on first use, 
+    speeding up the initial setup by deferring compilation until necessary.
+    """
 
     def _compile():
         # Compile the regex if it was not passed pre-compiled.
+        """
+        Compiles a regular expression pattern into a regex object.
+
+        :arg regex: The regular expression pattern to compile, which can be a string, bytes, or a pre-compiled pattern.
+        :arg flags: Flags to use when compiling the pattern (only applicable if regex is a string or bytes).
+
+        :return: A compiled regex object.
+        """
         if isinstance(regex, (str, bytes)):
             return re.compile(regex, flags)
         else:

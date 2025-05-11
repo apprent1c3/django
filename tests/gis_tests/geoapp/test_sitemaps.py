@@ -25,7 +25,9 @@ class GeoSitemapTest(TestCase):
         self.assertEqual(actual, expected)
 
     def test_geositemap_kml(self):
-        "Tests KML/KMZ geographic sitemaps."
+        """
+        Tests the generation of KML and KMZ geographic sitemaps, verifying that the produced XML files conform to the expected schema and contain the correct number of URLs and placemarks.
+        """
         for kml_type in ("kml", "kmz"):
             doc = minidom.parseString(
                 self.client.get("/sitemaps/%s.xml" % kml_type).content

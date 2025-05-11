@@ -47,6 +47,11 @@ class KeysValidator:
             self.messages = {**self.messages, **messages}
 
     def __call__(self, value):
+        """
+        Validate a given value against a predefined set of keys.
+
+        Raises a ValidationError if any required keys are missing or if extra keys are present when strict mode is enabled.
+        """
         keys = set(value)
         missing_keys = self.keys - keys
         if missing_keys:

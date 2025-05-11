@@ -12,7 +12,9 @@ class GeoRegressionTests(TestCase):
     fixtures = ["initial"]
 
     def test_update(self):
-        "Testing QuerySet.update() (#10411)."
+        """
+        Tests the functionality of updating a model instance's field using QuerySet.update(), specifically the geographic coordinates of a City instance. Verifies that the update operation successfully modifies the instance and that the changes can be reverted.
+        """
         pueblo = City.objects.get(name="Pueblo")
         bak = pueblo.point.clone()
         pueblo.point.y += 0.005
@@ -41,7 +43,9 @@ class GeoRegressionTests(TestCase):
 
     @skipUnlessDBFeature("supports_extent_aggr")
     def test_extent(self):
-        "Testing `extent` on a table with a single point. See #11827."
+        """
+        Tests the `extent` aggregation function on a geographic table, verifying its correctness for a table containing a single point.
+        """
         pnt = City.objects.get(name="Pueblo").point
         ref_ext = (pnt.x, pnt.y, pnt.x, pnt.y)
         extent = City.objects.filter(name="Pueblo").aggregate(Extent("point"))[
@@ -51,7 +55,9 @@ class GeoRegressionTests(TestCase):
             self.assertAlmostEqual(ref_val, val, 4)
 
     def test_unicode_date(self):
-        "Testing dates are converted properly, even on SpatiaLite. See #16408."
+        """
+        Tests the correct conversion of dates, including Unicode dates, to ensure compatibility with SpatiaLite databases.
+        """
         founded = datetime(1857, 5, 23)
         PennsylvaniaCity.objects.create(
             name="Mansfield",
@@ -67,7 +73,13 @@ class GeoRegressionTests(TestCase):
         )
 
     def test_empty_count(self):
-        "Testing that PostGISAdapter.__eq__ does check empty strings. See #13670."
+        """
+        Verifies that PostGISAdapter handles empty strings correctly by testing the count of cities within a specific state boundary.\"\"\"
+
+        Alternatively, you could even make it simpler:
+
+        \"\"\"Tests correct handling of empty strings in PostGISAdapter equality checks.
+        """
         # contrived example, but need a geo lookup paired with an id__in lookup
         pueblo = City.objects.get(name="Pueblo")
         state = State.objects.filter(poly__contains=pueblo.point)
@@ -87,7 +99,9 @@ class GeoRegressionTests(TestCase):
         )
 
     def test_boolean_conversion(self):
-        "Testing Boolean value conversion with the spatial backend, see #15169."
+        """
+        Tests the conversion of boolean values using the spatial backend, ensuring that true and false values are correctly stored and retrieved as boolean types.
+        """
         t1 = Truth.objects.create(val=True)
         t2 = Truth.objects.create(val=False)
 

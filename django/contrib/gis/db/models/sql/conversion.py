@@ -28,6 +28,9 @@ class AreaField(models.FloatField):
         return getattr(value, area_att) if area_att else value
 
     def from_db_value(self, value, expression, connection):
+        """
+        Converts a geographic area database value into a Python object, handling null values and performing necessary type conversions.
+        """
         if value is None:
             return
         # If the database returns a Decimal, convert it to a float as expected
@@ -55,6 +58,9 @@ class DistanceField(models.FloatField):
         return super().get_prep_value(value)
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        Return the database preparation value for a given distance value, taking into account the distance measurement units supported by the database backend. If the value is not a Distance object, it is returned unchanged.
+        """
         if not isinstance(value, Distance):
             return value
         distance_att = connection.ops.get_distance_att_for_field(self.geo_field)

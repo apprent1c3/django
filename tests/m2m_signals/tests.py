@@ -11,6 +11,9 @@ from .models import Car, Part, Person, SportsCar
 class ManyToManySignalsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating instances of cars, parts, and people to be used in tests.
+        """
         cls.vw = Car.objects.create(name="VW")
         cls.bmw = Car.objects.create(name="BMW")
         cls.toyota = Car.objects.create(name="Toyota")
@@ -58,7 +61,14 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def _initialize_signal_car(self, add_default_parts_before_set_signal=False):
-        """Install a listener on the two m2m relations."""
+        """
+        Initializes signal listeners for Car's many-to-many relationships with optional and default parts.
+
+        Args:
+            add_default_parts_before_set_signal (bool, optional): If True, adds the default sunroof part to the car before setting up the signal listeners. Defaults to False.
+
+        This method sets up the necessary event listeners to respond to changes in the car's parts, ensuring that the car object stays up-to-date with the latest changes.
+        """
         models.signals.m2m_changed.connect(
             self.m2m_changed_signal_receiver, Car.optional_parts.through
         )
@@ -71,12 +81,7 @@ class ManyToManySignalsTest(TestCase):
 
     def test_pk_set_on_repeated_add_remove(self):
         """
-        m2m_changed is always fired, even for repeated calls to the same
-        method, but the behavior of pk_sets differs by action.
-
-        - For signals related to `add()`, only PKs that will actually be
-          inserted are sent.
-        - For `remove()` all PKs are sent, even if they will not affect the DB.
+        Tests the consistency of pk_sets sent by the m2m_changed signal when adding and removing the same object from a ManyToManyField multiple times.
         """
         pk_sets_sent = []
 
@@ -103,6 +108,10 @@ class ManyToManySignalsTest(TestCase):
         models.signals.m2m_changed.disconnect(handler, Car.default_parts.through)
 
     def test_m2m_relations_add_remove_clear(self):
+        """
+        Tests the functionality of adding, removing, and clearing many-to-many relationships, 
+        including the signals emitted before and after these operations, in both forward and reverse directions.
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)
@@ -176,6 +185,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_give_the_self_vw_some_optional_parts(self):
+        """
+        Tests that many-to-many relation signals are correctly emitted when adding optional parts to a vehicle and adding vehicles to an optional part.
+        """
         expected_messages = []
 
         self._initialize_signal_car()
@@ -317,6 +329,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_alternative_ways(self):
+        """
+        Test signals emitted when modifying many-to-many relationships in alternative ways, verifying that the correct messages are sent at each stage of the process, including pre and post add and remove operations.
+        """
         expected_messages = []
 
         self._initialize_signal_car()
@@ -385,6 +400,9 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_clearing_removing(self):
+        """
+        Tests that Many-to-Many relation signals are correctly sent when clearing and removing items from the relation, and checks that the expected pre and post clear, add, and remove signals are emitted with the correct parameters.
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)
@@ -450,6 +468,13 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_when_inheritance(self):
+        """
+
+        Tests the many-to-many relation signal handling when model inheritance is involved.
+
+        Verifies that the pre and post add signals are correctly emitted for both the parent and child models when adding related objects.
+
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)

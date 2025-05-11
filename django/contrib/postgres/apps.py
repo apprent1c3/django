@@ -23,8 +23,14 @@ from .signals import register_type_handlers
 
 def uninstall_if_needed(setting, value, enter, **kwargs):
     """
-    Undo the effects of PostgresConfig.ready() when django.contrib.postgres
-    is "uninstalled" by override_settings().
+
+    Undo the effects of Postgres configuration when it is uninstalled.
+
+    This function reverses the changes made by PostgresConfig.ready() when the
+    django.contrib.postgres application is removed from INSTALLED_APPS, typically
+    when using override_settings(). It disconnects signals, unregisters lookup types,
+    and removes serializers to restore the system to its original state.
+
     """
     if (
         not enter
@@ -54,6 +60,14 @@ class PostgresConfig(AppConfig):
     verbose_name = _("PostgreSQL extensions")
 
     def ready(self):
+        """
+
+        Initiates the necessary configurations and registrations for PostgreSQL database support.
+
+        This function connects relevant signals, updates data type mappings, registers type handlers, 
+        lookup functions, and serializers to ensure seamless interaction with PostgreSQL databases.
+
+        """
         setting_changed.connect(uninstall_if_needed)
         # Connections may already exist before we are called.
         for conn in connections.all(initialized_only=True):

@@ -38,6 +38,9 @@ except ImportError:
 @isolate_apps("postgres_tests")
 class BasicTests(PostgreSQLSimpleTestCase):
     def test_get_field_display(self):
+        """
+        Checks the correct display of a PostgreSQL IntegerRangeField with various input values.
+        """
         class Model(PostgreSQLModel):
             field = pg_fields.IntegerRangeField(
                 choices=[
@@ -59,6 +62,9 @@ class BasicTests(PostgreSQLSimpleTestCase):
                 self.assertEqual(instance.get_field_display(), display)
 
     def test_discrete_range_fields_unsupported_default_bounds(self):
+        """
+        Tests that discrete range fields raise an error when 'default_bounds' is used, as these fields do not support default bounds due to their discrete nature.
+        """
         discrete_range_types = [
             pg_fields.BigIntegerRangeField,
             pg_fields.IntegerRangeField,
@@ -79,6 +85,11 @@ class BasicTests(PostgreSQLSimpleTestCase):
             self.assertEqual(field.default_bounds, "[]")
 
     def test_invalid_default_bounds(self):
+        """
+        Tests that invalid default bounds raise a ValueError when creating a DecimalRangeField.
+
+        Validates that only the following default bounds are accepted: '[)', '(]', '()', or '[]'.
+        """
         tests = [")]", ")[", "](", "])", "([", "[(", "x", "", None]
         msg = "default_bounds must be one of '[)', '(]', '()', or '[]'."
         for invalid_bounds in tests:
@@ -86,6 +97,9 @@ class BasicTests(PostgreSQLSimpleTestCase):
                 pg_fields.DecimalRangeField(default_bounds=invalid_bounds)
 
     def test_deconstruct(self):
+        """
+        Tests that the deconstruct method of DecimalRangeField correctly serializes its arguments, ensuring that default bounds are properly preserved when the field is deconstructed.
+        """
         field = pg_fields.DecimalRangeField()
         *_, kwargs = field.deconstruct()
         self.assertEqual(kwargs, {})
@@ -96,6 +110,9 @@ class BasicTests(PostgreSQLSimpleTestCase):
 
 class TestSaveLoad(PostgreSQLTestCase):
     def test_all_fields(self):
+        """
+        Tests that all fields of the RangesModel instance are correctly saved and retrieved from the database, verifying data integrity and consistency across different numeric and date-based field types.
+        """
         now = timezone.now()
         instance = RangesModel(
             ints=NumericRange(0, 10),
@@ -113,6 +130,9 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(instance.dates, loaded.dates)
 
     def test_range_object(self):
+        """
+        Verifies that a NumericRange object is correctly saved and retrieved from the database.
+        """
         r = NumericRange(0, 10)
         instance = RangesModel(ints=r)
         instance.save()
@@ -126,6 +146,9 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(NumericRange(0, 10), loaded.ints)
 
     def test_tuple_range_with_default_bounds(self):
+        """
+        Tests that a DateTimeTZRange with default bounds is correctly stored and retrieved from the database.
+        """
         range_ = (timezone.now(), timezone.now() + datetime.timedelta(hours=1))
         RangesModel.objects.create(timestamps_closed_bounds=range_, timestamps=range_)
         loaded = RangesModel.objects.get()
@@ -139,6 +162,9 @@ class TestSaveLoad(PostgreSQLTestCase):
         )
 
     def test_range_object_boundaries(self):
+        """
+        Tests that a NumericRange object with inclusive boundaries is correctly saved and loaded from the database, ensuring its range boundaries are preserved.
+        """
         r = NumericRange(0, 10, "[]")
         instance = RangesModel(decimals=r)
         instance.save()
@@ -157,6 +183,9 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(loaded.timestamps_closed_bounds, range_)
 
     def test_unbounded(self):
+        """
+        Tests that an unbounded numeric range can be saved and loaded correctly.
+        """
         r = NumericRange(None, None, "()")
         instance = RangesModel(decimals=r)
         instance.save()
@@ -164,6 +193,9 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(r, loaded.decimals)
 
     def test_empty(self):
+        """
+        Tests the persistence of an empty numeric range to the database by creating a model instance with an empty range, saving it, and verifying that the range is correctly loaded and matches the original.
+        """
         r = NumericRange(empty=True)
         instance = RangesModel(ints=r)
         instance.save()
@@ -186,6 +218,9 @@ class TestSaveLoad(PostgreSQLTestCase):
 class TestRangeContainsLookup(PostgreSQLTestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, including lists of timestamps, dates, and objects with inner and outer date and timestamp ranges, to facilitate testing of date and timestamp range validation and operations.
+        """
         cls.timestamps = [
             datetime.datetime(year=2016, month=1, day=1),
             datetime.datetime(year=2016, month=1, day=2, hour=1),
@@ -365,6 +400,9 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_bound_type(self):
+        """
+        Tests the filtering of RangesModel instances by type of bounds in the 'decimals' field, covering various combinations of finite and infinite bounds, and inclusive/exclusive bounds, to ensure correct results are returned.
+        """
         decimals = RangesModel.objects.bulk_create(
             [
                 RangesModel(decimals=NumericRange(None, 10)),
@@ -570,6 +608,11 @@ class TestSerialization(PostgreSQLSimpleTestCase):
     upper_dt = datetime.datetime(2014, 2, 2, 12, 12, 12, tzinfo=datetime.timezone.utc)
 
     def test_dumping(self):
+        """
+
+        Tests the serialization and deserialization of a RangesModel instance to ensure its fields are correctly dumped and match the expected output.
+
+        """
         instance = RangesModel(
             ints=NumericRange(0, 10),
             decimals=NumericRange(empty=True),
@@ -592,6 +635,11 @@ class TestSerialization(PostgreSQLSimpleTestCase):
         self.assertEqual(dumped, check)
 
     def test_loading(self):
+        """
+        Tests the loading of deserialized data from JSON into the model instance, 
+        verifying that the fields are populated correctly, including numeric, date, 
+        and timestamp ranges.
+        """
         instance = list(serializers.deserialize("json", self.test_data))[0].object
         self.assertEqual(instance.ints, NumericRange(0, 10))
         self.assertEqual(instance.decimals, NumericRange(empty=True))
@@ -606,6 +654,9 @@ class TestSerialization(PostgreSQLSimpleTestCase):
         )
 
     def test_serialize_range_with_null(self):
+        """
+        Tests the serialization and deserialization of a NumericRange with null values. Verifies that the original and deserialized ranges are equal when one or both bounds are null.
+        """
         instance = RangesModel(ints=NumericRange(None, 10))
         data = serializers.serialize("json", [instance])
         new_instance = list(serializers.deserialize("json", data))[0].object
@@ -632,6 +683,9 @@ class TestChecks(PostgreSQLSimpleTestCase):
 
 class TestValidators(PostgreSQLSimpleTestCase):
     def test_max(self):
+        """
+        Tests the validation of a numeric range's upper bound to ensure it does not exceed a specified maximum value.
+        """
         validator = RangeMaxValueValidator(5)
         validator(NumericRange(0, 5))
         msg = "Ensure that the upper bound of the range is not greater than 5."
@@ -643,6 +697,9 @@ class TestValidators(PostgreSQLSimpleTestCase):
             validator(NumericRange(0, None))  # an unbound range
 
     def test_min(self):
+        """
+        Tests the RangeMinValueValidator to ensure it enforces a minimum lower bound value on numeric ranges.
+        """
         validator = RangeMinValueValidator(5)
         validator(NumericRange(10, 15))
         msg = "Ensure that the lower bound of the range is not less than 5."
@@ -666,6 +723,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, NumericRange(Decimal("1.12345"), Decimal("2.001")))
 
     def test_valid_timestamps(self):
+        """
+        Tests the validation of timestamps in a DateTimeRangeField, ensuring they are correctly parsed and converted into a DateTimeTZRange object.
+        """
         field = pg_forms.DateTimeRangeField()
         value = field.clean(["01/01/2014 00:00:00", "02/02/2014 12:12:12"])
         lower = datetime.datetime(2014, 1, 1, 0, 0, 0)
@@ -673,6 +733,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, DateTimeTZRange(lower, upper))
 
     def test_valid_dates(self):
+        """
+        Tests that valid date ranges are correctly parsed and returned as DateRange objects.
+        """
         field = pg_forms.DateRangeField()
         value = field.clean(["01/01/2014", "02/02/2014"])
         lower = datetime.date(2014, 1, 1)
@@ -680,6 +743,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, DateRange(lower, upper))
 
     def test_using_split_datetime_widget(self):
+        """
+        Tests the usage of the SplitDateTimeField within a form, ensuring that it correctly renders as a set of text inputs and validates the provided datetime range values, converting them to a DateTimeTZRange object.
+        """
         class SplitDateTimeRangeField(pg_forms.DateTimeRangeField):
             base_field = forms.SplitDateTimeField
 
@@ -720,6 +786,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertIsNone(value)
 
     def test_datetime_form_as_table(self):
+        """
+        Tests the rendering of a DateTimeRangeForm as an HTML table, verifying that it produces the expected output for both empty and populated forms.
+        """
         class DateTimeRangeForm(forms.Form):
             datetime_field = pg_forms.DateTimeRangeField(show_hidden_initial=True)
 
@@ -763,6 +832,12 @@ class TestFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_datetime_form_initial_data(self):
+        """
+        Tests the behavior of DateTimeRangeForm's initial data handling.
+
+        Verifies that the form correctly identifies when the field's value has changed
+        from its initial value, and when it remains the same.
+        """
         class DateTimeRangeForm(forms.Form):
             datetime_field = pg_forms.DateTimeRangeField(show_hidden_initial=True)
 
@@ -800,6 +875,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_integer_lower_bound_higher(self):
+        """
+        Tests that the IntegerRangeField validation correctly raises an error when the lower bound is higher than the upper bound, ensuring range values are ordered correctly.
+        """
         field = pg_forms.IntegerRangeField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean(["10", "2"])
@@ -815,6 +893,12 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, NumericRange(None, 0))
 
     def test_integer_incorrect_data_type(self):
+        """
+
+        Tests that the IntegerRangeField raises a ValidationError when given a single value instead of a range, 
+        ensuring the field correctly enforces its data type requirements. 
+
+        """
         field = pg_forms.IntegerRangeField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("1")
@@ -834,6 +918,10 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.messages[0], "Enter a whole number.")
 
     def test_integer_required(self):
+        """
+        Tests that the IntegerRangeField correctly enforces the required validation rule, 
+        raising a ValidationError when no value is provided and cleaning the input when a value is given.
+        """
         field = pg_forms.IntegerRangeField(required=True)
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean(["", ""])
@@ -842,6 +930,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, NumericRange(1, None))
 
     def test_decimal_lower_bound_higher(self):
+        """
+        Tests that the DecimalRangeField raises a ValidationError when the lower bound is higher than the upper bound.
+        """
         field = pg_forms.DecimalRangeField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean(["1.8", "1.6"])
@@ -857,6 +948,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, NumericRange(None, Decimal("3.1415926")))
 
     def test_decimal_incorrect_data_type(self):
+        """
+        Tests that DecimalRangeField raises a ValidationError when provided with a single decimal number instead of a range, ensuring correct data type validation.
+        """
         field = pg_forms.DecimalRangeField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("1.6")
@@ -876,6 +970,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.messages[0], "Enter a number.")
 
     def test_decimal_required(self):
+        """
+        Tests that a DecimalRangeField with the required attribute set to True enforces the requirement by raising a ValidationError when both values are empty and correctly cleans a valid input by returning a NumericRange with the provided decimal value.
+        """
         field = pg_forms.DecimalRangeField(required=True)
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean(["", ""])
@@ -884,6 +981,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, NumericRange(Decimal("1.61803399"), None))
 
     def test_date_lower_bound_higher(self):
+        """
+        Tests that DateRangeField raises a ValidationError when the start date is later than the end date.
+        """
         field = pg_forms.DateRangeField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean(["2013-04-09", "1976-04-16"])
@@ -899,6 +999,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, DateRange(None, datetime.date(2013, 4, 9)))
 
     def test_date_incorrect_data_type(self):
+        """
+        Tests that the DateRangeField raises a ValidationError when given incorrect data type (non-date value).
+        """
         field = pg_forms.DateRangeField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("1")
@@ -918,6 +1021,12 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.messages[0], "Enter a valid date.")
 
     def test_date_required(self):
+        """
+
+        Verifies the behavior of a DateRangeField when the required attribute is set to True.
+        Tests that a ValidationError is raised when no value is provided and that a valid value is correctly parsed.
+
+        """
         field = pg_forms.DateRangeField(required=True)
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean(["", ""])
@@ -942,6 +1051,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_datetime_lower_bound_higher(self):
+        """
+        Checks that the start datetime in a DateTimeRangeField does not exceed the end datetime, raising a ValidationError if this condition is not met.
+        """
         field = pg_forms.DateTimeRangeField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean(["2006-10-25 14:59", "2006-10-25 14:58"])
@@ -959,6 +1071,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_datetime_incorrect_data_type(self):
+        """
+        Tests that the DateTimeRangeField raises a ValidationError when given a single date/time string instead of a range, and that the error message and code are correct.
+        """
         field = pg_forms.DateTimeRangeField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("2013-04-09 11:45")
@@ -978,6 +1093,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.messages[0], "Enter a valid date/time.")
 
     def test_datetime_required(self):
+        """
+        Tests that a DateTimeRangeField with required=True raises a ValidationError when no value is provided and correctly cleans a value when only the start date is given.
+        """
         field = pg_forms.DateTimeRangeField(required=True)
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean(["", ""])
@@ -1054,6 +1172,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(form_field.range_kwargs, {"bounds": "[]"})
 
     def test_model_field_with_default_bounds(self):
+        """
+        Tests a DateTimeRangeField with default bounds, verifying it correctly cleans and translates input values into a DateTimeTZRange object.
+        """
         field = pg_forms.DateTimeRangeField(default_bounds="[]")
         value = field.clean(["2014-01-01 00:00:00", "2014-02-03 12:13:14"])
         lower = datetime.datetime(2014, 1, 1, 0, 0, 0)
@@ -1061,6 +1182,11 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, DateTimeTZRange(lower, upper, "[]"))
 
     def test_has_changed(self):
+        """
+        Tests the :meth:`has_changed` method of various field types, checking that it correctly identifies whether the field value has changed.
+
+        This test covers different field types, including date and time ranges, integer ranges, and decimal ranges, to ensure that the :meth:`has_changed` method behaves as expected in various scenarios.
+        """
         for field, value in (
             (pg_forms.DateRangeField(), ["2010-01-01", "2020-12-12"]),
             (pg_forms.DateTimeRangeField(), ["2010-01-01 11:13", "2020-12-12 14:52"]),
@@ -1076,6 +1202,12 @@ class TestFormField(PostgreSQLSimpleTestCase):
 
 class TestWidget(PostgreSQLSimpleTestCase):
     def test_range_widget(self):
+        """
+        Tests the rendering of the DateTimeRangeField widget.
+
+        Verifies that the widget produces the expected HTML for different input values,
+        including empty, None, and a specified DateTimeTZRange instance.
+        """
         f = pg_forms.ranges.DateTimeRangeField()
         self.assertHTMLEqual(
             f.widget.render("datetimerange", ""),

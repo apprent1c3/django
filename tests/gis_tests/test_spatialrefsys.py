@@ -79,7 +79,7 @@ class SpatialRefSysTest(TestCase):
 
     def test_retrieve(self):
         """
-        Test retrieval of SpatialRefSys model objects.
+        Test retrieval of SpatialRefSys model objects, verifying that retrieved objects match expected values for SRID, authority name, and spatial reference text.
         """
         for sd in test_srs:
             srs = self.SpatialRefSys.objects.get(srid=sd["srid"])
@@ -103,7 +103,11 @@ class SpatialRefSysTest(TestCase):
 
     def test_osr(self):
         """
-        Test getting OSR objects from SpatialRefSys model objects.
+
+            Validate the consistency of Spatial Reference System (SRS) objects 
+            retrieved from the SpatialRefSys model by comparing their attributes 
+            with expected values, ensuring correct data retrieval and integrity.
+
         """
         for sd in test_srs:
             sr = self.SpatialRefSys.objects.get(srid=sd["srid"])
@@ -119,7 +123,7 @@ class SpatialRefSysTest(TestCase):
 
     def test_ellipsoid(self):
         """
-        Test the ellipsoid property.
+        Verifies that the ellipsoid values for a set of Spatial Reference Systems (SRS) are correctly stored and retrieved, ensuring numerical accuracy within a specified precision.
         """
         for sd in test_srs:
             # Getting the ellipsoid and precision parameters.
@@ -136,8 +140,7 @@ class SpatialRefSysTest(TestCase):
     @skipUnlessDBFeature("supports_add_srs_entry")
     def test_add_entry(self):
         """
-        Test adding a new entry in the SpatialRefSys model using the
-        add_srs_entry utility.
+        Verifies the addition of a new Spatial Reference System entry using the add_srs_entry utility.
         """
         from django.contrib.gis.utils import add_srs_entry
 

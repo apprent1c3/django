@@ -19,11 +19,12 @@ class KMLSitemap(Sitemap):
 
     def _build_kml_sources(self, sources):
         """
-        Go through the given sources and return a 3-tuple of the application
-        label, module name, and field name of every GeometryField encountered
-        in the sources.
 
-        If no sources are provided, then all models.
+            Identifies and extracts GeometryField information from the given sources.
+
+            Returns a list of 3-tuples containing application label, module name, and field name.
+            If no sources are provided, it defaults to all models.
+
         """
         kml_sources = []
         if sources is None:
@@ -52,8 +53,7 @@ class KMLSitemap(Sitemap):
 
     def get_urls(self, page=1, site=None, protocol=None):
         """
-        This method is overridden so the appropriate `geo_format` attribute
-        is placed on each URL element.
+        Retrieves a list of URLs, overriding the parent implementation to include the `geo_format` attribute in each URL element.
         """
         urls = Sitemap.get_urls(self, page=page, site=site, protocol=protocol)
         for url in urls:

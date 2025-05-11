@@ -27,6 +27,9 @@ class ContentTypesViewsTests(TestCase):
     def setUpTestData(cls):
         # Don't use the manager to ensure the site exists with pk=1, regardless
         # of whether or not it already exists.
+        """
+        Sets up test data for the class, creating a site, author, multiple articles with varying creation dates, and scheme-included URLs for testing purposes.
+        """
         cls.site1 = Site(pk=1, domain="testserver", name="testserver")
         cls.site1.save()
         cls.author1 = Author.objects.create(name="Boris")
@@ -62,7 +65,9 @@ class ContentTypesViewsTests(TestCase):
         Site.objects.clear_cache()
 
     def test_shortcut_with_absolute_url(self):
-        "Can view a shortcut for an Author object that has a get_absolute_url method"
+        """
+        Tests that a shortcut URL for an Author object redirects to the object's absolute URL, returning a 404 status code if the URL is not found.
+        """
         for obj in Author.objects.all():
             with self.subTest(obj=obj):
                 short_url = "/shortcut/%s/%s/" % (
@@ -78,8 +83,7 @@ class ContentTypesViewsTests(TestCase):
 
     def test_shortcut_with_absolute_url_including_scheme(self):
         """
-        Can view a shortcut when object's get_absolute_url returns a full URL
-        the tested URLs are: "http://...", "https://..." and "//..."
+        Tests that a shortcut view works correctly when the target object's `get_absolute_url` method returns a full URL with an included scheme, covering HTTP, HTTPS, and protocol-relative schemes.
         """
         for obj in SchemeIncludedURL.objects.all():
             with self.subTest(obj=obj):
@@ -94,8 +98,7 @@ class ContentTypesViewsTests(TestCase):
 
     def test_shortcut_no_absolute_url(self):
         """
-        Shortcuts for an object that has no get_absolute_url() method raise
-        404.
+        Tests that shortcuts for objects without a get_absolute_url() method return a 404 status code.
         """
         for obj in Article.objects.all():
             with self.subTest(obj=obj):
@@ -148,7 +151,7 @@ class ContentTypesViewsSiteRelTests(TestCase):
     @mock.patch("django.apps.apps.get_model")
     def test_shortcut_view_with_null_site_fk(self, get_model):
         """
-        The shortcut view works if a model's ForeignKey to site is None.
+        Tests the shortcut view functionality when a model's foreign key to a site is set to None, ensuring a redirect occurs as expected.
         """
         get_model.side_effect = lambda *args, **kwargs: (
             MockSite if args[0] == "sites.Site" else ModelWithNullFKToSite
@@ -166,9 +169,7 @@ class ContentTypesViewsSiteRelTests(TestCase):
     @mock.patch("django.apps.apps.get_model")
     def test_shortcut_view_with_site_m2m(self, get_model):
         """
-        When the object has a ManyToManyField to Site, redirect to the current
-        site if it's attached to the object or to the domain of the first site
-        found in the m2m relationship.
+        Tests the shortcut view's behavior when the object has a ManyToManyField relationship to Site, ensuring it redirects to the current site or the domain of the first site found in the relationship.
         """
         get_model.side_effect = lambda *args, **kwargs: (
             MockSite if args[0] == "sites.Site" else ModelWithM2MToSite
@@ -230,8 +231,7 @@ class ShortcutViewTests(TestCase):
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_not_dependent_on_sites_app(self):
         """
-        The view returns a complete URL regardless of whether the sites
-        framework is installed.
+        Tests if a view returns a complete URL, regardless of whether the sites framework is installed.
         """
         user_ct = ContentType.objects.get_for_model(FooWithUrl)
         obj = FooWithUrl.objects.create(name="john")
@@ -248,7 +248,9 @@ class ShortcutViewTests(TestCase):
             )
 
     def test_model_without_get_absolute_url(self):
-        """The view returns 404 when Model.get_absolute_url() isn't defined."""
+        """
+        Tests that calling the shortcut view raises a 404 error when the model instance does not define a get_absolute_url method.
+        """
         user_ct = ContentType.objects.get_for_model(FooWithoutUrl)
         obj = FooWithoutUrl.objects.create(name="john")
         with self.assertRaises(Http404):
@@ -256,8 +258,7 @@ class ShortcutViewTests(TestCase):
 
     def test_model_with_broken_get_absolute_url(self):
         """
-        The view doesn't catch an AttributeError raised by
-        Model.get_absolute_url() (#8997).
+        Tests whether the view correctly handles a model instance with a broken `get_absolute_url` method, ensuring that an `AttributeError` is raised as expected.
         """
         user_ct = ContentType.objects.get_for_model(FooWithBrokenAbsoluteUrl)
         obj = FooWithBrokenAbsoluteUrl.objects.create(name="john")

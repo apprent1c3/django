@@ -16,6 +16,9 @@ class BaseOrderWithRespectToTests:
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the Question and Answer models, creating a sample question with multiple answers.
+        """
         cls.q1 = cls.Question.objects.create(
             text="Which Beatle starts with the letter 'R'?"
         )
@@ -40,6 +43,11 @@ class BaseOrderWithRespectToTests:
     def test_previous_and_next_in_order(self):
         # We can retrieve the answers related to a particular object, in the
         # order they were created, once we have a particular object.
+        """
+        Checks the correct functioning of get_next_in_order and get_previous_in_order methods 
+        for answers in a question's answer set, verifying that they return the adjacent answer 
+        in the ordered sequence.
+        """
         a1 = self.q1.answer_set.all()[0]
         self.assertEqual(a1.text, "John")
         self.assertEqual(a1.get_next_in_order().text, "Paul")
@@ -50,6 +58,9 @@ class BaseOrderWithRespectToTests:
 
     def test_item_ordering(self):
         # We can retrieve the ordering of the queryset from a particular item.
+        """
+        Tests that the answer ordering for a question matches the order in which answers were created or added to the question.
+        """
         a1 = self.q1.answer_set.all()[1]
         id_list = [o.pk for o in self.q1.answer_set.all()]
         self.assertSequenceEqual(a1.question.get_answer_order(), id_list)
@@ -62,7 +73,9 @@ class BaseOrderWithRespectToTests:
         )
 
     def test_set_order_unrelated_object(self):
-        """An answer that's not related isn't updated."""
+        """
+        Tests that setting the answer order for a question does not affect answers from unrelated questions.
+        """
         q = self.Question.objects.create(text="other")
         a = self.Answer.objects.create(text="Number five", question=q)
         self.q1.set_answer_order([o.pk for o in self.q1.answer_set.all()] + [a.pk])
@@ -70,6 +83,11 @@ class BaseOrderWithRespectToTests:
 
     def test_change_ordering(self):
         # The ordering can be altered
+        """
+        ..: 
+            Tests the functionality of changing the ordering of answers for a question. 
+            Verifies that the answer order is updated correctly when a new order is set.
+        """
         a = self.Answer.objects.create(text="Number five", question=self.q1)
 
         # Swap the last two items in the order list
@@ -90,6 +108,9 @@ class BaseOrderWithRespectToTests:
         )
 
     def test_recursive_ordering(self):
+        """
+        Tests that posts are ordered recursively based on their parent-child relationships.
+        """
         p1 = self.Post.objects.create(title="1")
         p2 = self.Post.objects.create(title="2")
         p1_1 = self.Post.objects.create(title="1.1", parent=p1)
@@ -99,6 +120,10 @@ class BaseOrderWithRespectToTests:
         self.assertSequenceEqual(p1.get_post_order(), [p1_1.pk, p1_2.pk, p1_3.pk])
 
     def test_delete_and_insert(self):
+        """
+        Tests the deletion and insertion of answers associated with a question, 
+        including the reassignment of an answer to a different question.
+        """
         q1 = self.Question.objects.create(text="What is your favorite color?")
         q2 = self.Question.objects.create(text="What color is it?")
         a1 = self.Answer.objects.create(text="Blue", question=q1)
@@ -113,6 +138,12 @@ class BaseOrderWithRespectToTests:
         self.assertSequenceEqual(q1.answer_set.all(), [a2, a4, new_answer])
 
     def test_database_routing(self):
+        """
+        Test that database routing works as expected.
+
+         Verifies that writing to the database is routed to the 'other' database,
+         while the 'default' database remains untouched.
+        """
         class WriteToOtherRouter:
             def db_for_write(self, model, **hints):
                 return "other"

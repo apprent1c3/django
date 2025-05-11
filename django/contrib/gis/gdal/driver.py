@@ -34,7 +34,7 @@ class Driver(GDALBase):
 
     def __init__(self, dr_input):
         """
-        Initialize an GDAL/OGR driver on either a string or integer input.
+        Initializes a GDAL/OGR driver based on the provided input, which can be a string (driver name or alias), an integer (driver index), or a pointer to an existing driver. Ensures the driver is registered and returns a handle to the driver if successful, raising an exception if the input is invalid or the driver cannot be initialized.
         """
         if isinstance(dr_input, str):
             # If a string name of the driver was passed in

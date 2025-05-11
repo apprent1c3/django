@@ -13,6 +13,9 @@ class CollateTests(TestCase):
         cls.author2 = Author.objects.create(alias="A", name="Jones 2")
 
     def test_collate_filter_ci(self):
+        """
+        Tests the case-insensitive filter in a database query using a collation, verifying that it correctly returns results regardless of the case of the filtered value.
+        """
         collation = connection.features.test_collations.get("ci")
         if not collation:
             self.skipTest("This backend does not support case-insensitive collations.")
@@ -20,6 +23,9 @@ class CollateTests(TestCase):
         self.assertEqual(qs.count(), 2)
 
     def test_collate_order_by_cs(self):
+        """
+        Tests the collation order of a query set using a case-sensitive collation.
+        """
         collation = connection.features.test_collations.get("cs")
         if not collation:
             self.skipTest("This backend does not support case-sensitive collations.")
@@ -27,6 +33,12 @@ class CollateTests(TestCase):
         self.assertSequenceEqual(qs, [self.author2, self.author1])
 
     def test_language_collation_order_by(self):
+        """
+        Test ordering of Author objects using language-specific collation rules.
+
+        This test verifies that authors are ordered correctly based on their alias, 
+        taking into account language-specific character ordering, such as umlauts and accents.
+        """
         collation = connection.features.test_collations.get("swedish_ci")
         if not collation:
             self.skipTest("This backend does not support language collations.")
@@ -40,6 +52,9 @@ class CollateTests(TestCase):
         )
 
     def test_invalid_collation(self):
+        """
+        Tests that invalid collation names raise a ValueError with a descriptive error message.
+        """
         tests = [
             None,
             "",

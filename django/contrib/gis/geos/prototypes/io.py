@@ -166,7 +166,13 @@ class _WKBReader(IOBase):
     destructor = wkb_reader_destroy
 
     def read(self, wkb):
-        "Return a _pointer_ to C GEOS Geometry object from the given WKB."
+        """
+        Return a pointer to a C GEOS Geometry object from the given Well-Known Binary (WKB) representation.
+
+        Accepts WKB as a bytes, string, or memoryview object, and returns a pointer to the corresponding GEOS Geometry object.
+
+        Raises a TypeError if the input WKB is not in a supported format.
+        """
         if isinstance(wkb, memoryview):
             wkb_s = bytes(wkb)
             return wkb_reader_read(self.ptr, wkb_s, len(wkb_s))
@@ -198,6 +204,17 @@ class WKTWriter(IOBase):
     _precision = None
 
     def __init__(self, dim=2, trim=False, precision=None):
+        """
+
+        Initializes the object, setting its dimensionality and trimming behavior.
+
+        :param int dim: The dimensionality of the object (default is 2).
+        :param bool trim: Whether to trim the object (default is False).
+        :param precision: The precision to use (optional).
+
+        Sets the object's properties for trimming and precision, with default values applied when not provided.
+
+        """
         super().__init__()
         self._trim = DEFAULT_TRIM_VALUE
         self.trim = trim
@@ -235,6 +252,14 @@ class WKTWriter(IOBase):
 
     @precision.setter
     def precision(self, precision):
+        """
+
+        Sets the rounding precision for WKT output.
+
+        The precision must be a non-negative integer or None, where None implies no rounding.
+        It controls the number of decimal places used when generating WKT strings.
+
+        """
         if (not isinstance(precision, int) or precision < 0) and precision is not None:
             raise AttributeError(
                 "WKT output rounding precision must be non-negative integer or None."
@@ -255,6 +280,9 @@ class WKBWriter(IOBase):
         self.outdim = dim
 
     def _handle_empty_point(self, geom):
+        """
+        Handles empty point geometry by replacing it with a point of NaN coordinates if a spatial reference system is defined, otherwise raises a ValueError.
+        """
         from django.contrib.gis.geos import Point
 
         if isinstance(geom, Point) and geom.empty:
@@ -338,6 +366,18 @@ def wkt_r():
 
 
 def wkt_w(dim=2, trim=False, precision=None):
+    """
+
+    Returns a singleton WKTWriter instance, configured for the specified number of dimensions and precision.
+
+    The returned writer is specific to the current thread, and its settings can be updated by calling this function again with different parameters.
+
+    :param int dim: The number of dimensions to use in the WKT output.
+    :param bool trim: Whether to trim the WKT output.
+    :param int precision: The precision to use in the WKT output.
+    :return: A WKTWriter instance.
+
+    """
     if not thread_context.wkt_w:
         thread_context.wkt_w = WKTWriter(dim=dim, trim=trim, precision=precision)
     else:
@@ -353,6 +393,14 @@ def wkb_r():
 
 
 def wkb_w(dim=2):
+    """
+
+    Returns a WKBWriter instance initialized with the specified dimension.
+
+    The WKBWriter is stored in the thread context and reused if it already exists,
+    with its output dimension updated if necessary.
+
+    """
     if not thread_context.wkb_w:
         thread_context.wkb_w = WKBWriter(dim=dim)
     else:
@@ -361,6 +409,10 @@ def wkb_w(dim=2):
 
 
 def ewkb_w(dim=2):
+    """
+    Returns a WKBWriter instance configured for the specified dimension, 
+    reusing the existing writer if it exists and updating its dimension as needed.
+    """
     if not thread_context.ewkb_w:
         thread_context.ewkb_w = WKBWriter(dim=dim)
         thread_context.ewkb_w.srid = True

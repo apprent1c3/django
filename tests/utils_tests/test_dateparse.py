@@ -14,6 +14,9 @@ from django.utils.version import PY311
 class DateParseTests(unittest.TestCase):
     def test_parse_date(self):
         # Valid inputs
+        """
+        Tests the parse_date function to ensure it correctly parses date strings into date objects, handles varying date formats, and raises the correct exceptions for invalid dates.
+        """
         self.assertEqual(parse_date("2012-04-23"), date(2012, 4, 23))
         self.assertEqual(parse_date("2012-4-9"), date(2012, 4, 9))
         if PY311:
@@ -25,6 +28,12 @@ class DateParseTests(unittest.TestCase):
 
     def test_parse_time(self):
         # Valid inputs
+        """
+        Tests the functionality of the parse_time function to ensure it correctly 
+        interprets and converts various time formats into time objects, handling 
+        both valid and invalid input formats, as well as raising ValueError when 
+        necessary.
+        """
         self.assertEqual(parse_time("09:15:00"), time(9, 15))
         if PY311:
             self.assertEqual(parse_time("091500"), time(9, 15))
@@ -45,6 +54,9 @@ class DateParseTests(unittest.TestCase):
             parse_time("09:15:90")
 
     def test_parse_datetime(self):
+        """
+        Tests the functionality of the parse_datetime function with various valid and invalid datetime strings, ensuring correct parsing and error handling.
+        """
         valid_inputs = (
             ("2012-04-23", datetime(2012, 4, 23)),
             ("2012-04-23T09:15:00", datetime(2012, 4, 23, 9, 15)),

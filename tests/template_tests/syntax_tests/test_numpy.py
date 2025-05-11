@@ -27,7 +27,7 @@ class NumpyTests(SimpleTestCase):
     @setup({"numpy-array-index02": "{{ var.5 }}"})
     def test_numpy_array_index02(self):
         """
-        Fail silently when the array index is out of range.
+        Tests that the template engine handles out-of-range indexing of numpy arrays by rendering silently without raising an error.
         """
         output = self.engine.render_to_string(
             "numpy-array-index02",

@@ -104,6 +104,15 @@ class BaseSpatialFeatures:
         return models.Union not in self.connection.ops.disallowed_aggregates
 
     def __getattr__(self, name):
+        """
+
+        Handles attribute access for dynamically generated properties, specifically checking 
+        if a database function is supported by the current connection.
+
+        Raises:
+            AttributeError: If the requested attribute does not match the expected pattern.
+
+        """
         m = re.match(r"has_(\w*)_function$", name)
         if m:
             func_name = m[1]

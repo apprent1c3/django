@@ -11,6 +11,9 @@ class CallableVariablesTests(TestCase):
         super().setUpClass()
 
     def test_callable(self):
+        """
+        Tests the behavior of the template engine when rendering callable objects, verifying that direct attribute access does not invoke the callable, but accessing attributes returned by the callable does invoke it.
+        """
         class Doodad:
             def __init__(self, value):
                 self.num_calls = 0
@@ -39,6 +42,9 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 2)
 
     def test_alters_data(self):
+        """
+        Tests the behavior of the templating engine when encountering an object that alters data, ensuring that it does not call the object's __call__ method when accessing its attributes.
+        """
         class Doodad:
             alters_data = True
 
@@ -65,6 +71,9 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 0)
 
     def test_alters_data_propagation(self):
+        """
+        Tests the propagation of data alteration flags through class inheritance for method calls in a template engine, verifying that flags set in parent classes are correctly applied or overridden in child classes.
+        """
         class GrandParentLeft(AltersData):
             def my_method(self):
                 return 42
@@ -127,6 +136,9 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(t.render(c), "104")
 
     def test_do_not_call(self):
+        """
+        Tests that a callable object with the do_not_call_in_templates attribute set to True is not invoked when its attributes are accessed in a template.
+        """
         class Doodad:
             do_not_call_in_templates = True
 
@@ -159,6 +171,9 @@ class CallableVariablesTests(TestCase):
         # ``alters_data`` attribute will not make any difference in the
         # template system's behavior.
 
+        """
+        Tests that a function with do_not_call_in_templates and alters_data flags set to True is not called when referenced in a template and that its attributes can be accessed directly.
+        """
         class Doodad:
             do_not_call_in_templates = True
             alters_data = True

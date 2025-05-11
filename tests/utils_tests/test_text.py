@@ -14,6 +14,11 @@ IS_WIDE_BUILD = len("\U0001F4A9") == 1
 
 class TestUtilsText(SimpleTestCase):
     def test_get_text_list(self):
+        """
+        Return a human-readable string representation of a list, 
+        handling various list lengths and languages, 
+        with optional custom conjunction (e.g., 'and' or 'or').
+        """
         self.assertEqual(text.get_text_list(["a", "b", "c", "d"]), "a, b, c or d")
         self.assertEqual(text.get_text_list(["a", "b", "c"], "and"), "a, b and c")
         self.assertEqual(text.get_text_list(["a", "b"], "and"), "a and b")
@@ -58,6 +63,9 @@ class TestUtilsText(SimpleTestCase):
                 self.assertEqual(list(text.smart_split(test)), expected)
 
     def test_truncate_chars(self):
+        """
+        Tests the Truncator class's chars method, which truncates a given string to a specified length, handling various cases such as truncation with ellipsis and preservation of Unicode characters.
+        """
         truncator = text.Truncator("The quick brown fox jumped over the lazy dog.")
         self.assertEqual(
             "The quick brown fox jumped over the lazy dog.", truncator.chars(100)
@@ -96,6 +104,13 @@ class TestUtilsText(SimpleTestCase):
         )
 
     def test_truncate_chars_html(self):
+        """
+
+        Tests the text truncation functionality with HTML content, verifying that it correctly truncates strings
+        to a specified length while preserving HTML tags and structure, and handles edge cases such as very short
+        lengths and custom truncation strings.
+
+        """
         truncator = text.Truncator(
             '<p id="par"><strong><em>The quick brown fox jumped over the lazy dog.</em>'
             "</strong></p>"
@@ -138,6 +153,14 @@ class TestUtilsText(SimpleTestCase):
 
     @patch("django.utils.text.Truncator.MAX_LENGTH_HTML", 10_000)
     def test_truncate_chars_html_size_limit(self):
+        """
+
+        Tests the Truncator class to ensure it correctly truncates HTML strings within the specified size limit.
+
+        This test checks the class's ability to handle various edge cases, including truncation of HTML tags, entities, and very large input strings, 
+        ensuring that the output does not exceed the maximum allowed HTML length.
+
+        """
         max_len = text.Truncator.MAX_LENGTH_HTML
         bigger_len = text.Truncator.MAX_LENGTH_HTML + 1
         valid_html = "<p>Joel is a slug</p>"  # 14 chars
@@ -168,6 +191,12 @@ class TestUtilsText(SimpleTestCase):
         )
 
     def test_truncate_chars_html_with_void_elements(self):
+        """
+
+        Tests that Truncator correctly truncates HTML strings by character count, 
+        preserving HTML structure and handling void elements.
+
+        """
         truncator = text.Truncator(
             "<br/>The <hr />quick brown fox jumped over the lazy dog."
         )
@@ -184,6 +213,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertEqual("<br>Th…", truncator.chars(3, html=True))
 
     def test_truncate_chars_html_with_html_entities(self):
+        """
+        Truncates HTML text to a specified character length while preserving HTML entities and structure, ensuring that the resulting string is still valid HTML and meets the required length constraint.
+        """
         truncator = text.Truncator(
             "<i>Buenos d&iacute;as! &#x00bf;C&oacute;mo est&aacute;?</i>"
         )
@@ -203,6 +235,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertEqual("<p>I &lt;3 python, wh…</p>", truncator.chars(16, html=True))
 
     def test_truncate_words(self):
+        """
+        Truncates a text to a specified number of words, optionally appending a custom ellipsis string.
+        """
         truncator = text.Truncator("The quick brown fox jumped over the lazy dog.")
         self.assertEqual(
             "The quick brown fox jumped over the lazy dog.", truncator.words(10)
@@ -218,6 +253,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertEqual("", truncator.words(-1))
 
     def test_truncate_html_words(self):
+        """
+        Tests the Truncator class's ability to truncate HTML strings to a specified number of words while preserving HTML structure and entity encoding.
+        """
         truncator = text.Truncator(
             '<p id="par"><strong><em>The quick brown fox jumped over the lazy dog.</em>'
             "</strong></p>"
@@ -321,6 +359,11 @@ class TestUtilsText(SimpleTestCase):
 
     @patch("django.utils.text.Truncator.MAX_LENGTH_HTML", 10_000)
     def test_truncate_words_html_size_limit(self):
+        """
+        Tests the Truncator class's word truncation functionality with HTML size limits.
+
+        Verifies that the truncator correctly handles various input scenarios, including HTML tags, entities, and excessive lengths, ensuring proper truncation to the specified limit.
+        """
         max_len = text.Truncator.MAX_LENGTH_HTML
         bigger_len = text.Truncator.MAX_LENGTH_HTML + 1
         valid_html = "<p>Joel is a slug</p>"  # 4 words
@@ -338,6 +381,11 @@ class TestUtilsText(SimpleTestCase):
                 self.assertEqual(expected, truncator.words(50, html=True))
 
     def test_wrap(self):
+        """
+
+        Tests the functionality of wrapping text to a specified width, ensuring that long lines are broken correctly and long words are handled as expected.
+
+        """
         digits = "1234 67 9"
         self.assertEqual(text.wrap(digits, 100), "1234 67 9")
         self.assertEqual(text.wrap(digits, 9), "1234 67 9")
@@ -357,6 +405,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertEqual(text.wrap(lazystr(digits), 100), "1234 67 9")
 
     def test_normalize_newlines(self):
+        """
+        Tests the text.normalize_newlines function to ensure proper conversion of various newline characters to a standard form.
+        """
         self.assertEqual(
             text.normalize_newlines("abc\ndef\rghi\r\n"), "abc\ndef\nghi\n"
         )
@@ -374,6 +425,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertEqual(lazy_numeric, "0800 3569377")
 
     def test_slugify(self):
+        """
+        Test the slugify function with various input strings to ensure it correctly converts them to a slug format, handling different characters and Unicode settings.
+        """
         items = (
             # given - expected - Unicode?
             ("Hello, World!", "hello-world", False),
@@ -399,6 +453,9 @@ class TestUtilsText(SimpleTestCase):
             self.assertEqual(sys.intern(text.slugify("a")), "a")
 
     def test_unescape_string_literal(self):
+        """
+        Tests the unescape_string_literal function to ensure it correctly removes string literal escapes from input strings, handling both double and single quoted strings, and works with both str and lazystr inputs.
+        """
         items = [
             ('"abc"', "abc"),
             ("'abc'", "abc"),
@@ -411,6 +468,9 @@ class TestUtilsText(SimpleTestCase):
                 self.assertEqual(text.unescape_string_literal(lazystr(value)), output)
 
     def test_unescape_string_literal_invalid_value(self):
+        """
+        Tests that the unescape_string_literal function correctly raises a ValueError for invalid string literal values.
+        """
         items = ["", "abc", "'abc\""]
         for item in items:
             msg = f"Not a string literal: {item!r}"
@@ -418,6 +478,9 @@ class TestUtilsText(SimpleTestCase):
                 text.unescape_string_literal(item)
 
     def test_get_valid_filename(self):
+        """
+        Tests the get_valid_filename function, which sanitizes a filename by removing invalid characters and raises an exception if the resulting filename is empty or contains only invalid characters.
+        """
         filename = "^&'@{}[],$=!-#()%+~_123.txt"
         self.assertEqual(text.get_valid_filename(filename), "-_123.txt")
         self.assertEqual(text.get_valid_filename(lazystr(filename)), "-_123.txt")
@@ -430,6 +493,9 @@ class TestUtilsText(SimpleTestCase):
             text.get_valid_filename("$.$.$")
 
     def test_compress_sequence(self):
+        """
+        Tests the compression of a sequence of JSON-encoded data, verifying that the compressed sequence is shorter in length than the original.
+        """
         data = [{"key": i} for i in range(10)]
         seq = list(json.JSONEncoder().iterencode(data))
         seq = [s.encode() for s in seq]
@@ -439,6 +505,14 @@ class TestUtilsText(SimpleTestCase):
         self.assertLess(compressed_length, actual_length)
 
     def test_format_lazy(self):
+        """
+        Tests the behavior of the format_lazy function, which performs lazy string formatting.
+
+         This function ensures that format_lazy correctly handles various formatting styles, 
+         including positional, named, and dictionary-based formatting. It also verifies that 
+         the function supports lazy strings and translations via gettext_lazy, and that the 
+         output is correctly updated when the input values change.
+        """
         self.assertEqual("django/test", format_lazy("{}/{}", "django", lazystr("test")))
         self.assertEqual("django/test", format_lazy("{0}/{1}", *("django", "test")))
         self.assertEqual(

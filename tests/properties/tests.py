@@ -13,6 +13,11 @@ class PropertyTests(TestCase):
 
     def test_setter(self):
         # The "full_name" property hasn't provided a "set" method.
+        """
+        Tests the enforced immutability of the 'full_name' attribute in the Person class, 
+        ensuring it cannot be set directly via setter or during initialization, 
+        and verifying the correct parsing of the full name into first name components.
+        """
         with self.assertRaises(AttributeError):
             setattr(self.a, "full_name", "Paul McCartney")
 

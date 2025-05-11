@@ -11,6 +11,12 @@ class DatabaseCreation(BaseDatabaseCreation):
         return self.connection.ops.quote_name(name)
 
     def _get_database_create_suffix(self, encoding=None, template=None):
+        """
+        Returns a SQL suffix string for a CREATE DATABASE statement.
+
+        The suffix includes ENCODING and TEMPLATE specifications if provided, 
+        prefixed with the 'WITH' keyword if any specifications are present.
+        """
         suffix = ""
         if encoding:
             suffix += " ENCODING '{}'".format(encoding)
@@ -38,6 +44,27 @@ class DatabaseCreation(BaseDatabaseCreation):
         return cursor.fetchone() is not None
 
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
+        """
+        Creates a test database, optionally reusing an existing one if keepdb is enabled.
+
+        Parameters
+        ----------
+        cursor : object
+            Database cursor.
+        parameters : dict
+            Dictionary containing test database parameters, including 'dbname'.
+        keepdb : bool, optional
+            If True, the test database will not be recreated if it already exists (default is False).
+
+        Raises
+        ------
+        Exception
+            If an error occurs during test database creation and the error is not a DuplicateDatabase exception.
+
+        Notes
+        -----
+        If keepdb is False and a DuplicateDatabase error occurs, the exception is re-raised. Otherwise, the exception is caught and logged, and the program exits with a non-zero status code if the error is not a DuplicateDatabase exception.””
+        """
         try:
             if keepdb and self._database_exists(cursor, parameters["dbname"]):
                 # If the database should be kept and it already exists, don't
@@ -57,6 +84,14 @@ class DatabaseCreation(BaseDatabaseCreation):
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
         # CREATE DATABASE ... WITH TEMPLATE ... requires closing connections
         # to the template database.
+        """
+        Clone the test database with the given suffix, verbosity, and database retention policy.
+
+            :param str suffix: The suffix to append to the test database name.
+            :param int verbosity: The verbosity level of the operation.
+            :param bool keepdb: Whether to retain the test database after use. Defaults to False.
+
+        """
         self.connection.close()
         self.connection.close_pool()
 

@@ -64,14 +64,7 @@ def _get_queryset(klass):
 
 def get_object_or_404(klass, *args, **kwargs):
     """
-    Use get() to return an object, or raise an Http404 exception if the object
-    does not exist.
-
-    klass may be a Model, Manager, or QuerySet object. All other passed
-    arguments and keyword arguments are used in the get() query.
-
-    Like with QuerySet.get(), MultipleObjectsReturned is raised if more than
-    one object is found.
+    Retrieves an object of the specified class, raising an Http404 exception if the object does not exist, or MultipleObjectsReturned if more than one object is found.
     """
     queryset = _get_queryset(klass)
     if not hasattr(queryset, "get"):
@@ -91,7 +84,13 @@ def get_object_or_404(klass, *args, **kwargs):
 
 
 async def aget_object_or_404(klass, *args, **kwargs):
-    """See get_object_or_404()."""
+    """
+    Retrieve an object asynchronously, raising a 404 error if it does not exist.
+
+    This function is similar to get_object_or_404(), but uses asynchronous queries.
+    It is designed to retrieve a single object from a model, manager, or queryset,
+    and raises an Http404 exception if no object matches the given query parameters.
+    """
     queryset = _get_queryset(klass)
     if not hasattr(queryset, "aget"):
         klass__name = (
@@ -109,11 +108,8 @@ async def aget_object_or_404(klass, *args, **kwargs):
 
 def get_list_or_404(klass, *args, **kwargs):
     """
-    Use filter() to return a list of objects, or raise an Http404 exception if
-    the list is empty.
-
-    klass may be a Model, Manager, or QuerySet object. All other passed
-    arguments and keyword arguments are used in the filter() query.
+    Retrieves a list of objects from the database, raising an Http404 exception if no objects match the query. 
+    Supports filtering using model, manager, or queryset objects with arbitrary keyword and positional arguments.
     """
     queryset = _get_queryset(klass)
     if not hasattr(queryset, "filter"):
@@ -133,7 +129,16 @@ def get_list_or_404(klass, *args, **kwargs):
 
 
 async def aget_list_or_404(klass, *args, **kwargs):
-    """See get_list_or_404()."""
+    """
+    Fetches a list of objects from the database asynchronously, raising a 404 error if no objects match the given query.
+
+        :param klass: The model, manager, or queryset to query from
+        :param args: Positional arguments to pass to the filter method
+        :param kwargs: Keyword arguments to pass to the filter method
+        :return: A list of objects matching the query
+        :raises ValueError: If the first argument is not a model, manager, or queryset
+        :raises Http404: If no objects match the given query
+    """
     queryset = _get_queryset(klass)
     if not hasattr(queryset, "filter"):
         klass__name = (
@@ -151,16 +156,7 @@ async def aget_list_or_404(klass, *args, **kwargs):
 
 def resolve_url(to, *args, **kwargs):
     """
-    Return a URL appropriate for the arguments passed.
-
-    The arguments could be:
-
-        * A model: the model's `get_absolute_url()` function will be called.
-
-        * A view name, possibly with arguments: `urls.reverse()` will be used
-          to reverse-resolve the name.
-
-        * A URL, which will be returned as-is.
+    Return a URL appropriate for the provided arguments, handling models, view names, and plain URLs.
     """
     # If it's a model, use get_absolute_url()
     if hasattr(to, "get_absolute_url"):

@@ -32,6 +32,10 @@ class Serializer(base.Serializer):
         self._current = None
 
     def get_dump_object(self, obj):
+        """
+        :return: A dictionary representing the given object, including its model, primary key (if not using natural keys), and fields.
+        :description: Retrieves an object's data and metadata, handling primary key retrieval based on the use_natural_primary_keys setting.
+        """
         data = {"model": str(obj._meta)}
         if not self.use_natural_primary_keys or not hasattr(obj, "natural_key"):
             data["pk"] = self._value_from_field(obj, obj._meta.pk)
@@ -49,6 +53,14 @@ class Serializer(base.Serializer):
         self._current[field.name] = self._value_from_field(obj, field)
 
     def handle_fk_field(self, obj, field):
+        """
+
+        Handles foreign key fields by resolving them to either their natural key or a value derived from the field.
+
+        If natural foreign keys are used and the related model defines a natural key, the function retrieves the natural key of the related object.
+        Otherwise, it uses a standard method to derive the value from the field, storing the result in the current dictionary.
+
+        """
         if self.use_natural_foreign_keys and hasattr(
             field.remote_field.model, "natural_key"
         ):
@@ -62,6 +74,9 @@ class Serializer(base.Serializer):
         self._current[field.name] = value
 
     def handle_m2m_field(self, obj, field):
+        """
+        Handle many-to-many field data for serialization, using natural keys if available and enabled.
+        """
         if field.remote_field.through._meta.auto_created:
             if self.use_natural_foreign_keys and hasattr(
                 field.remote_field.model, "natural_key"
@@ -102,8 +117,14 @@ def Deserializer(
     """
     Deserialize simple Python objects back into Django ORM instances.
 
-    It's expected that you pass the Python objects themselves (instead of a
-    stream or a string) to the constructor
+    It takes a list of Python objects and converts them into Django model instances.
+    The function can also handle forward references, defer fields, and ignore non-existent models or fields.
+
+    :param object_list: A list of Python objects to deserialize.
+    :param using: The database alias to use for deserialization.
+    :param ignorenonexistent: Whether to ignore non-existent models or fields.
+    :param options: Additional deserialization options.
+    :return: An iterable of DeserializedObject instances representing the deserialized models.
     """
     handle_forward_references = options.pop("handle_forward_references", False)
     field_names_cache = {}  # Model: <list of field_names>
@@ -186,7 +207,9 @@ def Deserializer(
 
 
 def _get_model(model_identifier):
-    """Look up a model from an "app_label.model_name" string."""
+    """
+    Retrieves a model instance based on a given string identifier in the format \"app_label.model_name\". If the identifier is invalid, it raises a DeserializationError.
+    """
     try:
         return apps.get_model(model_identifier)
     except (LookupError, TypeError):

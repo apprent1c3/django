@@ -10,6 +10,9 @@ class FlatpageTemplateTagTests(TestCase):
     def setUpTestData(cls):
         # don't use the manager because we want to ensure the site exists
         # with pk=1, regardless of whether or not it already exists.
+        """
+        Sets up test data for testing flat pages, creating four sample flat pages with different URLs and a single site to associate with them.
+        """
         cls.site1 = Site(pk=1, domain="example.com", name="example.com")
         cls.site1.save()
         cls.fp1 = FlatPage.objects.create(
@@ -140,7 +143,9 @@ class FlatpageTemplateTagTests(TestCase):
         self.assertEqual(out, "A Nested Flatpage,")
 
     def test_parsing_errors(self):
-        "There are various ways that the flatpages template tag won't parse"
+        """
+        Tests various incorrect usage scenarios of the get_flatpages template tag to ensure it raises the expected TemplateSyntaxError with a descriptive message, covering missing or malformed syntax elements such as context name, prefix, and user specification.
+        """
 
         def render(t):
             return Template(t).render(Context())

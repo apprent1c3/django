@@ -27,16 +27,12 @@ logger = logging.getLogger("django.server")
 
 def get_internal_wsgi_application():
     """
-    Load and return the WSGI application as configured by the user in
-    ``settings.WSGI_APPLICATION``. With the default ``startproject`` layout,
-    this will be the ``application`` object in ``projectname/wsgi.py``.
 
-    This function, and the ``WSGI_APPLICATION`` setting itself, are only useful
-    for Django's internal server (runserver); external WSGI servers should just
-    be configured to point to the correct application object directly.
+    Loads and returns the WSGI application configured by the user in settings.
 
-    If settings.WSGI_APPLICATION is not set (is ``None``), return
-    whatever ``django.core.wsgi.get_wsgi_application`` returns.
+    This function is used by Django's internal server and returns the application object
+    specified in settings.WSGI_APPLICATION, or the default application if the setting is not configured.
+
     """
     from django.conf import settings
 
@@ -116,10 +112,7 @@ class ServerHandler(simple_server.ServerHandler):
 
     def __init__(self, stdin, stdout, stderr, environ, **kwargs):
         """
-        Use a LimitedStream so that unread request data will be ignored at
-        the end of the request. WSGIRequest uses a LimitedStream but it
-        shouldn't discard the data since the upstream servers usually do this.
-        This fix applies only for testserver/runserver.
+        Initializes a WSGI request object, using a LimitedStream to handle request data and prevent unread data from being discarded, specifically designed for use with the test server or runserver.
         """
         try:
             content_length = int(environ.get("CONTENT_LENGTH"))
@@ -130,6 +123,14 @@ class ServerHandler(simple_server.ServerHandler):
         )
 
     def cleanup_headers(self):
+        """
+        Adjusts HTTP response headers based on the request method and connection handling.
+
+        This function ensures proper handling of 'Content-Length' and 'Connection' headers
+        for HTTP HEAD requests and requests where connection closing is required.
+
+        It also updates the request handler to close the connection if necessary.
+        """
         super().cleanup_headers()
         if (
             self.environ["REQUEST_METHOD"] == "HEAD"
@@ -158,6 +159,9 @@ class ServerHandler(simple_server.ServerHandler):
         super().close()
 
     def finish_response(self):
+        """
+        Finishes the HTTP response, handling the specific case where the request method is 'HEAD'. In such cases, it discards the response body, sends the headers if not already sent, and closes the connection. For other request methods, it delegates to the parent class implementation.
+        """
         if self.environ["REQUEST_METHOD"] == "HEAD":
             try:
                 deque(self.result, maxlen=0)  # Consume iterator.
@@ -182,6 +186,13 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
         return self.client_address[0]
 
     def log_message(self, format, *args):
+        """
+        Logs a message with the given format and arguments, adding extra context including the current request and server time.
+
+        The log level is determined based on the HTTP status code, if present, with error levels for 500+, warning for 400+, and info otherwise.
+
+        Optional extra handling is performed when accessing the development server over HTTPS, which is not supported and will be logged as an error with a 500 status code.
+        """
         extra = {
             "request": self.request,
             "server_time": self.log_date_time_string(),
@@ -224,6 +235,11 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
         return super().get_environ()
 
     def handle(self):
+        """
+        Handles incoming HTTP requests on a connection, processing requests until 
+        the connection is closed. Once all requests have been handled, the connection 
+        is shut down to prevent further communication.
+        """
         self.close_connection = True
         self.handle_one_request()
         while not self.close_connection:
@@ -234,7 +250,9 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
             pass
 
     def handle_one_request(self):
-        """Copy of WSGIRequestHandler.handle() but with different ServerHandler"""
+        """
+        Handles a single HTTP request, reading the request line, parsing the request, and invoking the request handler to process the request and send a response back to the client.
+        """
         self.raw_requestline = self.rfile.readline(65537)
         if len(self.raw_requestline) > 65536:
             self.requestline = ""
@@ -262,6 +280,35 @@ def run(
     on_bind=None,
     server_cls=WSGIServer,
 ):
+    """
+
+    Run a WSGI server.
+
+    This function creates and starts a WSGI server, listening on the specified address and port.
+    It supports optional features such as IPv6, threading, and custom server classes.
+
+    Parameters
+    ----------
+    addr : str
+        The address to bind the server to.
+    port : int
+        The port to bind the server to.
+    wsgi_handler : callable
+        The WSGI application to handle requests.
+    ipv6 : bool, optional
+        Whether to use IPv6 (default is False).
+    threading : bool, optional
+        Whether to use threading (default is False).
+    on_bind : callable, optional
+        A callback function to call when the server is bound.
+    server_cls : class, optional
+        The server class to use (default is WSGIServer).
+
+    Note
+    ----
+    The server will run indefinitely until it is manually stopped.
+
+    """
     server_address = (addr, port)
     if threading:
         httpd_cls = type("WSGIServer", (socketserver.ThreadingMixIn, server_cls), {})

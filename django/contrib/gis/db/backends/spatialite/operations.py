@@ -82,6 +82,9 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def unsupported_functions(self):
+        """
+        Returns a set of spatial functions that are not supported by the current geometry library version.
+        """
         unsupported = {"GeometryDistance", "IsEmpty", "MemSize"}
         if not self.geom_lib_version():
             unsupported |= {"Azimuth", "GeoHash", "MakeValid"}
@@ -91,7 +94,10 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def spatial_version(self):
-        """Determine the version of the SpatiaLite library."""
+        """
+        Returns the version of the SpatiaLite library used by the database, 
+        ensuring it meets the minimum supported version requirement of 4.3.0.
+        """
         try:
             version = self.spatialite_version_tuple()[1:]
         except Exception as exc:
@@ -106,7 +112,11 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     def convert_extent(self, box):
         """
-        Convert the polygon data received from SpatiaLite to min/max values.
+
+            Convert a spatial polygon box to its extent, represented as min/max values.
+
+            :return: A tuple of (xmin, ymin, xmax, ymax) or None if input is None
+
         """
         if box is None:
             return None
@@ -124,8 +134,7 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     def get_distance(self, f, value, lookup_type):
         """
-        Return the distance parameters for the given geometry field,
-        lookup value, and lookup type.
+        Returns the distance parameters for a geometry field, lookup value, and lookup type, handling different unit systems and validation for geographic queries.
         """
         if not value:
             return []
@@ -148,9 +157,8 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     def _get_spatialite_func(self, func):
         """
-        Helper routine for calling SpatiaLite functions and returning
-        their result.
-        Any error occurring in this method should be handled by the caller.
+        Helper routine for executing a SpatiaLite SQL function and retrieving its result. 
+        Any raised errors must be handled by the calling code.
         """
         cursor = self.connection._cursor()
         try:
@@ -178,8 +186,8 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     def geom_lib_version(self):
         """
-        Return the version of the version-dependant geom library used by
-        SpatiaLite.
+        Returns the version of the geometry library used by SpatiaLite, 
+        selecting between rttopo and lwgeom based on the Spatialite version.
         """
         if self.spatial_version >= (5,):
             return self.rttopo_version()
@@ -222,6 +230,9 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         return SpatialiteSpatialRefSys
 
     def get_geometry_converter(self, expression):
+        """
+        Returns a geometry converter function for the given expression, which converts WKB (Well-Known Binary) geometry values to GEOSGeometry objects of the expression's output field geometry class.
+        """
         geom_class = expression.output_field.geom_class
         read = wkb_r().read
 

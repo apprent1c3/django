@@ -58,8 +58,7 @@ def _get_new_csrf_string():
 
 def _mask_cipher_secret(secret):
     """
-    Given a secret (assumed to be a string of CSRF_ALLOWED_CHARS), generate a
-    token by adding a mask and applying it to the secret.
+    Given a secret string, generates a token by applying a mask to the secret, creating a ciphered version to protect sensitive information.
     """
     mask = _get_new_csrf_string()
     chars = CSRF_ALLOWED_CHARS
@@ -70,9 +69,7 @@ def _mask_cipher_secret(secret):
 
 def _unmask_cipher_token(token):
     """
-    Given a token (assumed to be a string of CSRF_ALLOWED_CHARS, of length
-    CSRF_TOKEN_LENGTH, and that its first half is a mask), use it to decrypt
-    the second half to produce the original secret.
+    Given a token, reverses the masking applied to its second half using the first half as a mask, to retrieve the original secret.
     """
     mask = token[:CSRF_SECRET_LENGTH]
     token = token[CSRF_SECRET_LENGTH:]
@@ -95,13 +92,7 @@ def _add_new_csrf_cookie(request):
 
 def get_token(request):
     """
-    Return the CSRF token required for a POST form. The token is an
-    alphanumeric value. A new token is created if one is not already set.
-
-    A side effect of calling this function is to make the csrf_protect
-    decorator and the CsrfViewMiddleware add a CSRF cookie and a 'Vary: Cookie'
-    header to the outgoing response.  For this reason, you may need to use this
-    function lazily, as is done by the csrf context processor.
+    Retrieves the CSRF token required for a POST form submission, creating a new token if one is not already set, and updates the response with a CSRF cookie and 'Vary: Cookie' header.
     """
     if "CSRF_COOKIE" in request.META:
         csrf_secret = request.META["CSRF_COOKIE"]
@@ -129,9 +120,7 @@ class InvalidTokenFormat(Exception):
 
 def _check_token_format(token):
     """
-    Raise an InvalidTokenFormat error if the token has an invalid length or
-    characters that aren't allowed. The token argument can be a CSRF cookie
-    secret or non-cookie CSRF token, and either masked or unmasked.
+    Checks the format of a given token, ensuring it has a valid length and only contains allowed characters, raising an InvalidTokenFormat error if the token is invalid.
     """
     if len(token) not in (CSRF_TOKEN_LENGTH, CSRF_SECRET_LENGTH):
         raise InvalidTokenFormat(REASON_INCORRECT_LENGTH)
@@ -142,13 +131,7 @@ def _check_token_format(token):
 
 def _does_token_match(request_csrf_token, csrf_secret):
     """
-    Return whether the given CSRF token matches the given CSRF secret, after
-    unmasking the token if necessary.
-
-    This function assumes that the request_csrf_token argument has been
-    validated to have the correct length (CSRF_SECRET_LENGTH or
-    CSRF_TOKEN_LENGTH characters) and allowed characters, and that if it has
-    length CSRF_TOKEN_LENGTH, it is a masked secret.
+    Checks if a CSRF token matches a CSRF secret, handling token unmasking if necessary.
     """
     # Only unmask tokens that are exactly CSRF_TOKEN_LENGTH characters long.
     if len(request_csrf_token) == CSRF_TOKEN_LENGTH:
@@ -185,8 +168,7 @@ class CsrfViewMiddleware(MiddlewareMixin):
     @cached_property
     def allowed_origin_subdomains(self):
         """
-        A mapping of allowed schemes to list of allowed netlocs, where all
-        subdomains of the netloc are allowed.
+        A mapping of allowed schemes to a list of allowed netlocs, where all subdomains of the netloc are allowed. This is derived from the settings.CSRF_TRUSTED_ORIGINS, allowing any subdomain of a specified domain for a given scheme.
         """
         allowed_origin_subdomains = defaultdict(list)
         for parsed in (
@@ -220,11 +202,10 @@ class CsrfViewMiddleware(MiddlewareMixin):
 
     def _get_secret(self, request):
         """
-        Return the CSRF secret originally associated with the request, or None
-        if it didn't have one.
+        Retrieves the CSRF secret associated with the given request.
 
-        If the CSRF_USE_SESSIONS setting is false, raises InvalidTokenFormat if
-        the request's secret has invalid characters or an invalid length.
+        Returns the secret value if found, or None if no secret is associated with the request.
+        If CSRF_USE_SESSIONS is False, verifies the secret format and raises an error if it's invalid.
         """
         if settings.CSRF_USE_SESSIONS:
             try:
@@ -251,6 +232,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
         return csrf_secret
 
     def _set_csrf_cookie(self, request, response):
+        """
+        Sets a CSRF (Cross-Site Request Forgery) cookie for the given response, storing the token either in the user's session or directly in a cookie, depending on the application's settings.
+        """
         if settings.CSRF_USE_SESSIONS:
             if request.session.get(CSRF_SESSION_KEY) != request.META["CSRF_COOKIE"]:
                 request.session[CSRF_SESSION_KEY] = request.META["CSRF_COOKIE"]
@@ -269,6 +253,14 @@ class CsrfViewMiddleware(MiddlewareMixin):
             patch_vary_headers(response, ("Cookie",))
 
     def _origin_verified(self, request):
+        """
+
+        Verify if the origin of the given request is allowed.
+
+        Checks the request's 'Origin' header against the host of the current request
+        and against a set of explicitly allowed origins, both exact and by subdomain.
+
+        """
         request_origin = request.META["HTTP_ORIGIN"]
         try:
             good_host = request.get_host()
@@ -295,6 +287,13 @@ class CsrfViewMiddleware(MiddlewareMixin):
         )
 
     def _check_referer(self, request):
+        """
+        Verifies that the HTTP referer of a request is valid and trusted.
+
+        Validates the referer's URL scheme, domain, and checks if it matches one of the
+        configured trusted origins or the current request's host. Rejects the request
+        if the referer is missing, malformed, insecure, or does not match a trusted origin.
+        """
         referer = request.META.get("HTTP_REFERER")
         if referer is None:
             raise RejectRequest(REASON_NO_REFERER)
@@ -350,6 +349,12 @@ class CsrfViewMiddleware(MiddlewareMixin):
         # Access csrf_secret via self._get_secret() as rotate_token() may have
         # been called by an authentication middleware during the
         # process_request() phase.
+        """
+        Check the CSRF token in a request to prevent cross-site request forgery.
+
+        Raises a RejectRequest exception if the CSRF token is missing, invalid, or does not match the expected secret.
+
+        """
         try:
             csrf_secret = self._get_secret(request)
         except InvalidTokenFormat as exc:
@@ -399,6 +404,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
             raise RejectRequest(reason)
 
     def process_request(self, request):
+        """
+        Handles a request by verifying and updating the CSRF secret, ensuring the request is properly secured against cross-site request forgery attacks. If the secret is invalid or missing, it is replaced with a new one.
+        """
         try:
             csrf_secret = self._get_secret(request)
         except InvalidTokenFormat:
@@ -412,6 +420,14 @@ class CsrfViewMiddleware(MiddlewareMixin):
                 request.META["CSRF_COOKIE"] = csrf_secret
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
+        """
+
+        Performs CSRF (Cross-Site Request Forgery) protection checks on a web request.
+
+        This function verifies the request's origin and ensures the presence of a valid CSRF token.
+        If the request passes all checks, it is accepted; otherwise, it is rejected.
+
+        """
         if getattr(request, "csrf_processing_done", False):
             return None
 

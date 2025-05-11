@@ -37,7 +37,7 @@ register = Library()
 @register.simple_tag
 def paginator_number(cl, i):
     """
-    Generate an individual page index link in a paginated list.
+    Generates an individual page index link in a paginated list, handling current page, ellipsis, and other page numbers, with appropriate styling and query strings.
     """
     if i == cl.paginator.ELLIPSIS:
         return format_html("{} ", cl.paginator.ELLIPSIS)
@@ -54,7 +54,10 @@ def paginator_number(cl, i):
 
 def pagination(cl):
     """
-    Generate the series of links to the pages in a paginated list.
+
+    Generate pagination data for a paginated list, including links to each page 
+    and a \"show all\" link if applicable, to facilitate navigation.
+
     """
     pagination_required = (not cl.show_all or not cl.can_show_all) and cl.multi_page
     page_range = (
@@ -84,7 +87,7 @@ def pagination_tag(parser, token):
 
 def result_headers(cl):
     """
-    Generate the list column headers.
+    Generates a list of column headers for the admin interface, including their display text, CSS classes, and sorting functionality. Each header is represented as a dictionary containing information such as the header text, whether it's sortable, its sort order, and URLs for sorting. The function takes into account the current ordering and sortability of each field.
     """
     ordering_field_columns = cl.get_ordering_field_columns()
     for i, field_name in enumerate(cl.list_display):
@@ -187,7 +190,7 @@ def _boolean_icon(field_val):
 
 def _coerce_field_name(field_name, field_index):
     """
-    Coerce a field_name (which may be a callable) to a string.
+    Coerce a field name to a string, handling callable field names by returning their function name or a generated 'lambda' name if it's an anonymous function.
     """
     if callable(field_name):
         if field_name.__name__ == "<lambda>":
@@ -199,10 +202,20 @@ def _coerce_field_name(field_name, field_index):
 
 def items_for_result(cl, result, form):
     """
-    Generate the actual list of data.
+
+    Generate the actual list of data for a result in a changelist view.
+    This function yields the HTML table cells for each field in the result.
+    It handles fields with links, display formatting, and form rendering.
+
     """
 
     def link_in_col(is_first, field_name, cl):
+        """
+        Determines whether a field should be displayed as a link in the changelist view.
+
+        Returns True if the field is the first field and no fields are explicitly set as links, 
+        or if the field is explicitly set as a link, otherwise returns False.
+        """
         if cl.list_display_links is None:
             return False
         if is_first and not cl.list_display_links:
@@ -314,6 +327,9 @@ class ResultList(list):
 
 
 def results(cl):
+    """
+    Generates a sequence of ResultList objects, encapsulating query results and their corresponding form data, if a formset is provided, or plain results otherwise.
+    """
     if cl.formset:
         for res, form in zip(cl.result_list, cl.formset.forms):
             yield ResultList(form, items_for_result(cl, res, form))
@@ -331,7 +347,7 @@ def result_hidden_fields(cl):
 
 def result_list(cl):
     """
-    Display the headers and data list together.
+    Display the data results along with their corresponding headers, including hidden fields and sorting information.
     """
     headers = list(result_headers(cl))
     num_sorted_fields = 0
@@ -360,7 +376,13 @@ def result_list_tag(parser, token):
 
 def date_hierarchy(cl):
     """
-    Display the date hierarchy for date drill-down functionality.
+
+    Return the date hierarchy for date drill-down functionality.
+
+    The hierarchy is built based on the date hierarchy field specified in the changelist object.
+    It allows users to drill down through years, months, and days, and provides links for navigation.
+    The function generates the hierarchy levels and creates links for the current level, as well as the parent level, if applicable.
+
     """
     if cl.date_hierarchy:
         field_name = cl.date_hierarchy

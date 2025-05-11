@@ -3,7 +3,11 @@ from django.utils.translation import gettext as _
 
 
 def feed(request, url, feed_dict=None):
-    """Provided for backwards compatibility."""
+    """
+    Returns a syndication feed instance for the given URL, using the provided feed dictionary for configuration. 
+    The feed dictionary maps URLs to feed classes, and this function instantiates the corresponding feed class 
+    based on the provided URL and returns its instance. The function is provided for backwards compatibility.
+    """
     if not feed_dict:
         raise Http404(_("No feeds are registered."))
 

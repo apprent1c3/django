@@ -16,6 +16,9 @@ class Options:
     """
 
     def __init__(self, table):
+        """
+        Initializes a Django model related to cache entries, setting up its database table and metadata such as labels, names, and management properties.
+        """
         self.db_table = table
         self.app_label = "django_cache"
         self.model_name = "cacheentry"
@@ -30,6 +33,9 @@ class Options:
 
 class BaseDatabaseCache(BaseCache):
     def __init__(self, table, params):
+        """
+        Initializes a database table cache object, setting up the table and parameters, and defining a cache entry model class.
+        """
         super().__init__(params)
         self._table = table
 
@@ -52,6 +58,22 @@ class DatabaseCache(BaseDatabaseCache):
         return self.get_many([key], version).get(key, default)
 
     def get_many(self, keys, version=None):
+        """
+
+        Retrieves multiple cache values by their keys.
+
+        This function fetches values for the given list of keys from the cache storage,
+        optionally filtering by a specific version. It returns a dictionary mapping the
+        original keys to their corresponding values. If a key is not found in the cache
+        or its value has expired, it is not included in the result.
+
+        Expired cache entries are automatically deleted from the storage.
+
+        :param keys: List of keys to retrieve from the cache
+        :param version: Optional version to filter the cache entries by
+        :return: Dictionary of retrieved cache values
+
+        """
         if not keys:
             return {}
 
@@ -110,6 +132,12 @@ class DatabaseCache(BaseDatabaseCache):
         return self._base_set("touch", key, None, timeout)
 
     def _base_set(self, mode, key, value, timeout=DEFAULT_TIMEOUT):
+        """
+        Sets, adds, or touches a cache entry in the database, depending on the specified mode. 
+        The mode can be 'set', 'add', or 'touch'. If the cache entry already exists and the mode is 'add', the value will be updated only if the current expiration time is in the past. 
+        If the cache is full, the function also handles culling old entries to make room for the new entry. 
+        Returns True if the operation is successful, False otherwise.
+        """
         timeout = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
         connection = connections[db]
@@ -211,6 +239,12 @@ class DatabaseCache(BaseDatabaseCache):
         self._base_delete_many(keys)
 
     def _base_delete_many(self, keys):
+        """
+        Deletes multiple cache entries from the database in a single operation.
+
+        :param keys: A list of cache keys to be deleted
+        :returns: True if at least one entry was deleted, False otherwise
+        """
         if not keys:
             return False
 
@@ -232,6 +266,13 @@ class DatabaseCache(BaseDatabaseCache):
             return bool(cursor.rowcount)
 
     def has_key(self, key, version=None):
+        """
+        Checks if a cache key exists in the database and has not yet expired.
+
+            :param key: The cache key to check for.
+            :param version: The version of the cache key (optional).
+            :return: True if the key exists and has not expired, False otherwise.
+        """
         key = self.make_and_validate_key(key, version=version)
 
         db = router.db_for_read(self.cache_model_class)
@@ -254,6 +295,13 @@ class DatabaseCache(BaseDatabaseCache):
             return cursor.fetchone() is not None
 
     def _cull(self, db, cursor, now, num):
+        """
+
+        Removes expired and excess entries from the cache to maintain a specified maximum number of entries.
+
+        The culling process checks for expired entries and deletes them. If the remaining number of entries still exceeds the maximum allowed, it removes the oldest entries to meet the maximum limit.
+
+        """
         if self._cull_frequency == 0:
             self.clear()
         else:
@@ -286,6 +334,9 @@ class DatabaseCache(BaseDatabaseCache):
                     )
 
     def clear(self):
+        """
+        Deletes all rows from the cache table in the database.
+        """
         db = router.db_for_write(self.cache_model_class)
         connection = connections[db]
         table = connection.ops.quote_name(self._table)

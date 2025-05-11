@@ -36,6 +36,16 @@ class Command(BaseCommand):
         )
 
     def handle(self, *fixture_labels, **options):
+        """
+        Handle a test database setup and run a Django development server.
+
+        This function creates a test database, loads fixtures into it, and starts a development server.
+        It allows for interactive and non-interactive modes, with options for verbosity and server configuration.
+
+        :param fixture_labels: Labels of fixtures to load into the test database.
+        :param options: Dictionary of options, including verbosity, interactive mode, and server settings.
+
+        """
         verbosity = options["verbosity"]
         interactive = options["interactive"]
 

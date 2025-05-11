@@ -31,6 +31,9 @@ class CustomManyToManyField(RelatedField):
         db_table=None,
         **kwargs,
     ):
+        """
+        Initialize a ManyToManyField relationship between two models, handling recursive and non-recursive relationships, and optional intermediary models.
+        """
         try:
             to._meta
         except AttributeError:
@@ -64,6 +67,20 @@ class CustomManyToManyField(RelatedField):
         )
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+
+        Adds the many-to-many relationship to the given class.
+
+        This method configures the relationship by setting the related name, creating
+        an intermediary model if necessary, and adding a descriptor to the class.
+        It handles symmetrical and non-symmetrical relationships, as well as abstract
+        and swapped models.
+
+        :param cls: The class to which the relationship is being added
+        :param name: The name of the relationship
+        :param **kwargs: Additional keyword arguments
+
+        """
         if self.remote_field.symmetrical and (
             self.remote_field.model == "self"
             or self.remote_field.model == cls._meta.object_name

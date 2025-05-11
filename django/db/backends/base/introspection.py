@@ -39,10 +39,7 @@ class BaseDatabaseIntrospection:
 
     def table_names(self, cursor=None, include_views=False):
         """
-        Return a list of names of all tables that exist in the database.
-        Sort the returned table list by Python's default sorting. Do NOT use
-        the database's ORDER BY here to avoid subtle differences in sorting
-        order between databases.
+        Return a list of names of all tables (and optionally views) in the database, sorted by Python's default sorting. The list includes all tables if include_views is False, and both tables and views if include_views is True.
         """
 
         def get_names(cursor):
@@ -90,10 +87,8 @@ class BaseDatabaseIntrospection:
 
     def django_table_names(self, only_existing=False, include_views=True):
         """
-        Return a list of all table names that have associated Django models and
-        are in INSTALLED_APPS.
-
-        If only_existing is True, include only the tables in the database.
+        Return a list of table names associated with Django models in INSTALLED_APPS, 
+        with options to filter by existing tables and include or exclude views.
         """
         tables = set()
         for model in self.get_migratable_models():
@@ -127,8 +122,11 @@ class BaseDatabaseIntrospection:
 
     def sequence_list(self):
         """
-        Return a list of information about all DB sequences for all models in
-        all apps.
+        .. method:: sequence_list()
+           :return: list
+           :rtype: list of dict
+
+           Returns a list of information about all database sequences for all models in all applications.
         """
         sequence_list = []
         with self.connection.cursor() as cursor:
@@ -181,7 +179,11 @@ class BaseDatabaseIntrospection:
         return columns[0] if columns else None
 
     def get_primary_key_columns(self, cursor, table_name):
-        """Return a list of primary key columns for the given table."""
+        """
+        Retrieves the primary key column names for a specified database table. 
+
+        It iterates over the constraints defined on the table to identify and return those designated as primary keys. If no primary key is found, it returns None.
+        """
         for constraint in self.get_constraints(cursor, table_name).values():
             if constraint["primary_key"]:
                 return constraint["columns"]

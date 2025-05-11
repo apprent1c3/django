@@ -34,6 +34,9 @@ class IntrospectionTests(TransactionTestCase):
         )
 
     def test_django_table_names(self):
+        """
+        Checks that the django_table_names function correctly excludes non-Django tables from its results.
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE TABLE django_ixn_test_table (id INTEGER);")
             tl = connection.introspection.django_table_names()
@@ -52,6 +55,14 @@ class IntrospectionTests(TransactionTestCase):
         self.assertIs(type(tl), list)
 
     def test_table_names_with_views(self):
+        """
+
+        Tests whether introspection correctly identifies table names when views are present.
+
+        Verifies that a created view is included in the list of table names when the include_views parameter is True,
+        and excluded when it is False. The test also checks for sufficient database privileges to create a view.
+
+        """
         with connection.cursor() as cursor:
             try:
                 cursor.execute(
@@ -181,6 +192,9 @@ class IntrospectionTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_comments")
     def test_db_comments(self):
+        """
+        Tests that the database correctly stores and retrieves column and table comments, verifying that they can be successfully introspected from the database schema.
+        """
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(
                 cursor, DbCommentModel._meta.db_table
@@ -202,6 +216,9 @@ class IntrospectionTests(TransactionTestCase):
     # Regression test for #9991 - 'real' types in postgres
     @skipUnlessDBFeature("has_real_datatype")
     def test_postgresql_real_type(self):
+        """
+        Tests the PostgreSQL REAL data type to ensure it is correctly identified as a FloatField by the database introspection system.
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE TABLE django_ixn_real_test_table (number REAL);")
             desc = connection.introspection.get_table_description(
@@ -214,6 +231,12 @@ class IntrospectionTests(TransactionTestCase):
 
     @skipUnlessDBFeature("can_introspect_foreign_keys")
     def test_get_relations(self):
+        """
+        Tests the retrieval of relations in a database table using introspection.
+
+        Checks if foreign key relationships are correctly identified and if they remain
+        correct after removing and re-adding a field to the table.
+        """
         with connection.cursor() as cursor:
             relations = connection.introspection.get_relations(
                 cursor, Article._meta.db_table
@@ -239,6 +262,9 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(relations, expected_relations)
 
     def test_get_primary_key_column(self):
+        """
+        Tests that the primary key columns for the Article and District database tables are correctly identified as 'id' and 'city_id' respectively.
+        """
         with connection.cursor() as cursor:
             primary_key_column = connection.introspection.get_primary_key_column(
                 cursor, Article._meta.db_table
@@ -250,6 +276,9 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(pk_fk_column, "city_id")
 
     def test_get_constraints_index_types(self):
+        """
+        Checks if the constraint index types for the Article model's database table match the expected index suffix types.
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(
                 cursor, Article._meta.db_table
@@ -272,7 +301,7 @@ class IntrospectionTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_index_column_ordering")
     def test_get_constraints_indexes_orders(self):
         """
-        Indexes have the 'orders' key with a list of 'ASC'/'DESC' values.
+        Tests that the database indexes for a model have the correct ordering, with all columns in ascending order. The test checks indexes on a model's table, verifying that each index has a list of 'ASC' orders matching the number of columns in the index.
         """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(
@@ -297,6 +326,9 @@ class IntrospectionTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_index_column_ordering", "supports_partial_indexes")
     def test_get_constraints_unique_indexes_orders(self):
+        """
+        Checks that the database introspection correctly retrieves unique indexes with specified ordering.
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(
                 cursor,
@@ -309,6 +341,9 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(constraint["orders"], ["ASC"])
 
     def test_get_constraints(self):
+        """
+        Tests the database constraints for the given models, verifying the existence and properties of primary keys, unique constraints, indexes, check constraints, and foreign keys, ensuring they match the expected definitions.
+        """
         def assertDetails(
             details,
             cols,
@@ -323,6 +358,21 @@ class IntrospectionTests(TransactionTestCase):
             # MySQL      pk=1 uniq=1 idx=1  pk=0 uniq=1 idx=1  pk=0 uniq=1 idx=1
             # PostgreSQL pk=1 uniq=1 idx=0  pk=0 uniq=1 idx=0  pk=0 uniq=1 idx=1
             # SQLite     pk=1 uniq=0 idx=0  pk=0 uniq=1 idx=0  pk=0 uniq=1 idx=1
+            """
+
+            Verifies the details of a database table against expected values.
+
+            Checks for consistency and correctness of primary key, unique constraints, indexing, check constraints, and foreign key relationships.
+
+            :param details: Dictionary containing table details.
+            :param cols: Expected column list.
+            :param primary_key: Whether the table has a primary key.
+            :param unique: Whether the table has a unique constraint.
+            :param index: Whether the table has an index.
+            :param check: Whether the table has a check constraint.
+            :param foreign_key: Foreign key relationship details.
+
+            """
             if details["primary_key"]:
                 details["unique"] = True
             if details["unique"]:

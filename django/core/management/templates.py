@@ -44,6 +44,11 @@ class TemplateCommand(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments to the parser for customizing the application or project setup.
+
+        Adds arguments for specifying the application or project name, destination directory, template, file extensions, and file names to render, as well as directories to exclude from processing
+        """
         parser.add_argument("name", help="Name of the application or project.")
         parser.add_argument(
             "directory", nargs="?", help="Optional destination directory"
@@ -84,6 +89,25 @@ class TemplateCommand(BaseCommand):
         )
 
     def handle(self, app_or_project, name, target=None, **options):
+        """
+        Handle the creation of a new Django application or project.
+
+        This function sets up the directory structure and copies template files for a new
+        Django application or project. It takes into account the specified name, target
+        directory, and customization options to create a tailored project or application
+        directory.
+
+        The function validates the project name, creates the target directory if it does
+        not exist, and renders template files with the provided context, including the
+        project name, directory, and Django version. It also applies umask and sets
+        permission bits for the created files.
+
+        :param app_or_project: The type of Django project to create (app or project)
+        :param name: The name of the project or application
+        :param target: The target directory for the project (optional)
+        :param options: Additional customization options (e.g. verbosity, extensions, files)
+
+        """
         self.app_or_project = app_or_project
         self.a_or_an = "an" if app_or_project == "app" else "a"
         self.paths_to_remove = []
@@ -233,9 +257,13 @@ class TemplateCommand(BaseCommand):
 
     def handle_template(self, template, subdir):
         """
-        Determine where the app or project templates are.
-        Use django.__path__[0] as the default because the Django install
-        directory isn't known.
+
+        Handle a given template by determining its location and processing it accordingly.
+
+        Given a template and a subdirectory, this function resolves the template's location,
+        which can be a local file, a directory, or a remote URL, and returns the absolute path
+        to the extracted template if it exists. If the template is not found, a CommandError is raised.
+
         """
         if template is None:
             return os.path.join(django.__path__[0], "conf", subdir)
@@ -258,6 +286,20 @@ class TemplateCommand(BaseCommand):
         )
 
     def validate_name(self, name, name_or_dir="name"):
+        """
+
+        Validate the given name to ensure it is valid and available for use.
+
+        Checks that the name is not None, a valid Python identifier, and does not conflict with an existing Python module.
+
+        Args:
+            name (str): The name to be validated.
+            name_or_dir (str, optional): The type of the name being validated (e.g. 'name', 'directory'). Defaults to 'name'.
+
+        Raises:
+            CommandError: If the name is invalid or unavailable.
+
+        """
         if name is None:
             raise CommandError(
                 "you must provide {an} {app} name".format(
@@ -290,10 +332,16 @@ class TemplateCommand(BaseCommand):
 
     def download(self, url):
         """
-        Download the given URL and return the file name.
+        Download a file from a given URL and return the local path to the downloaded file, handling filename guessing based on HTTP headers.
         """
 
         def cleanup_url(url):
+            """
+            Extracts the filename and display URL from a given URL, cleaning up trailing slashes for display purposes.
+
+            Returns:
+                tuple: A tuple containing the filename and the cleaned up display URL. 
+            """
             tmp = url.rstrip("/")
             filename = tmp.split("/")[-1]
             if url.endswith("/"):
@@ -352,7 +400,7 @@ class TemplateCommand(BaseCommand):
 
     def splitext(self, the_path):
         """
-        Like os.path.splitext, but takes off .tar, too
+        Like os.path.splitext, but also handles.tar files by removing the.tar extension along with any subsequent extensions.
         """
         base, ext = posixpath.splitext(the_path)
         if base.lower().endswith(".tar"):
@@ -362,8 +410,7 @@ class TemplateCommand(BaseCommand):
 
     def extract(self, filename):
         """
-        Extract the given file to a temporary directory and return
-        the path of the directory with the extracted content.
+        Extracts the contents of a given file to a temporary directory, returning the path to the extracted content.
         """
         prefix = "django_%s_template_" % self.app_or_project
         tempdir = tempfile.mkdtemp(prefix=prefix, suffix="_extract")
@@ -379,7 +426,9 @@ class TemplateCommand(BaseCommand):
             )
 
     def is_url(self, template):
-        """Return True if the name looks like a URL."""
+        """
+        Determines if a given template appears to be a URL based on its prefix.
+        """
         if ":" not in template:
             return False
         scheme = template.split(":", 1)[0].lower()
@@ -393,8 +442,11 @@ class TemplateCommand(BaseCommand):
 
     def make_writeable(self, filename):
         """
-        Make sure that the file is writeable.
-        Useful if our source is read-only.
+
+        Ensure a file is writeable by modifying its permissions if necessary.
+
+        This function is useful when working with read-only source files that need to be modified.
+
         """
         if not os.access(filename, os.W_OK):
             st = os.stat(filename)

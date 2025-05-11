@@ -29,6 +29,9 @@ class SmartIfTests(unittest.TestCase):
         self.assertCalcEqual(False, [None, "in", list_])
 
     def test_not_in(self):
+        """
+        Test the 'not in' operator functionality, verifying it correctly identifies when an element is not present in a given list or is None.
+        """
         list_ = [1, 2, 3]
         self.assertCalcEqual(False, [1, "not", "in", list_])
         self.assertCalcEqual(True, [4, "not", "in", list_])
@@ -38,6 +41,9 @@ class SmartIfTests(unittest.TestCase):
     def test_precedence(self):
         # (False and False) or True == True   <- we want this one, like Python
         # False and (False or True) == False
+        """
+        Tests the precedence of logical operators in the IfParser, ensuring that it correctly handles 'and' and 'or' operations with varying input values and expression structures.
+        """
         self.assertCalcEqual(True, [False, "and", False, "or", True])
 
         # True or (False and False) == True   <- we want this one, like Python

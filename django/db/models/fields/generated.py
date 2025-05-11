@@ -16,6 +16,9 @@ class GeneratedField(Field):
     output_field = None
 
     def __init__(self, *, expression, output_field, db_persist=None, **kwargs):
+        """
+        Initializes a GeneratedField instance, representing a field that is computed based on a given expression. The field is non-editable, and its value is automatically generated and updated according to the specified expression and output field. The db_persist parameter determines whether the generated value is persisted to the database.
+        """
         if kwargs.setdefault("editable", False):
             raise ValueError("GeneratedField cannot be editable.")
         if not kwargs.setdefault("blank", True):
@@ -52,6 +55,11 @@ class GeneratedField(Field):
             self.register_lookup(lookup, lookup_name=lookup_name)
 
     def generated_sql(self, connection):
+        """
+        Generates the SQL query and parameters for the given expression. 
+
+        This method takes a database connection as input and returns a tuple containing the compiled SQL string and the parameters to be used with it. The generated SQL is adapted to the capabilities of the provided database connection, ensuring compatibility with various database systems.
+        """
         compiler = connection.ops.compiler("SQLCompiler")(
             self._query, connection=connection, using=None
         )
@@ -67,6 +75,9 @@ class GeneratedField(Field):
         return sql, params
 
     def check(self, **kwargs):
+        """
+        Checks the field and its output field for errors and warnings, ensuring it is properly configured and supported for the specified databases, and aggregating any issues found into a list of error messages.
+        """
         databases = kwargs.get("databases") or []
         errors = [
             *super().check(**kwargs),
@@ -109,6 +120,10 @@ class GeneratedField(Field):
         return errors
 
     def _check_supported(self, databases):
+        """
+        Checks whether a database supports the use of generated fields on a model.
+        Returns a list of errors for databases that do not support generated fields.
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -138,6 +153,9 @@ class GeneratedField(Field):
         return errors
 
     def _check_persistence(self, databases):
+        """
+        Checks if the database supports the persistence mode of a GeneratedField, returning errors for databases that do not support the specified persistence mode.
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -179,6 +197,9 @@ class GeneratedField(Field):
         return errors
 
     def deconstruct(self):
+        """
+        Deconstructs the object into a form that can be used to recreate it, removing redundant and internal parameters while adding relevant configuration options.
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["blank"]
         del kwargs["editable"]

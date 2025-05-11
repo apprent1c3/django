@@ -15,6 +15,38 @@ from .resolvers import (
 
 
 def include(arg, namespace=None):
+    """
+
+    Includes a URL configuration module into the main URL configuration.
+
+    Takes a URL configuration module or a tuple of a module and an application name,
+    and optionally a namespace. Returns a tuple containing the URL configuration
+    module, application name, and namespace.
+
+    The included module must contain a `urlpatterns` attribute, and may also
+    contain an `app_name` attribute. If a namespace is provided, it overrides the
+    application name. The function checks for invalid configurations, such as
+    providing a namespace without an application name, or using i18n patterns in
+    an included URL configuration.
+
+    Parameters
+    ----------
+    arg : tuple or str
+        A URL configuration module or a tuple of a module and an application name.
+    namespace : str, optional
+        An optional namespace to use instead of the application name.
+
+    Returns
+    -------
+    tuple
+        A tuple containing the URL configuration module, application name, and namespace.
+
+    Raises
+    ------
+    ImproperlyConfigured
+        If the provided arguments are invalid.
+
+    """
     app_name = None
     if isinstance(arg, tuple):
         # Callable returning a namespace hint.
@@ -60,6 +92,14 @@ def include(arg, namespace=None):
 
 
 def _path(route, view, kwargs=None, name=None, Pattern=None):
+    """
+    Registers a URL pattern, mapping a route to a view function.
+
+    Provides flexibility to handle various view types, including callable functions and URL configuration modules.
+
+    :raises TypeError: If the keyword arguments are not provided as a dictionary or if the view is not a callable or a list/tuple.
+
+    """
     from django.views import View
 
     if kwargs is not None and not isinstance(kwargs, dict):

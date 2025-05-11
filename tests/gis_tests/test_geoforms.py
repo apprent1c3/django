@@ -10,7 +10,9 @@ from django.utils.html import escape
 
 class GeometryFieldTest(SimpleTestCase):
     def test_init(self):
-        "Testing GeometryField initialization with defaults."
+        """
+        Tests that the GeometryField raises a ValidationError when initialized with invalid default values.
+        """
         fld = forms.GeometryField()
         for bad_default in ("blah", 3, "FoO", None, 0):
             with self.subTest(bad_default=bad_default):
@@ -18,7 +20,10 @@ class GeometryFieldTest(SimpleTestCase):
                     fld.clean(bad_default)
 
     def test_srid(self):
-        "Testing GeometryField with a SRID set."
+        """
+        Tests the functionality of GeometryField when a Spatial Reference System Identifier (SRID) is provided, 
+        ensuring that geometries are properly transformed to the specified SRID.
+        """
         # Input that doesn't specify the SRID is assumed to be in the SRID
         # of the input field.
         fld = forms.GeometryField(srid=4326)
@@ -41,7 +46,9 @@ class GeometryFieldTest(SimpleTestCase):
         self.assertTrue(xform_geom.equals_exact(cleaned_geom, tol))
 
     def test_null(self):
-        "Testing GeometryField's handling of null (None) geometries."
+        """
+        Tests the GeometryField's behavior when handling null geometries, ensuring proper validation and error handling for required and non-required fields.
+        """
         # Form fields, by default, are required (`required=True`)
         fld = forms.GeometryField()
         with self.assertRaisesMessage(ValidationError, "No geometry value provided."):
@@ -52,7 +59,9 @@ class GeometryFieldTest(SimpleTestCase):
         self.assertIsNone(fld.clean(None))
 
     def test_geom_type(self):
-        "Testing GeometryField's handling of different geometry types."
+        """
+        Verifies that GeometryField correctly handles various geometry types, including points, multipolygons, and linestrings, and enforces the specified geometry type when cleaning input.
+        """
         # By default, all geometry types are allowed.
         fld = forms.GeometryField()
         for wkt in (
@@ -83,8 +92,7 @@ class GeometryFieldTest(SimpleTestCase):
 
     def test_to_python(self):
         """
-        to_python() either returns a correct GEOSGeometry object or
-        a ValidationError.
+        Tests the to_python method of a GeometryField to ensure it correctly converts well-formed geometric input strings into GEOSGeometry objects and raises a ValidationError for invalid inputs.
         """
         good_inputs = [
             "POINT(5 23)",
@@ -121,6 +129,10 @@ class GeometryFieldTest(SimpleTestCase):
         )
 
     def test_field_with_text_widget(self):
+        """
+        Tests the behavior of a PointField with a TextInput widget, 
+        verifying geometry value cleaning, SRID assignment, and validation error handling.
+        """
         class PointForm(forms.Form):
             pt = forms.PointField(srid=4326, widget=forms.TextInput)
 
@@ -137,8 +149,7 @@ class GeometryFieldTest(SimpleTestCase):
 
     def test_field_string_value(self):
         """
-        Initialization of a geometry field with a valid/empty/invalid string.
-        Only the invalid string should trigger an error log entry.
+        Tests the initialization of a geometry field with different string values, verifying that invalid input triggers an error log entry while valid and empty inputs are handled correctly.
         """
 
         class PointForm(forms.Form):
@@ -252,8 +263,10 @@ class SpecializedFieldTest(SimpleTestCase):
 
     def assertMapWidget(self, form_instance):
         """
-        Make sure the MapWidget js is passed in the form media and a MapWidget
-        is actually created
+        Verify that the MapWidget is properly initialized and included in a form instance.
+
+        Checks that the form is valid, the MapWidget JavaScript is rendered, and the 
+        required CSS and JavaScript media are included in the form's media output.
         """
         self.assertTrue(form_instance.is_valid())
         rendered = form_instance.as_p()
@@ -262,7 +275,9 @@ class SpecializedFieldTest(SimpleTestCase):
         self.assertIn("gis/js/OLMapWidget.js", str(form_instance.media))
 
     def assertTextarea(self, geom, rendered):
-        """Makes sure the wkt and a textarea are in the content"""
+        """
+        Makes sure a textarea element containing a valid WKT geometry is present in the rendered content. Verifies the geometry can be transformed to a specific spatial reference system (EPSG:3857) and its JSON representation is included in the textarea.
+        """
 
         self.assertIn("<textarea ", rendered)
         self.assertIn("required", rendered)
@@ -273,6 +288,12 @@ class SpecializedFieldTest(SimpleTestCase):
     # map_srid in openlayers.html template must not be localized.
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_pointfield(self):
+        """
+        Tests the functionality of a form containing a PointField.
+
+        Verifies that the form renders correctly, validates valid point geometries,
+        and rejects invalid geometries, providing appropriate error messages.
+        """
         class PointForm(forms.Form):
             p = forms.PointField()
 
@@ -289,6 +310,9 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PointForm(data={"p": invalid.wkt}).is_valid())
 
     def test_multipointfield(self):
+        """
+        Tests the functionality of a MultiPointField form, including its rendering, validation, and interaction with the map widget. The test covers valid and invalid geometries to ensure proper handling of different input cases.
+        """
         class PointForm(forms.Form):
             p = forms.MultiPointField()
 
@@ -304,6 +328,11 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PointForm(data={"p": invalid.wkt}).is_valid())
 
     def test_linestringfield(self):
+        """
+        Tests the functionality of a LineStringField in a form, 
+        including its rendering as a textarea and map widget, 
+        and validation for both valid and invalid geometric inputs.
+        """
         class LineStringForm(forms.Form):
             f = forms.LineStringField()
 
@@ -319,6 +348,10 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(LineStringForm(data={"p": invalid.wkt}).is_valid())
 
     def test_multilinestringfield(self):
+        """
+        Tests the functionality of the MultiLineStringField form field, including its rendering as a textarea,
+        validation of multilinestring geometries, and rejection of invalid geometries.
+        """
         class LineStringForm(forms.Form):
             f = forms.MultiLineStringField()
 
@@ -334,6 +367,9 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(LineStringForm(data={"p": invalid.wkt}).is_valid())
 
     def test_polygonfield(self):
+        """
+        Tests the functionality of the PolygonField in a form, ensuring it correctly validates and displays a polygon geometry and rejects invalid geometries.
+        """
         class PolygonForm(forms.Form):
             p = forms.PolygonField()
 
@@ -349,6 +385,14 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PolygonForm(data={"p": invalid.wkt}).is_valid())
 
     def test_multipolygonfield(self):
+        """
+
+        Tests the functionality of the MultiPolygonField form field.
+
+        Verifies that a valid multipolygon geometry is correctly rendered and validated,
+        and that invalid geometries are rejected.
+
+        """
         class PolygonForm(forms.Form):
             p = forms.MultiPolygonField()
 
@@ -364,6 +408,9 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PolygonForm(data={"p": invalid.wkt}).is_valid())
 
     def test_geometrycollectionfield(self):
+        """
+        Tests the functionality of the GeometryCollectionField in a form, ensuring it correctly renders and validates geometry collection data.
+        """
         class GeometryForm(forms.Form):
             g = forms.GeometryCollectionField()
 
@@ -386,6 +433,11 @@ class OSMWidgetTest(SimpleTestCase):
         }
 
     def test_osm_widget(self):
+        """
+
+        Tests the OSM widget for a point field in a form, verifying that it correctly renders with an OpenLayers OSM source and a specific HTML element ID.
+
+        """
         class PointForm(forms.Form):
             p = forms.PointField(widget=forms.OSMWidget)
 
@@ -397,6 +449,12 @@ class OSMWidgetTest(SimpleTestCase):
         self.assertIn("id: 'id_p',", rendered)
 
     def test_default_lat_lon(self):
+        """
+
+        Verifies that the default latitude, longitude, and zoom level of the OSMWidget are set correctly.
+        Also checks that custom default values can be set through widget attributes and are rendered correctly in the HTML form.
+
+        """
         self.assertEqual(forms.OSMWidget.default_lon, 5)
         self.assertEqual(forms.OSMWidget.default_lat, 47)
         self.assertEqual(forms.OSMWidget.default_zoom, 12)
@@ -423,6 +481,9 @@ class OSMWidgetTest(SimpleTestCase):
 class GeometryWidgetTests(SimpleTestCase):
     def test_get_context_attrs(self):
         # The Widget.get_context() attrs argument overrides self.attrs.
+        """
+        Tests the get_context method of the BaseGeometryWidget class to ensure it correctly overrides default geometry types with provided attributes.
+        """
         widget = BaseGeometryWidget(attrs={"geom_type": "POINT"})
         context = widget.get_context("point", None, attrs={"geom_type": "POINT2"})
         self.assertEqual(context["geom_type"], "POINT2")
@@ -456,6 +517,9 @@ class GeometryWidgetTests(SimpleTestCase):
         )
 
     def test_custom_serialization_widget(self):
+        """
+        Tests the custom serialization and deserialization of a point geometry field using a custom widget.
+        """
         class CustomGeometryWidget(forms.BaseGeometryWidget):
             template_name = "gis/openlayers.html"
             deserialize_called = 0

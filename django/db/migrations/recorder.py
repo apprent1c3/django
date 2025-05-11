@@ -24,8 +24,7 @@ class MigrationRecorder:
     @classproperty
     def Migration(cls):
         """
-        Lazy load to avoid AppRegistryNotReady if installed apps import
-        MigrationRecorder.
+        Returns the Migration class model, lazily loaded to prevent AppRegistryNotReady errors during installation of apps that import MigrationRecorder.
         """
         if cls._migration_class is None:
 
@@ -54,7 +53,9 @@ class MigrationRecorder:
         return self.Migration.objects.using(self.connection.alias)
 
     def has_table(self):
-        """Return True if the django_migrations table exists."""
+        """
+        Checks if the django_migrations table exists in the database, caching the result for future checks.
+        """
         # If the migrations table has already been confirmed to exist, don't
         # recheck it's existence.
         if self._has_table:
@@ -67,7 +68,9 @@ class MigrationRecorder:
         return self._has_table
 
     def ensure_schema(self):
-        """Ensure the table exists and has the correct schema."""
+        """
+        Ensures the table exists and has the correct schema, creating it if necessary.
+        """
         # If the table's there, that's fine - we've never changed its schema
         # in the codebase.
         if self.has_table():
@@ -83,8 +86,9 @@ class MigrationRecorder:
 
     def applied_migrations(self):
         """
-        Return a dict mapping (app_name, migration_name) to Migration instances
-        for all applied migrations.
+        Retrieves a dictionary of all applied migrations, keyed by (application name, migration name), 
+        providing a mapping to their respective Migration instances. This function returns an empty 
+        dictionary if the migration table does not exist.
         """
         if self.has_table():
             return {

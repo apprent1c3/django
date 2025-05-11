@@ -28,7 +28,9 @@ class Tests(TestCase):
     longMessage = True
 
     def test_aggregation(self):
-        """Raise NotSupportedError when aggregating on date/time fields."""
+        """
+        Tests that aggregating on date/time fields raises a NotSupportedError for various aggregate functions, including Sum, Avg, Variance, and StdDev, for both simple and complex aggregate queries.
+        """
         for aggregate in (Sum, Avg, Variance, StdDev):
             with self.assertRaises(NotSupportedError):
                 Item.objects.aggregate(aggregate("time"))
@@ -45,6 +47,9 @@ class Tests(TestCase):
                 )
 
     def test_distinct_aggregation(self):
+        """
+        Tests that using DISTINCT with an aggregate function accepting multiple arguments raises a NotSupportedError on SQLite.
+        """
         class DistinctAggregate(Aggregate):
             allow_distinct = True
 
@@ -66,7 +71,9 @@ class Tests(TestCase):
         connection.ops.check_expression_support(aggregate)
 
     def test_memory_db_test_name(self):
-        """A named in-memory db should be allowed where supported."""
+        """
+        Verifies that in-memory databases with custom names are created correctly when supported, ensuring proper naming and settings application for test databases.
+        """
         from django.db.backends.sqlite3.base import DatabaseWrapper
 
         settings_dict = {
@@ -81,6 +88,11 @@ class Tests(TestCase):
         )
 
     def test_regexp_function(self):
+        """
+        Tests the behavior of a regex function in a database query.
+
+        Verifies that the function correctly matches strings against regular expression patterns, handling cases with valid and invalid input, as well as null values.
+        """
         tests = (
             ("test", r"[0-9]+", False),
             ("test", r"[a-z]+", True),
@@ -97,6 +109,9 @@ class Tests(TestCase):
                 self.assertIs(value, expected)
 
     def test_pathlib_name(self):
+        """
+        Tests that a SQLite database file is successfully created on disk when using Pathlib to define the database name in the settings.
+        """
         with tempfile.TemporaryDirectory() as tmp:
             settings_dict = {
                 "default": {
@@ -117,6 +132,12 @@ class Tests(TestCase):
         self.assertTrue(mocked_get_database_version.called)
 
     def test_init_command(self):
+        """
+        Tests that the database init command is executed correctly.
+
+        Verifies that the specified PRAGMA settings are applied when a connection is established.
+
+        """
         settings_dict = {
             "default": {
                 "ENGINE": "django.db.backends.sqlite3",
@@ -147,8 +168,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_autoincrement(self):
         """
-        auto_increment fields are created with the AUTOINCREMENT keyword
-        in order to be monotonically increasing (#10164).
+        Tests the creation of autoincrement fields in the database schema to ensure they are defined as monotonically increasing with the AUTOINCREMENT keyword.
         """
         with connection.schema_editor(collect_sql=True) as editor:
             editor.create_model(Square)
@@ -163,8 +183,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_disable_constraint_checking_failure_disallowed(self):
         """
-        SQLite schema editor is not usable within an outer transaction if
-        foreign key constraint checks are not disabled beforehand.
+        Tests that using a SQLite schema editor within a transaction raises an error when foreign key constraint checks are not disabled beforehand.
         """
         msg = (
             "SQLite schema editor cannot be used while foreign key "
@@ -179,8 +198,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_constraint_checks_disabled_atomic_allowed(self):
         """
-        SQLite schema editor is usable within an outer transaction as long as
-        foreign key constraints checks are disabled beforehand.
+        Tests that SQLite schema editing works correctly within an atomic transaction when foreign key constraint checks are disabled.
         """
 
         def constraint_checks_enabled():
@@ -207,6 +225,9 @@ class LastExecutedQueryTest(TestCase):
     def test_parameter_quoting(self):
         # The implementation of last_executed_queries isn't optimal. It's
         # worth testing that parameters are quoted (#14091).
+        """
+        Tests whether special characters in SQL query parameters are properly quoted and escaped.
+        """
         query = "SELECT %s"
         params = ["\"'\\"]
         with connection.cursor() as cursor:
@@ -253,6 +274,9 @@ class ThreadSharing(TransactionTestCase):
     available_apps = ["backends"]
 
     def test_database_sharing_in_threads(self):
+        """
+        ..: Tests the ability to share a database connection across multiple threads, verifying that database operations are properly executed and that connections are correctly closed after use.
+        """
         thread_connections = []
 
         def create_object():
@@ -277,6 +301,12 @@ class TestTransactionMode(SimpleTestCase):
     databases = {"default"}
 
     def test_default_transaction_mode(self):
+        """
+        Tests the default transaction mode by verifying that a transaction is correctly started and committed.\"\"\"
+            \"\"\" 
+            Checks that the 'BEGIN' and 'COMMIT' SQL statements are executed as expected when using the atomic transaction context.
+
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             with transaction.atomic():
                 pass
@@ -296,6 +326,11 @@ class TestTransactionMode(SimpleTestCase):
                 new_connection.ensure_connection()
 
     def test_valid_transaction_modes(self):
+        """
+        Tests that valid transaction modes are correctly handled and result in the expected SQL being generated for the BEGIN statement.
+
+        Valid transaction modes checked include deferred, immediate, and exclusive. For each mode, it verifies the resulting SQL matches the expected mode after beginning a transaction.
+        """
         valid_transaction_modes = ("deferred", "immediate", "exclusive")
         for transaction_mode in valid_transaction_modes:
             with (
@@ -313,6 +348,15 @@ class TestTransactionMode(SimpleTestCase):
 
     @contextmanager
     def change_transaction_mode(self, transaction_mode):
+        """
+
+        Temporarily changes the transaction mode of a database connection.
+
+        Provides a context manager to use a copy of the current database connection
+        with a specified transaction mode. The original connection remains unchanged.
+        When the context is exited, the modified connection is closed.
+
+        """
         new_connection = connection.copy()
         new_connection.settings_dict["OPTIONS"] = {
             **new_connection.settings_dict["OPTIONS"],

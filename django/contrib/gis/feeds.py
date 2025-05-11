@@ -18,9 +18,10 @@ class GeoFeedMixin:
 
     def add_georss_point(self, handler, coords, w3c_geo=False):
         """
-        Adds a GeoRSS point with the given coords using the given handler.
-        Handles the differences between simple GeoRSS and the more popular
-        W3C Geo specification.
+        .. method:: add_georss_point(handler, coords, w3c_geo=False)
+
+           Adds a GeoRSS point with the specified coordinates to the provided handler, 
+           supporting both simple GeoRSS and the W3C Geo specification.
         """
         if w3c_geo:
             lon, lat = coords[:2]
@@ -30,7 +31,11 @@ class GeoFeedMixin:
             handler.addQuickElement("georss:point", self.georss_coords((coords,)))
 
     def add_georss_element(self, handler, item, w3c_geo=False):
-        """Add a GeoRSS XML element using the given item and handler."""
+        """
+        Add a GeoRSS XML element to an output document, based on provided geographic data. 
+        The function supports various geometry types, including points, lines, and polygons, 
+        and can output in both simple GeoRSS and W3C Geo formats.
+        """
         # Getting the Geometry object.
         geom = item.get("geometry")
         if geom is not None:

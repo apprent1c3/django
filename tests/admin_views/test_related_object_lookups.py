@@ -19,6 +19,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_related_object_link_images_attributes(self):
+        """
+        Checks that link images in the album add admin view have the expected attributes (alt, width, and height).
+        """
         from selenium.webdriver.common.by import By
 
         album_add_url = reverse("admin:admin_views_album_add")
@@ -40,6 +43,14 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.assertEqual(link_image.get_attribute("height"), "20")
 
     def test_related_object_lookup_link_initial_state(self):
+        """
+
+        Tests that the related object lookup links are disabled initially on the album add page.
+
+        Verifies that the links for changing, deleting, and viewing the related object owner are
+        in a disabled state when the page is first loaded.
+
+        """
         from selenium.webdriver.common.by import By
 
         album_add_url = reverse("admin:admin_views_album_add")
@@ -56,6 +67,9 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.assertEqual(link.get_attribute("aria-disabled"), "true")
 
     def test_related_object_lookup_link_enabled(self):
+        """
+        Checks that the related object lookup links are enabled in the album add view.
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.select import Select
 
@@ -80,6 +94,9 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.assertIsNone(link.get_attribute("aria-disabled"))
 
     def test_related_object_update_with_camel_casing(self):
+        """
+        Tests that updating a related object with camel casing correctly updates the foreign key dropdown and many-to-many fields in the admin interface.
+        """
         from selenium.webdriver.common.by import By
 
         add_url = reverse("admin:admin_views_camelcaserelatedmodel_add")
@@ -127,6 +144,10 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_related_object_add_js_actions(self):
+        """
+        Tests the addition of related object JavaScript actions in the admin interface. 
+        Verifies that the many-to-many fields are updated correctly after adding and removing a related object.
+        """
         from selenium.webdriver.common.by import By
 
         add_url = reverse("admin:admin_views_camelcaserelatedmodel_add")

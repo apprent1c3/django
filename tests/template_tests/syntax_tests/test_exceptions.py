@@ -17,7 +17,7 @@ class ExceptionsTests(SimpleTestCase):
     @setup({"exception02": "{% extends nonexistent %}"})
     def test_exception02(self):
         """
-        Raise exception for invalid variable template name
+        Tests that the template engine correctly raises an exception when encountering an invalid template inheritance syntax, specifically when extending a nonexistent template.
         """
         if self.engine.string_if_invalid:
             with self.assertRaises(TemplateDoesNotExist):

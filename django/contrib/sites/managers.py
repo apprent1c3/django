@@ -19,6 +19,10 @@ class CurrentSiteManager(models.Manager):
         return errors
 
     def _check_field_name(self):
+        """
+        Checks if the field name specified for the CurrentSiteManager exists and 
+        is a valid foreign key or many-to-many field, returning any errors found.
+        """
         field_name = self._get_field_name()
         try:
             field = self.model._meta.get_field(field_name)
@@ -46,7 +50,9 @@ class CurrentSiteManager(models.Manager):
         return []
 
     def _get_field_name(self):
-        """Return self.__field_name or 'site' or 'sites'."""
+        """
+        Returns the name of the field referencing the site, either 'site' or 'sites', based on the model's metadata.
+        """
 
         if not self.__field_name:
             try:

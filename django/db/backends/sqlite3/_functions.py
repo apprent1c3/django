@@ -38,6 +38,9 @@ from django.utils.duration import duration_microseconds
 
 
 def register(connection):
+    """
+    Registers custom SQL functions with the given database connection, providing additional functionality such as date and time manipulation, string operations, mathematical functions, and aggregation functions.
+    """
     create_deterministic_function = functools.partial(
         connection.create_function,
         deterministic=True,
@@ -104,6 +107,16 @@ def register(connection):
 
 
 def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
+    """
+    .. function:: _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None)
+        :return: datetime object or None
+
+        Parse a SQLite datetime string into a Python datetime object.
+
+        The function handles datetime strings with or without a timezone and 
+        attempts to convert them into a datetime object, taking into account 
+        the provided timezone names. If the conversion fails, it returns None.
+    """
     if dt is None:
         return None
     try:
@@ -126,6 +139,16 @@ def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
 
 
 def _sqlite_date_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+    Truncates a date to the specified level (year, quarter, month, week, day) 
+
+        :param lookup_type: The level to which the date should be truncated
+        :param dt: The date to be truncated
+        :param tzname: The timezone name of the input date
+        :param conn_tzname: The timezone name of the connection
+        :return: The truncated date in 'YYYY-MM-DD' format or None if the input date is invalid
+        :raises ValueError: If the lookup type is not supported
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -145,6 +168,21 @@ def _sqlite_date_trunc(lookup_type, dt, tzname, conn_tzname):
 
 
 def _sqlite_time_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+    Truncates a datetime to the specified precision.
+
+    Args:
+        lookup_type (str): The level of precision, either 'hour', 'minute', or 'second'.
+        dt: The datetime to truncate.
+        tzname (str): The timezone name of the datetime.
+        conn_tzname (str): The timezone name of the connection.
+
+    Returns:
+        str: The truncated datetime as a string in the format 'HH:MM:SS', or None if the input is invalid.
+
+    Raises:
+        ValueError: If the lookup type is not supported.
+    """
     if dt is None:
         return None
     dt_parsed = _sqlite_datetime_parse(dt, tzname, conn_tzname)
@@ -179,6 +217,29 @@ def _sqlite_datetime_cast_time(dt, tzname, conn_tzname):
 
 
 def _sqlite_datetime_extract(lookup_type, dt, tzname=None, conn_tzname=None):
+    """
+    Extract a specific component from a datetime object.
+
+    Extracts the specified component (e.g. day, month, year, week, quarter) from the given datetime object.
+    The lookup_type parameter determines which component to extract. Supported lookup types include 
+    'week_day', 'iso_week_day', 'week', 'quarter', 'iso_year', as well as standard datetime attributes.
+
+    Parameters
+    ----------
+    lookup_type : str
+        Type of component to extract (e.g. 'week_day', 'month', 'year')
+    dt : datetime
+        Datetime object to extract from
+    tzname : str, optional
+        Timezone name of the datetime object
+    conn_tzname : str, optional
+        Timezone name of the connection
+
+    Returns
+    -------
+    int or None
+        Extracted component value, or None if dt is invalid
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -197,6 +258,9 @@ def _sqlite_datetime_extract(lookup_type, dt, tzname=None, conn_tzname=None):
 
 
 def _sqlite_datetime_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+    Truncates a datetime to a specified level (year, quarter, month, week, day, hour, minute, second) and returns it as a string in YYYY-MM-DD HH:MM:SS format. The function also handles timezone conversions.
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -228,6 +292,13 @@ def _sqlite_datetime_trunc(lookup_type, dt, tzname, conn_tzname):
 
 
 def _sqlite_time_extract(lookup_type, dt):
+    """
+    Extracts a specific time component from a given datetime object.
+
+    :param lookup_type: The type of time component to extract (e.g. hour, minute, second)
+    :param dt: The datetime object to extract from
+    :returns: The extracted time component, or None if the input is invalid or missing
+    """
     if dt is None:
         return None
     try:
@@ -238,6 +309,13 @@ def _sqlite_time_extract(lookup_type, dt):
 
 
 def _sqlite_prepare_dtdelta_param(conn, param):
+    """
+    Prepare a parameter for SQLite delta timestamp operations.
+
+    Handles special connection mode indicators ('+' or '-') and converts input parameters
+    to a suitable format for delta timestamp operations, either as a timedelta object or
+    a typecasted timestamp, otherwise returns the original parameter unchanged.
+    """
     if conn in ["+", "-"]:
         if isinstance(param, int):
             return timedelta(0, 0, param)
@@ -248,10 +326,14 @@ def _sqlite_prepare_dtdelta_param(conn, param):
 
 def _sqlite_format_dtdelta(connector, lhs, rhs):
     """
-    LHS and RHS can be either:
-    - An integer number of microseconds
-    - A string representing a datetime
-    - A scalar value, e.g. float
+
+    Perform date and time delta arithmetic operations in SQLite.
+
+    Given a connector (one of '+', '-', '*', '/') and two operands (lhs and rhs),
+    this function applies the specified operation and returns the result.
+    Operands can be integers (representing microseconds), datetime strings, or scalar values.
+    Returns None if the operation is invalid or cannot be performed.
+
     """
     if connector is None or lhs is None or rhs is None:
         return None
@@ -275,6 +357,9 @@ def _sqlite_format_dtdelta(connector, lhs, rhs):
 
 
 def _sqlite_time_diff(lhs, rhs):
+    """
+    Calculates the time difference in microseconds between two time objects. Returns None if either of the input times is None.
+    """
     if lhs is None or rhs is None:
         return None
     left = typecast_time(lhs)
@@ -292,6 +377,10 @@ def _sqlite_time_diff(lhs, rhs):
 
 
 def _sqlite_timestamp_diff(lhs, rhs):
+    """
+    Calculates the difference between two SQLite timestamps, returning the result in microseconds. 
+    If either timestamp is None, returns None.
+    """
     if lhs is None or rhs is None:
         return None
     left = typecast_timestamp(lhs)
@@ -300,6 +389,16 @@ def _sqlite_timestamp_diff(lhs, rhs):
 
 
 def _sqlite_regexp(pattern, string):
+    """
+    Perform a SQLite-compatible regular expression match on a given string.
+
+    Matches the provided pattern against the input string and returns True if a match
+    is found, False otherwise. If either the pattern or string is None, returns None.
+
+    :param pattern: The regular expression pattern to match
+    :param string: The string to search for the pattern
+    :rtype: bool or None
+    """
     if pattern is None or string is None:
         return None
     if not isinstance(string, str):
@@ -387,6 +486,15 @@ def _sqlite_log(base, x):
 
 
 def _sqlite_lpad(text, length, fill_text):
+    """
+    Padds the left side of a given text with a specified fill text to a specified length.
+
+    :param text: The input text to be padded
+    :param length: The desired length of the output text
+    :param fill_text: The text used for padding
+
+    :return: The padded text or None if any of the input parameters are None
+    """
     if text is None or length is None or fill_text is None:
         return None
     delta = length - len(text)

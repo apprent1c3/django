@@ -87,6 +87,13 @@ class SessionBase:
         return (await self._aget_session()).pop(key, *args)
 
     def setdefault(self, key, value):
+        """
+        Sets a value for a given key if it does not already exist in the session.
+
+        :param key: The key to set a value for.
+        :param value: The value to set for the key if it does not exist.
+        :returns: The existing or newly set value for the key.
+        """
         if key in self._session:
             return self._session[key]
         else:
@@ -94,6 +101,9 @@ class SessionBase:
             return value
 
     async def asetdefault(self, key, value):
+        """
+        Sets a value for a given key in the session if the key does not exist, and returns the value associated with the key. If the key already exists, returns its current value.
+        """
         session = await self._aget_session()
         if key in session:
             return session[key]
@@ -129,6 +139,10 @@ class SessionBase:
         )
 
     def decode(self, session_data):
+        """
+        Decodes a given session data string using a signed load with the specified key salt and serializer. 
+        If the session data is corrupted or the signature is invalid, logs a warning and returns an empty dictionary.
+        """
         try:
             return signing.loads(
                 session_data, salt=self.key_salt, serializer=self.serializer
@@ -183,14 +197,18 @@ class SessionBase:
         self.modified = True
 
     def is_empty(self):
-        "Return True when there is no session_key and the session is empty."
+        """
+        Indicates whether the current session is empty, returning True if there is no session key and the session cache is empty, or if the session attributes have not been initialized.
+        """
         try:
             return not self._session_key and not self._session_cache
         except AttributeError:
             return True
 
     def _get_new_session_key(self):
-        "Return session key that isn't being used."
+        """
+        Returns a new, unique session key that is not currently in use.
+        """
         while True:
             session_key = get_random_string(32, VALID_KEY_CHARS)
             if not self.exists(session_key):
@@ -224,7 +242,7 @@ class SessionBase:
 
     def _set_session_key(self, value):
         """
-        Validate session key on assignment. Invalid values will set to None.
+        Sets the session key after validation, assigning None if the provided value is invalid.
         """
         if self._validate_session_key(value):
             self.__session_key = value
@@ -236,8 +254,11 @@ class SessionBase:
 
     def _get_session(self, no_load=False):
         """
-        Lazily load session from storage (unless "no_load" is True, when only
-        an empty dict is stored) and store it in the current instance.
+        Retrieves the session for the current instance, loading it from storage if necessary. 
+
+        The session is loaded lazily unless `no_load` is `True`, in which case an empty session is used. 
+
+        It sets the `accessed` attribute to `True` and stores the session in the instance's cache for future access.
         """
         self.accessed = True
         try:
@@ -250,6 +271,13 @@ class SessionBase:
         return self._session_cache
 
     async def _aget_session(self, no_load=False):
+        """
+        Retrieves the session cache, loading it asynchronously if necessary.
+
+            :param bool no_load: If True, the session will not be loaded from storage.
+            :return: The session cache
+            :rtype: dict
+        """
         self.accessed = True
         try:
             return self._session_cache
@@ -266,10 +294,12 @@ class SessionBase:
         return settings.SESSION_COOKIE_AGE
 
     def get_expiry_age(self, **kwargs):
-        """Get the number of seconds until the session expires.
+        """
+        Get the number of seconds until the session expires.
 
-        Optionally, this function accepts `modification` and `expiry` keyword
-        arguments specifying the modification and expiry of the session.
+        This function calculates the session expiry age based on the session's modification and expiry times. 
+        It accepts optional `modification` and `expiry` keyword arguments to override the default values. 
+        If no expiry time is provided, it uses the session cookie age instead.
         """
         try:
             modification = kwargs["modification"]
@@ -293,6 +323,15 @@ class SessionBase:
         return delta.days * 86400 + delta.seconds
 
     async def aget_expiry_age(self, **kwargs):
+        """
+        Returns the age of the session expiry in seconds, calculated as the difference between the expiry time and the modification time. 
+
+        The expiry time can be provided as a keyword argument, or it will default to the value stored under the '_session_expiry' key. 
+
+        The modification time can also be provided as a keyword argument, or it will default to the current time. 
+
+        If expiry is not a valid date or time, it will be returned as-is, or the default session cookie age will be returned if no expiry is set.
+        """
         try:
             modification = kwargs["modification"]
         except KeyError:
@@ -312,10 +351,9 @@ class SessionBase:
         return delta.days * 86400 + delta.seconds
 
     def get_expiry_date(self, **kwargs):
-        """Get session the expiry date (as a datetime object).
-
-        Optionally, this function accepts `modification` and `expiry` keyword
-        arguments specifying the modification and expiry of the session.
+        """
+        Return the session expiry date as a datetime object, calculated based on 
+        optional `modification` and `expiry` parameters, or default session settings.
         """
         try:
             modification = kwargs["modification"]
@@ -335,6 +373,14 @@ class SessionBase:
         return modification + timedelta(seconds=expiry)
 
     async def aget_expiry_date(self, **kwargs):
+        """
+
+        Calculate the expiry date of a session.
+
+        Returns a datetime object representing the expiry date, which is determined by 
+        either a provided expiry time, a stored session expiry value, or a default cookie age.
+
+        """
         try:
             modification = kwargs["modification"]
         except KeyError:
@@ -353,18 +399,8 @@ class SessionBase:
 
     def set_expiry(self, value):
         """
-        Set a custom expiration for the session. ``value`` can be an integer,
-        a Python ``datetime`` or ``timedelta`` object or ``None``.
-
-        If ``value`` is an integer, the session will expire after that many
-        seconds of inactivity. If set to ``0`` then the session will expire on
-        browser close.
-
-        If ``value`` is a ``datetime`` or ``timedelta`` object, the session
-        will expire at that specific future time.
-
-        If ``value`` is ``None``, the session uses the global session expiry
-        policy.
+        Set a custom expiration time for the session, overriding the global session expiry policy. 
+        The session can expire after a specified number of seconds of inactivity, at a specific future time, or use the global session expiry policy if no custom value is provided.
         """
         if value is None:
             # Remove any custom expiration for this session.
@@ -380,6 +416,9 @@ class SessionBase:
         self["_session_expiry"] = value
 
     async def aset_expiry(self, value):
+        """
+        Sets or clears the expiry time for a session. If a datetime or timedelta value is provided, it is converted to an ISO-formatted string representing the expiry time. If None is provided, the expiry time is cleared.
+        """
         if value is None:
             # Remove any custom expiration for this session.
             try:
@@ -425,7 +464,7 @@ class SessionBase:
 
     def cycle_key(self):
         """
-        Create a new session key, while retaining the current session data.
+        Create a new session key, while retaining the current session data, and remove the old key.
         """
         data = self._session
         key = self.session_key
@@ -436,7 +475,7 @@ class SessionBase:
 
     async def acycle_key(self):
         """
-        Create a new session key, while retaining the current session data.
+        Create a new session key, while retaining the current session data, and delete the previous key if it exists.
         """
         data = await self._aget_session()
         key = self.session_key

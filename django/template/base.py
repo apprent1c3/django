@@ -141,6 +141,17 @@ class Template:
         # exactly one Django template engine is configured, use that engine.
         # This is required to preserve backwards-compatibility for direct use
         # e.g. Template('...').render(Context({...}))
+        """
+        Initializes a template object, setting its source string, origin, name, and compilation engine, 
+        and compiling the template into a node list for rendering.\"\"\"
+
+        \"\"\" 
+        :param template_string: The source string of the template
+        :param origin: The origin of the template, defaults to an unknown source
+        :param name: The name of the template, defaults to None
+        :param engine: The compilation engine to use, defaults to the default engine
+
+        """
         if engine is None:
             from .engine import Engine
 
@@ -163,7 +174,9 @@ class Template:
         return self.nodelist.render(context)
 
     def render(self, context):
-        "Display stage -- can be called many times"
+        """
+        Renders the current object within the given context, handling template setup and rendering state as needed.
+        """
         with context.render_context.push_state(self):
             if context.template is None:
                 with context.bind_template(self):
@@ -174,10 +187,7 @@ class Template:
 
     def compile_nodelist(self):
         """
-        Parse and compile the template source into a nodelist. If debug
-        is True and an exception occurs during parsing, the exception is
-        annotated with contextual line information where it occurred in the
-        template source.
+        Compile the template source into a nodelist, parsing the template and collecting nodes in the process, with optional debug mode that provides contextual line information for exceptions.
         """
         if self.engine.debug:
             lexer = DebugLexer(self.source)
@@ -203,40 +213,7 @@ class Template:
 
     def get_exception_info(self, exception, token):
         """
-        Return a dictionary containing contextual line information of where
-        the exception occurred in the template. The following information is
-        provided:
-
-        message
-            The message of the exception raised.
-
-        source_lines
-            The lines before, after, and including the line the exception
-            occurred on.
-
-        line
-            The line number the exception occurred on.
-
-        before, during, after
-            The line the exception occurred on split into three parts:
-            1. The content before the token that raised the error.
-            2. The token that raised the error.
-            3. The content after the token that raised the error.
-
-        total
-            The number of lines in source_lines.
-
-        top
-            The line number where source_lines starts.
-
-        bottom
-            The line number where source_lines ends.
-
-        start
-            The start position of the token in the template source.
-
-        end
-            The end position of the token in the template source.
+        Return a dictionary containing contextual line information of where an exception occurred in a template, including the exception message, surrounding lines, and line numbers.
         """
         start, end = token.position
         context_lines = 10
@@ -281,6 +258,13 @@ class Template:
 
 
 def linebreak_iter(template_source):
+    """
+    Iterates over the positions of line breaks in a given template source string.
+
+    Yields the positions of the start of each line, including the first line (position 0) and a final position after the last line break.
+
+    Useful for parsing or processing template sources line by line.
+    """
     yield 0
     p = template_source.find("\n")
     while p >= 0:
@@ -292,22 +276,12 @@ def linebreak_iter(template_source):
 class Token:
     def __init__(self, token_type, contents, position=None, lineno=None):
         """
-        A token representing a string from the template.
+        Initializes a token representing a string from a template.
 
-        token_type
-            A TokenType, either .TEXT, .VAR, .BLOCK, or .COMMENT.
-
-        contents
-            The token source string.
-
-        position
-            An optional tuple containing the start and end index of the token
-            in the template source. This is used for traceback information
-            when debug is on.
-
-        lineno
-            The line number the token appears on in the template source.
-            This is used for traceback information and gettext files.
+        :param token_type: The type of token, such as text, variable, block, or comment.
+        :param contents: The source string of the token.
+        :param position: Optional start and end index of the token in the template source.
+        :param lineno: The line number of the token in the template source.
         """
         self.token_type = token_type
         self.contents = contents
@@ -322,6 +296,9 @@ class Token:
         )
 
     def split_contents(self):
+        """
+        Split the contents into individual bits, handling translated strings as a single unit.
+        """
         split = []
         bits = smart_split(self.contents)
         for bit in bits:
@@ -351,7 +328,7 @@ class Lexer:
 
     def tokenize(self):
         """
-        Return a list of tokens from a given template_string.
+        Divides a template string into a list of individual tokens, parsing and splitting at tag boundaries to enable further processing or analysis of the template's structure.
         """
         in_tag = False
         lineno = 1
@@ -365,9 +342,7 @@ class Lexer:
 
     def create_token(self, token_string, position, lineno, in_tag):
         """
-        Convert the given token string into a new Token object and return it.
-        If in_tag is True, we are processing something that matched a tag,
-        otherwise it should be treated as a literal string.
+        Converts a given token string into a new Token object, determining its type based on the string's content and context, such as whether it matches a tag or should be treated as a literal string.
         """
         if in_tag:
             # The [0:2] and [2:-2] ranges below strip off *_TAG_START and
@@ -400,6 +375,9 @@ class Lexer:
 
 class DebugLexer(Lexer):
     def _tag_re_split_positions(self):
+        """
+        Splits the template string into positions based on tags, yielding tuples of start and end indices of text segments and tags.
+        """
         last = 0
         for match in tag_re.finditer(self.template_string):
             start, end = match.span()
@@ -415,9 +393,10 @@ class DebugLexer(Lexer):
 
     def tokenize(self):
         """
-        Split a template string into tokens and annotates each token with its
-        start and end position in the source. This is slower than the default
-        lexer so only use it when debug is True.
+
+            Splits a template string into tokens, annotating each with its position in the source.
+            Intended for use in debug mode due to performance implications.
+
         """
         # For maintainability, it is helpful if the implementation below can
         # continue to closely parallel Lexer.tokenize()'s implementation.
@@ -436,6 +415,11 @@ class Parser:
     def __init__(self, tokens, libraries=None, builtins=None, origin=None):
         # Reverse the tokens so delete_first_token(), prepend_token(), and
         # next_token() can operate at the end of the list in constant time.
+        """
+        .. init:: __init__(tokens, libraries=None, builtins=None, origin=None)
+            Initializes the object with the given tokens and optional libraries, builtins, and origin.
+            This method sets up the internal state of the object for further processing.
+        """
         self.tokens = list(reversed(tokens))
         self.tags = {}
         self.filters = {}
@@ -462,12 +446,12 @@ class Parser:
 
     def parse(self, parse_until=None):
         """
-        Iterate through the parser tokens and compiles each one into a node.
+        Compiles parser tokens into nodes, optionally stopping at specified tokens.
 
-        If parse_until is provided, parsing will stop once one of the
-        specified tokens has been reached. This is formatted as a list of
-        tokens, e.g. ['elif', 'else', 'endif']. If no matching token is
-        reached, raise an exception with the unclosed block tag details.
+        The function iterates through tokens, processing text, variable, and block tags, 
+        and returns a NodeList containing the compiled nodes. If `parse_until` tokens are 
+        provided, parsing stops when one of these tokens is encountered, ensuring proper 
+        block tag closure.
         """
         if parse_until is None:
             parse_until = []
@@ -524,6 +508,9 @@ class Parser:
         return nodelist
 
     def skip_past(self, endtag):
+        """
+        Exiting the current block by skipping over subsequent tokens until a matching end tag is encountered, raising an exception if the end tag is not found before the end of the token stream.
+        """
         while self.tokens:
             token = self.next_token()
             if token.token_type == TokenType.BLOCK and token.contents == endtag:
@@ -532,6 +519,9 @@ class Parser:
 
     def extend_nodelist(self, nodelist, node, token):
         # Check that non-text nodes don't appear before an extends tag.
+        """
+        Adds a node to a list of nodes in a template, enforcing template syntax rules such as node ordering and tracking non-text content.
+        """
         if node.must_be_first and nodelist.contains_nontext:
             raise self.error(
                 token,
@@ -547,10 +537,7 @@ class Parser:
 
     def error(self, token, e):
         """
-        Return an exception annotated with the originating token. Since the
-        parser can be called recursively, check if a token is already set. This
-        ensures the innermost token is highlighted if an exception occurs,
-        e.g. a compile error within the body of an if statement.
+        Returns an exception associated with the given token, ensuring the innermost token is highlighted in case of recursive parser calls, typically for compile errors within nested structures.
         """
         if not isinstance(e, Exception):
             e = TemplateSyntaxError(e)
@@ -667,6 +654,10 @@ class FilterExpression:
     __slots__ = ("token", "filters", "var", "is_var")
 
     def __init__(self, token, parser):
+        """
+        Initialize a template parser component, breaking down a given token into a variable and a series of filters to be applied.
+        The token is parsed to extract the underlying variable, and any subsequent filters and their arguments, which are then validated and stored for later use.
+        """
         self.token = token
         matches = filter_re.finditer(token)
         var_obj = None
@@ -713,6 +704,10 @@ class FilterExpression:
         self.is_var = isinstance(var_obj, Variable)
 
     def resolve(self, context, ignore_failures=False):
+        """
+        Resolves the value of a variable or expression within a given context, 
+        applying filters and handling exceptions as specified by the ignore_failures flag.
+        """
         if self.is_var:
             try:
                 obj = self.var.resolve(context)
@@ -750,6 +745,9 @@ class FilterExpression:
         return obj
 
     def args_check(name, func, provided):
+        """
+        Checks if the provided number of arguments matches the requirements of a given function, raising an error if there is a mismatch.
+        """
         provided = list(provided)
         # First argument, filter input, is implied.
         plen = len(provided) + 1
@@ -798,6 +796,9 @@ class Variable:
     __slots__ = ("var", "literal", "lookups", "translate", "message_context")
 
     def __init__(self, var):
+        """
+        Initializes a variable object with a given string, performing type checking and parsing to extract its literal value, translation flags, or lookup attributes.
+        """
         self.var = var
         self.literal = None
         self.lookups = None
@@ -844,7 +845,9 @@ class Variable:
                 self.lookups = tuple(var.split(VARIABLE_ATTRIBUTE_SEPARATOR))
 
     def resolve(self, context):
-        """Resolve this variable against a given context."""
+        """
+        Resolve a variable's value against a given context, performing lookups and translations as necessary.
+        """
         if self.lookups is not None:
             # We're dealing with a variable that needs to be resolved
             value = self._resolve_lookup(context)
@@ -869,12 +872,7 @@ class Variable:
 
     def _resolve_lookup(self, context):
         """
-        Perform resolution of a real variable (i.e. not a literal) against the
-        given context.
-
-        As indicated by the method's name, this method is an implementation
-        detail and shouldn't be called by external code. Use Variable.resolve()
-        instead.
+        Resolve a variable against a given context, navigating through attributes, dictionary keys, or list indices, and handling callable values by executing them if possible, while catching and logging any exceptions that may occur.
         """
         current = context
         try:  # catch-all for silent variable failures
@@ -960,10 +958,7 @@ class Node:
 
     def render_annotated(self, context):
         """
-        Render the node. If debug is True and an exception occurs during
-        rendering, the exception is annotated with contextual line information
-        where it occurred in the template. For internal usage this method is
-        preferred over using the render method directly.
+        Renders the node with annotation for debugging purposes, providing contextual line information when an exception occurs during rendering. This method is preferred for internal usage over direct rendering, as it offers enhanced error handling and debugging capabilities.
         """
         try:
             return self.render(context)
@@ -986,8 +981,7 @@ class Node:
 
     def get_nodes_by_type(self, nodetype):
         """
-        Return a list of all nodes (within this node and its nodelist)
-        of the given type
+        Return a list of all nodes within this node and its children that match the specified type.
         """
         nodes = []
         if isinstance(self, nodetype):
@@ -1008,7 +1002,9 @@ class NodeList(list):
         return SafeString("".join([node.render_annotated(context) for node in self]))
 
     def get_nodes_by_type(self, nodetype):
-        "Return a list of all nodes of the given type"
+        """
+        Return a list of all nodes of the given type recursively found within this object, allowing for easy filtering of specific node types in a hierarchical structure.
+        """
         nodes = []
         for node in self:
             nodes.extend(node.get_nodes_by_type(nodetype))
@@ -1039,9 +1035,7 @@ class TextNode(Node):
 
 def render_value_in_context(value, context):
     """
-    Convert any value to a string to become part of a rendered template. This
-    means escaping, if required, and conversion to a string. If value is a
-    string, it's expected to already be translated.
+    Renders a value within a template context, ensuring proper escaping, localization, and conversion to a string, preparing it for template rendering.
     """
     value = template_localtime(value, use_tz=context.use_tz)
     value = localize(value, use_l10n=context.use_l10n)
@@ -1063,6 +1057,9 @@ class VariableNode(Node):
         return "<Variable Node: %s>" % self.filter_expression
 
     def render(self, context):
+        """
+        Renders the filtered expression in the given context, handling potential Unicode decode errors.
+        """
         try:
             output = self.filter_expression.resolve(context)
         except UnicodeDecodeError:
@@ -1079,19 +1076,7 @@ kwarg_re = _lazy_re_compile(r"(?:(\w+)=)?(.+)")
 
 def token_kwargs(bits, parser, support_legacy=False):
     """
-    Parse token keyword arguments and return a dictionary of the arguments
-    retrieved from the ``bits`` token list.
-
-    `bits` is a list containing the remainder of the token (split by spaces)
-    that is to be checked for arguments. Valid arguments are removed from this
-    list.
-
-    `support_legacy` - if True, the legacy format ``1 as foo`` is accepted.
-    Otherwise, only the standard ``foo=1`` format is allowed.
-
-    There is no requirement for all remaining token ``bits`` to be keyword
-    arguments, so return the dictionary as soon as an invalid argument format
-    is reached.
+    Parse token keyword arguments from a list of tokens and return them as a dictionary. Supports both standard ``foo=1`` and legacy ``1 as foo`` formats, depending on the `support_legacy` flag. Returns the dictionary as soon as an invalid argument format is encountered, allowing for a mix of keyword and non-keyword arguments in the input list.
     """
     if not bits:
         return {}

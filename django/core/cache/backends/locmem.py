@@ -23,6 +23,18 @@ class LocMemCache(BaseCache):
         self._lock = _locks.setdefault(name, Lock())
 
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Add or update a value in the cache.
+
+        Adds a new key-value pair to the cache if the key does not exist or has expired.
+        If the key exists and has not expired, the function returns False without updating
+        the value.
+
+        :param key: The key to associate with the value
+        :param value: The value to store
+        :param timeout: The duration after which the value expires, defaults to DEFAULT_TIMEOUT
+        -param version: Optional version to use for key validation
+        """
         key = self.make_and_validate_key(key, version=version)
         pickled = pickle.dumps(value, self.pickle_protocol)
         with self._lock:
@@ -32,6 +44,12 @@ class LocMemCache(BaseCache):
             return False
 
     def get(self, key, default=None, version=None):
+        """
+        Retrieves the cached value associated with the given key.
+
+        If the key does not exist, or its associated value has expired, returns the provided default value.
+        Optionally, a specific version of the key can be specified to retrieve a versioned cache entry.
+        """
         key = self.make_and_validate_key(key, version=version)
         with self._lock:
             if self._has_expired(key):
@@ -42,6 +60,9 @@ class LocMemCache(BaseCache):
         return pickle.loads(pickled)
 
     def _set(self, key, value, timeout=DEFAULT_TIMEOUT):
+        """
+        Sets a value in the cache with the given key and optional timeout, removing the least recently used item if the cache is full.
+        """
         if len(self._cache) >= self._max_entries:
             self._cull()
         self._cache[key] = value
@@ -55,6 +76,14 @@ class LocMemCache(BaseCache):
             self._set(key, pickled, timeout)
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Update the expiration time of a key in the cache.
+
+        :param key: The key to update
+        :param timeout: The new expiration timeout, defaults to DEFAULT_TIMEOUT
+        :param version: Optional version of the key
+        :return: True if the key was updated, False if it has expired
+        """
         key = self.make_and_validate_key(key, version=version)
         with self._lock:
             if self._has_expired(key):
@@ -63,6 +92,13 @@ class LocMemCache(BaseCache):
             return True
 
     def incr(self, key, delta=1, version=None):
+        """
+        Increment the value associated with the given key in the cache.
+
+        Increments the value by a specified delta (defaulting to 1) and updates the cache.
+        If the key is expired or does not exist, raises a ValueError.
+        Returns the new value associated with the key.
+        """
         key = self.make_and_validate_key(key, version=version)
         with self._lock:
             if self._has_expired(key):
@@ -77,6 +113,16 @@ class LocMemCache(BaseCache):
         return new_value
 
     def has_key(self, key, version=None):
+        """
+        Checks if a given key exists in the cache.
+
+        Args:
+            key (str): The key to be checked.
+            version (str, optional): The version of the key, defaults to None.
+
+        Returns:
+            bool: True if the key exists and has not expired, False otherwise.
+        """
         key = self.make_and_validate_key(key, version=version)
         with self._lock:
             if self._has_expired(key):
@@ -89,6 +135,10 @@ class LocMemCache(BaseCache):
         return exp is not None and exp <= time.time()
 
     def _cull(self):
+        """
+        Reduces the size of the cache by removing items at a specified frequency. 
+        When frequency is set to 0, it clears the cache entirely.
+        """
         if self._cull_frequency == 0:
             self._cache.clear()
             self._expire_info.clear()
@@ -99,6 +149,9 @@ class LocMemCache(BaseCache):
                 del self._expire_info[key]
 
     def _delete(self, key):
+        """
+        Deletes an item from the cache by key and its associated expiration information. Returns True if the key was found and deleted, False otherwise.
+        """
         try:
             del self._cache[key]
             del self._expire_info[key]

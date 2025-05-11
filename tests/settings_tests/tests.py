@@ -163,6 +163,9 @@ class SettingsTests(SimpleTestCase):
             self.testvalue = value
 
     def test_override(self):
+        """
+        Tests the overriding of settings, verifying that changes are properly applied and reverted after use.
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         with self.settings(TEST="override"):
@@ -171,6 +174,13 @@ class SettingsTests(SimpleTestCase):
         del settings.TEST
 
     def test_override_change(self):
+        """
+
+        Tests the override and change functionality of settings.
+
+        Verifies that a setting can be overridden, changed, and then reset to its original value.
+
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         with self.settings(TEST="override"):
@@ -180,6 +190,13 @@ class SettingsTests(SimpleTestCase):
         del settings.TEST
 
     def test_override_doesnt_leak(self):
+        """
+
+        Verifies that overriding a setting does not persist beyond its intended scope.
+
+        Tests that a setting override is properly cleaned up after use and does not leak into other contexts.
+
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -193,6 +210,14 @@ class SettingsTests(SimpleTestCase):
         self.assertEqual("override", settings.TEST)
 
     def test_context_manager(self):
+        """
+
+        Tests the behavior of the context manager for overriding settings.
+
+        Checks that an attribute error is raised when trying to access a non-existent setting,
+        and that the override settings can be correctly enabled and disabled.
+
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         override = override_settings(TEST="override")
@@ -206,6 +231,11 @@ class SettingsTests(SimpleTestCase):
 
     def test_class_decorator(self):
         # SimpleTestCase can be decorated by override_settings, but not ut.TestCase
+        """
+        Tests that the override_settings decorator correctly overrides settings for a Django test case class.
+
+        Verifies that the decorator returns a subclass of SimpleTestCase and raises an exception if applied to a class that is not a SimpleTestCase subclass.
+        """
         class SimpleTestCaseSubclass(SimpleTestCase):
             pass
 
@@ -222,6 +252,9 @@ class SettingsTests(SimpleTestCase):
             decorated = override_settings(TEST="override")(UnittestTestCaseSubclass)
 
     def test_signal_callback_context_manager(self):
+        """
+        Tests the signal callback context manager by verifying attribute access and setting of custom test settings.
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -237,6 +270,9 @@ class SettingsTests(SimpleTestCase):
     #
 
     def test_settings_delete(self):
+        """
+        Verifies the deletion of settings works correctly by setting a test setting, checking its existence and then deleting it, ensuring an AttributeError is raised when trying to access the deleted setting.
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         del settings.TEST
@@ -250,7 +286,7 @@ class SettingsTests(SimpleTestCase):
 
     def test_override_settings_delete(self):
         """
-        Allow deletion of a setting in an overridden settings set (#18824)
+        Tests that deleting a setting in an overridden settings set reverts to the original setting value after the override is removed, ensuring that the setting is no longer accessible until the original value is restored.
         """
         previous_i18n = settings.USE_I18N
         previous_tz = settings.USE_TZ
@@ -269,8 +305,10 @@ class SettingsTests(SimpleTestCase):
 
     def test_override_settings_nested(self):
         """
-        override_settings uses the actual _wrapped attribute at
-        runtime, not when it was instantiated.
+        Tests the override_settings function with nested usage.
+
+        Verifies that override_settings uses the actual wrapped attribute at runtime,
+        allowing for correct overriding of settings in a nested manner.
         """
 
         with self.assertRaises(AttributeError):
@@ -302,6 +340,9 @@ class SettingsTests(SimpleTestCase):
             settings.SECRET_KEY
 
     def test_no_settings_module(self):
+        """
+        Test that Django settings are properly configured before accessing them, ensuring that an ImproperlyConfigured exception is raised when the settings module is not defined through either the environment variable DJANGO_SETTINGS_MODULE or by calling settings.configure().
+        """
         msg = (
             "Requested setting%s, but settings are not configured. You "
             "must either define the environment variable DJANGO_SETTINGS_MODULE "
@@ -349,7 +390,10 @@ class TestComplexSettingOverride(SimpleTestCase):
         self.assertNotIn("TEST_WARN", signals.COMPLEX_OVERRIDE_SETTINGS)
 
     def test_complex_override_warning(self):
-        """Regression test for #19031"""
+        """
+        Verifies that a warning is raised when the TEST_WARN setting is overridden, 
+        to prevent unexpected behavior due to setting changes.
+        """
         msg = "Overriding setting TEST_WARN can lead to unexpected behavior."
         with self.assertWarnsMessage(UserWarning, msg) as cm:
             with override_settings(TEST_WARN="override"):
@@ -382,6 +426,9 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_leftmost_right(self):
+        """
+        Tests that the HttpRequest.is_secure() method correctly identifies a secure request when the 'X-Forwarded-Proto' header has 'https' as the leftmost value, even if it is followed by other values or separated by whitespace.
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "https, http"
         self.assertIs(req.is_secure(), True)
@@ -402,6 +449,10 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_xheader_preferred_to_underlying_request(self):
+        """
+        ネル
+        Tests that the 'X-Forwarded-Proto' header takes precedence over the underlying request's scheme when determining the security of a proxy request.
+        """
         class ProxyRequest(HttpRequest):
             def _get_scheme(self):
                 """Proxy always connecting via HTTPS"""
@@ -421,6 +472,9 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertTrue(s.is_overridden("SECRET_KEY"))
 
     def test_module(self):
+        """
+        Tests the Settings class functionality, specifically its ability to detect overridden settings.
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         settings_module.USE_TZ = False
@@ -444,6 +498,9 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertEqual(repr(lazy_settings), expected)
 
     def test_evaluated_lazysettings_repr(self):
+        """
+        Checks the representation of LazySettings after accessing one of its attributes, ensuring it reflects the environment module loaded from the environment variable.
+        """
         lazy_settings = LazySettings()
         module = os.environ.get(ENVIRONMENT_VARIABLE)
         expected = '<LazySettings "%s">' % module
@@ -479,6 +536,12 @@ class TestListSettings(SimpleTestCase):
     )
 
     def test_tuple_settings(self):
+        """
+        Verifies that settings defined as lists or tuples are correctly validated.
+
+        Ensures that an error is raised when a setting is expected to be a list or a tuple but is assigned an incorrect type.
+
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         msg = "The %s setting must be a list or a tuple."
@@ -510,6 +573,12 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
     """
 
     def setUp(self):
+        """
+        Setup method to configure signal connections for testing.
+
+         Connects the receiver and a spy receiver to the setting_changed signal, 
+         and ensures they are disconnected after the test is completed.
+        """
         signals.setting_changed.connect(self.receiver)
         self.addCleanup(signals.setting_changed.disconnect, self.receiver)
         # Create a spy that's connected to the `setting_changed` signal and
@@ -520,11 +589,15 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
 
     def receiver(self, **kwargs):
         """
-        A receiver that fails while certain settings are being changed.
-        - SETTING_BOTH raises an error while receiving the signal
-          on both entering and exiting the context manager.
-        - SETTING_ENTER raises an error only on enter.
-        - SETTING_EXIT raises an error only on exit.
+        Handle signal reception with specific error conditions based on settings and context manager state.
+
+        Raises SettingChangeEnterException when specified settings are applied during context manager entry.
+        Raises SettingChangeExitException when specified settings are applied during context manager exit.
+
+        Settings determining behavior include:
+            - SETTING_BOTH: error on both enter and exit
+            - SETTING_ENTER: error only on enter
+            - SETTING_EXIT: error only on exit
         """
         setting = kwargs["setting"]
         enter = kwargs["enter"]
@@ -534,7 +607,9 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
             raise SettingChangeExitException
 
     def check_settings(self):
-        """Assert that settings for these tests aren't present."""
+        """
+        Verifies that specific test settings are not present in the configuration.
+        """
         self.assertFalse(hasattr(settings, "SETTING_BOTH"))
         self.assertFalse(hasattr(settings, "SETTING_ENTER"))
         self.assertFalse(hasattr(settings, "SETTING_EXIT"))
@@ -553,7 +628,9 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
         self.assertEqual(len(kwargs_with_exit), call_count)
 
     def test_override_settings_both(self):
-        """Receiver fails on both enter and exit."""
+        """
+        Tests that the override settings fail on both enter and exit, verifying the receiver's behavior when settings are changed.
+        """
         with self.assertRaises(SettingChangeEnterException):
             with override_settings(SETTING_PASS="BOTH", SETTING_BOTH="BOTH"):
                 pass
@@ -563,7 +640,9 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
         self.check_spy_receiver_exit_calls(call_count=2)
 
     def test_override_settings_enter(self):
-        """Receiver fails on enter only."""
+        """
+        Tests that overriding settings causes the receiver to fail when entering with a specific setting, then verifies the settings and receiver exit calls.
+        """
         with self.assertRaises(SettingChangeEnterException):
             with override_settings(SETTING_PASS="ENTER", SETTING_ENTER="ENTER"):
                 pass
@@ -573,7 +652,9 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
         self.check_spy_receiver_exit_calls(call_count=2)
 
     def test_override_settings_exit(self):
-        """Receiver fails on exit only."""
+        """
+        Tests that the override_settings context manager correctly raises a SettingChangeExitException when the SETTING_EXIT setting is set to 'EXIT', and that the receiver exit calls are made as expected.
+        """
         with self.assertRaises(SettingChangeExitException):
             with override_settings(SETTING_PASS="EXIT", SETTING_EXIT="EXIT"):
                 pass
@@ -584,8 +665,7 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
 
     def test_override_settings_reusable_on_enter(self):
         """
-        Error is raised correctly when reusing the same override_settings
-        instance.
+        Tests that attempting to reuse an override_settings instance raises an error when entering a context where settings are overridden, ensuring proper cleanup of signal connections.
         """
 
         @override_settings(SETTING_ENTER="ENTER")
@@ -607,6 +687,13 @@ class MediaURLStaticURLPrefixTest(SimpleTestCase):
 
     def test_not_prefixed(self):
         # Don't add SCRIPT_NAME prefix to absolute paths, URLs, or None.
+        """
+
+        Verifies that certain URL settings are not prefixed with a script path.
+
+        This test checks that the MEDIA_URL and STATIC_URL settings are not modified by the script prefix in various scenarios.
+
+        """
         tests = (
             "/path/",
             "http://myhost.com/path/",
@@ -627,6 +714,15 @@ class MediaURLStaticURLPrefixTest(SimpleTestCase):
                                 clear_script_prefix()
 
     def test_add_script_name_prefix(self):
+        """
+        Tests that the script name prefix is correctly added to media and static URLs.\"\"\"
+
+        \"\"\" 
+            This test case verifies the correct construction of 'MEDIA_URL' and 'STATIC_URL' 
+            when a script name prefix is set. It covers various scenarios including different 
+            script name and path combinations.
+
+        """
         tests = (
             # Relative paths.
             ("/somesubpath", "path/", "/somesubpath/path/"),

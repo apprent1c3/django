@@ -17,6 +17,12 @@ class LocaleMiddleware(MiddlewareMixin):
     response_redirect_class = HttpResponseRedirect
 
     def process_request(self, request):
+        """
+        Determines the language to use for a given request and activates it for translation.
+        This involves checking for language prefix patterns in the URL configuration, 
+        getting the language from the request or its path, and defaulting to the site's 
+        primary language if necessary. The determined language is then set on the request.
+        """
         urlconf = getattr(request, "urlconf", settings.ROOT_URLCONF)
         (
             i18n_patterns_used,
@@ -36,6 +42,12 @@ class LocaleMiddleware(MiddlewareMixin):
         request.LANGUAGE_CODE = translation.get_language()
 
     def process_response(self, request, response):
+        """
+        Handles the processing of a response, specifically for internationalization (i18n) purposes.
+
+        Performs language-based redirects for 404 errors, patches vary headers, and sets the Content-Language header.
+        Returns the processed response or a redirect if necessary.
+        """
         language = translation.get_language()
         language_from_path = translation.get_language_from_path(request.path_info)
         urlconf = getattr(request, "urlconf", settings.ROOT_URLCONF)

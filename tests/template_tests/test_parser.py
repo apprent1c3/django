@@ -30,6 +30,9 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+        Tests the string representation of various objects, including Tokens, Parsers, FilterExpressions, and Lexers, to ensure they provide a concise and informative representation of their state.
+        """
         token = Token(TokenType.BLOCK, "some text")
         self.assertEqual(repr(token), '<Block token: "some text...">')
         parser = Parser([token], builtins=[filter_library])
@@ -46,6 +49,9 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_filter_parsing(self):
+        """
+        Tests the parsing functionality of filter expressions, ensuring correct resolution of variables, attributes, and filter functions, as well as proper error handling for invalid syntax.
+        """
         c = {"article": {"section": "News"}}
         p = Parser("", builtins=[filter_library])
 
@@ -73,6 +79,9 @@ class ParserTests(SimpleTestCase):
             FilterExpression("article._hidden|upper", p)
 
     def test_variable_parsing(self):
+        """
+        Tests the Variable class's parsing functionality, ensuring it correctly resolves variables with nested attributes, string literals, and translations, while also validating that variable names do not start with underscores and are of the correct data type.
+        """
         c = {"article": {"section": "News"}}
         self.assertEqual(Variable("article.section").resolve(c), "News")
         self.assertEqual(Variable('"News"').resolve(c), "News")
@@ -105,6 +114,9 @@ class ParserTests(SimpleTestCase):
             Variable({})
 
     def test_filter_args_count(self):
+        """
+        Tests that FilterExpression correctly raises a TemplateSyntaxError when an invalid number of arguments are provided for a filter
+        """
         parser = Parser("")
         register = Library()
 

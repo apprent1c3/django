@@ -30,11 +30,7 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def bulk_batch_size(self, fields, objs):
         """
-        SQLite has a compile-time default (SQLITE_LIMIT_VARIABLE_NUMBER) of
-        999 variables per query.
-
-        If there's only a single field to insert, the limit is 500
-        (SQLITE_MAX_COMPOUND_SELECT).
+        Determines the optimal batch size for bulk operations to avoid hitting SQLite's variable limits. Returns the maximum number of objects that can be inserted in a single query, taking into account the number of fields andobjs to be inserted, and the database connection's capabilities.
         """
         if len(fields) == 1:
             return 500
@@ -44,6 +40,16 @@ class DatabaseOperations(BaseDatabaseOperations):
             return len(objs)
 
     def check_expression_support(self, expression):
+        """
+        Verify that a given database expression is supported by the SQLite backend.
+
+        Checks for unsupported combinations of aggregate functions and field types,
+        as well as invalid usage of DISTINCT with multi-argument aggregate functions.
+
+        Raises:
+            NotSupportedError: If the expression is not supported by SQLite.
+
+        """
         bad_fields = (models.DateField, models.DateTimeField, models.TimeField)
         bad_aggregates = (models.Sum, models.Avg, models.Variance, models.StdDev)
         if isinstance(expression, bad_aggregates):
@@ -143,7 +149,11 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def _quote_params_for_last_executed_query(self, params):
         """
-        Only for last_executed_query! Don't use this to execute SQL queries!
+
+        Quotes parameters for the last executed SQL query, ensuring proper SQL syntax and protection against SQL injection attacks.
+
+        This function is intended for internal use only and should not be used to execute arbitrary SQL queries.
+
         """
         # This function is limited both by SQLITE_LIMIT_VARIABLE_NUMBER (the
         # number of parameters, default = 999) and SQLITE_MAX_COLUMN (the
@@ -173,6 +183,12 @@ class DatabaseOperations(BaseDatabaseOperations):
         # bind_parameters(state, self->statement, parameters);
         # Unfortunately there is no way to reach self->statement from Python,
         # so we quote and substitute parameters manually.
+        """
+        :param cursor: The database cursor
+        :param sql: The SQL query string
+        :param params: Query parameters, can be a list, tuple or dictionary
+        :returns: The SQL query string with parameters replaced, formatted for logging the last executed query.
+        """
         if params:
             if isinstance(params, (list, tuple)):
                 params = self._quote_params_for_last_executed_query(params)
@@ -195,6 +211,13 @@ class DatabaseOperations(BaseDatabaseOperations):
         return -1
 
     def __references_graph(self, table_name):
+        """
+        Return a list of table names that are referenced by the given table name.
+
+        This function uses a recursive SQL query to traverse the table references in the SQLite database.
+        It returns all table names that have a foreign key reference to the specified table.
+
+        """
         query = """
         WITH tables AS (
             SELECT %s name
@@ -220,6 +243,15 @@ class DatabaseOperations(BaseDatabaseOperations):
         return lru_cache(maxsize=512)(self.__references_graph)
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        Flushes data from specified database tables by generating SQL DELETE statements.
+
+        :param style: SQL style object
+        :param tables: List of tables to flush
+        :param reset_sequences: If True, reset sequences after flushing, defaults to False
+        :param allow_cascade: If True, recursively includes referenced tables, defaults to False
+        :return: List of SQL statements to execute the flush operation
+        """
         if tables and allow_cascade:
             # Simulate TRUNCATE CASCADE by recursively collecting the tables
             # referencing the tables to be flushed.
@@ -260,6 +292,11 @@ class DatabaseOperations(BaseDatabaseOperations):
         ]
 
     def adapt_datetimefield_value(self, value):
+        """
+        Adapts a datetime field value for use with the database backend.
+
+        If the input value is timezone-aware, it is converted to naive time if the project is set to use time zones; otherwise, a ValueError is raised for SQLite backend compatibility. The adapted value is then returned as a string.
+        """
         if value is None:
             return None
 
@@ -276,6 +313,11 @@ class DatabaseOperations(BaseDatabaseOperations):
         return str(value)
 
     def adapt_timefield_value(self, value):
+        """
+        Adapts a time field value for use with the SQLite backend.
+
+        Converts a time value to a string, raising an error if the value is timezone-aware, as SQLite does not support this. If the value is None, returns None.
+        """
         if value is None:
             return None
 
@@ -286,6 +328,12 @@ class DatabaseOperations(BaseDatabaseOperations):
         return str(value)
 
     def get_db_converters(self, expression):
+        """
+        Returns a list of database converters for the given expression, 
+        extending the converters from the parent class to handle special 
+        field types such as DateTimeField, DateField, TimeField, 
+        DecimalField, UUIDField, and BooleanField.
+        """
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
         if internal_type == "DateTimeField":
@@ -303,6 +351,11 @@ class DatabaseOperations(BaseDatabaseOperations):
         return converters
 
     def convert_datetimefield_value(self, value, expression, connection):
+        """
+        Converts a datetime field value to a timezone-aware datetime instance.
+
+        Prepares a datetime field value for database interaction by parsing it to a datetime object if necessary and applying timezone awareness if required by the project settings.
+        """
         if value is not None:
             if not isinstance(value, datetime.datetime):
                 value = parse_datetime(value)
@@ -325,6 +378,10 @@ class DatabaseOperations(BaseDatabaseOperations):
     def get_decimalfield_converter(self, expression):
         # SQLite stores only 15 significant digits. Digits coming from
         # float inaccuracy must be removed.
+        """
+        Returns a converter function that converts float values to Decimal, 
+        providing decimal places rounding if the expression is a Column with specified decimal places.
+        """
         create_decimal = decimal.Context(prec=15).create_decimal_from_float
         if isinstance(expression, Col):
             quantize_value = decimal.Decimal(1).scaleb(
@@ -356,6 +413,12 @@ class DatabaseOperations(BaseDatabaseOperations):
     def combine_expression(self, connector, sub_expressions):
         # SQLite doesn't have a ^ operator, so use the user-defined POWER
         # function that's registered in connect().
+        """
+        Combines multiple sub-expressions into a single expression using a specified connector.
+
+        Supports special handling for '^' (power) and '#' (bitwise XOR) connectors, 
+        otherwise delegates to the parent class implementation.
+        """
         if connector == "^":
             return "POWER(%s)" % ",".join(sub_expressions)
         elif connector == "#":
@@ -363,6 +426,15 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().combine_expression(connector, sub_expressions)
 
     def combine_duration_expression(self, connector, sub_expressions):
+        """
+        Combine multiple duration expressions into a single expression using a specified connector.
+
+        The connector must be one of '+', '-', '*', '/' and the number of sub-expressions is limited to 2. 
+
+        :raises DatabaseError: If an invalid connector is used
+        :raises ValueError: If too many parameters are provided
+        :return: A formatted string representing the combined duration expression.
+        """
         if connector not in ["+", "-", "*", "/"]:
             raise DatabaseError("Invalid connector for timedelta: %s." % connector)
         fn_params = ["'%s'" % connector] + sub_expressions
@@ -382,6 +454,14 @@ class DatabaseOperations(BaseDatabaseOperations):
         return (-9223372036854775808, 9223372036854775807)
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        Subtract two temporal values and return the resulting SQL expression.
+
+        :arg internal_type: Type of temporal field being subtracted (e.g. TimeField)
+        :arg lhs: Left-hand side of the subtraction, a tuple of SQL expression and parameters
+        :arg rhs: Right-hand side of the subtraction, a tuple of SQL expression and parameters
+        :return: A tuple containing the resulting SQL expression and parameters
+        """
         lhs_sql, lhs_params = lhs
         rhs_sql, rhs_params = rhs
         params = (*lhs_params, *rhs_params)

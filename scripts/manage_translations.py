@@ -31,9 +31,9 @@ HAVE_JS = ["admin"]
 
 def _get_locale_dirs(resources, include_core=True):
     """
-    Return a tuple (contrib name, absolute path) for all locale directories,
-    optionally including the django core catalog.
-    If resources list is not None, filter directories matching resources content.
+    Return a list of locale directories, optionally including the Django core catalog, 
+    filtered by a specified list of resources if provided. The result is a tuple 
+    containing the contribution name and absolute path for each matching locale directory.
     """
     contrib_dir = os.path.join(os.getcwd(), "django", "contrib")
     dirs = []
@@ -62,7 +62,9 @@ def _get_locale_dirs(resources, include_core=True):
 
 
 def _tx_resource_for_name(name):
-    """Return the Transifex resource name"""
+    """
+    Maps a Django app name to its corresponding Transifex resource name.
+    """
     if name == "core":
         return "django.core"
     else:
@@ -71,7 +73,7 @@ def _tx_resource_for_name(name):
 
 def _check_diff(cat_name, base_path):
     """
-    Output the approximate number of changed/added strings in the en catalog.
+    Checks the approximate number of changed or added strings in the specified translation catalog by analyzing the git diff of the corresponding PO file.
     """
     po_path = "%(path)s/en/LC_MESSAGES/django%(ext)s.po" % {
         "path": base_path,
@@ -88,8 +90,7 @@ def _check_diff(cat_name, base_path):
 
 def update_catalogs(resources=None, languages=None):
     """
-    Update the en/LC_MESSAGES/django.po (main and contrib) files with
-    new/updated translatable strings.
+    Update the English translation catalogs for Django and contrib applications with new or updated translatable strings.
     """
     settings.configure()
     django.setup()
@@ -111,10 +112,8 @@ def update_catalogs(resources=None, languages=None):
 
 def lang_stats(resources=None, languages=None):
     """
-    Output language statistics of committed translation files for each
-    Django catalog.
-    If resources is provided, it should be a list of translation resource to
-    limit the output (e.g. ['core', 'gis']).
+    Output language statistics of committed translation files for each Django catalog, 
+    optionally limited to specific translation resources and languages.
     """
     locale_dirs = _get_locale_dirs(resources)
 
@@ -146,7 +145,18 @@ def lang_stats(resources=None, languages=None):
 
 def fetch(resources=None, languages=None):
     """
-    Fetch translations from Transifex, wrap long lines, generate mo files.
+    Fetch translations from Transifex, wrap long lines, and generate mo files.
+
+    Parameters:
+        resources (list): List of resources to fetch translations for. If not provided, all resources will be fetched.
+        languages (list): List of languages to fetch translations for. If not provided, all languages will be fetched.
+
+    Returns:
+        None
+
+    Notes:
+        The function uses the Transifex API to pull translations and generate mo files.
+        It also checks for errors during the process and exits with a non-zero status code if any errors occur.
     """
     locale_dirs = _get_locale_dirs(resources)
     errors = []

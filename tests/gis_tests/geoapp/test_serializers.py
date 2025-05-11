@@ -12,7 +12,7 @@ class GeoJSONSerializerTests(TestCase):
 
     def test_builtin_serializers(self):
         """
-        'geojson' should be listed in available serializers.
+        Tests the availability of the 'geojson' serializer in both all and public formats, ensuring it is correctly registered.
         """
         all_formats = set(serializers.get_serializer_formats())
         public_formats = set(serializers.get_public_serializer_formats())
@@ -21,6 +21,9 @@ class GeoJSONSerializerTests(TestCase):
         self.assertIn("geojson", public_formats)
 
     def test_serialization_base(self):
+        """
+        Verifies the correctness of GeoJSON serialization for City objects, checking for proper feature count, geometry type, property values, and IDs.
+        """
         geojson = serializers.serialize("geojson", City.objects.order_by("name"))
         geodata = json.loads(geojson)
         self.assertEqual(len(geodata["features"]), len(City.objects.all()))
@@ -32,8 +35,8 @@ class GeoJSONSerializerTests(TestCase):
 
     def test_geometry_field_option(self):
         """
-        When a model has several geometry fields, the 'geometry_field' option
-        can be used to specify the field to use as the 'geometry' key.
+        When a model has multiple geometry fields, this test case verifies the functionality of the 'geometry_field' option in the serializer.
+        It checks that the option correctly specifies the geometry field to use when serializing data to GeoJSON format, ensuring the expected geometry type is returned.
         """
         MultiFields.objects.create(
             city=City.objects.first(),
@@ -64,9 +67,7 @@ class GeoJSONSerializerTests(TestCase):
 
     def test_id_field_option(self):
         """
-        By default Django uses the pk of the object as the id for a feature.
-        The 'id_field' option can be used to specify a different field to use
-        as the id.
+        Tests the use of the 'id_field' option to specify a custom field as the id for a feature in GeoJSON serialization, overriding the default primary key based id.
         """
         cities = City.objects.order_by("name")
         geojson = serializers.serialize("geojson", cities, id_field="name")
@@ -75,8 +76,7 @@ class GeoJSONSerializerTests(TestCase):
 
     def test_fields_option(self):
         """
-        The fields option allows to define a subset of fields to be present in
-        the 'properties' of the generated output.
+        Tests the serialization of model instances to GeoJSON, verifying that the 'fields' option correctly filters the fields included in the output.
         """
         PennsylvaniaCity.objects.create(
             name="Mansfield", county="Tioga", point="POINT(-77.071445 41.823881)"
@@ -92,6 +92,12 @@ class GeoJSONSerializerTests(TestCase):
         self.assertNotIn("pk", geodata["features"][0]["properties"])
 
     def test_srid_option(self):
+        """
+
+        Tests the SRID (Spatial Reference System Identifier) option in GeoJSON serialization.
+        Verifies that the serialized coordinates match the expected values when using a specific SRID.
+
+        """
         geojson = serializers.serialize(
             "geojson", City.objects.order_by("name"), srid=2847
         )

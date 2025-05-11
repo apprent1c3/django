@@ -6,6 +6,10 @@ from .models import Parent
 class MutuallyReferentialTests(TestCase):
     def test_mutually_referential(self):
         # Create a Parent
+        """
+        Tests the deletion of a model instance with mutually referential relationships, 
+        ensuring that all related objects are correctly handled.
+        """
         q = Parent(name="Elizabeth")
         q.save()
 

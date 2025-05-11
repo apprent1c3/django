@@ -26,6 +26,19 @@ class OptimizerTests(SimpleTestCase):
     def assertOptimizesTo(
         self, operations, expected, exact=None, less_than=None, app_label=None
     ):
+        """
+        Asserts that a set of operations optimizes to an expected result.
+
+        This function optimizes the given operations, serializes the result and compares it
+        to the expected output. It also checks the number of iterations taken by the
+        optimization process against the specified exact or less_than thresholds.
+
+        :param operations: The operations to be optimized.
+        :param expected: The expected optimized result.
+        :param exact: The exact number of iterations expected.
+        :param less_than: The maximum number of iterations expected.
+        :param app_label: The label of the app to use for optimization (defaults to 'migrations').
+        """
         result, iterations = self.optimize(operations, app_label or "migrations")
         result = [self.serialize(f) for f in result]
         expected = [self.serialize(f) for f in expected]
@@ -269,9 +282,7 @@ class OptimizerTests(SimpleTestCase):
 
     def test_optimize_through_create(self):
         """
-        We should be able to optimize away create/delete through a create or
-        delete of a different model, but only if the create operation does not
-        mention the model at all.
+        Tests that Django's migration optimizer can correctly eliminate create and delete operations for models that are not referenced by other operations in the migration.
         """
         # These should work
         self.assertOptimizesTo(
@@ -831,8 +842,7 @@ class OptimizerTests(SimpleTestCase):
 
     def _test_create_alter_foo_field(self, alter):
         """
-        CreateModel, AlterFooTogether/AlterOrderWithRespectTo followed by an
-        add/alter/rename field should optimize to CreateModel with options.
+        Tests optimizations of model creations with field additions, alterations, renamings, and removals to ensure that they are correctly combined into a single CreateModel operation with the specified options.
         """
         option_value = getattr(alter, alter.option_name)
         options = {alter.option_name: option_value}
@@ -1161,6 +1171,13 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_add_rename_index(self):
+        """
+
+        Tests the optimization of adding an index and then renaming it to a single operation of adding an index with the new name.
+
+        Verifies that a sequence of AddIndex and RenameIndex migrations can be optimized to a single AddIndex migration when the index name is updated.
+
+        """
         tests = [
             models.Index(fields=["weight", "pink"], name="mid_name"),
             models.Index(Abs("weight"), name="mid_name"),

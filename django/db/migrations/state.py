@@ -23,6 +23,14 @@ from .utils import resolve_relation
 
 
 def _get_app_label_and_model_name(model, app_label=""):
+    """
+
+    Determines the application label and model name from a given model.
+
+    Returns a tuple containing the application label and model name.
+    Accepts a model as a string or an object, with an optional default application label.
+
+    """
     if isinstance(model, str):
         split = model.split(".", 1)
         return tuple(split) if len(split) == 2 else (app_label, split[0])
@@ -31,7 +39,9 @@ def _get_app_label_and_model_name(model, app_label=""):
 
 
 def _get_related_models(m):
-    """Return all models that have a direct relationship to the given model."""
+    """
+    Return all models that have a direct relationship to the given model, including subclass relationships and models related through foreign keys or other relationship fields.
+    """
     related_models = [
         subclass
         for subclass in m.__subclasses__()
@@ -67,13 +77,12 @@ def get_related_models_tuples(model):
 
 def get_related_models_recursive(model):
     """
-    Return all models that have a direct or indirect relationship
-    to the given model.
+    Return all models that have a direct or indirect relationship to the given model.
 
-    Relationships are either defined by explicit relational fields, like
-    ForeignKey, ManyToManyField or OneToOneField, or by inheriting from another
+    Relationships are either defined by explicit relational fields, like 
+    ForeignKey, ManyToManyField or OneToOneField, or by inheriting from another 
     model (a superclass is related to its subclasses, but not vice versa). Note,
-    however, that a model inheriting from a concrete model is also related to
+    however, that a model inheriting from a concrete model is also related to 
     its superclass through the implicit *_ptr OneToOneField on the subclass.
     """
     seen = set()
@@ -98,6 +107,13 @@ class ProjectState:
     """
 
     def __init__(self, models=None, real_apps=None):
+        """
+        Initializes an object with optional model and real application data.
+
+        :param models: A dictionary of models (default: empty dictionary)
+        :param real_apps: A set of real applications (default: empty set)
+        :note: Models and real applications are stored as instance attributes for later use.
+        """
         self.models = models or {}
         # Apps to include from main registry, usually unmigrated ones
         if real_apps is None:
@@ -116,6 +132,10 @@ class ProjectState:
         return self._relations
 
     def add_model(self, model_state):
+        """
+        Registers a model in the system and updates related models if necessary.
+        Allows for dynamic model management by storing the provided model state and triggering relation resolution and model reloading.
+        """
         model_key = model_state.app_label, model_state.name_lower
         self.models[model_key] = model_state
         if self._relations is not None:
@@ -124,6 +144,13 @@ class ProjectState:
             self.reload_model(*model_key)
 
     def remove_model(self, app_label, model_name):
+        """
+        Remove a model from the data structure.
+
+        Removes the specified model, identified by its app label and name, 
+        from the internal models dictionary and any related data structures, 
+        and unregisters it from the apps registry.
+        """
         model_key = app_label, model_name
         del self.models[model_key]
         if self._relations is not None:
@@ -141,6 +168,13 @@ class ProjectState:
 
     def rename_model(self, app_label, old_name, new_name):
         # Add a new model.
+        """
+        Renames a model within the application, updating all references to the old model name and reloading affected models.
+
+        :param app_label: The label of the application containing the model.
+        :param old_name: The current name of the model.
+        :param new_name: The desired new name of the model.
+        """
         old_name_lower = old_name.lower()
         new_name_lower = new_name.lower()
         renamed_model = self.models[app_label, old_name_lower].clone()
@@ -179,6 +213,16 @@ class ProjectState:
         self.reload_model(app_label, new_name_lower, delay=True)
 
     def alter_model_options(self, app_label, model_name, options, option_keys=None):
+        """
+        Updates the options for a model and reloads it.
+
+        :arg str app_label: The application label of the model to update.
+        :arg str model_name: The name of the model to update.
+        :arg dict options: The new options to apply to the model.
+        :arg list option_keys: Optional list of keys to remove from the model's options if they are not present in the new options.
+
+        This function merges the provided options with the existing model options, removes specified keys if necessary, and then triggers a reload of the model to apply the changes.
+        """
         model_state = self.models[app_label, model_name]
         model_state.options = {**model_state.options, **options}
         if option_keys:
@@ -218,6 +262,16 @@ class ProjectState:
         self._remove_option(app_label, model_name, "indexes", index_name)
 
     def rename_index(self, app_label, model_name, old_index_name, new_index_name):
+        """
+        Renames an index of a specified model in the application.
+
+        :param app_label: The label of the application containing the model.
+        :param model_name: The name of the model containing the index to rename.
+        :param old_index_name: The current name of the index to be renamed.
+        :param new_index_name: The new name for the index.
+
+        Renaming an index updates the model state and reloads the model with the changes. 
+        """
         model_state = self.models[app_label, model_name]
         objs = model_state.options["indexes"]
 
@@ -239,6 +293,17 @@ class ProjectState:
 
     def add_field(self, app_label, model_name, name, field, preserve_default):
         # If preserve default is off, don't use the default for future state.
+        """
+        Adds a new field to an existing model.
+
+        :param app_label: The label of the application the model belongs to.
+        :param model_name: The name of the model to add the field to.
+        :param name: The name of the field to add.
+        :param field: The field instance to add.
+        :param preserve_default: Whether to preserve the default value of the field.
+
+        This function updates the model's fields and resolves any relations if necessary.
+        """
         if not preserve_default:
             field = field.clone()
             field.default = NOT_PROVIDED
@@ -253,6 +318,15 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def remove_field(self, app_label, model_name, name):
+        """
+        Remove a field from a specified model.
+
+        :param app_label: Label of the application containing the model
+        :param model_name: Name of the model from which to remove the field
+        :param name: Name of the field to remove
+
+        Removes the specified field from the model, updates any related fields, and reloads the model state accordingly.
+        """
         model_key = app_label, model_name
         model_state = self.models[model_key]
         old_field = model_state.fields.pop(name)
@@ -263,6 +337,20 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def alter_field(self, app_label, model_name, name, field, preserve_default):
+        """
+
+        Alters a field in a model by replacing the existing field with a new one.
+
+        The new field will have its default value removed if `preserve_default` is `False`.
+        The function also updates any relations associated with the field and reloads the model.
+
+        :param app_label: The application label of the model.
+        :param model_name: The name of the model.
+        :param name: The name of the field to alter.
+        :param field: The new field to replace the existing one with.
+        :param preserve_default: Whether to preserve the default value of the field.
+
+        """
         if not preserve_default:
             field = field.clone()
             field.default = NOT_PROVIDED
@@ -289,6 +377,31 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def rename_field(self, app_label, model_name, old_name, new_name):
+        """
+
+        Renames a field in a Django model.
+
+        Parameters
+        ----------
+        app_label : str
+            The application label of the model.
+        model_name : str
+            The name of the model.
+        old_name : str
+            The current name of the field to be renamed.
+        new_name : str
+            The new name for the field.
+
+        Raises
+        ------
+        FieldDoesNotExist
+            If the model does not have a field named 'old_name'.
+
+        Notes
+        -----
+        This method updates all relevant references, options, and relations to reflect the new field name.
+
+        """
         model_key = app_label, model_name
         model_state = self.models[model_key]
         # Rename the field.
@@ -344,6 +457,18 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def _find_reload_model(self, app_label, model_name, delay=False):
+        """
+        Finds and returns all related models for a given app label and model name.
+
+        Args:
+            app_label (str): The label of the application.
+            model_name (str): The name of the model.
+            delay (bool): Option to delay the retrieval of related models.
+
+        Returns:
+            set: A set of tuples containing the app labels and model names of related models.
+
+        """
         if delay:
             self.is_delayed = True
 
@@ -399,6 +524,13 @@ class ProjectState:
             self._reload(related_models)
 
     def reload_models(self, models, delay=True):
+        """
+        Reloads the specified models by finding and reloading all related models.
+
+        :param models: A list of tuples containing the app label and model name to reload
+        :param delay: Whether to delay the reload operation
+        :returns: None
+        """
         if "apps" in self.__dict__:  # hasattr would cache the property
             related_models = set()
             for app_label, model_name in models:
@@ -409,6 +541,9 @@ class ProjectState:
 
     def _reload(self, related_models):
         # Unregister all related models
+        """
+        Reloads and re-renders related models to ensure they are updated and accurate. Unregisters related models, identifies model states that need to be re-rendered, and then re-renders them in bulk.
+        """
         with self.apps.bulk_update():
             for rel_app_label, rel_model_name in related_models:
                 self.apps.unregister_model(rel_app_label, rel_model_name)
@@ -441,6 +576,20 @@ class ProjectState:
         field,
         concretes,
     ):
+        """
+
+        Updates the relation between a model field and a remote model.
+
+        Manages the relationship between model fields and concrete remote models,
+        adding or removing field relations as necessary.
+
+        :param model: The model to update
+        :param model_key: The key identifying the model
+        :param field_name: The name of the field to update
+        :param field: The field object to relate to the model
+        :param concretes: A dictionary of concrete remote models
+
+        """
         remote_model_key = resolve_relation(model, *model_key)
         if remote_model_key[0] not in self.real_apps and remote_model_key in concretes:
             remote_model_key = concretes[remote_model_key]
@@ -463,6 +612,18 @@ class ProjectState:
         field,
         concretes=None,
     ):
+        """
+
+        Resolves and updates model field relations for a given model field.
+
+        Updates the relations for the model field itself, as well as any intermediate models if the field is a Many-To-Many relation.
+
+        :param model_key: the key of the model containing the field
+        :param field_name: the name of the field to resolve relations for
+        :param field: the field object itself
+        :param concretes: an optional dictionary of concrete models, defaults to the result of _get_concrete_models_mapping_and_proxy_models if not provided
+
+        """
         remote_field = field.remote_field
         if not remote_field:
             return
@@ -485,6 +646,12 @@ class ProjectState:
         )
 
     def resolve_model_relations(self, model_key, concretes=None):
+        """
+        Resolves model relations for a given model key by iterating over its fields and calling the field relation resolver.
+
+        :param model_key: The key of the model to resolve relations for
+        :param concretes: Optional mapping of concrete models, defaults to the result of _get_concrete_models_mapping_and_proxy_models if not provided
+        """
         if concretes is None:
             concretes, _ = self._get_concrete_models_mapping_and_proxy_models()
 
@@ -494,6 +661,11 @@ class ProjectState:
 
     def resolve_fields_and_relations(self):
         # Resolve fields.
+        """
+        Resolve fields and relations for all models in the current state.
+
+        This function initializes field names, populates the relations data structure, and resolves relationships between concrete models and their corresponding proxies. The resulting relations are stored in the instance's internal state, providing a mapping of model keys to their associated relations.
+        """
         for model_state in self.models.values():
             for field_name, field in model_state.fields.items():
                 field.name = field_name
@@ -517,6 +689,11 @@ class ProjectState:
         return concrete_models_mapping[model_key]
 
     def _get_concrete_models_mapping_and_proxy_models(self):
+        """
+        Returns a mapping of model keys to their corresponding concrete models and a dictionary of proxy models.
+
+        The mapping is used to resolve proxy models to their underlying concrete implementations, while non-proxy models are mapped to themselves. The function is used to handle models that are defined as proxies to other models, allowing for a unified treatment of both types of models.
+        """
         concrete_models_mapping = {}
         proxy_models = {}
         # Split models to proxy and concrete models.
@@ -535,6 +712,12 @@ class ProjectState:
         return concrete_models_mapping, proxy_models
 
     def _find_concrete_model_from_proxy(self, proxy_models, model_state):
+        """
+        Recursively finds the most concrete model from a given proxy model by traversing its base classes.
+
+        :returns: A model tuple representing the most concrete model found in the inheritance hierarchy.
+
+        """
         for base in model_state.bases:
             if not (isinstance(base, str) or issubclass(base, models.Model)):
                 continue
@@ -546,7 +729,9 @@ class ProjectState:
             return self._find_concrete_model_from_proxy(proxy_models, base_state)
 
     def clone(self):
-        """Return an exact copy of this ProjectState."""
+        """
+        Creates and returns a deep copy of the current ProjectState instance, duplicating all models and other associated state.
+        """
         new_state = ProjectState(
             models={k: v.clone() for k, v in self.models.items()},
             real_apps=self.real_apps,
@@ -566,7 +751,12 @@ class ProjectState:
 
     @classmethod
     def from_apps(cls, apps):
-        """Take an Apps and return a ProjectState matching it."""
+        """
+        Create a ProjectState instance from a given Apps object.
+
+                This method generates a mapping of application models and returns a ProjectState
+                that reflects the structure of the provided Apps object.
+        """
         app_models = {}
         for model in apps.get_models(include_swapped=True):
             model_state = ModelState.from_model(model)
@@ -605,6 +795,16 @@ class StateApps(Apps):
         # are some variables that refer to the Apps object.
         # FKs/M2Ms from real apps are also not included as they just
         # mess things up with partial states (due to lack of dependencies)
+        """
+        Initializes the object with real applications, models, and an optional flag to ignore swappable models.
+
+        :param real_apps: List of real application labels
+        :param models: Dictionary of model states
+        :param ignore_swappable: Flag to ignore swappable models during initialization (default: False)
+
+        The function sets up the object's internal state by collecting real models from the specified applications, 
+        renders the provided models and real models, and checks for any lazy reference errors, raising a ValueError if any occur.
+        """
         self.real_models = []
         for app_label in real_apps:
             app = global_apps.get_app_config(app_label)
@@ -639,6 +839,14 @@ class StateApps(Apps):
     def bulk_update(self):
         # Avoid clearing each model's cache for each change. Instead, clear
         # all caches when we're finished updating the model instances.
+        """
+
+        Temporarily sets the object's ready state to False, allowing for bulk updates.
+
+        This context manager is used to prevent certain actions from occurring while the object is being modified.
+        Upon exiting the context, the object's ready state is restored to its original value and its cache is cleared.
+
+        """
         ready = self.ready
         self.ready = False
         try:
@@ -652,6 +860,16 @@ class StateApps(Apps):
         # base errors, until the size of the unrendered models doesn't
         # decrease by at least one, meaning there's a base dependency loop/
         # missing base.
+        """
+
+        Renders multiple model states, handling potential recursive base resolution.
+
+        This method ensures that all models are properly rendered, retrying any models that fail due to unresolved bases.
+        It will continue to retry until all models are rendered or it determines that the bases cannot be resolved, in which case an error is raised.
+
+        :param model_states: The list of model states to render
+
+        """
         if not model_states:
             return
         # Prevent that all model caches are expired for each render.
@@ -676,7 +894,9 @@ class StateApps(Apps):
                 unrendered_models = new_unrendered_models
 
     def clone(self):
-        """Return a clone of this registry."""
+        """
+        Creates and returns an independent copy of the current registry, duplicating its state and configuration.
+        """
         clone = StateApps([], {})
         clone.all_models = copy.deepcopy(self.all_models)
 
@@ -691,6 +911,9 @@ class StateApps(Apps):
         return clone
 
     def register_model(self, app_label, model):
+        """
+        Registers a Django model with the application, storing it in the model registry and updating the application's configuration and cache.
+        """
         self.all_models[app_label][model._meta.model_name] = model
         if app_label not in self.app_configs:
             self.app_configs[app_label] = AppConfigStub(app_label)
@@ -700,6 +923,13 @@ class StateApps(Apps):
         self.clear_cache()
 
     def unregister_model(self, app_label, model_name):
+        """
+        Removes a model from the registry by its application label and name.
+
+            :param app_label: The label of the application containing the model.
+            :param model_name: The name of the model to unregister.
+            :note: If the model does not exist in the registry, no action is taken.
+        """
         try:
             del self.all_models[app_label][model_name]
             del self.app_configs[app_label].models[model_name]
@@ -721,6 +951,13 @@ class ModelState:
     def __init__(
         self, app_label, name, fields, options=None, bases=None, managers=None
     ):
+        """
+        Initializes a ModelState instance representing a model's metadata.
+
+        This includes its application label, name, fields, and various model options such as indexes and constraints.
+        It also sets the model's base classes and managers.
+        The function validates the provided fields to ensure they are not bound to a model and do not refer to a model class, instead using string references where necessary.
+        """
         self.app_label = app_label
         self.name = name
         self.fields = dict(fields)
@@ -770,7 +1007,13 @@ class ModelState:
 
     @classmethod
     def from_model(cls, model, exclude_rels=False):
-        """Given a model, return a ModelState representing it."""
+        """
+        Create a ModelState instance representing the given model, optionally excluding relationships.
+
+         :param model: The model to create a ModelState for
+         :param exclude_rels: Whether to exclude relationships from the ModelState, defaults to False
+         :return: A ModelState instance representing the given model
+        """
         # Deconstruct the fields
         fields = []
         for field in model._meta.local_fields:
@@ -842,6 +1085,9 @@ class ModelState:
             del options["order_with_respect_to"]
 
         def flatten_bases(model):
+            """
+            Recursively flattens a model's abstract base classes, returning a list of concrete base classes.
+            """
             bases = []
             for base in model.__bases__:
                 if hasattr(base, "_meta") and base._meta.abstract:
@@ -908,7 +1154,11 @@ class ModelState:
         )
 
     def construct_managers(self):
-        """Deep-clone the managers using deconstruction."""
+        """
+        Constructs a deep-clone of model managers by deconstructing and re-instantiating them, 
+        yielding a tuple containing the manager name and the cloned manager instance, 
+        sorted by creation order.
+        """
         # Sort all managers by their creation counter
         sorted_managers = sorted(self.managers, key=lambda v: v[1].creation_counter)
         for mgr_name, manager in sorted_managers:
@@ -935,7 +1185,18 @@ class ModelState:
         )
 
     def render(self, apps):
-        """Create a Model object from our current state into the given apps."""
+        """
+        Create a Model object from the current state, incorporating the provided apps and options.
+
+            This function generates a dynamically defined model class based on the current state, 
+            including the app label, options, fields, and managers, and resolves the bases 
+            from the given apps. It returns the created Model object.
+
+            :param apps: The apps to incorporate into the model.
+            :return: The dynamically created Model object.
+            :raises InvalidBasesError: If one or more bases cannot be resolved.
+
+        """
         # First, make a Meta object
         meta_contents = {"app_label": self.app_label, "apps": apps, **self.options}
         meta = type("Meta", (), meta_contents)

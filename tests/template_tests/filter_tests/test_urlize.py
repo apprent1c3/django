@@ -108,6 +108,11 @@ class UrlizeTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_urls(self):
+        """
+        Tests the urlize function to ensure it correctly converts URLs into HTML links with rel=\"nofollow\" attribute.
+
+        The test cases cover various URL formats, including those with and without the http protocol, and those with trailing slashes.
+        """
         self.assertEqual(
             urlize("http://google.com"),
             '<a href="http://google.com" rel="nofollow">http://google.com</a>',
@@ -224,7 +229,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_idn(self):
         """
-        #13704 - Check urlize handles IDN correctly
+        Tests the functionality of IDN (Internationalized Domain Names) handling within the urlize function. Verifies that IDNs are correctly converted to their ASCII-compatible representation (Punycode) when generating HTML links.
         """
         self.assertEqual(
             urlize("http://c✶.ws"),
@@ -342,6 +347,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_wrapping_characters(self):
+        """
+        Test the urlize function's handling of wrapping characters, ensuring it correctly replaces them with their corresponding HTML entities when surrounding a URL.
+        """
         wrapping_chars = (
             ("()", ("(", ")")),
             ("<>", ("&lt;", "&gt;")),
@@ -374,7 +382,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_quotation_marks(self):
         """
-        #20364 - Check urlize correctly include quotation marks in links
+        Verifies that the urlize function correctly includes quotation marks in generated links for email addresses.
         """
         self.assertEqual(
             urlize('before "hi@example.com" afterward', autoescape=False),
@@ -415,8 +423,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_exclamation_marks(self):
         """
-        #23715 - Check urlize correctly handles exclamation marks after TLDs
-        or query string
+        Tests the urlize function to ensure it correctly handles exclamation marks after top-level domains or in query strings, preventing incorrect link creation.
         """
         self.assertEqual(
             urlize("Go to djangoproject.com! and enjoy."),

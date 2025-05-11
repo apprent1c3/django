@@ -85,6 +85,9 @@ class ChangeList:
         sortable_by,
         search_help_text,
     ):
+        """
+        Initializes the object and sets up the list view configuration for the given model, including display options, filtering, searching, and pagination. It also sets up query parameters and checks for any errors or disallowed model admin to fields.
+        """
         self.model = model
         self.opts = model._meta
         self.lookup_opts = self.opts
@@ -162,7 +165,10 @@ class ChangeList:
 
     def get_filters_params(self, params=None):
         """
-        Return all params except IGNORED_PARAMS.
+        Return a dictionary of filter parameters with ignored parameters removed.
+
+            :return: A dictionary of filter parameters.
+            :rtype: dict
         """
         params = params or self.filter_params
         lookup_params = params.copy()  # a dictionary of the query string
@@ -174,6 +180,14 @@ class ChangeList:
         return lookup_params
 
     def get_filters(self, request):
+        """
+        Retrieves filter specifications for the current model admin view, given a request.
+        Validates lookup parameters against the model admin's lookup allowed method,
+        generates filter specs for each list filter, and processes date hierarchy.
+        Returns a tuple containing the filter specs, whether any filters are present,
+        the processed lookup parameters, whether the filters may have duplicates,
+        and whether active filters are present.
+        """
         lookup_params = self.get_filters_params()
         may_have_duplicates = False
         has_active_filters = False
@@ -288,6 +302,16 @@ class ChangeList:
             raise IncorrectLookupParameters(e) from e
 
     def get_query_string(self, new_params=None, remove=None):
+        """
+        Generates a query string based on the current filter parameters.
+
+        This function allows for adding new parameters, removing existing ones, and modifying
+        their values. It returns a URL-encoded query string.
+
+        :param new_params: Dictionary of new parameters to add or update
+        :param remove: List of prefixes of parameters to remove
+        :returns: A URL-encoded query string
+        """
         if new_params is None:
             new_params = {}
         if remove is None:
@@ -306,6 +330,16 @@ class ChangeList:
         return "?%s" % urlencode(sorted(p.items()), doseq=True)
 
     def get_results(self, request):
+        """
+
+        Fetch results from the database based on the provided request and pagination settings.
+
+        This method handles pagination, counts the total number of results, and determines whether
+        to show all results or a paginated subset. It also sets various flags and attributes
+        indicating the result count, the availability of full result count, and the presence of
+        multiple pages.
+
+        """
         paginator = self.model_admin.get_paginator(
             request, self.queryset, self.list_per_page
         )
@@ -346,6 +380,9 @@ class ChangeList:
         self.paginator = paginator
 
     def _get_default_ordering(self):
+        """
+        Returns the default ordering to be used, prioritizing the ordering specified in the model admin, or falling back to the lookup options if none is provided.
+        """
         ordering = []
         if self.model_admin.ordering:
             ordering = self.model_admin.ordering
@@ -355,11 +392,8 @@ class ChangeList:
 
     def get_ordering_field(self, field_name):
         """
-        Return the proper model field name corresponding to the given
-        field_name to use for ordering. field_name may either be the name of a
-        proper model field, possibly across relations, or the name of a method
-        (on the admin or model) or a callable with the 'admin_order_field'
-        attribute. Return None if no proper model field name can be matched.
+        Return the model field name for ordering purposes, resolving the given field name 
+        across model fields, relations, and custom ordering attributes.
         """
         try:
             field = self.lookup_opts.get_field(field_name)
@@ -384,12 +418,11 @@ class ChangeList:
 
     def get_ordering(self, request, queryset):
         """
-        Return the list of ordering fields for the change list.
-        First check the get_ordering() method in model admin, then check
-        the object's default ordering. Then, any manually-specified ordering
-        from the query string overrides anything. Finally, a deterministic
-        order is guaranteed by calling _get_deterministic_ordering() with the
-        constructed ordering.
+
+            Returns a list of ordering fields for the change list view.
+            Ordering is determined by model admin, default ordering, and manual query string overrides.
+            Ensures a deterministic order by appending any missing fields.
+
         """
         params = self.params
         ordering = list(
@@ -431,10 +464,9 @@ class ChangeList:
 
     def _get_deterministic_ordering(self, ordering):
         """
-        Ensure a deterministic order across all database backends. Search for a
-        single field or unique together set of fields providing a total
-        ordering. If these are missing, augment the ordering with a descendant
-        primary key.
+        Ensure a deterministic order across all database backends by providing a total ordering. 
+        This involves checking for unique fields or a primary key to guarantee a consistent order. 
+        If these fields are not specified or insufficient, the order is augmented with a primary key.
         """
         ordering = list(ordering)
         ordering_fields = set()
@@ -496,7 +528,7 @@ class ChangeList:
 
     def get_ordering_field_columns(self):
         """
-        Return a dictionary of ordering field column numbers and asc/desc.
+        Return a dictionary mapping ordering field column numbers to their respective sort orders ('asc' or 'desc'). This dictionary represents the current ordering configuration for the list view.
         """
         # We must cope with more than one column having the same underlying sort
         # field, so we base things on column numbers.
@@ -536,6 +568,19 @@ class ChangeList:
 
     def get_queryset(self, request, exclude_parameters=None):
         # First, we collect all the declared list filters.
+        """
+
+        Fetches and filters a queryset based on the provided request and filters.
+
+        This function constructs a queryset by applying filters, search queries, and ordering
+        to the root queryset. It handles exceptions for suspicious operations and incorrect
+        lookup parameters, and returns a distinct queryset if duplicates are possible.
+
+        :param request: The current request object.
+        :param exclude_parameters: Optional parameters to exclude from filtering.
+        :returns: A filtered queryset.
+
+        """
         (
             self.filter_specs,
             self.has_filters,
@@ -598,6 +643,12 @@ class ChangeList:
             return qs
 
     def apply_select_related(self, qs):
+        """
+        Applies select_related optimization to a QuerySet based on the list_select_related configuration.
+
+        Determines whether to apply select_related to the QuerySet, either by automatically selecting all related fields,
+        selecting specific fields, or leaving the QuerySet unchanged, taking into account the presence of related fields in the list display.
+        """
         if self.list_select_related is True:
             return qs.select_related()
 
@@ -610,6 +661,13 @@ class ChangeList:
         return qs
 
     def has_related_field_in_list_display(self):
+        """
+        Check if any fields in the list display are related fields.
+
+        Determine if there are any fields in the list display that represent a
+        related object, via a foreign key, and are not using their default display
+        name. Returns True if such a field exists, False otherwise.
+        """
         for field_name in self.list_display:
             try:
                 field = self.lookup_opts.get_field(field_name)

@@ -19,6 +19,11 @@ from .models import Tag
 
 class QTests(SimpleTestCase):
     def test_combine_and_empty(self):
+        """
+
+        Tests that combining a query with an empty query using the '&' operator does not modify the original query.
+
+        """
         q = Q(x=1)
         self.assertEqual(q & Q(), q)
         self.assertEqual(Q() & q, q)
@@ -31,6 +36,13 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q() & Q(), Q())
 
     def test_combine_or_empty(self):
+        """
+
+        Tests the behavior of combining QuerySets with empty QuerySets using the logical OR operator.
+
+        Verifies that OR operations between a non-empty QuerySet and an empty QuerySet result in the non-empty QuerySet.
+
+        """
         q = Q(x=1)
         self.assertEqual(q | Q(), q)
         self.assertEqual(Q() | q, q)
@@ -40,6 +52,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q() | q, q)
 
     def test_combine_xor_empty(self):
+        """
+        Validate the behavior of combining a query object with an empty query using the XOR operator, ensuring the non-empty query takes precedence.
+        """
         q = Q(x=1)
         self.assertEqual(q ^ Q(), q)
         self.assertEqual(Q() ^ q, q)
@@ -49,6 +64,12 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q() ^ q, q)
 
     def test_combine_empty_copy(self):
+        """
+
+        Tests that combining a query with an empty query results in the original query, 
+        without modifying the original query.
+
+        """
         base_q = Q(x=1)
         tests = [
             base_q | Q(),
@@ -70,6 +91,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q() ^ Q(), Q())
 
     def test_combine_not_q_object(self):
+        """
+        Tests that attempting to combine a Q object with a non-Q object using logical operators raises a TypeError.
+        """
         obj = object()
         q = Q(x=1)
         with self.assertRaisesMessage(TypeError, str(obj)):
@@ -80,6 +104,15 @@ class QTests(SimpleTestCase):
             q ^ obj
 
     def test_combine_negated_boolean_expression(self):
+        """
+        Tests the combination of negated boolean expressions with different logical operators.\"\"\"
+
+        \"\"\" 
+            Verifies that :class:`~django.db.models.Q` objects combined with 
+            :class:`~django.db.models.Exists` expressions using operators (&, |, ^) 
+            result in :class:`~django.db.models.NegatedExpression` instances.
+
+        """
         tagged = Tag.objects.filter(category=OuterRef("pk"))
         tests = [
             Q() & ~Exists(tagged),
@@ -91,6 +124,9 @@ class QTests(SimpleTestCase):
                 self.assertIsInstance(q, NegatedExpression)
 
     def test_deconstruct(self):
+        """
+        Tests the deconstruction of a Q object with a lookup referencing another field using F expressions.
+        """
         q = Q(price__gt=F("discounted_price"))
         path, args, kwargs = q.deconstruct()
         self.assertEqual(path, "django.db.models.Q")
@@ -104,6 +140,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {"_negated": True})
 
     def test_deconstruct_or(self):
+        """
+        Tests the deconstruction of a query that combines two conditions using the logical OR operator. Verifies that the deconstructed query correctly preserves the original conditions and the OR connector.
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 | q2
@@ -118,6 +157,11 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {"_connector": Q.OR})
 
     def test_deconstruct_xor(self):
+        """
+        Tests the deconstruction of a XOR logical operation between two query objects.
+
+        Verifies that the deconstructed query returns the expected arguments and connector keyword argument for a bitwise XOR operation between two query filters, ensuring correct decomposition of the logical statement.
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 ^ q2
@@ -132,6 +176,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {"_connector": Q.XOR})
 
     def test_deconstruct_and(self):
+        """
+        Tests if the deconstruction of a compound query correctly preserves the arguments when using the logical AND operator to combine two queries with field references.
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 & q2
@@ -164,6 +211,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_deconstruct_boolean_expression(self):
+        """
+        Tests the deconstruction of a Q object containing a raw boolean SQL expression.
+        """
         expr = RawSQL("1 = 1", BooleanField())
         q = Q(expr)
         _, args, kwargs = q.deconstruct()
@@ -181,6 +231,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q(*args, **kwargs), q)
 
     def test_reconstruct_or(self):
+        """
+        Tests that a QuerySet using the 'or' operator can be successfully reconstructed from its deconstructed components.
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 | q2
@@ -188,6 +241,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q(*args, **kwargs), q)
 
     def test_reconstruct_xor(self):
+        """
+        Tests the reconstruction of bitwise XOR operations on database queries, ensuring that deconstructed queries are equivalent to their original counterparts.
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 ^ q2
@@ -195,6 +251,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q(*args, **kwargs), q)
 
     def test_reconstruct_and(self):
+        """
+        Tests that the Q object can be reconstructed correctly from its deconstructed components after applying a logical AND operation.
+        """
         q1 = Q(price__gt=F("discounted_price"))
         q2 = Q(price=F("discounted_price"))
         q = q1 & q2
@@ -202,6 +261,9 @@ class QTests(SimpleTestCase):
         self.assertEqual(Q(*args, **kwargs), q)
 
     def test_equal(self):
+        """
+        Tests the equality of Query objects, ensuring that equivalent queries with differing internal representations are considered equal, while non-equivalent queries are not.
+        """
         self.assertEqual(Q(), Q())
         self.assertEqual(
             Q(("pk__in", (1, 2))),
@@ -221,6 +283,14 @@ class QTests(SimpleTestCase):
         )
 
     def test_hash(self):
+        """
+
+        Checks the consistency of hash values for various Q object instances.
+        Ensures that Q objects with equivalent query conditions have the same hash value,
+        regardless of the format used to specify the conditions, such as tuples, lists, or dictionaries.
+        Also verifies that Q objects with distinct query conditions have different hash values.
+
+        """
         self.assertEqual(hash(Q()), hash(Q()))
         self.assertEqual(
             hash(Q(("pk__in", (1, 2)))),
@@ -240,6 +310,9 @@ class QTests(SimpleTestCase):
         )
 
     def test_flatten(self):
+        """
+        Tests the functionality of the `flatten` method by verifying its output for various query scenarios, ensuring that all nodes in the query tree are properly extracted.
+        """
         q = Q()
         self.assertEqual(list(q.flatten()), [q])
         q = Q(NothingNode())
@@ -267,6 +340,9 @@ class QTests(SimpleTestCase):
     def test_referenced_base_fields(self):
         # Make sure Q.referenced_base_fields retrieves all base fields from
         # both filters and F expressions.
+        """
+        Checks that the referenced_base_fields attribute of a Query object correctly identifies the base fields referenced in the query.
+        """
         tests = [
             (Q(field_1=1) & Q(field_2=1), {"field_1", "field_2"}),
             (
@@ -316,9 +392,7 @@ class QCheckTests(TestCase):
 
     def test_rawsql(self):
         """
-        RawSQL expressions cause a database error because "price" cannot be
-        replaced by its value. In this case, Q.check() logs a warning and
-        return True.
+        Verifies that RawSQL expressions handle database errors, such as when a column name cannot be replaced by its value, by logging a warning and returning True.
         """
         q = Q(RawSQL("price > %s", params=(20,), output_field=BooleanField()))
         with self.assertLogs("django.db.models", "WARNING") as cm:

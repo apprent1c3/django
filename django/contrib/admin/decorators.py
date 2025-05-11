@@ -1,24 +1,20 @@
 def action(function=None, *, permissions=None, description=None):
     """
-    Conveniently add attributes to an action function::
-
-        @admin.action(
-            permissions=['publish'],
-            description='Mark selected stories as published',
-        )
-        def make_published(self, request, queryset):
-            queryset.update(status='p')
-
-    This is equivalent to setting some attributes (with the original, longer
-    names) on the function directly::
-
-        def make_published(self, request, queryset):
-            queryset.update(status='p')
-        make_published.allowed_permissions = ['publish']
-        make_published.short_description = 'Mark selected stories as published'
+    Conveniently adds attributes to an action function, such as permissions and description, through a decorator. This simplifies the process of defining actions with custom permissions and descriptions, making the code more readable and maintainable.
     """
 
     def decorator(func):
+        """
+
+        Decorates a function with permission and description metadata.
+
+        Assigns allowed permissions and a short description to the decorated function,
+        providing additional context for its usage and access control.
+
+        :param func: The function to be decorated
+        :return: The decorated function with updated metadata
+
+        """
         if permissions is not None:
             func.allowed_permissions = permissions
         if description is not None:
@@ -35,27 +31,22 @@ def display(
     function=None, *, boolean=None, ordering=None, description=None, empty_value=None
 ):
     """
-    Conveniently add attributes to a display function::
-
-        @admin.display(
-            boolean=True,
-            ordering='-publish_date',
-            description='Is Published?',
-        )
-        def is_published(self, obj):
-            return obj.publish_date is not None
-
-    This is equivalent to setting some attributes (with the original, longer
-    names) on the function directly::
-
-        def is_published(self, obj):
-            return obj.publish_date is not None
-        is_published.boolean = True
-        is_published.admin_order_field = '-publish_date'
-        is_published.short_description = 'Is Published?'
+    A decorator that conveniently adds display attributes to a function, 
+    such as rendering the output as a boolean, specifying a field for ordering,
+    providing a short description, or displaying a custom value for empty results.
     """
 
     def decorator(func):
+        """
+
+        A decorator to modify function behavior for display purposes.
+
+        Sets various display-related attributes on the decorated function, such as
+        boolean representation, admin ordering field, short description, and
+        empty value display. Raises an error if both boolean and empty_value
+        are provided, as they are mutually exclusive.
+
+        """
         if boolean is not None and empty_value is not None:
             raise ValueError(
                 "The boolean and empty_value arguments to the @display "
@@ -79,20 +70,21 @@ def display(
 
 def register(*models, site=None):
     """
-    Register the given model(s) classes and wrapped ModelAdmin class with
-    admin site:
-
-    @register(Author)
-    class AuthorAdmin(admin.ModelAdmin):
-        pass
-
-    The `site` kwarg is an admin site to use instead of the default admin site.
+    Register one or more model classes with an admin site, optionally specifying a custom admin site. This allows for customization of the admin interface for the registered models.
     """
     from django.contrib.admin import ModelAdmin
     from django.contrib.admin.sites import AdminSite
     from django.contrib.admin.sites import site as default_site
 
     def _model_admin_wrapper(admin_class):
+        """
+
+        Registers a model admin class with the admin site, performing necessary checks and validation.
+
+        :raises ValueError: If no models are provided, the site is not an instance of AdminSite, or the wrapped class does not subclass ModelAdmin.
+        :returns: The registered model admin class
+
+        """
         if not models:
             raise ValueError("At least one model must be passed to register.")
 

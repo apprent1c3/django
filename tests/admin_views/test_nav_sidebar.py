@@ -86,6 +86,9 @@ class AdminSidebarTests(TestCase):
         ]
     )
     def test_sidebar_aria_current_page_missing_without_request_context_processor(self):
+        """
+        Tests that the sidebar does not have aria-current attribute when the request context processor is missing.
+        """
         url = reverse("test_with_sidebar:auth_user_changelist")
         response = self.client.get(url)
         self.assertContains(
@@ -103,6 +106,10 @@ class AdminSidebarTests(TestCase):
             self.client.get(url)
 
     def test_sidebar_model_name_non_ascii(self):
+        """
+        :) 
+        Tests rendering a sidebar with a model name containing non-ASCII characters, verifying the correct display of the model in the admin view.
+        """
         url = reverse("test_with_sidebar:admin_views_héllo_changelist")
         response = self.client.get(url)
         self.assertContains(
@@ -147,6 +154,15 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_can_be_closed(self):
+        """
+
+        Tests that the sidebar can be successfully closed by clicking the toggle button.
+
+        Verifies the initial state of the sidebar and toggle button, then checks the result
+        of clicking the toggle button, ensuring the sidebar is hidden and the main content
+        is shifted accordingly.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(
@@ -170,6 +186,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertNotIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_state_persists(self):
+        """
+        Tests that the Django admin interface's navigation sidebar state persists across page reloads and changes when the sidebar toggle button is clicked.
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(
@@ -220,6 +239,11 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_filter_persists(self):
+        """
+        Tests that the sidebar filter value persists when a filter is applied.
+
+        This test checks that the filter value is stored in session storage when a value is entered into the filter input field, and that the value is not present when no filter has been applied.
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(

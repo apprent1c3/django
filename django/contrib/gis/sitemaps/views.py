@@ -9,9 +9,15 @@ from django.http import Http404
 
 def kml(request, label, model, field_name=None, compress=False, using=DEFAULT_DB_ALIAS):
     """
-    This view generates KML for the given app label, model, and field name.
 
-    The field name must be that of a geographic field.
+    Generates KML (Keyhole Markup Language) data for a given geographic model.
+
+    This view takes an app label, model name, and optional geographic field name, 
+    and returns a KML representation of the associated geographic data. 
+
+    If the ``compress`` parameter is True, the output will be compressed into a KMZ (Keyhole Markup Language Zipped) file, 
+    otherwise a standard KML file is returned.
+
     """
     placemarks = []
     try:

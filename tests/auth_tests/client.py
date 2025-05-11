@@ -27,6 +27,9 @@ class PasswordResetConfirmClient(Client):
     reset_url_token = PasswordResetConfirmView.reset_url_token
 
     def _get_password_reset_confirm_redirect_url(self, url):
+        """
+        Extracts the password reset token from a given URL, stores it in the session, and returns a modified URL for confirmation with the internal reset token replaced.
+        """
         token = extract_token_from_url(url)
         if not token:
             return url

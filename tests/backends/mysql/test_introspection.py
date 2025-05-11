@@ -7,6 +7,9 @@ from django.test import TestCase
 @skipUnless(connection.vendor == "mysql", "MySQL tests")
 class ParsingTests(TestCase):
     def test_parse_constraint_columns(self):
+        """
+        Tests the parsing of SQL check constraint column names, ensuring that the `_parse_constraint_columns` function correctly identifies and returns the column names referenced in a constraint check clause.
+        """
         _parse_constraint_columns = connection.introspection._parse_constraint_columns
         tests = (
             ("`height` >= 0", ["height"], ["height"]),
@@ -34,6 +37,12 @@ class StorageEngineTests(TestCase):
     databases = {"default", "other"}
 
     def test_get_storage_engine(self):
+        """
+        Test retrieval of a database table's storage engine.
+
+        Verifies that the :meth:`introspection.get_storage_engine` method correctly identifies the storage engine 
+        used by a given table in different database connections.
+        """
         table_name = "test_storage_engine"
         create_sql = "CREATE TABLE %s (id INTEGER) ENGINE = %%s" % table_name
         drop_sql = "DROP TABLE %s" % table_name
@@ -68,6 +77,9 @@ class TestCrossDatabaseRelations(TestCase):
     databases = {"default", "other"}
 
     def test_omit_cross_database_relations(self):
+        """
+        Tests whether foreign key relations are correctly omitted when introspecting tables that reference tables in a different database schema.
+        """
         default_connection = connections["default"]
         other_connection = connections["other"]
         main_table = "cross_schema_get_relations_main_table"

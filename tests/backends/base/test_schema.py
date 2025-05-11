@@ -5,7 +5,12 @@ from django.test import SimpleTestCase
 
 class SchemaEditorTests(SimpleTestCase):
     def test_effective_default_callable(self):
-        """SchemaEditor.effective_default() shouldn't call callable defaults."""
+        """
+
+        Verifies that SchemaEditor's effective_default method does not invoke callable defaults.
+        Ensures that the default value returned is the callable itself, rather than its result.
+
+        """
 
         class MyStr(str):
             def __call__(self):

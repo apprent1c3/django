@@ -44,7 +44,9 @@ class UnaccentTest(PostgreSQLTestCase):
         )
 
     def test_unaccent_with_conforming_strings_off(self):
-        """SQL is valid when standard_conforming_strings is off."""
+        """
+        Tests the unaccent filter when Postgres standard_conforming_strings setting is disabled, ensuring SQL remains valid in this configuration.
+        """
         with connection.cursor() as cursor:
             cursor.execute("SHOW standard_conforming_strings")
             disable_conforming_strings = cursor.fetchall()[0][0] == "on"

@@ -27,6 +27,9 @@ class NodelistTest(SimpleTestCase):
 
 class TextNodeTest(SimpleTestCase):
     def test_textnode_repr(self):
+        """
+        Tests the string representation of TextNode objects, ensuring they are correctly formatted as \"<TextNode: 'text'>\" for various input strings, including those with special characters and newline escapes.
+        """
         engine = Engine()
         for temptext, reprtext in [
             ("Hello, world!", "<TextNode: 'Hello, world!'>"),
@@ -44,6 +47,9 @@ class ErrorIndexTest(SimpleTestCase):
     """
 
     def test_correct_exception_index(self):
+        """
+        Tests whether the line and column numbers reported in exceptions raised during template rendering are correct when using invalid tags within nested for loops.
+        """
         tests = [
             (
                 "{% load bad_tag %}{% for i in range %}{% badsimpletag %}{% endfor %}",

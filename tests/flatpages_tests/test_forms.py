@@ -27,7 +27,9 @@ class FlatpageAdminFormTests(TestCase):
         }
 
     def test_flatpage_admin_form_url_validation(self):
-        "The flatpage admin form correctly validates urls"
+        """
+        Verifies that the flatpage admin form correctly validates URLs, allowing special characters while rejecting invalid characters such as spaces and certain special characters.
+        """
         self.assertTrue(
             FlatpageForm(data=dict(url="/new_flatpage/", **self.form_data)).is_valid()
         )
@@ -68,6 +70,9 @@ class FlatpageAdminFormTests(TestCase):
         APPEND_SLASH=True, MIDDLEWARE=["django.middleware.common.CommonMiddleware"]
     )
     def test_flatpage_requires_trailing_slash_with_append_slash(self):
+        """
+        Tests that a FlatpageForm URL requires a trailing slash when APPEND_SLASH is True, validating that the form correctly handles and reports this requirement.
+        """
         form = FlatpageForm(data=dict(url="/no_trailing_slash", **self.form_data))
         with translation.override("en"):
             self.assertEqual(
@@ -92,8 +97,7 @@ class FlatpageAdminFormTests(TestCase):
 
     def test_flatpage_admin_form_url_uniqueness_validation(self):
         """
-        The flatpage admin form correctly enforces url uniqueness among
-        flatpages of the same site.
+        Tests that the Flatpage admin form validates the uniqueness of URLs among flatpages for the same site, preventing duplicate URLs from being saved.
         """
         data = dict(url="/myflatpage1/", **self.form_data)
 
@@ -116,8 +120,7 @@ class FlatpageAdminFormTests(TestCase):
 
     def test_flatpage_admin_form_edit(self):
         """
-        Existing flatpages can be edited in the admin form without triggering
-        the url-uniqueness validation.
+        Tests that an existing flatpage can be edited in the admin form without triggering URL uniqueness validation, ensuring that updates to the page's content are saved correctly.
         """
         existing = FlatPage.objects.create(
             url="/myflatpage1/", title="Some page", content="The content"
@@ -135,6 +138,9 @@ class FlatpageAdminFormTests(TestCase):
         self.assertEqual(updated.title, "A test page")
 
     def test_flatpage_nosites(self):
+        """
+        Tests that a FlatpageForm instance becomes invalid when no sites are selected.
+        """
         data = dict(url="/myflatpage1/", **self.form_data)
         data.update({"sites": ""})
 

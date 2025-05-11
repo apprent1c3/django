@@ -4,6 +4,9 @@ from django.test.testcases import SerializeMixin
 
 class TestSerializeMixin(SimpleTestCase):
     def test_init_without_lockfile(self):
+        """
+        Tests that SerialiseMixin correctly raises a ValueError when its lockfile is not initialized.
+        """
         msg = (
             "ExampleTests.lockfile isn't set. Set it to a unique value in the "
             "base class."

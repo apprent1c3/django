@@ -338,6 +338,9 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_selectdate_required(self):
+        """
+        Tests whether the SelectDateWidget correctly reflects the 'required' attribute of a DateField in a form.
+        """
         class GetNotRequiredDate(Form):
             mydate = DateField(widget=SelectDateWidget, required=False)
 
@@ -348,6 +351,9 @@ class SelectDateWidgetTest(WidgetTest):
         self.assertTrue(GetRequiredDate().fields["mydate"].widget.is_required)
 
     def test_selectdate_empty_label(self):
+        """
+        Tests the functionality of the SelectDateWidget with an empty label, verifying that it correctly displays the label in the rendered HTML for single string and tuple values, and raises a ValueError for tuples with an incorrect number of elements.
+        """
         w = SelectDateWidget(years=("2014",), empty_label="empty_label")
 
         # Rendering the default state with empty_label set as string.
@@ -430,6 +436,9 @@ class SelectDateWidgetTest(WidgetTest):
 
     @translation.override("nl")
     def test_l10n(self):
+        """
+        Tests that the SelectDateWidget widget correctly handles date input and rendering in a localized context, specifically in Dutch ('nl').
+        """
         w = SelectDateWidget(
             years=(
                 "2007",
@@ -545,6 +554,9 @@ class SelectDateWidgetTest(WidgetTest):
 
     @override_settings(DATE_INPUT_FORMATS=["%d.%m.%Y"])
     def test_custom_input_format(self):
+        """
+        Tests the functionality of a date widget with a custom input format, ensuring it correctly handles date parsing and formatting. The test covers different date values and confirms that the widget produces the expected output when given a variety of date strings and when asked to format a date value back into its component parts.
+        """
         w = SelectDateWidget(years=("0001", "1899", "2009", "2010"))
         with translation.override(None):
             for values, expected_value in (
@@ -567,6 +579,9 @@ class SelectDateWidgetTest(WidgetTest):
                     self.assertEqual(w.format_value(expected_value), expected_dict)
 
     def test_format_value(self):
+        """
+        Tests the format_value method of a widget, verifying it correctly parses date strings into year, month, and day components, and returns None for each component if the input string is in an invalid format.
+        """
         valid_formats = [
             "2000-1-1",
             "2000-10-15",
@@ -603,6 +618,9 @@ class SelectDateWidgetTest(WidgetTest):
                 )
 
     def test_value_from_datadict(self):
+        """
+        Tests the widget's value_from_datadict method to ensure correct date string construction from a dictionary of year, month, and day values.
+        """
         tests = [
             (("2000", "12", "1"), "2000-12-01"),
             (("", "12", "1"), "0-12-1"),
@@ -629,6 +647,9 @@ class SelectDateWidgetTest(WidgetTest):
                 )
 
     def test_value_omitted_from_data(self):
+        """
+        Determines whether a value has been omitted from the provided data for a specific field, considering date fields with day, month, and year components.
+        """
         self.assertIs(self.widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
             self.widget.value_omitted_from_data({"field_month": "12"}, {}, "field"),
@@ -711,6 +732,9 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests the rendering of a DateField within a fieldset, ensuring the widget is correctly enclosed in a fieldset and legend.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = DateField(widget=self.widget)

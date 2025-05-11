@@ -60,6 +60,9 @@ class TestGeom(TestObj):
         # Converting lists to tuples of certain keyword args
         # so coordinate test cases will match (JSON has no
         # concept of tuple).
+        """
+        Initialize a geometric object, optionally specifying its coordinates, centroid, and exterior ring coordinates, and passing additional keyword arguments to the parent class.
+        """
         if coords:
             self.coords = tuplize(coords)
         if centroid:

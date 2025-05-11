@@ -120,6 +120,15 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_ulitem(self):
+        """
+
+        Tests the formatting of unordered list items.
+
+        Verifies that the unordered_list function correctly formats a list of items,
+        escaping any HTML characters in the item titles, and that it works with both
+        lists and generators of items.
+
+        """
         class ULItem:
             def __init__(self, title):
                 self.title = title
@@ -146,6 +155,12 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_nested_generators(self):
+        """
+        Tests the generation of unordered HTML lists with nested generators.
+
+        Verifies that the unordered_list function correctly handles nested generators
+        and produces the expected HTML output for a list containing a sublist.
+        """
         def inner_generator():
             yield from ("B", "C")
 
@@ -161,6 +176,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_ulitem_autoescape_off(self):
+        """
+        Tests the unordered_list function with autoescape disabled, verifying that it correctly generates an unordered list from a list or generator of items, without escaping HTML characters in the item titles.
+        """
         class ULItem:
             def __init__(self, title):
                 self.title = title

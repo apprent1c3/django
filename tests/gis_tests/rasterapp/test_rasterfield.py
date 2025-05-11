@@ -54,6 +54,12 @@ class RasterFieldTest(TransactionTestCase):
         qs[0].rast.bands[0].data()
 
     def test_deserialize_with_pixeltype_flags(self):
+        """
+
+        Tests the deserialization of a raster object with pixel type flags, specifically the 'no data' flag.
+        Verifies that the 'no data' value is correctly set and preserved after updating the raster object.
+
+        """
         no_data = 3
         rast = GDALRaster(
             {
@@ -80,7 +86,7 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_model_creation(self):
         """
-        Test RasterField through a test model.
+        Tests the creation of a RasterModel instance to ensure its RasterField is correctly populated and verified against expected values, including width, height, geotransform, nodata value, and spatial reference system ID.
         """
         # Create model instance from JSON raster
         r = RasterModel.objects.create(rast=JSON_RASTER)
@@ -131,8 +137,7 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_implicit_raster_transformation(self):
         """
-        Test automatic transformation of rasters with srid different from the
-        field srid.
+        Verifies that raster data with a differing SRID is automatically transformed to match the expected SRID (4326) during creation, including its geotransform values.
         """
         # Parse json raster
         rast = json.loads(JSON_RASTER)
@@ -165,10 +170,8 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_all_gis_lookups_with_rasters(self):
         """
-        Evaluate all possible lookups for all input combinations (i.e.
-        raster-raster, raster-geom, geom-raster) and for projected and
-        unprojected coordinate systems. This test just checks that the lookup
-        can be called, but doesn't check if the result makes logical sense.
+        Tests all possible geographic information system (GIS) lookups for various input combinations, including raster-raster, raster-geometry, and geometry-raster, with both projected and unprojected coordinate systems. 
+        Verifies that lookups can be called without errors, but does not validate the logical correctness of the results.
         """
         from django.contrib.gis.db.backends.postgis.operations import PostGISOperations
 
@@ -275,8 +278,7 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_dwithin_gis_lookup_output_with_rasters(self):
         """
-        Check the logical functionality of the dwithin lookup for different
-        input parameters.
+        Tests the functionality of the dwithin lookup for GIS data, verifying that it correctly filters results based on distance and raster data.
         """
         # Create test raster and geom.
         rast = GDALRaster(json.loads(JSON_RASTER))
@@ -350,6 +352,9 @@ class RasterFieldTest(TransactionTestCase):
             RasterModel.objects.filter(rast__bbcontains=(rast, 1, 2))
 
     def test_lookup_input_band_not_allowed(self):
+        """
+        Tests that attempting to use band indices with the ``bbcontains`` operator raises a ``ValueError``, as this operator only supports bbox-based lookups.
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         qs = RasterModel.objects.filter(rast__bbcontains=(rast, 1))
         msg = "Band indices are not allowed for this operator, it works on bbox only."
@@ -366,6 +371,9 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_result_of_gis_lookup_with_rasters(self):
         # Point is in the interior
+        """
+        Tests the results of GIS lookup operations involving rasters, ensuring proper filtering based on spatial relationships such as containment and proximity.
+        """
         qs = RasterModel.objects.filter(
             rast__contains=GEOSGeometry("POINT (-0.5 0.5)", 4326)
         )
@@ -385,6 +393,13 @@ class RasterFieldTest(TransactionTestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_lookup_with_raster_bbox(self):
+        """
+        Tests the lookup of raster models based on their geographical bounding box.
+
+        Checks that the RasterModel objects are correctly filtered using the 'strictly_below' 
+        spatial lookup with a given raster's bounding box, verifying the exclusion or inclusion 
+        of models based on their spatial relationship to the raster.
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         # Shift raster upward
         rast.origin.y = 2
@@ -398,6 +413,11 @@ class RasterFieldTest(TransactionTestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_lookup_with_polygonized_raster(self):
+        """
+        Tests that spatial lookups work correctly with polygonized rasters, 
+        verifying that the filter returns expected results when the raster 
+        intersects or does not intersect with the geometry of stored RasterModel objects.
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         # Move raster to overlap with the model point on the left side
         rast.origin.x = -95.37040 + 1
@@ -415,6 +435,9 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_lookup_value_error(self):
         # Test with invalid dict lookup parameter
+        """
+        Tests whether a ValueError is raised when an invalid lookup value is used with spatial object creation in RasterModel filters, ensuring that non-geometric values are properly handled and reported as errors.
+        """
         obj = {}
         msg = "Couldn't create spatial object from lookup value '%s'." % obj
         with self.assertRaisesMessage(ValueError, msg):
@@ -427,7 +450,7 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_db_function_errors(self):
         """
-        Errors are raised when using DB functions with raster content.
+        Tests that using database functions with raster content raises the expected errors, specifically when attempting to calculate distances involving raster fields.
         """
         point = GEOSGeometry("SRID=3086;POINT (-697024.9213808845 683729.1705516104)")
         rast = GDALRaster(json.loads(JSON_RASTER))

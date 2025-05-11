@@ -33,6 +33,9 @@ class FloatformatTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_inputs(self):
+        """
+        Tests the floatformat function with various inputs, including different numerical values, decimal places, and edge cases, to ensure it produces the expected output.
+        """
         self.assertEqual(floatformat(7.7), "7.7")
         self.assertEqual(floatformat(7.0), "7")
         self.assertEqual(floatformat(0.7), "0.7")
@@ -75,6 +78,11 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(1.00000000000000015, 16), "1.0000000000000002")
 
     def test_invalid_inputs(self):
+        """
+        Test cases for invalid inputs to the floatformat function.
+
+        Verifies that a variety of non-numeric and malformed strings, as well as None and empty data structures, are correctly handled and return an empty string.
+        """
         cases = [
             # Non-numeric strings.
             None,
@@ -114,6 +122,11 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(floatformat(value, "bar"), "")
 
     def test_force_grouping(self):
+        """
+        Tests the floatformat function with group separator settings in different locales.\"\"\"
+
+        \"\"\"Verifies correct grouping and decimal separation of numbers in English and German locales.
+        """
         with translation.override("en"):
             self.assertEqual(floatformat(10000, "g"), "10,000")
             self.assertEqual(floatformat(66666.666, "1g"), "66,666.7")
@@ -126,6 +139,13 @@ class FunctionTests(SimpleTestCase):
             self.assertEqual(floatformat(10000, "g2"), "10000")
 
     def test_unlocalize(self):
+        """
+        Test the unlocalization of floating point numbers in various formats.
+
+        This test case ensures that numbers are formatted correctly when localization is
+        overridden or deactivated, covering different format specifiers and settings
+        for thousand separators and number grouping.
+        """
         with translation.override("de", deactivate=True):
             self.assertEqual(floatformat(66666.666, "2"), "66666,67")
             self.assertEqual(floatformat(66666.666, "2u"), "66666.67")
@@ -140,6 +160,14 @@ class FunctionTests(SimpleTestCase):
             self.assertEqual(floatformat(66666.666, "u2"), "66666.666")
 
     def test_zero_values(self):
+        """
+
+        Verify the correctness of the floatformat function when handling zero and very small values.
+
+        Tests various input types, including integers, floats, strings, and decimals, 
+        with different precision requirements to ensure accurate formatting.
+
+        """
         self.assertEqual(floatformat(0, 6), "0.000000")
         self.assertEqual(floatformat(0, 7), "0.0000000")
         self.assertEqual(floatformat(0, 10), "0.0000000000")
@@ -164,6 +192,9 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(floatformat(num, decimal_places), expected)
 
     def test_infinity(self):
+        """
+        Tests the floatformat function's handling of infinity and NaN values, verifying that it correctly represents positive and negative infinity, as well as Not a Number results from invalid operations.
+        """
         pos_inf = float(1e30000)
         neg_inf = float(-1e30000)
         self.assertEqual(floatformat(pos_inf), "inf")
@@ -171,6 +202,9 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(pos_inf / pos_inf), "nan")
 
     def test_float_dunder_method(self):
+        """
+        Tests the float format functionality with a custom class that implements the __float__ dunder method, ensuring it correctly formats the value as a string.
+        """
         class FloatWrapper:
             def __init__(self, value):
                 self.value = value
@@ -182,7 +216,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_low_decimal_precision(self):
         """
-        #15789
+        Verifies that floatformat correctly formats floating point numbers with low decimal precision, handling both integer and string precision values, as well as Decimal objects.
         """
         with localcontext() as ctx:
             ctx.prec = 2

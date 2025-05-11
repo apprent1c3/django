@@ -123,8 +123,7 @@ class FilterSyntaxTests(SimpleTestCase):
     @setup({"filter-syntax13": r"1{{ var.method3 }}2"})
     def test_filter_syntax13(self):
         """
-        Fail silently for methods that raise an exception with a
-        `silent_variable_failure` attribute
+        Tests rendering behavior when a filter method raises an exception with `silent_variable_failure` attribute, verifying silent failure or display of 'INVALID' based on engine settings.
         """
         output = self.engine.render_to_string("filter-syntax13", {"var": SomeClass()})
         if self.engine.string_if_invalid:
@@ -194,8 +193,7 @@ class FilterSyntaxTests(SimpleTestCase):
     @setup({"filter-syntax21": r"1{{ var.silent_fail_key }}2"})
     def test_filter_syntax21(self):
         """
-        Fail silently for non-callable attribute and dict lookups which
-        raise an exception with a "silent_variable_failure" attribute
+        Tests the filter syntax for silently failing when accessing non-callable attributes or dictionary keys that raise an exception with a \"silent_variable_failure\" attribute.
         """
         output = self.engine.render_to_string("filter-syntax21", {"var": SomeClass()})
         if self.engine.string_if_invalid:
@@ -206,8 +204,7 @@ class FilterSyntaxTests(SimpleTestCase):
     @setup({"filter-syntax22": r"1{{ var.silent_fail_attribute }}2"})
     def test_filter_syntax22(self):
         """
-        Fail silently for non-callable attribute and dict lookups which
-        raise an exception with a `silent_variable_failure` attribute
+        Tests the behavior of the templating engine when encountering non-callable attributes or dict lookups that raise an exception with a `silent_variable_failure` attribute, verifying that it either renders the 'INVALID' string or silently omits the failed variable, depending on the engine's configuration.
         """
         output = self.engine.render_to_string("filter-syntax22", {"var": SomeClass()})
         if self.engine.string_if_invalid:

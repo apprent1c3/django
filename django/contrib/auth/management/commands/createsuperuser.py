@@ -36,6 +36,9 @@ class Command(BaseCommand):
         )
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments for creating a superuser to a parser. The arguments include the username, an option to prevent prompting for input, the database to use, and any other required fields for the user model.
+        """
         parser.add_argument(
             "--%s" % self.UserModel.USERNAME_FIELD,
             help="Specifies the login for the superuser.",
@@ -90,6 +93,15 @@ class Command(BaseCommand):
         return super().execute(*args, **options)
 
     def handle(self, *args, **options):
+        """
+        Handles the creation of a superuser, either interactively or non-interactively.
+
+        Prompts the user for required fields, validates the input data, and creates a new superuser instance.
+
+        The creation process can be customized using command-line options, such as specifying a database or setting environment variables for default values.
+
+        Raises a CommandError if validation fails or if required fields are not provided when running non-interactively.
+        """
         username = options[self.UserModel.USERNAME_FIELD]
         database = options["database"]
         user_data = {}
@@ -255,8 +267,12 @@ class Command(BaseCommand):
 
     def get_input_data(self, field, message, default=None):
         """
-        Override this method if you want to customize data inputs or
-        validation exceptions.
+
+        Retrieves input data from the user, applies validation, and returns the cleaned value.
+
+        พระargent field is used for validation. If no input is provided and a default value is specified,
+        the default value is used. If validation fails, an error message is displayed.
+
         """
         raw_value = input(message)
         if default and raw_value == "":
@@ -299,7 +315,16 @@ class Command(BaseCommand):
         )
 
     def _validate_username(self, username, verbose_field_name, database):
-        """Validate username. If invalid, return a string error message."""
+        """
+        Validate a username against database uniqueness and field validation rules.
+
+        Returns an error message if the username is invalid, otherwise returns None.
+
+        Validation checks include:
+            - Uniqueness in the specified database
+            - Non-blank value
+            - Compliance with the username field's cleaning rules
+        """
         if self.username_is_unique:
             try:
                 self.UserModel._default_manager.db_manager(database).get_by_natural_key(

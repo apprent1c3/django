@@ -24,6 +24,10 @@ class XFrameOptionsMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # Don't set it if it's already in the response
+        """
+        Sets the 'X-Frame-Options' header in the response if it's not already present, 
+        unless the response is exempt from this rule, to prevent clickjacking attacks.
+        """
         if response.get("X-Frame-Options") is not None:
             return response
 

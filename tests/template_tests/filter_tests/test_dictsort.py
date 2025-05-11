@@ -17,6 +17,15 @@ class User:
 
 class FunctionTests(SimpleTestCase):
     def test_property_resolver(self):
+        """
+
+        Tests the functionality of the _property_resolver function.
+
+        Verifies that it can correctly resolve properties from dictionary and list objects,
+        handling various nested structures and data types, including integers, strings, and objects.
+        Additionally, it checks that the function raises the expected exceptions when attempting to access non-existent or inaccessible properties.
+
+        """
         user = User()
         dict_data = {
             "a": {
@@ -107,8 +116,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_invalid_values(self):
         """
-        If dictsort is passed something other than a list of dictionaries,
-        fail silently.
+        Tests dictsort function behavior with invalid input values, verifying it fails silently when passed non-list or non-dictionary values.
         """
         self.assertEqual(dictsort([1, 2, 3], "age"), "")
         self.assertEqual(dictsort("Hello!", "age"), "")

@@ -12,6 +12,9 @@ class ApiTests(SimpleTestCase):
         self.storage = DummyStorage()
 
     def test_ok(self):
+        """
+        Verifies that a message can be successfully added to the request and stored in the storage system.
+        """
         msg = "some message"
         self.request._messages = self.storage
         messages.add_message(self.request, messages.DEBUG, msg)
@@ -19,6 +22,15 @@ class ApiTests(SimpleTestCase):
         self.assertEqual(msg, message.message)
 
     def test_request_is_none(self):
+        """
+
+        Tests that passing None to add_message raises a TypeError when expected.
+
+        Verifies that the add_message function correctly handles the case where the request
+        argument is None, ensuring that it fails with a TypeError as specified in the
+        expected error message.
+
+        """
         msg = "add_message() argument must be an HttpRequest object, not 'NoneType'."
         self.request._messages = self.storage
         with self.assertRaisesMessage(TypeError, msg):

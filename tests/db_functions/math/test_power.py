@@ -8,6 +8,9 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class PowerTests(TestCase):
     def test_null(self):
+        """
+        Tests that the Power database function correctly handles null values by annotating an IntegerModel instance with power calculations involving null fields and verifying that the results are null.
+        """
         IntegerModel.objects.create(big=100)
         obj = IntegerModel.objects.annotate(
             null_power_small=Power("small", "normal"),
@@ -31,6 +34,9 @@ class PowerTests(TestCase):
         self.assertAlmostEqual(obj.f_power, obj.f1**obj.f2)
 
     def test_integer(self):
+        """
+        Tests the Power database function on integer fields, verifying its correctness and return type.
+        """
         IntegerModel.objects.create(small=-1, normal=20, big=3)
         obj = IntegerModel.objects.annotate(
             small_power=Power("small", "normal"),

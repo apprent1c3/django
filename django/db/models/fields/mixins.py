@@ -32,6 +32,9 @@ class FieldCacheMixin:
         return cache_name
 
     def get_cached_value(self, instance, default=NOT_PROVIDED):
+        """
+        Retrieves a cached value from the given instance, returning the default value if not found in the cache. If no default is provided, raises a KeyError instead.
+        """
         try:
             return instance._state.fields_cache[self.cache_name]
         except KeyError:

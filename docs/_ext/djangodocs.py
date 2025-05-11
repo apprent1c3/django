@@ -25,6 +25,16 @@ simple_option_desc_re = re.compile(r"([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$
 
 
 def setup(app):
+    """
+    Configures the Sphinx application for Django documentation.
+
+    This function sets up cross-references, object types, directives, and builders to enable
+    proper documentation and linking of Django-specific concepts, such as settings,
+    template tags, and admin commands. It also configures custom translators and nodes
+    to handle Django-specific output formats.
+
+    Returns a dictionary with configuration settings for the Sphinx application.
+    """
     app.add_crossref_type(
         directivename="setting",
         rolename="setting",
@@ -80,6 +90,16 @@ class VersionDirective(Directive):
     option_spec = {}
 
     def run(self):
+        """
+
+        Generate and process a version modified node for documentation.
+
+        This function checks the provided arguments, creates a version modified node,
+        and adds the content and version information to it. If the version is the next
+        Django version, it is labeled as 'Development version'. The function then
+        notifies the environment about the version change.
+
+        """
         if len(self.arguments) > 1:
             msg = """Only one argument accepted for directive '{directive_name}::'.
             Comments should be provided as content,
@@ -128,6 +148,9 @@ class DjangoHTMLTranslator(HTMLTranslator):
         self.body.append("</table>\n")
 
     def visit_desc_parameterlist(self, node):
+        """
+        Visit a description parameter list node in the document tree, initializing variables and counters to handle parameter list rendering.
+        """
         self.body.append("(")  # by default sphinx puts <big> around the "("
         self.optional_param_level = 0
         self.param_separator = node.child_text_separator
@@ -165,6 +188,9 @@ class DjangoHTMLTranslator(HTMLTranslator):
     }
 
     def visit_versionmodified(self, node):
+        """
+        -visits a \"versionmodified\" node, generating the corresponding HTML content, including a div tag and a span title describing the version modification type and version number.
+        """
         self.body.append(self.starttag(node, "div", CLASS=node["type"]))
         version_text = self.version_text.get(node["type"])
         if version_text:
@@ -176,6 +202,12 @@ class DjangoHTMLTranslator(HTMLTranslator):
 
     # Give each section a unique ID -- nice for custom CSS hooks
     def visit_section(self, node):
+        """
+        ..:param node: The section node being visited
+        :returns: None
+        Modifies the 'ids' attribute of the given section node by prefixing each ID with 's-', 
+        temporarily allowing for modified processing, then restores the original IDs.
+        """
         old_ids = node.get("ids", [])
         node["ids"] = ["s-" + i for i in old_ids]
         node["ids"].extend(old_ids)
@@ -184,6 +216,12 @@ class DjangoHTMLTranslator(HTMLTranslator):
 
 
 def parse_django_admin_node(env, sig, signode):
+    """
+    #: Parse a Django admin command and update the documentation environment.
+    #: 
+    #: This function processes a Django admin node and prepares it for documentation, 
+    #: setting the command as the reference context and generating a title for the node.
+    """
     command = sig.split(" ")[0]
     env.ref_context["std:program"] = command
     title = "django-admin %s" % sig
@@ -199,6 +237,9 @@ class DjangoStandaloneHTMLBuilder(StandaloneHTMLBuilder):
     name = "djangohtml"
 
     def finish(self):
+        """
+        Finalizes the build process by writing a JavaScript file containing Django template builtins.
+        """
         super().finish()
         logger.info(bold("writing templatebuiltins.js..."))
         xrefs = self.env.domaindata["std"]["objects"]
@@ -249,7 +290,9 @@ def depart_console_dummy(self, node):
 
 
 def visit_console_html(self, node):
-    """Generate HTML for the console directive."""
+    """
+    Generates HTML for the console directive, displaying both Unix and Windows console output when supported by the builder, or falling back to a literal block otherwise.
+    """
     if self.builder.name in ("djangohtml", "json") and node["win_console_text"]:
         # Put a mark on the document object signaling the fact the directive
         # has been used on it.
@@ -307,7 +350,30 @@ class ConsoleDirective(CodeBlock):
     WIN_PROMPT = r"...\> "
 
     def run(self):
+        """
+
+        Adjusts console commands and content to be compatible with Windows environments.
+
+        Converts Unix-style paths and commands to their Windows equivalents, allowing for
+        seamless execution and display in a Windows-based console.
+
+        This function is particularly useful for generating documentation that includes
+        console commands and code blocks, ensuring that the content is usable across
+        different operating systems.
+
+        """
         def args_to_win(cmdline):
+            """
+            Convert Unix-style command line arguments to their Windows equivalents.
+
+            This function replaces Unix path prefixes with their Windows counterparts,
+            handles the 'make' command, and converts forward slashes to backslashes
+            if necessary, ensuring compatibility with Windows command line syntax.
+
+            :return: The converted command line string if any modifications were made, 
+                     otherwise the original command line string.
+
+            """
             changed = False
             out = []
             for token in cmdline.split():
@@ -330,6 +396,9 @@ class ConsoleDirective(CodeBlock):
             return cmdline
 
         def cmdline_to_win(line):
+            """
+            Convert a command line string from a Unix-like shell to a format suitable for a Windows command prompt.
+            """
             if line.startswith("# "):
                 return "REM " + args_to_win(line[2:])
             if line.startswith("$ # "):
@@ -351,6 +420,9 @@ class ConsoleDirective(CodeBlock):
             return None
 
         def code_block_to_win(content):
+            """
+            Converts a list of command lines to Windows format, prepending a Windows prompt to modified lines and returning the result as a ViewList if any changes were made, otherwise returns None.
+            """
             bchanged = False
             lines = []
             for line in content:

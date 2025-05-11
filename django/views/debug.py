@@ -61,8 +61,15 @@ class CallableSettingWrapper:
 
 def technical_500_response(request, exc_type, exc_value, tb, status_code=500):
     """
-    Create a technical server error response. The last three arguments are
-    the values returned from sys.exc_info() and friends.
+    Create a technical server error response for an exception that occurred on the server.
+
+    The function generates an error response in either HTML or plain text format, depending on the client's preferred content type, and returns it with a specified status code.
+
+    :arg request: The current request object.
+    :arg exc_type: The type of the exception that occurred.
+    :arg exc_value: The value of the exception that occurred.
+    :arg tb: The traceback object associated with the exception.
+    :arg int status_code: The HTTP status code to return (default is 500).
     """
     reporter = get_exception_reporter_class(request)(request, exc_type, exc_value, tb)
     if request.accepts("text/html"):
@@ -96,6 +103,9 @@ def get_exception_reporter_class(request):
 
 
 def get_caller(request):
+    """
+    Gets the URL path of the view function handling the current request, if it can be determined.
+    """
     resolver_match = request.resolver_match
     if resolver_match is None:
         try:
@@ -118,8 +128,7 @@ class SafeExceptionReporterFilter:
 
     def cleanse_setting(self, key, value):
         """
-        Cleanse an individual setting key/value of sensitive content. If the
-        value is a dictionary, recursively cleanse the keys in that dictionary.
+        Removes sensitive information from a settings key-value pair, recursively cleansing dictionary values or keeping other data types unchanged.
         """
         if key == settings.SESSION_COOKIE_NAME:
             is_sensitive = True
@@ -147,8 +156,7 @@ class SafeExceptionReporterFilter:
 
     def get_safe_settings(self):
         """
-        Return a dictionary of the settings module with values of sensitive
-        settings replaced with stars (*********).
+        Return a dictionary of the settings module with sensitive values censored for security.
         """
         settings_dict = {}
         for k in dir(settings):
@@ -183,9 +191,11 @@ class SafeExceptionReporterFilter:
 
     def get_cleansed_multivaluedict(self, request, multivaluedict):
         """
-        Replace the keys in a MultiValueDict marked as sensitive with stars.
-        This mitigates leaking sensitive POST parameters if something like
-        request.POST['nonexistent_key'] throws an exception (#21098).
+
+            Sanitizes a MultiValueDict by replacing sensitive POST parameters with starred values.
+
+            This helps prevent sensitive information leakage in case of exceptions or logging.
+
         """
         sensitive_post_parameters = getattr(request, "sensitive_post_parameters", [])
         if self.is_active(request) and sensitive_post_parameters:
@@ -197,8 +207,9 @@ class SafeExceptionReporterFilter:
 
     def get_post_parameters(self, request):
         """
-        Replace the values of POST parameters marked as sensitive with
-        stars (*********).
+        Mask sensitive POST parameters by replacing their values with asterisks, 
+        for the purpose of secure logging or auditing, if the current request context 
+        requires sensitive data protection and specific parameters are flagged as sensitive.
         """
         if request is None:
             return {}
@@ -223,6 +234,15 @@ class SafeExceptionReporterFilter:
                 return request.POST
 
     def cleanse_special_types(self, request, value):
+        """
+
+        Cleanses special types in a request value, handling MultiValueDict instances.
+
+        This method ensures that specific types are properly processed to extract clean and usable data from the request.
+
+        :return: The cleansed request value
+
+        """
         try:
             # If value is lazy or a complex object of another kind, this check
             # might raise an exception. isinstance checks that lazy
@@ -238,8 +258,7 @@ class SafeExceptionReporterFilter:
 
     def get_traceback_frame_variables(self, request, tb_frame):
         """
-        Replace the values of variables marked as sensitive with
-        stars (*********).
+        Redacts sensitive variables from a traceback frame, replacing their values with asterisks if the feature is active and sensitive variables are defined, otherwise cleanses special types from the frame's local variables.
         """
         sensitive_variables = None
 
@@ -319,6 +338,19 @@ class ExceptionReporter:
         return builtin_template_path("technical_500.txt")
 
     def __init__(self, request, exc_type, exc_value, tb, is_email=False):
+        """
+
+        Initialize an exception reporter for a given request and exception.
+
+        :param request: The current request being processed
+        :param exc_type: The type of exception that occurred
+        :param exc_value: The value of the exception that occurred
+        :param tb: The traceback of the exception
+        :param is_email: Whether this exception report is intended for email
+
+        Attributes initialized by this method are used to generate a report of the exception.
+
+        """
         self.request = request
         self.filter = get_exception_reporter_filter(self.request)
         self.exc_type = exc_type
@@ -342,7 +374,9 @@ class ExceptionReporter:
         )
 
     def get_traceback_data(self):
-        """Return a dictionary containing traceback information."""
+        """
+        Return a dictionary containing traceback information, including frames, request data, system information, and exception details, for use in error reporting and debugging.
+        """
         if self.exc_type and issubclass(self.exc_type, TemplateDoesNotExist):
             self.template_does_not_exist = True
             self.postmortem = self.exc_value.chain or [self.exc_value]
@@ -422,20 +456,28 @@ class ExceptionReporter:
         return c
 
     def get_traceback_html(self):
-        """Return HTML version of debug 500 HTTP error page."""
+        """
+        Return an HTML representation of the traceback for a 500 HTTP error, formatted for display in a web page.
+        """
         with self.html_template_path.open(encoding="utf-8") as fh:
             t = DEBUG_ENGINE.from_string(fh.read())
         c = Context(self.get_traceback_data(), use_l10n=False)
         return t.render(c)
 
     def get_traceback_text(self):
-        """Return plain text version of debug 500 HTTP error page."""
+        """
+        Return a plain text representation of the debug 500 HTTP error page, rendering the error traceback data into a template.
+        """
         with self.text_template_path.open(encoding="utf-8") as fh:
             t = DEBUG_ENGINE.from_string(fh.read())
         c = Context(self.get_traceback_data(), autoescape=False, use_l10n=False)
         return t.render(c)
 
     def _get_source(self, filename, loader, module_name):
+        """
+        Retrieves the source code of a module, first attempting to use the loader's get_source method, 
+        then falling back to reading the module's file if necessary.
+        """
         source = None
         if hasattr(loader, "get_source"):
             try:
@@ -456,8 +498,7 @@ class ExceptionReporter:
         self, filename, lineno, context_lines, loader=None, module_name=None
     ):
         """
-        Return context_lines before and after lineno from file.
-        Return (pre_context_lineno, pre_context, context_line, post_context).
+        Retrieves specified lines from a file, providing context around a given line number. Returns a tuple containing the line number of the pre-context start, the lines preceding the target line, the target line itself, and the lines following the target line.
         """
         source = self._get_source(filename, loader, module_name)
         if source is None:
@@ -496,6 +537,11 @@ class ExceptionReporter:
 
     def get_traceback_frames(self):
         # Get the exception and all its causes
+        """
+        Retrieves the traceback frames for the exception chain associated with this object. 
+        It traverses the exception hierarchy, handling possible cycles in the chain and 
+        returns a list of frames for the entire exception chain in reverse order.
+        """
         exceptions = []
         exc_value = self.exc_value
         while exc_value:
@@ -528,6 +574,15 @@ class ExceptionReporter:
         return frames
 
     def get_exception_traceback_frames(self, exc_value, tb):
+        """
+        Generates a traceback frames iterator, providing detailed information about each frame in the exception's traceback.
+
+        The iterator yields dictionaries containing frame details such as filename, function, line number, and local variables. It also categorizes frames as either 'django' or 'user' based on the module name, and includes pre- and post-context lines from the source code file.
+
+        The frame details are enriched with additional information, including the explicit cause of the exception and the type of frame, as well as line and column numbers for the exception-causing code. 
+
+        The function handles missing or unavailable source code by providing a fallback message. It also takes into account the `__traceback_hide__` local variable to skip frames marked for hiding.
+        """
         exc_cause = self._get_explicit_or_implicit_cause(exc_value)
         exc_cause_explicit = getattr(exc_value, "__cause__", True)
         if tb is None:
@@ -606,7 +661,21 @@ class ExceptionReporter:
 
 
 def technical_404_response(request, exception):
-    """Create a technical 404 error response. `exception` is the Http404."""
+    """
+    Return a technical 404 error response for the given request and exception.
+
+    This function generates a detailed 404 error page, including the URL that caused the error, 
+    the URL configuration, and the view that was attempted to be called. It handles exceptions 
+    where the error URL or previously attempted URLs are not available, and provides a default 
+    URL configuration if necessary.
+
+    The response is rendered using a template, and includes relevant request and settings data 
+    for debugging purposes. 
+
+    :param request: The current HTTP request.
+    :param exception: The Http404 exception that caused the 404 error.
+    :rtype: HttpResponseNotFound
+    """
     try:
         error_url = exception.args[0]["path"]
     except (IndexError, TypeError, KeyError):
@@ -653,7 +722,9 @@ def technical_404_response(request, exception):
 
 
 def default_urlconf(request):
-    """Create an empty URLconf 404 error response."""
+    """
+    Returns an HTTP response with a 404 error, rendering the default URLconf template with the current documentation version.
+    """
     with builtin_template_path("default_urlconf.html").open(encoding="utf-8") as fh:
         t = DEBUG_ENGINE.from_string(fh.read())
     c = Context(

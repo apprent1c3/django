@@ -50,6 +50,9 @@ class NormalizeTests(unittest.TestCase):
 
 class LazyReCompileTests(SimpleTestCase):
     def test_flags_with_pre_compiled_regex(self):
+        """
+        Tests that an assertion error is raised when attempting to use a pre-compiled regular expression with flags, ensuring only empty flags are used in this case.
+        """
         test_pattern = re.compile("test")
         lazy_test_pattern = regex_helper._lazy_re_compile(test_pattern, re.I)
         msg = "flags must be empty if regex is passed pre-compiled"

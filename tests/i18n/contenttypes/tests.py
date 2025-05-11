@@ -18,6 +18,12 @@ from django.utils import translation
 )
 class ContentTypeTests(TestCase):
     def test_verbose_name(self):
+        """
+        Tests the verbose name of a ContentType instance for translation correctness.
+
+        Verifies that the string representation of a ContentType object is correctly translated
+        into different languages, specifically English and French, using override functionality.
+        """
         company_type = ContentType.objects.get(app_label="i18n", model="company")
         with translation.override("en"):
             self.assertEqual(str(company_type), "I18N | Company")

@@ -14,9 +14,7 @@ from .base import CommandError, CommandParser
 
 def popen_wrapper(args, stdout_encoding="utf-8"):
     """
-    Friendly wrapper around Popen.
-
-    Return stdout output, stderr output, and OS status code.
+    Executes a command with the provided arguments and returns its output, capturing both stdout and stderr, along with the command's return code, providing a convenient and error-handling interface around the system's Popen functionality.
     """
     try:
         p = run(args, capture_output=True, close_fds=os.name != "nt")
@@ -31,16 +29,12 @@ def popen_wrapper(args, stdout_encoding="utf-8"):
 
 def handle_extensions(extensions):
     """
-    Organize multiple extensions that are separated with commas or passed by
-    using --extension/-e multiple times.
+    Organize multiple extensions into a standardized set of file extensions.
 
-    For example: running 'django-admin makemessages -e js,txt -e xhtml -a'
-    would result in an extension list: ['.js', '.txt', '.xhtml']
-
-    >>> handle_extensions(['.html', 'html,js,py,py,py,.py', 'py,.py'])
-    {'.html', '.js', '.py'}
-    >>> handle_extensions(['.html, txt,.tpl'])
-    {'.html', '.tpl', '.txt'}
+    The function takes a list of extensions as input, which may be comma-separated or 
+    provided as multiple items, and returns a set of extensions with leading dots added 
+    if necessary. It removes any duplicates and ignores whitespace to produce a 
+    consistent list of file extensions.
     """
     ext_list = []
     for ext in extensions:
@@ -52,6 +46,17 @@ def handle_extensions(extensions):
 
 
 def find_command(cmd, path=None, pathext=None):
+    """
+    Find the executable path for a given command.
+
+    Searches for the command in the system's PATH environment variable or a provided path,
+    and returns the full path to the command if found, including any file extension.
+
+    :param cmd: The command to search for.
+    :param path: Optional path to search in, defaults to the system's PATH environment variable.
+    :param pathext: Optional list of file extensions to check, defaults to the system's PATHEXT environment variable.
+    :return: The full path to the command if found, otherwise None.
+    """
     if path is None:
         path = os.environ.get("PATH", "").split(os.pathsep)
     if isinstance(path, str):
@@ -86,10 +91,11 @@ def get_random_secret_key():
 
 def parse_apps_and_model_labels(labels):
     """
-    Parse a list of "app_label.ModelName" or "app_label" strings into actual
-    objects and return a two-element tuple:
-        (set of model classes, set of app_configs).
-    Raise a CommandError if some specified models or apps don't exist.
+    Parse a list of \"app_label.ModelName\" or \"app_label\" strings into actual Django application configurations and model classes.
+
+    Returns a tuple containing two sets: model classes and application configurations.
+
+    Raises a CommandError if any of the specified models or applications do not exist.
     """
     apps = set()
     models = set()
@@ -113,9 +119,11 @@ def parse_apps_and_model_labels(labels):
 
 def get_command_line_option(argv, option):
     """
-    Return the value of a command line option (which should include leading
-    dashes, e.g. '--testrunner') from an argument list. Return None if the
-    option wasn't passed or if the argument list couldn't be parsed.
+    Retrieves the value of a specific command line option from an argument list.
+
+    The option must be provided with its leading dashes (e.g., '--testrunner').
+
+    If the option is found, its value is returned; otherwise, None is returned.
     """
     parser = CommandParser(add_help=False, allow_abbrev=False)
     parser.add_argument(option, dest="value")
@@ -128,7 +136,11 @@ def get_command_line_option(argv, option):
 
 
 def normalize_path_patterns(patterns):
-    """Normalize an iterable of glob style patterns based on OS."""
+    """
+    Normalizes a collection of glob-style path patterns to ensure consistency across different operating systems.
+    The function removes any directory suffixes from the patterns to create a standardized format.
+    Returns a list of normalized path patterns.
+    """
     patterns = [os.path.normcase(p) for p in patterns]
     dir_suffixes = {"%s*" % path_sep for path_sep in {"/", os.sep}}
     norm_patterns = []
@@ -144,8 +156,8 @@ def normalize_path_patterns(patterns):
 
 def is_ignored_path(path, ignore_patterns):
     """
-    Check if the given path should be ignored or not based on matching
-    one of the glob style `ignore_patterns`.
+    Check if a given path matches any of the provided glob-style ignore patterns, 
+    determining whether it should be ignored or not based on these matches.
     """
     path = Path(path)
 
@@ -163,7 +175,7 @@ def find_formatters():
 
 def run_formatters(written_files, black_path=(sentinel := object())):
     """
-    Run the black formatter on the specified files.
+    Run the Black code formatter on the specified files, ensuring consistent code style and formatting. If the Black executable path is not provided, it will be automatically detected.
     """
     # Use a sentinel rather than None, as which() returns None when not found.
     if black_path is sentinel:

@@ -44,6 +44,13 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         # The backend "mostly works" without this function and there are use
         # cases for compiling Python without the sqlite3 libraries (e.g.
         # security hardening).
+        """
+
+        Quotes a Python object value for use in an SQL query.
+
+        Tries to adapt the value using sqlite3, if available, and otherwise converts it to a SQL-compatible string representation.
+
+        """
         try:
             import sqlite3
 
@@ -78,19 +85,18 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         self, model, create_field=None, delete_field=None, alter_fields=None
     ):
         """
-        Shortcut to transform a model from old_model into new_model
+        Transforms a model from its old definition to a new one by creating a temporary table, 
+        copying data to the new table, dropping the old table, and renaming the new table.
 
-        This follows the correct procedure to perform non-rename or column
-        addition operations based on SQLite's documentation
+        Parameters:
+            model (Model): The model to transform.
+            create_field (Field): The field to add to the model.
+            delete_field (Field): The field to delete from the model.
+            alter_fields (list): The fields to alter in the model.
 
-        https://www.sqlite.org/lang_altertable.html#caution
-
-        The essential steps are:
-          1. Create a table with the updated definition called "new__app_model"
-          2. Copy the data from the existing "app_model" table to the new table
-          3. Drop the "app_model" table
-          4. Rename the "new__app_model" table to "app_model"
-          5. Restore any index of the previous "app_model" table.
+        Note:
+            This function follows SQLite's recommended procedure for altering tables, 
+            as described in https://www.sqlite.org/lang_altertable.html#caution
         """
 
         # Self-referential fields must be recreated rather than copied from
@@ -272,6 +278,14 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             restore_pk_field.primary_key = True
 
     def delete_model(self, model, handle_autom2m=True):
+        """
+        Deletes a model from the database.
+
+        :param model: The model to be deleted.
+        :param handle_autom2m: Whether to handle automatic many-to-many relationships.
+            If True, the superclass's delete method is called. If False, the table is
+            deleted directly and related deferred SQL statements are removed.
+        """
         if handle_autom2m:
             super().delete_model(model)
         else:
@@ -290,7 +304,12 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                     self.deferred_sql.remove(sql)
 
     def add_field(self, model, field):
-        """Create a field on a model."""
+        """
+        Extend the default add field functionality to handle special field cases.
+
+        Handles creating a field on a model, including cases where the field is many-to-many,
+        primary key, unique, or has a default value, by either creating a new model or modifying the existing table as needed.
+        """
         from django.db.models.expressions import Value
 
         # Special-case implicit M2M tables.
@@ -319,8 +338,10 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def remove_field(self, model, field):
         """
-        Remove a field from a model. Usually involves deleting a column,
-        but for M2Ms may involve deleting a table.
+
+            Removes a field from a model, handling different field types such as many-to-many relationships and standard fields.
+            The removal process may involve deleting a column, a table, or remaking the table.
+
         """
         # M2M fields are a special case
         if field.many_to_many:
@@ -356,7 +377,22 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         new_db_params,
         strict=False,
     ):
-        """Perform a "physical" (non-ManyToMany) field update."""
+        """
+        Perform a physical field update in a database table.
+
+        Updates a field in a model from an old field to a new field, handling changes to the field's type, database parameters,
+        and other dependencies. If possible, performs a simple rename operation; otherwise, recreates the table with the updated
+        field. Also updates related models as necessary to maintain database consistency.
+
+        :param model: The model containing the field to be updated
+        :param old_field: The old field to be replaced
+        :param new_field: The new field to replace the old field
+        :param old_type: The old data type of the field
+        :param new_type: The new data type of the field
+        :param old_db_params: The old database parameters of the field
+        :param new_db_params: The new database parameters of the field
+        :param strict: A flag indicating whether the update should be performed strictly (default: False)
+        """
         # Use "ALTER TABLE ... RENAME COLUMN" if only the column name
         # changed and there aren't any constraints.
         if (
@@ -404,7 +440,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
                 self._remake_table(related_model)
 
     def _alter_many_to_many(self, model, old_field, new_field, strict):
-        """Alter M2Ms to repoint their to= endpoints."""
+        """
+        Alters many-to-many fields in a model by repointing their 'to' endpoints.
+
+        This function is used to change the target field of a many-to-many relationship, replacing the old field with a new one. It updates the intermediate table accordingly, either by modifying the existing table or creating a new one and transferring data from the old table to the new one.
+        """
         if (
             old_field.remote_field.through._meta.db_table
             == new_field.remote_field.through._meta.db_table

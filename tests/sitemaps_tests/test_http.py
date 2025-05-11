@@ -247,7 +247,9 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertContains(response, "<lastmod>2013-03-13T10:00:00-05:00</lastmod>")
 
     def test_localized_priority(self):
-        """The priority value should not be localized."""
+        """
+        Tests that the priority value in the sitemap.xml is not localized, ensuring it remains consistent regardless of the active language.
+        """
         with translation.override("fr"):
             self.assertEqual("0,3", localize(0.3))
             # Priorities aren't rendered in localized format.
@@ -291,8 +293,9 @@ class HTTPSitemapTests(SitemapTestsBase):
 
     def test_sitemap_item(self):
         """
-        Check to make sure that the raw item is included with each
-        Sitemap.get_url() url result.
+
+            Verifies that every URL returned by Sitemap.get_url() includes the corresponding raw item.
+
         """
         test_sitemap = Sitemap()
         test_sitemap.items = TestModel.objects.order_by("pk").all
@@ -332,8 +335,7 @@ class HTTPSitemapTests(SitemapTestsBase):
     @override_settings(LANGUAGES=(("en", "English"), ("pt", "Portuguese")))
     def test_simple_i18n_sitemap_index(self):
         """
-        A simple i18n sitemap index can be rendered, without logging variable
-        lookup errors.
+        Tests that a simple i18n sitemap index can be rendered without logging variable lookup errors, verifying the correct XML structure and content for multiple languages.
         """
         with self.assertNoLogs("django.template", "DEBUG"):
             response = self.client.get("/simple/i18n.xml")
@@ -351,7 +353,7 @@ class HTTPSitemapTests(SitemapTestsBase):
     @override_settings(LANGUAGES=(("en", "English"), ("pt", "Portuguese")))
     def test_alternate_i18n_sitemap_index(self):
         """
-        A i18n sitemap with alternate/hreflang links can be rendered.
+        Tests the rendering of an internationalized (i18n) sitemap with alternate language links.
         """
         response = self.client.get("/alternates/i18n.xml")
         url, pk = self.base_url, self.i18n_model.pk
@@ -381,7 +383,7 @@ class HTTPSitemapTests(SitemapTestsBase):
     )
     def test_alternate_i18n_sitemap_limited(self):
         """
-        A i18n sitemap index with limited languages can be rendered.
+        Tests that an internationalized (i18n) sitemap index can be successfully rendered when limited to a subset of languages.
         """
         response = self.client.get("/limited/i18n.xml")
         url, pk = self.base_url, self.i18n_model.pk
@@ -409,7 +411,7 @@ class HTTPSitemapTests(SitemapTestsBase):
     @override_settings(LANGUAGES=(("en", "English"), ("pt", "Portuguese")))
     def test_alternate_i18n_sitemap_xdefault(self):
         """
-        A i18n sitemap index with x-default can be rendered.
+        Tests that a sitemap index with x-default can be correctly rendered, including links to alternate language versions of a page.
         """
         response = self.client.get("/x-default/i18n.xml")
         url, pk = self.base_url, self.i18n_model.pk
@@ -439,8 +441,8 @@ class HTTPSitemapTests(SitemapTestsBase):
     @override_settings(LANGUAGES=(("en", "English"), ("pt", "Portuguese")))
     def test_language_for_item_i18n_sitemap(self):
         """
-        A i18n sitemap index in which item can be chosen to be displayed for a
-        lang or not.
+        Tests that an i18n sitemap index correctly includes items in multiple languages, 
+        and also handles items that are only available for a specific language.
         """
         only_pt = I18nTestModel.objects.create(name="Only for PT")
         response = self.client.get("/item-by-lang/i18n.xml")
@@ -465,8 +467,7 @@ class HTTPSitemapTests(SitemapTestsBase):
     @override_settings(LANGUAGES=(("en", "English"), ("pt", "Portuguese")))
     def test_alternate_language_for_item_i18n_sitemap(self):
         """
-        A i18n sitemap index in which item can be chosen to be displayed for a
-        lang or not.
+        Tests the generation of an i18n sitemap index where items can be selectively displayed for different languages, verifying that the resulting XML contains the correct URLs and language alternates.
         """
         only_pt = I18nTestModel.objects.create(name="Only for PT")
         response = self.client.get("/item-by-lang-alternates/i18n.xml")
@@ -514,8 +515,7 @@ class HTTPSitemapTests(SitemapTestsBase):
 
     def test_callable_sitemod_partial(self):
         """
-        Not all items have `lastmod`. Therefore the `Last-Modified` header
-        is not set by the detail or index sitemap view.
+        Tests that the 'Last-Modified' header is not set in the sitemap index and detail views when not all items have a 'lastmod' attribute, and verifies the XML content of these views matches the expected output.
         """
         index_response = self.client.get("/callable-lastmod-partial/index.xml")
         sitemap_response = self.client.get("/callable-lastmod-partial/sitemap.xml")
@@ -540,8 +540,7 @@ class HTTPSitemapTests(SitemapTestsBase):
 
     def test_callable_sitemod_full(self):
         """
-        All items in the sitemap have `lastmod`. The `Last-Modified` header
-        is set for the detail and index sitemap view.
+        Tests that all items in a sitemap have a `lastmod` attribute and that the `Last-Modified` header is correctly set for both the sitemap index and detail views, with expected XML content matching predefined values.
         """
         index_response = self.client.get("/callable-lastmod-full/index.xml")
         sitemap_response = self.client.get("/callable-lastmod-full/sitemap.xml")

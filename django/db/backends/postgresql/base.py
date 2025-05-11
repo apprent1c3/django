@@ -87,6 +87,15 @@ def _get_varchar_column(data):
 
 
 def ensure_timezone(connection, ops, timezone_name):
+    """
+    Ensures the database connection is set to the specified timezone.
+
+    :param connection: The database connection to modify.
+    :param ops: An object providing operations, including setting the timezone SQL.
+    :param timezone_name: The desired timezone name.
+
+    :returns: True if the timezone was changed, False otherwise.
+    """
     conn_timezone_name = connection.info.parameter_status("TimeZone")
     if timezone_name and conn_timezone_name != timezone_name:
         with connection.cursor() as cursor:
@@ -96,6 +105,14 @@ def ensure_timezone(connection, ops, timezone_name):
 
 
 def ensure_role(connection, ops, role_name):
+    """
+    Sets the role for the given database connection if a role name is provided.
+
+     :param connection: The database connection object
+     :param ops: The operations object
+     :param role_name: The name of the role to set
+     :return: True if the role was set, False otherwise
+    """
     if role_name:
         with connection.cursor() as cursor:
             sql = ops.compose_sql("SET ROLE %s", [role_name])
@@ -201,6 +218,13 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @property
     def pool(self):
+        """
+        Returns the connection pool for the current database alias, or None if no pool is configured or the alias is not a database connection.
+
+        The pool is created based on the 'pool' option in the database settings. If the option is True, it defaults to an empty dictionary. If the 'CONN_MAX_AGE' setting is non-zero, an error is raised, as pooling does not support persistent connections.
+
+        The connection pool is instantiated using the psycopg_pool ConnectionPool class, with connection parameters and optional health checks configured according to the database settings. The pool is stored in the _connection_pools cache for future requests.
+        """
         pool_options = self.settings_dict["OPTIONS"].get("pool")
         if self.alias == NO_DB_ALIAS or not pool_options:
             return None
@@ -253,6 +277,22 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return divmod(self.pg_version, 10000)
 
     def get_connection_params(self):
+        """
+
+        Retrieve connection parameters for a PostgreSQL database.
+
+        This method extracts relevant settings from the database configuration and
+        constructs a dictionary of connection parameters. It enforces requirements such as
+        a valid database name and valid character encoding, and applies sensible defaults
+        where needed.
+
+        If the database name is not provided, it attempts to use the 'service' option from
+        the 'OPTIONS' dictionary. If neither is available, it raises an error.
+
+        The returned connection parameters include settings for the database name, user,
+        password, host, port, client encoding, and cursor factory, among others.
+
+        """
         settings_dict = self.settings_dict
         # None may be used to connect to the default 'postgres' db
         if settings_dict["NAME"] == "" and not settings_dict["OPTIONS"].get("service"):
@@ -326,6 +366,10 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         #   default when no value is explicitly specified in options.
         # - before calling _set_autocommit() because if autocommit is on, that
         #   will set connection.isolation_level to ISOLATION_LEVEL_AUTOCOMMIT.
+        """
+        Establishes a new database connection, retrieving it from a pool if one exists, or creating a new one otherwise. 
+        Handles database connection settings such as transaction isolation level and JSONB data type registration.
+        """
         options = self.settings_dict["OPTIONS"]
         set_isolation_level = False
         try:
@@ -383,6 +427,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return commit_role or commit_tz
 
     def _close(self):
+        """
+        Closes the current database connection, returning it to the pool if one is used, or closing it directly otherwise.
+        """
         if self.connection is not None:
             # `wrap_database_errors` only works for `putconn` as long as there
             # is no `reset` function set in the pool because it is deferred
@@ -399,6 +446,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                     return self.connection.close()
 
     def init_connection_state(self):
+        """
+        Initialize the connection state, configuring the connection if necessary and committing the transaction if autocommit is disabled.
+        """
         super().init_connection_state()
 
         if self.connection is not None and not self.pool:
@@ -409,6 +459,15 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def create_cursor(self, name=None):
+        """
+        Create a cursor object for executing database queries.
+
+        This function returns a cursor object that can be used to execute SQL queries
+        on the database connection. It optionally allows specifying a name for the
+        cursor, which can be useful for server-side cursors. Additionally, it
+        configures the cursor's timezone settings based on the connection's timezone
+        settings.
+        """
         if name:
             if is_psycopg3 and (
                 self.settings_dict["OPTIONS"].get("server_side_binding") is not True
@@ -447,6 +506,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def chunked_cursor(self):
+        """
+
+        Obtains a new named database cursor, incrementing the internal cursor index and 
+        taking into account the current task or thread identifier to generate a unique name.
+
+        """
         self._named_cursor_idx += 1
         # Get the current async task
         # Note that right now this is behind @async_unsafe, so this is
@@ -487,6 +552,11 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             cursor.execute("SET CONSTRAINTS ALL DEFERRED")
 
     def is_usable(self):
+        """
+        Checks if a database connection is usable by attempting a simple query execution.
+
+        :returns: True if the connection is valid and a query can be executed, False otherwise
+        """
         if self.connection is None:
             return False
         try:
@@ -506,6 +576,19 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @contextmanager
     def _nodb_cursor(self):
+        """
+
+        Context manager that provides a database cursor, attempting to use a 'postgres' 
+        database connection to avoid running initialization queries on the production 
+        database. If this fails, it will fall back to the first available PostgreSQL 
+        database connection.
+
+        Raises:
+            Database.DatabaseError or WrappedDatabaseError: If all connections fail.
+        Warns:
+            RuntimeWarning: If the 'postgres' database connection cannot be established.
+
+        """
         cursor = None
         try:
             with super()._nodb_cursor() as cursor:
@@ -559,6 +642,13 @@ if is_psycopg3:
         """
 
         def callproc(self, name, args=None):
+            """
+            Call a stored procedure with the given name and optional arguments.
+
+            :param name: The name of the stored procedure to call
+            :param args: Optional list of arguments to pass to the procedure
+            :return: The list of arguments passed to the procedure, or None if no arguments were provided
+            """
             if not isinstance(name, sql.Identifier):
                 name = sql.Identifier(name)
 

@@ -39,10 +39,11 @@ class WhereNode(tree.Node):
 
     def split_having_qualify(self, negated=False, must_group_by=False):
         """
-        Return three possibly None nodes: one for those parts of self that
-        should be included in the WHERE clause, one for those parts of self
-        that must be included in the HAVING clause, and one for those parts
-        that refer to window functions.
+        Splits the condition into separate parts for inclusion in the WHERE, HAVING, and window function qualification clauses, based on the presence of aggregate functions, OVER clauses, and negation. 
+
+        :returns: A tuple containing three nodes: one for the WHERE clause, one for the HAVING clause, and one for window function qualification. Any of these nodes can be None if no corresponding conditions are found. 
+        :param negated: Whether the condition is negated. 
+        :param must_group_by: Flag indicating whether the condition must be grouped by, affecting how it's split.
         """
         if not self.contains_aggregate and not self.contains_over_clause:
             return self, None, None
@@ -115,10 +116,7 @@ class WhereNode(tree.Node):
 
     def as_sql(self, compiler, connection):
         """
-        Return the SQL version of the where clause and the value to be
-        substituted in. Return '', [] if this node matches everything,
-        None, [] if this node is empty, and raise EmptyResultSet if this
-        node can't match anything.
+        Return the SQL version of the where clause, handling logical operations with the specified connector and children nodes, and determining the conditions under which the query can match, is empty, or cannot match anything.
         """
         result = []
         result_params = []
@@ -202,8 +200,11 @@ class WhereNode(tree.Node):
 
     def relabel_aliases(self, change_map):
         """
-        Relabel the alias values of any children. 'change_map' is a dictionary
-        mapping old (current) alias values to the new values.
+
+        Replaces alias values in children objects according to the provided mapping.
+
+        :param change_map: A dictionary mapping old alias values to new ones.
+
         """
         if not change_map:
             return self
@@ -215,6 +216,9 @@ class WhereNode(tree.Node):
                 self.children[pos] = child.relabeled_clone(change_map)
 
     def clone(self):
+        """
+        Creates a deep copy of the current object, duplicating its properties and recursively cloning its child elements.
+        """
         clone = self.create(connector=self.connector, negated=self.negated)
         for child in self.children:
             if hasattr(child, "clone"):
@@ -228,6 +232,9 @@ class WhereNode(tree.Node):
         return clone
 
     def replace_expressions(self, replacements):
+        """
+        Replace expressions in the current object with values from the provided replacements dictionary. If a replacement is found for the current object, it is returned; otherwise, a new object is created with replaced child expressions.
+        """
         if not replacements:
             return self
         if replacement := replacements.get(self):
@@ -275,6 +282,11 @@ class WhereNode(tree.Node):
 
     @classmethod
     def _resolve_node(cls, node, query, *args, **kwargs):
+        """
+        .. classmethod:: _resolve_node(node, query, *args, **kwargs)
+            Recursively resolves the given node and its children by replacing its 
+            leaf values with resolved equivalents based on the provided query.
+        """
         if hasattr(node, "children"):
             for child in node.children:
                 cls._resolve_node(child, query, *args, **kwargs)
@@ -314,6 +326,9 @@ class WhereNode(tree.Node):
         return self.output_field.get_lookup(lookup)
 
     def leaves(self):
+        """
+        generates a sequence of leaf nodes from the current node's children, recursively traversing any WhereNode instances to yield their leaf nodes.
+        """
         for child in self.children:
             if isinstance(child, WhereNode):
                 yield from child.leaves()
@@ -352,6 +367,14 @@ class SubqueryConstraint:
     contains_over_clause = False
 
     def __init__(self, alias, columns, targets, query_object):
+        """
+
+        Initializes a query builder object.
+
+        Sets up the query with a given alias, columns to select, and target entity or field, 
+        and resets the ordering of the provided query object.
+
+        """
         self.alias = alias
         self.columns = columns
         self.targets = targets

@@ -61,6 +61,9 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def disallowed_aggregates(self):
+        """
+        Returns a tuple of aggregate models that are disallowed for the current database connection, taking into account the MySQL version and whether it's a MariaDB instance.
+        """
         disallowed_aggregates = [
             models.Extent,
             models.Extent3D,
@@ -79,6 +82,9 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def unsupported_functions(self):
+        """
+        Returns a set of unsupported geometry functions for the current database connection, taking into account the specific MySQL variant being used (e.g. MariaDB).
+        """
         unsupported = {
             "AsGML",
             "AsKML",
@@ -109,6 +115,9 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         return f.geom_type
 
     def get_distance(self, f, value, lookup_type):
+        """
+        Returns a distance parameter suitable for a query based on the given lookup type and value. It handles both Distance objects and numeric values, ensuring compatibility with different distance units and query types.
+        """
         value = value[0]
         if isinstance(value, Distance):
             if f.geodetic(self.connection):
@@ -124,6 +133,15 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         return [dist_param]
 
     def get_geometry_converter(self, expression):
+        """
+
+        Return a geometry converter function for the given expression.
+
+        The converter function takes a raw geometry value as input, converts it into a
+        GEOSGeometry object of the specified type, and sets its spatial reference system
+        identifier (SRID) if available.
+
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:
@@ -131,6 +149,14 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         geom_class = expression.output_field.geom_class
 
         def converter(value, expression, connection):
+            """
+            Converts a geometric value to a GEOS geometry object.
+
+            :param value: The geometric value to convert
+            :param expression: The geometric expression
+            :param connection: The database connection
+            :return: A GEOS geometry object representation of the input value
+            """
             if value is not None:
                 geom = GEOSGeometryBase(read(memoryview(value)), geom_class)
                 if srid:

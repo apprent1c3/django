@@ -16,6 +16,12 @@ class PreparedGeometry(GEOSBase):
         # Keeping a reference to the original geometry object to prevent it
         # from being garbage collected which could then crash the prepared one
         # See #21662
+        """
+        Initializes a spatial object wrapper with a given geometric object.
+
+        :param geom: A GEOSGeometry object
+        :raises TypeError: If the provided geometric object is not a GEOSGeometry instance
+        """
         self._base_geom = geom
         from .geometry import GEOSGeometry
 

@@ -65,7 +65,9 @@ class InMemoryFileNode(ContentFile, TimingMixin):
         self.file = io.BytesIO() if self._content_type == bytes else io.StringIO()
 
     def _convert_stream_content(self, mode):
-        """Convert actual file content according to the opening mode."""
+        """
+        Converts the stream content to match the specified mode, handling text and binary conversions as necessary.
+        """
         new_content_type = bytes if "b" in mode else str
         # No conversion needed.
         if self._content_type == new_content_type:
@@ -93,13 +95,16 @@ class InMemoryDirNode(TimingMixin):
 
     def resolve(self, path, create_if_missing=False, leaf_cls=None, check_exists=True):
         """
-        Navigate current directory tree, returning node matching path or
-        creating a new one, if missing.
-        - path: path of the node to search
-        - create_if_missing: create nodes if not exist. Defaults to False.
-        - leaf_cls: expected type of leaf node. Defaults to None.
-        - check_exists: if True and the leaf node does not exist, raise a
-          FileNotFoundError. Defaults to True.
+        Navigate the current directory tree, returning the node that matches the specified path, optionally creating new nodes if they do not exist.
+
+        :param path: The path of the node to search for
+        :param create_if_missing: Whether to create nodes if they do not exist (default: False)
+        :param leaf_cls: The expected type of the leaf node (default: None)
+        :param check_exists: Whether to raise a FileNotFoundError if the leaf node does not exist (default: True)
+        :raises FileNotFoundError: If the leaf node does not exist and check_exists is True
+        :raises NotADirectoryError: If an intermediate path segment is not a directory
+        :raises IsADirectoryError: If the leaf node is a directory but leaf_cls specifies a file
+        :return: The node that matches the specified path
         """
         path_segments = list(pathlib.Path(path).parts)
         current_node = self
@@ -139,6 +144,14 @@ class InMemoryDirNode(TimingMixin):
         return current_node
 
     def _resolve_child(self, path_segment, create_if_missing, child_cls):
+        """
+        Resolves a child object by path segment, optionally creating it if missing.
+
+        :arg path_segment: The path segment to resolve
+        :arg create_if_missing: Whether to create the child if it does not exist
+        :arg child_cls: The class of the child object to create
+        :returns: The resolved child object or None if not found and create_if_missing is False
+        """
         if create_if_missing:
             self._update_accessed_time()
             self._update_modified_time()
@@ -146,6 +159,9 @@ class InMemoryDirNode(TimingMixin):
         return self._children.get(path_segment)
 
     def listdir(self):
+        """
+        Returns a tuple containing two lists: the first list contains the names of subdirectories, and the second list contains the names of files within the current directory.
+        """
         directories, files = [], []
         for name, entry in self._children.items():
             if isinstance(entry, InMemoryDirNode):
@@ -172,6 +188,9 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         file_permissions_mode=None,
         directory_permissions_mode=None,
     ):
+        """
+        Initializes an instance with the given location, base URL, and permissions modes for files and directories, setting up an in-memory directory hierarchy.
+        """
         self._location = location
         self._base_url = base_url
         self._file_permissions_mode = file_permissions_mode
@@ -213,6 +232,9 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return os.path.relpath(full_path, self.location)
 
     def _resolve(self, name, create_if_missing=False, leaf_cls=None, check_exists=True):
+        """
+        Resolve a relative path, attempting to create the path if it does not exist, and raise an error if the target exists but is not a directory.
+        """
         try:
             relative_path = self._relative_path(name)
             return self._root.resolve(
@@ -233,6 +255,16 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return file_node.open(mode)
 
     def _save(self, name, content):
+        """
+
+        Saves content to a file with the given name.
+
+        This function resolves the file path, creates the file if it does not exist, 
+        and writes the provided content to the file in chunks. If the content is 
+        stored in a temporary file, that file is deleted after the content is written.
+        The function then updates the file's modified time and returns the relative path.
+
+        """
         file_node = self._resolve(
             name, create_if_missing=True, leaf_cls=InMemoryFileNode
         )
@@ -253,6 +285,12 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return safe_join(self.location, name)
 
     def delete(self, name):
+        """
+        Deletes a file or directory with the specified name from the current context.
+
+        :param name: The path to the file or directory to be deleted.
+        :return: None
+        """
         path, filename = os.path.split(name)
         dir_node = self._resolve(path, check_exists=False)
         if dir_node is None:
@@ -270,6 +308,16 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return len(self._open(name, "rb").file.getvalue())
 
     def url(self, name):
+        """
+
+        Returns a full URL for the given file name by joining it with the base URL.
+
+        Raises a ValueError if the base URL is not set, indicating that the file is not accessible via a URL.
+
+        :param name: The file name to generate the URL for.
+        :rtype: str
+
+        """
         if self.base_url is None:
             raise ValueError("This file is not accessible via a URL.")
         url = filepath_to_uri(name)

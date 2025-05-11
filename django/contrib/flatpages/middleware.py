@@ -6,6 +6,11 @@ from django.utils.deprecation import MiddlewareMixin
 
 class FlatpageFallbackMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
+        """
+        Handles HTTP responses, particularly when the requested resource is not found (404 status code).
+        If the status code is not 404, the original response is returned.
+        Otherwise, attempts to serve a flatpage if available, or returns the original response if an error occurs.
+        """
         if response.status_code != 404:
             return response  # No need to check for a flatpage for non-404 responses.
         try:

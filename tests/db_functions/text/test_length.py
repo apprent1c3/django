@@ -8,6 +8,9 @@ from ..models import Author
 
 class LengthTests(TestCase):
     def test_basic(self):
+        """
+        Tests annotation and filtering of Author objects by name and alias length, ensuring correct ordering and filtering functionality.
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(
@@ -22,6 +25,9 @@ class LengthTests(TestCase):
         self.assertEqual(authors.filter(alias_length__lte=Length("name")).count(), 1)
 
     def test_ordering(self):
+        """
+        Tests that Author objects are ordered correctly by the length of their name and alias fields.
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="John Smith", alias="smithj1")
         Author.objects.create(name="Rhonda", alias="ronny")
@@ -37,6 +43,9 @@ class LengthTests(TestCase):
         )
 
     def test_transform(self):
+        """
+        Tests the transform lookup functionality by creating authors with varying name lengths and filtering results based on name length, ensuring the lookup functions correctly.
+        """
         with register_lookup(CharField, Length):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")

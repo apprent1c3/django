@@ -15,7 +15,13 @@ from django.utils.module_loading import (
 
 class DefaultLoader(unittest.TestCase):
     def test_loader(self):
-        "Normal module existence can be tested"
+        """
+        Tests the functionality of dynamically importing modules and checking their submodules.\"\"\"
+        \"\"\" 
+        Verifies that the module_has_submodule function correctly identifies existing and non-existing submodules,
+        and that import_module raises an ImportError for non-existent modules.
+
+        """
         test_module = import_module("utils_tests.test_module")
         test_no_submodule = import_module("utils_tests.test_no_submodule")
 
@@ -50,7 +56,9 @@ class DefaultLoader(unittest.TestCase):
             import_module("utils_tests.test_no_submodule.anything")
 
     def test_has_sumbodule_with_dotted_path(self):
-        """Nested module existence can be tested."""
+        """
+        Checks if a module or one of its submodules has a submodule at a given dotted path.
+        """
         test_module = import_module("utils_tests.test_module")
         # A grandchild that exists.
         self.assertIs(
@@ -75,6 +83,11 @@ class EggLoader(unittest.TestCase):
         self.egg_dir = "%s/eggs" % os.path.dirname(__file__)
 
     def tearDown(self):
+        """
+        Clean up the system modules and import cache after a test.
+
+        Removes modules related to 'egg_module' from sys.modules and clears the sys.path_importer_cache to ensure a clean environment for subsequent tests.
+        """
         sys.path_importer_cache.clear()
 
         sys.modules.pop("egg_module.sub1.sub2.bad_module", None)
@@ -86,7 +99,9 @@ class EggLoader(unittest.TestCase):
         sys.modules.pop("egg_module", None)
 
     def test_shallow_loader(self):
-        "Module existence can be tested inside eggs"
+        """
+        Tests that a shallow loader can correctly import and verify the existence of modules within an egg, including handling of missing or non-importable modules
+        """
         egg_name = "%s/test_egg.egg" % self.egg_dir
         with extend_sys_path(egg_name):
             egg_module = import_module("egg_module")
@@ -107,7 +122,9 @@ class EggLoader(unittest.TestCase):
                 import_module("egg_module.no_such_module")
 
     def test_deep_loader(self):
-        "Modules deep inside an egg can still be tested for existence"
+        """
+        Tests the ability to import and verify the existence of modules deeply nested within a package, ensuring that the import mechanism can successfully resolve and load these modules, even when they are located inside an egg.
+        """
         egg_name = "%s/test_egg.egg" % self.egg_dir
         with extend_sys_path(egg_name):
             egg_module = import_module("egg_module.sub1.sub2")
@@ -130,6 +147,11 @@ class EggLoader(unittest.TestCase):
 
 class ModuleImportTests(SimpleTestCase):
     def test_import_string(self):
+        """
+        Tests the functionality of importing a module or getting an attribute from it through a string.
+
+        Verifies that the function correctly imports a module, raises an ImportError for invalid module paths, and raises a meaningful error for missing attributes within a module.
+        """
         cls = import_string("django.utils.module_loading.import_string")
         self.assertEqual(cls, import_string)
 
@@ -144,6 +166,11 @@ class ModuleImportTests(SimpleTestCase):
 @modify_settings(INSTALLED_APPS={"append": "utils_tests.test_module"})
 class AutodiscoverModulesTestCase(SimpleTestCase):
     def tearDown(self):
+        """
+
+        Reset the Python module cache and remove test modules from sys.modules to ensure a clean state after testing.
+
+        """
         sys.path_importer_cache.clear()
 
         sys.modules.pop("utils_tests.test_module.another_bad_module", None)

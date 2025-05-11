@@ -6,6 +6,9 @@ FILE_RESPONSE_HOLDER = {}
 
 
 def file_response(request):
+    """
+    Returns a FileResponse instance for the given request, managing underlying file-like objects to ensure proper closure.
+    """
     f1 = BytesIO(b"test1")
     f2 = BytesIO(b"test2")
     response = FileResponse(f1)

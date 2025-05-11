@@ -8,6 +8,9 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 def fix_os_paths(x):
+    """
+    Fixes operating system paths by removing a common prefix and converting Windows-style paths to Unix-style paths, handling strings, tuples, and lists.
+    """
     if isinstance(x, str):
         return x.removeprefix(PATH).replace("\\", "/")
     elif isinstance(x, tuple):
@@ -52,6 +55,9 @@ class FilePathFieldTest(SimpleTestCase):
         self.assertChoices(f, expected)
 
     def test_clean(self):
+        """
+        Tests that the FilePathField correctly raises a ValidationError when an invalid path is provided and that valid paths are cleaned and returned in a consistent, OS-agnostic format.
+        """
         f = FilePathField(path=self.path)
         msg = "'Select a valid choice. a.py is not one of the available choices.'"
         with self.assertRaisesMessage(ValidationError, msg):

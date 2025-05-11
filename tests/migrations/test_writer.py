@@ -261,6 +261,9 @@ class WriterTests(SimpleTestCase):
             return cls.X
 
     def safe_exec(self, string, value=None):
+        """
+        Executes a given string as Python code in a safe environment, capturing any defined variables and returning them in a dictionary. Fails the current test if execution raises an exception.
+        """
         d = {}
         try:
             exec(string, globals(), d)
@@ -286,6 +289,13 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(MigrationWriter.serialize(value), target)
 
     def assertSerializedFieldEqual(self, value):
+        """
+
+        Checks if a serialized field's attributes are preserved after a round trip serialization.
+
+        Compares the original field's class, max length, nullability, and uniqueness with those of the serialized and deserialized field.
+
+        """
         new_value = self.serialize_round_trip(value)
         self.assertEqual(value.__class__, new_value.__class__)
         self.assertEqual(value.max_length, new_value.max_length)
@@ -293,6 +303,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(value.unique, new_value.unique)
 
     def test_serialize_numbers(self):
+        """
+        Checks the serialization of various numeric types to ensure they can be properly converted to and from their serialized form, including integers, floating point numbers, special values like infinity and NaN, and custom numeric types like Decimal and Money.
+        """
         self.assertSerializedEqual(1)
         self.assertSerializedEqual(1.2)
         self.assertTrue(math.isinf(self.serialize_round_trip(float("inf"))))
@@ -316,6 +329,9 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(False)
 
     def test_serialize_strings(self):
+        """
+        Tests the serialization of string values to ensure they are correctly converted into a format that can be used in migration scripts.
+        """
         self.assertSerializedEqual(b"foobar")
         string, imports = MigrationWriter.serialize(b"foobar")
         self.assertEqual(string, "b'foobar'")
@@ -324,6 +340,11 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "'foobar'")
 
     def test_serialize_multiline_strings(self):
+        """
+
+         Tests the proper serialization of multiline strings, including those containing Unicode characters.
+
+        """
         self.assertSerializedEqual(b"foo\nbar")
         string, imports = MigrationWriter.serialize(b"foo\nbar")
         self.assertEqual(string, "b'foo\\nbar'")
@@ -332,6 +353,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "'foo\\nbar'")
 
     def test_serialize_collections(self):
+        """
+        Tests the serialization of various collection types, including dictionaries, lists, sets, and nested structures, to ensure they are correctly converted.
+        """
         self.assertSerializedEqual({1: 2})
         self.assertSerializedEqual(["a", 2, True, None])
         self.assertSerializedEqual({2, 3, "eighty"})
@@ -351,6 +375,12 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(self.serialize_round_trip(lazy_pattern), pattern)
 
     def test_serialize_enums(self):
+        """
+
+        Tests serialization of various types of enums (TextEnum, TextTranslatedEnum, BinaryEnum, IntEnum) 
+        to ensure they are correctly represented in migrations.
+
+        """
         self.assertSerializedResultEqual(
             TextEnum.A,
             ("migrations.test_writer.TextEnum['A']", {"import migrations.test_writer"}),
@@ -429,6 +459,11 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_enum_flags(self):
+        """
+
+        Tests serialization of IntFlagEnum values and choices, ensuring they are correctly represented in migration writer output.
+
+        """
         self.assertSerializedResultEqual(
             IntFlagEnum.A,
             (
@@ -464,6 +499,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_choices(self):
+        """
+        Tests that the :class:`MigrationWriter` correctly serializes model fields with choices defined using :class:`models.TextChoices`, :class:`models.IntegerChoices`, and custom choices classes.
+        """
         class TextChoices(models.TextChoices):
             A = "A", "A value"
             B = "B", "B value"
@@ -506,6 +544,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_dictionary_choices(self):
+        """
+        Tests the serialization of IntegerField choices to ensure they are correctly converted to a string representation, handling both tuple and dictionary input formats.
+        """
         for choices in ({"Group": [(2, "2"), (1, "1")]}, {"Group": {2: "2", 1: "1"}}):
             with self.subTest(choices):
                 field = models.IntegerField(choices=choices)
@@ -545,6 +586,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_uuid(self):
+        """
+        Tests the serialization of UUID objects and fields to ensure correct representation in migrations.
+        """
         self.assertSerializedEqual(uuid.uuid1())
         self.assertSerializedEqual(uuid.uuid4())
 
@@ -573,6 +617,9 @@ class WriterTests(SimpleTestCase):
 
     def test_serialize_pathlib(self):
         # Pure path objects work in all platforms.
+        """
+        Tests the serialization of pathlib path objects, ensuring they are correctly converted to a string representation and imports are properly handled.
+        """
         self.assertSerializedEqual(pathlib.PurePosixPath())
         self.assertSerializedEqual(pathlib.PureWindowsPath())
         path = pathlib.PurePosixPath("/path/file.txt")
@@ -602,6 +649,9 @@ class WriterTests(SimpleTestCase):
         self.assertIn("import pathlib", imports)
 
     def test_serialize_path_like(self):
+        """
+        Tests the serialization of a path-like object by comparing the result with an expected representation, verifying that the path is correctly encoded as a string.
+        """
         with os.scandir(os.path.dirname(__file__)) as entries:
             path_like = list(entries)[0]
         expected = (repr(path_like.path), {})
@@ -612,6 +662,15 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "models.FilePathField(path=%r)" % path_like.path)
 
     def test_serialize_functions(self):
+        """
+
+        Tests the serialization functionality of various functions in the MigrationWriter.
+
+        Specifically, validates that unserializable functions (e.g. lambdas) raise an error,
+        while serializable functions (e.g. models.SET_NULL, models.SET) are correctly
+        serialized and deserialized.
+
+        """
         with self.assertRaisesMessage(ValueError, "Cannot serialize function: lambda"):
             self.assertSerializedEqual(lambda x: 42)
         self.assertSerializedEqual(models.SET_NULL)
@@ -625,6 +684,9 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(function_with_lru_cache)
 
     def test_serialize_datetime(self):
+        """
+        Tests serialization of various datetime objects, including instances and functions, with and without timezone information, to ensure correct output and imports are generated.
+        """
         self.assertSerializedEqual(datetime.datetime.now())
         self.assertSerializedEqual(datetime.datetime.now)
         self.assertSerializedEqual(datetime.datetime.today())
@@ -697,8 +759,7 @@ class WriterTests(SimpleTestCase):
 
     def test_serialize_class_based_validators(self):
         """
-        Ticket #22943: Test serialization of class-based validators, including
-        compiled regexes.
+        Tests the serialization of class-based validators in Django, including regex and email validators, ensuring they are correctly represented as strings.
         """
         validator = RegexValidator(message="hello")
         string = MigrationWriter.serialize(validator)[0]
@@ -796,8 +857,7 @@ class WriterTests(SimpleTestCase):
 
     def test_serialize_empty_nonempty_tuple(self):
         """
-        Ticket #22679: makemigrations generates invalid code for (an empty
-        tuple) default_permissions = ()
+        Tests the serialization of tuples with varying lengths, including empty, single-item, and multi-item tuples, to ensure correct handling of default permissions.
         """
         empty_tuple = ()
         one_item_tuple = ("a",)
@@ -821,7 +881,9 @@ class WriterTests(SimpleTestCase):
         self.serialize_round_trip(TestModel1.thing)
 
     def test_serialize_local_function_reference(self):
-        """A reference in a local scope can't be serialized."""
+        """
+        Tests that an attempt to serialize a model field referencing a local function fails and raises a ValueError, as such references are not properly resolvable.
+        """
 
         class TestModel2:
             def upload_to(self):
@@ -854,6 +916,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_set(self):
+        """
+        Tests the serialization of sets, verifying that empty and non-empty sets are correctly serialized and deserialized, regardless of the order of their elements.
+        """
         self.assertSerializedEqual(set())
         self.assertSerializedResultEqual(set(), ("set()", set()))
         self.assertSerializedEqual({"a"})
@@ -866,6 +931,9 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(datetime.timedelta(minutes=42))
 
     def test_serialize_functools_partial(self):
+        """
+        Tests serialization of functools.partial objects via round trip serialization, verifying that the original and deserialized partial objects have the same function, arguments, and keyword arguments.
+        """
         value = functools.partial(datetime.timedelta, 1, seconds=2)
         result = self.serialize_round_trip(value)
         self.assertEqual(result.func, value.func)
@@ -873,6 +941,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(result.keywords, value.keywords)
 
     def test_serialize_functools_partialmethod(self):
+        """
+        Tests serialization and deserialization of functools.partialmethod objects.
+        """
         value = functools.partialmethod(datetime.timedelta, 1, seconds=2)
         result = self.serialize_round_trip(value)
         self.assertIsInstance(result, functools.partialmethod)
@@ -892,7 +963,7 @@ class WriterTests(SimpleTestCase):
 
     def test_simple_migration(self):
         """
-        Tests serializing a simple migration.
+        Tests a simple migration by serializing it and verifying its contents, ensuring that the migration can be successfully created and its operations executed.
         """
         fields = {
             "charfield": models.DateTimeField(default=datetime.datetime.now),
@@ -937,6 +1008,9 @@ class WriterTests(SimpleTestCase):
         self.assertIn("Migration", result)
 
     def test_migration_path(self):
+        """
+        Test the generation of migration file paths for various Django app configurations.
+        """
         test_apps = [
             "migrations.migrations_test_apps.normal",
             "migrations.migrations_test_apps.with_package_model",
@@ -955,6 +1029,10 @@ class WriterTests(SimpleTestCase):
                 self.assertEqual(writer.path, expected_path)
 
     def test_custom_operation(self):
+        """
+        Tests the functionality of custom migration operations by creating a migration instance, 
+        writing it as a string, and then executing it to verify the correct operation is applied.
+        """
         migration = type(
             "Migration",
             (migrations.Migration,),
@@ -1006,7 +1084,7 @@ class WriterTests(SimpleTestCase):
 
     def test_sorted_imports(self):
         """
-        #24155 - Tests ordering of imports.
+        Tests that imports in migration files are ordered correctly, ensuring that the output matches the expected import order.
         """
         migration = type(
             "Migration",
@@ -1039,7 +1117,12 @@ class WriterTests(SimpleTestCase):
 
     def test_migration_file_header_comments(self):
         """
-        Test comments at top of file.
+
+            Verifies that migration file headers are correctly generated with or without comments.
+
+            Checks if the header comment is included at the top of the migration file and
+            if its format matches the expected output, including the Django version and generation date.
+
         """
         migration = type("Migration", (migrations.Migration,), {"operations": []})
         dt = datetime.datetime(2015, 7, 31, 4, 40, 0, 0, tzinfo=datetime.timezone.utc)
@@ -1065,7 +1148,11 @@ class WriterTests(SimpleTestCase):
 
     def test_models_import_omitted(self):
         """
-        django.db.models shouldn't be imported if unused.
+
+        Verifies that django.db.models is not imported in migrations when it's not used.
+
+        Checks if a migration modifying model options does not include an unnecessary import statement for django.db.models.
+
         """
         migration = type(
             "Migration",
@@ -1099,6 +1186,12 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_register_serializer(self):
+        """
+        Tests the registration of a custom serializer for complex numbers with the MigrationWriter.
+
+         Verifies that the serializer works as expected, and that attempting to serialize the complex
+         type without a registered serializer raises an error.
+        """
         class ComplexSerializer(BaseSerializer):
             def serialize(self):
                 return "complex(%r)" % self.value, {}

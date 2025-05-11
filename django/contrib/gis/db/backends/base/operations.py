@@ -110,10 +110,13 @@ class BaseSpatialOperations:
 
     def get_geom_placeholder(self, f, value, compiler):
         """
-        Return the placeholder for the given geometry field with the given
-        value.  Depending on the spatial backend, the placeholder may contain a
-        stored procedure call to the transformation function of the spatial
-        backend.
+
+            Return the placeholder for the given geometry field with the specified value.
+
+            This function generates a placeholder string that may include spatial backend 
+            transformation functions, depending on the spatial backend and the field's 
+            spatial reference system identifier (SRID).
+
         """
 
         def transform_value(value, field):
@@ -187,6 +190,10 @@ class BaseSpatialOperations:
         )
 
     def get_area_att_for_field(self, field):
+        """
+        Returns the area attribute name for a given field, 
+        taking into account the field's coordinate system and units of measurement.
+        """
         if field.geodetic(self.connection):
             if self.connection.features.supports_area_geodetic:
                 return "sq_m"
@@ -199,6 +206,9 @@ class BaseSpatialOperations:
                 return AreaMeasure.unit_attname(units_name)
 
     def get_distance_att_for_field(self, field):
+        """
+        Determines the attribute that represents distance for a given field. Returns the appropriate unit attribute name ('m' for geodetic fields or unit name for non-geodetic fields) if supported by the connection; otherwise returns None.
+        """
         dist_att = None
         if field.geodetic(self.connection):
             if self.connection.features.supports_distance_geodetic:

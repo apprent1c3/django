@@ -4,6 +4,11 @@ from django.test import SimpleTestCase
 
 class GEOSCoordSeqTest(SimpleTestCase):
     def test_getitem(self):
+        """
+        Tests the indexing functionality of a coordinate sequence in a LineString.
+
+        Verifies that coordinates can be retrieved by their index and that invalid indices raise an IndexError with a meaningful message.
+        """
         coord_seq = LineString([(x, x) for x in range(2)]).coord_seq
         for i in (0, 1):
             with self.subTest(i):

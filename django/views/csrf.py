@@ -21,7 +21,7 @@ def builtin_template_path(name):
 
 def csrf_failure(request, reason="", template_name=CSRF_FAILURE_TEMPLATE_NAME):
     """
-    Default view used when request fails CSRF protection
+    Handles a request failure due to insufficient CSRF protection, providing a customizable error response based on the failure reason.
     """
     from django.middleware.csrf import REASON_NO_CSRF_COOKIE, REASON_NO_REFERER
 

@@ -42,6 +42,11 @@ class DatabaseCreationTests(TestCase):
 
     @mock.patch.object(DatabaseCreation, "_test_user_create", return_value=False)
     def test_create_test_db(self, *mocked_objects):
+        """
+        Tests the creation of a test database, covering scenarios where the test user 
+        cannot be created, and where the database creation attempt raises errors due to 
+        tablesTextField already existing or insufficient privileges. 
+        """
         creation = DatabaseCreation(connection)
         # Simulate test database creation raising "tablespace already exists"
         with self.patch_execute_statements(
@@ -63,6 +68,10 @@ class DatabaseCreationTests(TestCase):
 
     @mock.patch.object(DatabaseCreation, "_test_database_create", return_value=False)
     def test_create_test_user(self, *mocked_objects):
+        """
+        Tests the creation of a test database user by simulating various error conditions, 
+        including the user already existing and insufficient database privileges.
+        """
         creation = DatabaseCreation(connection)
         with mock.patch.object(
             DatabaseCreation, "_test_database_passwd", self._test_database_passwd
@@ -86,6 +95,11 @@ class DatabaseCreationTests(TestCase):
                     creation._create_test_db(verbosity=0, keepdb=True)
 
     def test_oracle_managed_files(self, *mocked_objects):
+        """
+        Tests that the DatabaseCreation class correctly generates SQL for Oracle-managed files without the REUSE option.
+
+         Verifies that the resulting SQL statements for data and temp tablespaces include DATAFILE SIZE and TEMPFILE SIZE clauses respectively.
+        """
         def _execute_capture_statements(
             self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
         ):

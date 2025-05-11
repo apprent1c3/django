@@ -28,7 +28,9 @@ from django.utils.version import PYPY
 class TestEncodingUtils(SimpleTestCase):
     def test_force_str_exception(self):
         """
-        Broken __str__ actually raises an error.
+
+        Tests that the force_str function correctly raises an exception when encountering an object with a broken __str__ method that returns bytes.
+
         """
 
         class MyString:
@@ -54,8 +56,7 @@ class TestEncodingUtils(SimpleTestCase):
 
     def test_force_bytes_exception(self):
         """
-        force_bytes knows how to convert to bytes an exception
-        containing non-ASCII characters in its args.
+        Tests the force_bytes function's ability to correctly convert exceptions containing non-ASCII characters to bytes.
         """
         error_msg = "This is an exception, voilà"
         exc = ValueError(error_msg)
@@ -82,6 +83,14 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(result, data)
 
     def test_smart_bytes(self):
+        """
+        Converts the provided object to bytes using a smart approach.
+
+        The function handles various input types by converting them to bytes: 
+        lazy translation objects are returned unchanged, 
+        Unicode strings are encoded to bytes, and 
+        other types are converted to their string representation and then encoded to bytes.
+        """
         class Test:
             def __str__(self):
                 return "ŠĐĆŽćžšđ"
@@ -96,6 +105,9 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(smart_bytes("foo"), b"foo")
 
     def test_smart_str(self):
+        """
+        Converts an object into its string representation, handling lazy translations and non-ASCII characters correctly.
+        """
         class Test:
             def __str__(self):
                 return "ŠĐĆŽćžšđ"
@@ -115,6 +127,9 @@ class TestEncodingUtils(SimpleTestCase):
     def test_repercent_broken_unicode_recursion_error(self):
         # Prepare a string long enough to force a recursion error if the tested
         # function uses recursion.
+        """
+        Tests that the repercent_broken_unicode function can handle large inputs without causing a RecursionError when dealing with broken Unicode sequences.
+        """
         data = b"\xfc" * sys.getrecursionlimit()
         try:
             self.assertEqual(
@@ -124,6 +139,9 @@ class TestEncodingUtils(SimpleTestCase):
             self.fail("Unexpected RecursionError raised.")
 
     def test_repercent_broken_unicode_small_fragments(self):
+        """
+        Tests that the reparent_broken_unicode function correctly encodes and decodes broken Unicode fragments in a given byte string, checking both the output and the intermediate paths that are decoded during the process.
+        """
         data = b"test\xfctest\xfctest\xfc"
         decoded_paths = []
 
@@ -153,6 +171,9 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
         self.assertEqual(filepath_to_uri(Path("upload\\test.png")), "upload/test.png")
 
     def test_iri_to_uri(self):
+        """
+        Tests the conversion of Internationalized Resource Identifiers (IRIs) to Uniform Resource Identifiers (URIs) using the `iri_to_uri` function, ensuring correct encoding of special characters.
+        """
         cases = [
             # Valid UTF-8 sequences are encoded.
             ("red%09rosé#red", "red%09ros%C3%A9#red"),
@@ -175,6 +196,9 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
                 self.assertEqual(iri_to_uri(iri_to_uri(iri)), uri)
 
     def test_uri_to_iri(self):
+        """
+        Tests the conversion of URI to IRI by checking various test cases with different URI inputs and their expected IRI outputs.
+        """
         cases = [
             (None, None),
             # Valid UTF-8 sequences are decoded.
@@ -202,6 +226,9 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
                 self.assertEqual(uri_to_iri(uri_to_iri(uri)), iri)
 
     def test_complementarity(self):
+        """
+        Tests the conversion between URIs and IRIs, ensuring that the round-trip conversion (URI to IRI and back, or IRI to URI and back) results in the original input, covering various edge cases with special characters and invalid inputs.
+        """
         cases = [
             (
                 "/blog/for/J%C3%BCrgen%20M%C3%BCnster/",

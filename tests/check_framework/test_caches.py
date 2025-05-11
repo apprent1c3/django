@@ -57,6 +57,9 @@ class CheckCacheLocationTest(SimpleTestCase):
         }
 
     def test_cache_path_matches_media_static_setting(self):
+        """
+        Verifies that the cache path is not exposed to the web through MEDIA_ROOT, STATIC_ROOT, or STATICFILES_DIRS settings, ensuring security and data integrity by preventing unauthorized access to cache storage.
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root, root)
@@ -70,6 +73,9 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_inside_media_static_setting(self):
+        """
+        Tests that a cache path located inside media or static setting directories raises a warning
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root / "cache", root)
@@ -83,6 +89,9 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_contains_media_static_setting(self):
+        """
+        Tests that the cache path does not contain the media or static settings paths, to prevent exposure of sensitive data.
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root, root / "other")
@@ -96,6 +105,9 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_not_conflict(self):
+        """
+        Verifies that the cache path does not conflict with media, static, or staticfiles directories, ensuring the cache location is not exposed.
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root / "cache", root / "other")
@@ -103,6 +115,9 @@ class CheckCacheLocationTest(SimpleTestCase):
                 self.assertEqual(check_cache_location_not_exposed(None), [])
 
     def test_staticfiles_dirs_prefix(self):
+        """
+        Tests that the STATICFILES_DIRS setting correctly handles cache locations within and outside of the project root directory, ensuring proper prefixing and avoiding exposure of cache locations.
+        """
         root = pathlib.Path.cwd()
         tests = [
             (root, root, "matches"),

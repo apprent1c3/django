@@ -12,6 +12,10 @@ class TestDataMixin:
     def setUpTestData(cls):
         # don't use the manager because we want to ensure the site exists
         # with pk=1, regardless of whether or not it already exists.
+        """
+        Sets up test data, creating a site and multiple flat pages with varying properties, 
+        and associates these pages with the created site for use in subsequent tests.
+        """
         cls.site1 = Site(pk=1, domain="example.com", name="example.com")
         cls.site1.save()
         cls.fp1 = FlatPage.objects.create(
@@ -82,7 +86,9 @@ class FlatpageMiddlewareTests(TestDataMixin, TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_view_authenticated_flatpage(self):
-        "A flatpage served through a view can require authentication"
+        """
+        Tests that a view serving a flatpage correctly enforces authentication, redirecting unauthorized users to the login page and allowing authorized users to access the page's content.
+        """
         response = self.client.get("/flatpage_root/sekrit/")
         self.assertRedirects(response, "/accounts/login/?next=/flatpage_root/sekrit/")
         user = User.objects.create_user("testuser", "test@example.com", "s3krit")
@@ -104,7 +110,9 @@ class FlatpageMiddlewareTests(TestDataMixin, TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_fallback_authenticated_flatpage(self):
-        "A flatpage served by the middleware can require authentication"
+        """
+        Tests that a flatpage served by the middleware requires authentication and correctly redirects unauthenticated users to the login page.
+        """
         response = self.client.get("/sekrit/")
         self.assertRedirects(response, "/accounts/login/?next=/sekrit/")
         user = User.objects.create_user("testuser", "test@example.com", "s3krit")
@@ -114,8 +122,7 @@ class FlatpageMiddlewareTests(TestDataMixin, TestCase):
 
     def test_fallback_flatpage_special_chars(self):
         """
-        A flatpage with special chars in the URL can be served by the fallback
-        middleware.
+        Tests the fallback middleware's ability to serve flatpages with special characters in their URLs.
         """
         fp = FlatPage.objects.create(
             url="/some.very_special~chars-here/",
@@ -175,8 +182,7 @@ class FlatpageMiddlewareAppendSlashTests(TestDataMixin, TestCase):
 
     def test_redirect_fallback_flatpage_special_chars(self):
         """
-        A flatpage with special chars in the URL can be served by the fallback
-        middleware and should add a slash.
+        Tests the fallback middleware's ability to serve flatpages with special characters in their URLs, ensuring a trailing slash is added to the URL.
         """
         fp = FlatPage.objects.create(
             url="/some.very_special~chars-here/",
@@ -193,7 +199,9 @@ class FlatpageMiddlewareAppendSlashTests(TestDataMixin, TestCase):
         )
 
     def test_redirect_fallback_flatpage_root(self):
-        "A flatpage at / should not cause a redirect loop when APPEND_SLASH is set"
+        """
+        Tests that a flatpage located at the root URL ('/') does not cause a redirect loop when APPEND_SLASH is enabled, ensuring correct rendering of the flatpage's content.
+        """
         fp = FlatPage.objects.create(
             url="/",
             title="Root",

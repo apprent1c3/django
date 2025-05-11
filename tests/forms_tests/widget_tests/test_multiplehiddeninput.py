@@ -52,6 +52,9 @@ class MultipleHiddenInputTest(WidgetTest):
         )
 
     def test_render_attrs_constructor(self):
+        """
+        Tests the rendering of MultipleHiddenInput widget, specifically the handling of attributes in its constructor and their effect on the generated HTML output. Verifies that the widget produces the expected HTML for various input scenarios, including multiple values and custom attribute overrides.
+        """
         widget = MultipleHiddenInput(attrs={"class": "fun"})
         self.check_html(widget, "email", [], "")
         self.check_html(
@@ -107,6 +110,9 @@ class MultipleHiddenInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests rendering a multiple choice field as hidden inputs within a fieldset.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             composers = MultipleChoiceField(

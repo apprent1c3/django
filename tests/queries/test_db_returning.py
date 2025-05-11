@@ -27,6 +27,9 @@ class ReturningValuesTests(TestCase):
         self.assertIsInstance(obj.created, datetime.datetime)
 
     def test_insert_returning_multiple(self):
+        """
+        Tests that the create method of ReturningModel returns the expected object with primary key and created timestamp after insertion into the database, verifying the SQL query uses the RETURNING clause to fetch the inserted values.
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             obj = ReturningModel.objects.create()
         table_name = connection.ops.quote_name(ReturningModel._meta.db_table)
@@ -47,6 +50,12 @@ class ReturningValuesTests(TestCase):
 
     @skipUnlessDBFeature("can_return_rows_from_bulk_insert")
     def test_bulk_insert(self):
+        """
+
+        Tests bulk creation of model objects, verifying that primary keys are assigned 
+        and creation timestamps are populated correctly.
+
+        """
         objs = [ReturningModel(), ReturningModel(pk=2**11), ReturningModel()]
         ReturningModel.objects.bulk_create(objs)
         for obj in objs:

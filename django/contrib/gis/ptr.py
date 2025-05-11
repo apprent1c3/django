@@ -32,7 +32,7 @@ class CPointerBase:
 
     def __del__(self):
         """
-        Free the memory used by the C++ object.
+        Releases resources held by the object when it is destroyed, freeing up memory by calling the associated C++ destructor if available.
         """
         if self.destructor and self._ptr:
             try:

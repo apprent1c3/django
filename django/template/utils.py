@@ -24,6 +24,19 @@ class EngineHandler:
 
     @cached_property
     def templates(self):
+        """
+        Returns a dictionary of template engines defined in the project settings.
+
+        The function processes the TEMPLATES setting and returns a dictionary where
+        each key is a unique template engine name and the value is a dictionary
+        containing the engine's configuration. It also checks for duplicate template
+        engine names and raises an exception if any are found.
+
+        Raises:
+            ImproperlyConfigured: If a template engine has an invalid BACKEND or
+                if there are duplicate template engine names.
+
+        """
         if self._templates is None:
             self._templates = settings.TEMPLATES
 
@@ -65,6 +78,14 @@ class EngineHandler:
         return templates
 
     def __getitem__(self, alias):
+        """
+
+        Retrieves a template engine instance by alias, creating and storing it if not already initialized.
+
+        Raises:
+            InvalidTemplateEngineError: If the alias is not found in the settings.TEMPLATES configuration.
+
+        """
         try:
             return self._engines[alias]
         except KeyError:

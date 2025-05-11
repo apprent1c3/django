@@ -19,6 +19,10 @@ from django.test import (
 
 class TestUtils(SimpleTestCase):
     def test_truncate_name(self):
+        """
+        Truncates a table name to a specified length while preserving its uniqueness, 
+        returning the original name if it's already short enough or no length is provided.
+        """
         self.assertEqual(truncate_name("some_table", 10), "some_table")
         self.assertEqual(truncate_name("some_long_table", 10), "some_la38a")
         self.assertEqual(truncate_name("some_long_table", 10, 3), "some_loa38")
@@ -45,6 +49,9 @@ class TestUtils(SimpleTestCase):
         )
 
     def test_format_number(self):
+        """
+        Tests the format_number function with various inputs to verify its behavior, including rounding and precision handling.
+        """
         def equal(value, max_d, places, result):
             self.assertEqual(format_number(Decimal(value), max_d, places), result)
 
@@ -95,6 +102,15 @@ class CursorWrapperTests(TransactionTestCase):
     available_apps = []
 
     def _test_procedure(self, procedure_sql, params, param_types, kparams=None):
+        """
+        Executes and then removes a stored database procedure for testing purposes.
+
+        :param procedure_sql: The SQL string to create the procedure.
+        :param params: Parameters to be passed to the procedure.
+        :param param_types: Types of parameters.
+        :param kparams: Optional keyword parameters to be passed to the procedure.
+
+        """
         with connection.cursor() as cursor:
             cursor.execute(procedure_sql)
         # Use a new cursor because in MySQL a procedure can't be used in the

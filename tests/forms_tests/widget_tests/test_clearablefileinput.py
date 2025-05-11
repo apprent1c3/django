@@ -41,8 +41,7 @@ class ClearableFileInputTest(WidgetTest):
 
     def test_html_escaped(self):
         """
-        A ClearableFileInput should escape name, filename, and URL
-        when rendering HTML (#15182).
+        Tests that the ClearableFileInput widget correctly escapes HTML special characters in the name, filename, and URL when rendering its HTML representation.
         """
 
         class StrangeFieldFile:
@@ -127,6 +126,9 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_render_no_disabled(self):
+        """
+        Tests that rendering a form with a clearable file field does not log any debug messages when the field is not disabled and has an initial value.
+        """
         class TestForm(Form):
             clearable_file = FileField(
                 widget=self.widget, initial=FakeFieldFile(), required=False
@@ -168,8 +170,7 @@ class ClearableFileInputTest(WidgetTest):
 
     def test_clear_input_checked_returns_false_only_if_not_required(self):
         """
-        ClearableFileInput.value_from_datadict never returns False if the field
-        is required.
+        Tests that ClearableFileInput does not return False when the field is required and the clear checkbox is checked, instead returning the original file value.
         """
         widget = ClearableFileInput()
         widget.is_required = True
@@ -185,8 +186,7 @@ class ClearableFileInputTest(WidgetTest):
 
     def test_html_does_not_mask_exceptions(self):
         """
-        A ClearableFileInput should not mask exceptions produced while
-        checking that it has a value.
+        Tests that rendering a ClearableFileInput does not suppress exceptions raised when checking for a file value.
         """
 
         class FailingURLFieldFile:
@@ -201,6 +201,13 @@ class ClearableFileInputTest(WidgetTest):
             self.widget.render("myfile", FailingURLFieldFile())
 
     def test_url_as_property(self):
+        """
+
+        Tests that a URL field is correctly rendered as a hyperlink when accessed as a property.
+
+        Verifies that the rendered HTML contains the expected anchor tag with the correct URL.
+
+        """
         class URLFieldFile:
             @property
             def url(self):
@@ -213,6 +220,9 @@ class ClearableFileInputTest(WidgetTest):
         self.assertInHTML('<a href="https://www.python.org/">value</a>', html)
 
     def test_return_false_if_url_does_not_exists(self):
+        """
+        Tests that the widget returns an empty input field if the provided file does not have a URL.
+        """
         class NoURLFieldFile:
             def __str__(self):
                 return "value"
@@ -237,6 +247,12 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests the rendering of a form with file fields, including a regular file field, 
+        a field with an initial file, and a clearable file field.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = FileField(widget=self.widget)

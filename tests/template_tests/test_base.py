@@ -77,7 +77,9 @@ class VariableTests(SimpleTestCase):
         )
 
     def test_nonliterals(self):
-        """Variable names that aren't resolved as literals."""
+        """
+        Tests that variable names which are not valid numeric literals do not resolve to literal values.
+        """
         var_names = []
         for var in ("inf", "infinity", "iNFiniTy", "nan"):
             var_names.extend((var, "-" + var, "+" + var))

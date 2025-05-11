@@ -136,12 +136,11 @@ class ValidationError(Exception):
 
     def __init__(self, message, code=None, params=None):
         """
-        The `message` argument can be a single error, a list of errors, or a
-        dictionary that maps field names to lists of errors. What we define as
-        an "error" can be either a simple string or an instance of
-        ValidationError with its message attribute set, and what we define as
-        list or dictionary can be an actual `list` or `dict` or an instance
-        of ValidationError with its `error_list` or `error_dict` attribute set.
+
+            Initialize a validation error object with the given message, code, and parameters.
+            The message can be a single error, a list of errors, or a dictionary mapping field names to errors.
+            This constructor normalizes the input into a standardized error format, allowing for easy manipulation and reporting of validation errors.
+
         """
         super().__init__(message, code, params)
 
@@ -192,6 +191,9 @@ class ValidationError(Exception):
         return list(self)
 
     def update_error_dict(self, error_dict):
+        """
+        Updates an error dictionary by merging existing error messages from the object into the provided dictionary. If the object has a structured error dictionary, it appends error messages to corresponding fields; otherwise, it adds errors to a non-field specific list. Returns the updated error dictionary.
+        """
         if hasattr(self, "error_dict"):
             for field, error_list in self.error_dict.items():
                 error_dict.setdefault(field, []).extend(error_list)
@@ -200,6 +202,9 @@ class ValidationError(Exception):
         return error_dict
 
     def __iter__(self):
+        """
+        Returns an iterator over validation errors, yielding tuples of field names and error messages, or just error messages if no field information is available.
+        """
         if hasattr(self, "error_dict"):
             for field, errors in self.error_dict.items():
                 yield field, list(ValidationError(errors))
@@ -224,6 +229,9 @@ class ValidationError(Exception):
         return hash(self) == hash(other)
 
     def __hash__(self):
+        """
+        Returns a hash value for the object, allowing it to be used in hash-based data structures such as dictionaries and sets. The hash value is computed based on the object's attributes, including its message, code, parameters, error dictionary, or error list.
+        """
         if hasattr(self, "message"):
             return hash(
                 (

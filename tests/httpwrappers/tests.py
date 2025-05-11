@@ -36,6 +36,9 @@ class QueryDictTests(SimpleTestCase):
             q.__getitem__("foo")
 
     def test_immutability(self):
+        """
+        Verifies that a QueryDict instance is immutable by attempting to modify it using various methods and asserting that an AttributeError is raised in each case.
+        """
         q = QueryDict()
         with self.assertRaises(AttributeError):
             q.__setitem__("something", "bar")
@@ -57,6 +60,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q.get("foo", "default"), "default")
 
     def test_immutable_basic_operations(self):
+        """
+        Tests the basic immutable operations of an empty QueryDict instance, verifying it behaves as expected when empty.
+        """
         q = QueryDict()
         self.assertEqual(q.getlist("foo"), [])
         self.assertNotIn("foo", q)
@@ -69,7 +75,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q.urlencode(), "")
 
     def test_single_key_value(self):
-        """Test QueryDict with one key/value pair"""
+        """
+        Test the functionality of a QueryDict object with a single key-value pair. This test case verifies that all methods and attributes behave as expected when the QueryDict contains only one item.
+        """
 
         q = QueryDict("foo=bar")
         self.assertEqual(q["foo"], "bar")
@@ -112,6 +120,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q.urlencode(), "foo=bar")
 
     def test_urlencode(self):
+        """
+        Tests the urlencode method of QueryDict, ensuring proper URL encoding of special characters and correct handling of the 'safe' parameter.
+        """
         q = QueryDict(mutable=True)
         q["next"] = "/a&b/"
         self.assertEqual(q.urlencode(), "next=%2Fa%26b%2F")
@@ -129,7 +140,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q.urlencode(), "a=1")
 
     def test_mutable_copy(self):
-        """A copy of a QueryDict is mutable."""
+        """
+        Verifies that a copied QueryDict instance is mutable, allowing modifications to be made without affecting the original QueryDict.
+        """
         q = QueryDict().copy()
         with self.assertRaises(KeyError):
             q.__getitem__("foo")
@@ -143,6 +156,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertNotIn("name", q)
 
     def test_basic_mutable_operations(self):
+        """
+        Tests the behavior of a mutable QueryDict, verifying it correctly handles various operations including setting, getting, updating, and removing key-value pairs, as well as encoding the query dictionary into a URL string.
+        """
         q = QueryDict(mutable=True)
         q["name"] = "john"
         self.assertEqual(q.get("foo", "default"), "default")
@@ -183,7 +199,10 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(len(q), 0)
 
     def test_multiple_keys(self):
-        """Test QueryDict with two key/value pairs with same keys."""
+        """
+        Tests the behavior of QueryDict when multiple key-value pairs have the same key.
+        Verifies that the correct values are returned, and that certain methods are disabled.
+        """
 
         q = QueryDict("vote=yes&vote=no")
 
@@ -226,6 +245,9 @@ class QueryDictTests(SimpleTestCase):
             q.__delitem__("vote")
 
     def test_pickle(self):
+        """
+        Tests that QueryDict instances can be successfully pickled and unpickled, verifying data integrity after serialization and deserialization.
+        """
         q = QueryDict()
         q1 = pickle.loads(pickle.dumps(q, 2))
         self.assertEqual(q, q1)
@@ -237,14 +259,18 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q, q1)
 
     def test_update_from_querydict(self):
-        """Regression test for #8278: QueryDict.update(QueryDict)"""
+        """
+        Tests that updating a mutable QueryDict with another QueryDict correctly appends new values to existing ones.
+        """
         x = QueryDict("a=1&a=2", mutable=True)
         y = QueryDict("a=3&a=4")
         x.update(y)
         self.assertEqual(x.getlist("a"), ["1", "2", "3", "4"])
 
     def test_non_default_encoding(self):
-        """#13572 - QueryDict with a non-default encoding"""
+        """
+        Tests that QueryDict correctly handles a non-default encoding, specifically verifying that the encoding is preserved during initialization, copying, and deep copying, and that it correctly decodes and encodes query string values.
+        """
         q = QueryDict("cur=%A4", encoding="iso-8859-15")
         self.assertEqual(q.encoding, "iso-8859-15")
         self.assertEqual(list(q.items()), [("cur", "€")])
@@ -284,6 +310,14 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(QueryDict.fromkeys("xyzzy"), QueryDict("x&y&z&z&y"))
 
     def test_fromkeys_with_nondefault_encoding(self):
+        """
+
+        Tests the fromkeys method of QueryDict with non-default encoding.
+
+        Verifies that the method correctly handles keys and values with non-ASCII characters
+        when using a specific encoding (in this case, UTF-16).
+
+        """
         key_utf16 = b"\xff\xfe\x8e\x02\xdd\x01\x9e\x02"
         value_utf16 = b"\xff\xfe\xdd\x01n\x00l\x00P\x02\x8c\x02"
         q = QueryDict.fromkeys([key_utf16], value=value_utf16, encoding="utf-16")
@@ -301,6 +335,9 @@ class QueryDictTests(SimpleTestCase):
 
 class HttpResponseTests(SimpleTestCase):
     def test_headers_type(self):
+        """
+        Tests the constraints and behavior of the headers attribute in an HttpResponse object, checking that headers can be set and retrieved correctly with different data types and encodings, and that invalid key names raise a UnicodeError.
+        """
         r = HttpResponse()
 
         # ASCII strings or bytes values are converted to strings.
@@ -346,6 +383,11 @@ class HttpResponseTests(SimpleTestCase):
     def test_long_line(self):
         # Bug #20889: long lines trigger newlines to be added to headers
         # (which is not allowed due to bug #10188)
+        """
+        Tests setting a long filename in the Content-Disposition header of an HTTP response.
+
+        This test ensures that the Content-Disposition header can handle filenames with special characters and longer lengths, mimicking real-world scenarios where filenames may be complex or lengthy.
+        """
         h = HttpResponse()
         f = b"zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz a\xcc\x88"
         f = f.decode("utf-8")
@@ -358,6 +400,14 @@ class HttpResponseTests(SimpleTestCase):
 
     def test_newlines_in_headers(self):
         # Bug #10188: Do not allow newlines in headers (CR or LF)
+        """
+
+        Tests that HttpResponse headers reject values containing newlines.
+
+        This ensures that attempts to set header values with newlines (e.g. '\r', '\n')
+        raise a BadHeaderError, preventing potential security vulnerabilities.
+
+        """
         r = HttpResponse()
         with self.assertRaises(BadHeaderError):
             r.headers.__setitem__("test\rstr", "test")
@@ -366,11 +416,7 @@ class HttpResponseTests(SimpleTestCase):
 
     def test_encoded_with_newlines_in_headers(self):
         """
-        Keys & values which throw a UnicodeError when encoding/decoding should
-        still be checked for newlines and re-raised as a BadHeaderError.
-        These specifically would still throw BadHeaderError after decoding
-        successfully, because the newlines are sandwiched in the middle of the
-        string and email.Header leaves those as they are.
+        This function tests whether setting HTTP response headers with keys or values containing newlines raises a BadHeaderError, even when those values would normally cause a UnicodeError during encoding or decoding.
         """
         r = HttpResponse()
         pairs = (
@@ -394,6 +440,9 @@ class HttpResponseTests(SimpleTestCase):
 
     def test_non_string_content(self):
         # Bug 16494: HttpResponse should behave consistently with non-strings
+        """
+        Verifies that non-string content set for an HttpResponse object is properly converted to bytes.
+        """
         r = HttpResponse(12345)
         self.assertEqual(r.content, b"12345")
 
@@ -407,6 +456,12 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"memoryview")
 
     def test_iter_content(self):
+        """
+        Tests the iteration and content setting of an HttpResponse object. 
+        Verifies that setting content as an iterable or list results in the correct bytes being generated, 
+        and that the HttpResponse object can be iterated over to retrieve the same content. 
+        Also checks that writing to the HttpResponse object after initialization appends to the content correctly.
+        """
         r = HttpResponse(["abc", "def", "ghi"])
         self.assertEqual(r.content, b"abcdefghi")
 
@@ -458,6 +513,14 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"helloworld")
 
     def test_file_interface(self):
+        """
+
+        Tests the functionality of the HttpResponse object, specifically its file interface.
+        Ensures that writing bytes and strings to the response object works correctly, 
+        regardless of the content encoding set in the response headers, and that the 
+        tell method returns the correct position in the response content.
+
+        """
         r = HttpResponse()
         r.write(b"hello")
         self.assertEqual(r.tell(), 5)
@@ -477,6 +540,9 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"abcdef")
 
     def test_stream_interface(self):
+        """
+        Tests the interface of HttpResponse for streaming functionality, verifying the ability to write and retrieve content.
+        """
         r = HttpResponse("asdf")
         self.assertEqual(r.getvalue(), b"asdf")
 
@@ -486,6 +552,13 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"foo\nbar\nbaz\n")
 
     def test_unsafe_redirect(self):
+        """
+
+        Tests that certain URLs are disallowed for redirects to prevent security vulnerabilities such as cross-site scripting (XSS) and information disclosure.
+
+        Verifies that :class:`HttpResponseRedirect` and :class:`HttpResponsePermanentRedirect` raise a :class:`DisallowedRedirect` exception when given URLs that are considered unsafe, including JavaScript injections, email addresses, and local file paths.
+
+        """
         bad_urls = [
             'data:text/html,<script>window.alert("xss")</script>',
             "mailto:test@example.com",
@@ -498,6 +571,9 @@ class HttpResponseTests(SimpleTestCase):
                 HttpResponsePermanentRedirect(url)
 
     def test_header_deletion(self):
+        """
+        Tests the deletion of a custom HTTP header from an HttpResponse object, including handling of a header that has already been deleted.
+        """
         r = HttpResponse("hello")
         r.headers["X-Foo"] = "foo"
         del r.headers["X-Foo"]
@@ -533,6 +609,13 @@ class HttpResponseTests(SimpleTestCase):
 
 class HttpResponseSubclassesTests(SimpleTestCase):
     def test_redirect(self):
+        """
+
+        Tests the functionality of an HTTP redirect response, ensuring a 302 status code is returned 
+        and that the 'Location' header matches the specified URL. Also verifies that an optional 
+        content message is included in the response body.
+
+        """
         response = HttpResponseRedirect("/redirected/")
         self.assertEqual(response.status_code, 302)
         # Standard HttpResponse init args can be used
@@ -560,8 +643,7 @@ class HttpResponseSubclassesTests(SimpleTestCase):
 
     def test_invalid_redirect_repr(self):
         """
-        If HttpResponseRedirect raises DisallowedRedirect, its __repr__()
-        should work (in the debug view, for example).
+        Verifies that the __repr__ method of HttpResponseRedirect works correctly when a DisallowedRedirect is raised, ensuring proper display in debug views.
         """
         response = HttpResponseRedirect.__new__(HttpResponseRedirect)
         with self.assertRaisesMessage(
@@ -575,6 +657,9 @@ class HttpResponseSubclassesTests(SimpleTestCase):
         self.assertEqual(repr(response), expected)
 
     def test_not_modified(self):
+        """
+        Tests that an HttpResponseNotModified object behaves as expected, specifically that it has a 304 status code and is immutable, preventing changes to its content.
+        """
         response = HttpResponseNotModified()
         self.assertEqual(response.status_code, 304)
         # 304 responses should not have content/content-type
@@ -638,6 +723,9 @@ class JsonResponseTests(SimpleTestCase):
         self.assertEqual(json.loads(response.content.decode()), str(u))
 
     def test_json_response_custom_encoder(self):
+        """
+        Tests whether a custom JSON encoder can be successfully used with the JsonResponse class to serialize data.
+        """
         class CustomDjangoJSONEncoder(DjangoJSONEncoder):
             def encode(self, o):
                 return json.dumps({"foo": "bar"})
@@ -652,6 +740,17 @@ class JsonResponseTests(SimpleTestCase):
 
 class StreamingHttpResponseTests(SimpleTestCase):
     def test_streaming_response(self):
+        """
+
+        Test the functionality of the StreamingHttpResponse object.
+
+        Verifies that the StreamingHttpResponse object correctly handles streaming content, 
+        iterates over chunks, and checks the type of each chunk. Also tests setting and 
+        getting of the streaming content, and checks for the absence of the content 
+        attribute. Additionally, checks error handling for write and tell methods, and 
+        tests the getvalue method.
+
+        """
         r = StreamingHttpResponse(iter(["hello", "world"]))
 
         # iterating over the response itself yields bytestring chunks.
@@ -721,6 +820,9 @@ class StreamingHttpResponseTests(SimpleTestCase):
         )
 
     async def test_async_streaming_response(self):
+        """
+        Tests the asynchronous streaming response functionality by verifying that chunks yielded from an asynchronous iterator are correctly received and match the expected output.
+        """
         async def async_iter():
             yield b"hello"
             yield b"world"
@@ -733,6 +835,9 @@ class StreamingHttpResponseTests(SimpleTestCase):
         self.assertEqual(chunks, [b"hello", b"world"])
 
     def test_async_streaming_response_warning(self):
+        """
+        Tests that using an asynchronous iterator with StreamingHttpResponse raises a warning, as it must be consumed synchronously.
+        """
         async def async_iter():
             yield b"hello"
             yield b"world"
@@ -765,6 +870,9 @@ class FileCloseTests(SimpleTestCase):
         self.addCleanup(request_finished.connect, close_old_connections)
 
     def test_response(self):
+        """
+        Tests that HttpResponse correctly handles and closes file objects passed to it and its content attribute.
+        """
         filename = os.path.join(os.path.dirname(__file__), "abc.txt")
 
         # file isn't closed until we close the response.
@@ -783,6 +891,13 @@ class FileCloseTests(SimpleTestCase):
         self.assertTrue(file2.closed)
 
     def test_streaming_response(self):
+        """
+        Tests the behavior of StreamingHttpResponse with regards to file closure.
+
+        Verifies that the file remains open until the StreamingHttpResponse is closed,
+        even when the original file object is replaced with a new one using the
+        streaming_content attribute.
+        """
         filename = os.path.join(os.path.dirname(__file__), "abc.txt")
 
         # file isn't closed until we close the response.
@@ -807,14 +922,18 @@ class FileCloseTests(SimpleTestCase):
 
 class CookieTests(unittest.TestCase):
     def test_encode(self):
-        """Semicolons and commas are encoded."""
+        """
+        Verifies that semicolons and commas in cookie values are properly encoded to prevent issues with cookie parsing.
+        """
         c = SimpleCookie()
         c["test"] = "An,awkward;value"
         self.assertNotIn(";", c.output().rstrip(";"))  # IE compat
         self.assertNotIn(",", c.output().rstrip(";"))  # Safari compat
 
     def test_decode(self):
-        """Semicolons and commas are decoded."""
+        """
+        Tests the decoding of semicolons and commas in cookie values to ensure correct parsing and consistency between different cookie representations.
+        """
         c = SimpleCookie()
         c["test"] = "An,awkward;value"
         c2 = SimpleCookie()
@@ -837,7 +956,12 @@ class CookieTests(unittest.TestCase):
 
     def test_python_cookies(self):
         """
-        Test cases copied from Python's Lib/test/test_http_cookies.py
+
+        Tests the functionality of parsing HTTP cookies according to Python's standard library test cases.
+
+        Verifies that the parse_cookie function correctly handles various input scenarios, 
+        including simple key-value pairs, quoted values, and edge cases with special characters.
+
         """
         self.assertEqual(
             parse_cookie("chips=ahoy; vienna=finger"),
@@ -871,8 +995,7 @@ class CookieTests(unittest.TestCase):
 
     def test_invalid_cookies(self):
         """
-        Cookie strings that go against RFC 6265 but browsers will send if set
-        via document.cookie.
+        Tests parsing of cookie strings that are invalid according to the RFC 6265 standard but may still be sent by browsers when set via JavaScript's document.cookie.
         """
         # Chunks without an equals sign appear as unnamed values per
         # https://bugzilla.mozilla.org/show_bug.cgi?id=169091
@@ -918,6 +1041,9 @@ class CookieTests(unittest.TestCase):
         self.assertEqual(c["name"].value, "val")
 
     def test_pickle(self):
+        """
+        Tests the pickling and unpickling of a SimpleCookie object, ensuring that its output remains consistent after serialization and deserialization using different pickle protocols.
+        """
         rawdata = 'Customer="WILE_E_COYOTE"; Path=/acme; Version=1'
         expected_output = "Set-Cookie: %s" % rawdata
 
@@ -934,6 +1060,9 @@ class HttpResponseHeadersTestCase(SimpleTestCase):
     """Headers by treating HttpResponse like a dictionary."""
 
     def test_headers(self):
+        """
+        Verifies that HTTP response headers can be successfully set, retrieved, and removed.
+        """
         response = HttpResponse()
         response["X-Foo"] = "bar"
         self.assertEqual(response["X-Foo"], "bar")
@@ -957,6 +1086,9 @@ class HttpResponseHeadersTestCase(SimpleTestCase):
         self.assertEqual(response.headers["X-Foo"], "bar")
 
     def test_newlines_in_headers(self):
+        """
+        Tests that attempting to set HTTP response header names containing newlines raises a BadHeaderError, ensuring that invalid headers are prevented from being set.
+        """
         response = HttpResponse()
         with self.assertRaises(BadHeaderError):
             response["test\rstr"] = "test"

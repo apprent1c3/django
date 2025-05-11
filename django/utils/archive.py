@@ -62,6 +62,17 @@ class Archive:
 
     @staticmethod
     def _archive_cls(file):
+        """
+
+        Determine the archive class for a given file or file-like object based on its extension.
+
+        Identifies the archive class by checking the file extension against a mapping, 
+        supporting files with a single or double extension (e.g.,.tar.gz).
+
+        Raises:
+            UnrecognizedArchiveFormat: If the file object is not recognized as an archive or its path does not match a known archive format.
+
+        """
         cls = None
         if isinstance(file, str):
             filename = file
@@ -115,6 +126,11 @@ class BaseArchive:
             os.chmod(filename, mode)
 
     def split_leading_dir(self, path):
+        """
+        Splits a given path into a leading directory and the rest of the path. 
+
+        The function considers both Unix and Windows directory separators, returning the first directory and the remaining path portion. If no directory separators are found, it returns the entire path as the leading directory and an empty string.
+        """
         path = str(path)
         path = path.lstrip("/").lstrip("\\")
         if "/" in path and (
@@ -128,8 +144,12 @@ class BaseArchive:
 
     def has_leading_dir(self, paths):
         """
-        Return True if all the paths have the same leading path name
-        (i.e., everything is in one subdirectory in an archive).
+
+        Checks if all paths share the same leading directory, indicating they are within a single subdirectory. 
+
+        :param paths: Collection of paths to check for a common leading directory.
+        :return: True if all paths have the same leading directory, False otherwise.
+
         """
         common_prefix = None
         for path in paths:
@@ -143,6 +163,19 @@ class BaseArchive:
         return True
 
     def target_filename(self, to_path, name):
+        """
+
+        Constructs the absolute filename of a file within a target directory.
+
+        This function ensures the resulting filename is a valid path within the target directory,
+        preventing any potential path traversal attacks.
+
+        :param to_path: The target directory path
+        :param name: The filename to be constructed
+        :return: The absolute filename
+        :raises SuspiciousOperation: If the constructed filename is not within the target directory
+
+        """
         target_path = os.path.abspath(to_path)
         filename = os.path.abspath(os.path.join(target_path, name))
         if not filename.startswith(target_path):
@@ -168,6 +201,9 @@ class TarArchive(BaseArchive):
         self._archive.list(*args, **kwargs)
 
     def extract(self, to_path):
+        """
+        Extracts the contents of an archive to a specified path, handling leading directories, file permissions, and directory creation as needed.
+        """
         members = self._archive.getmembers()
         leading = self.has_leading_dir(x.name for x in members)
         for member in members:
@@ -211,6 +247,16 @@ class ZipArchive(BaseArchive):
         self._archive.printdir(*args, **kwargs)
 
     def extract(self, to_path):
+        """
+        .extract(self, to_path)
+            Extracts the contents of the archive to the specified path.
+
+            :param to_path: The path where the archive contents will be extracted.
+            :return: None 
+
+            This function reads the archive's namelist, preserves the file structure by creating necessary directories,
+            and writes the file data to the corresponding paths, also maintains file permissions.
+        """
         namelist = self._archive.namelist()
         leading = self.has_leading_dir(namelist)
         for name in namelist:

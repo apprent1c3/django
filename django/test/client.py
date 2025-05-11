@@ -74,6 +74,11 @@ class FakePayload(IOBase):
     """
 
     def __init__(self, initial_bytes=None):
+        """
+        Initializes a bytes buffer, optionally with initial content.
+
+        :parameter initial_bytes: The initial bytes to populate the buffer with.
+        """
         self.__content = BytesIO()
         self.__len = 0
         self.read_started = False
@@ -84,6 +89,13 @@ class FakePayload(IOBase):
         return self.__len
 
     def read(self, size=-1, /):
+        """
+        Reads data from the HTTP incoming data.
+
+        :param size: The number of bytes to read. If -1 or None, reads all available bytes.
+        :returns: The read data as bytes.
+        :note: The read operation starts from the beginning of the data if this is the first read.
+        """
         if not self.read_started:
             self.__content.seek(0)
             self.read_started = True
@@ -97,6 +109,13 @@ class FakePayload(IOBase):
         return content
 
     def readline(self, size=-1, /):
+        """
+        Read a line of data from the HTTP incoming data.
+
+        :param size: The maximum number of bytes to read from the line (default is to read the entire line or the remaining data if no newline is found)
+        :rtype: bytes
+        :raises AssertionError: If attempting to read more data than is available
+        """
         if not self.read_started:
             self.__content.seek(0)
             self.read_started = True
@@ -110,6 +129,14 @@ class FakePayload(IOBase):
         return content
 
     def write(self, b, /):
+        """
+        Write binary data to the payload.
+
+        Writes the provided binary data to the internal content buffer. This operation
+        is only permitted if the payload has not been read previously.
+
+        :raises ValueError: If an attempt is made to write after the payload has been read.
+        """
         if self.read_started:
             raise ValueError("Unable to write a payload after it's been read")
         content = force_bytes(b)
@@ -118,6 +145,15 @@ class FakePayload(IOBase):
 
 
 def closing_iterator_wrapper(iterable, close):
+    """
+
+     Ensures the given iterable is fully iterated over and then executes the provided close function, 
+     also re-establishing a connection with the request_finished event after temporarily disconnecting it.
+
+     :param iterable: The iterable to exhaust
+     :param close: The function to call after iteration is complete
+
+    """
     try:
         yield from iterable
     finally:
@@ -127,6 +163,13 @@ def closing_iterator_wrapper(iterable, close):
 
 
 async def aclosing_iterator_wrapper(iterable, close):
+    """
+
+    Wraps an asynchronous iterator to ensure an asynchronous closing operation is executed after iteration.
+
+    The provided iterable is iterated over asynchronously, yielding each chunk. Once iteration is complete (either normally or due to an exception), the `close` function is called to perform the closing operation.
+
+    """
     try:
         async for chunk in iterable:
             yield chunk
@@ -138,9 +181,11 @@ async def aclosing_iterator_wrapper(iterable, close):
 
 def conditional_content_removal(request, response):
     """
-    Simulate the behavior of most web servers by removing the content of
-    responses for HEAD requests, 1xx, 204, and 304 responses. Ensure
-    compliance with RFC 9112 Section 6.3.
+
+    Simulates the behavior of typical web servers by conditionally removing response content.
+    Removal occurs for HEAD requests and responses with status codes 1xx, 204, or 304, 
+    ensuring compliance with RFC 9112 Section 6.3.
+
     """
     if 100 <= response.status_code < 200 or response.status_code in (204, 304):
         if response.streaming:
@@ -169,6 +214,13 @@ class ClientHandler(BaseHandler):
     def __call__(self, environ):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+        Initializes a request and returns a response.
+
+        Handles the WSGI request, applies middleware, and dispatches the request to 
+        the application, handling streaming responses and cleanup after the request 
+        is processed.
+        """
         if self._middleware_chain is None:
             self.load_middleware()
 
@@ -220,6 +272,13 @@ class AsyncClientHandler(BaseHandler):
     async def __call__(self, scope):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+        Asynchronous entry point for handling incoming ASGI requests.
+
+        This method loads middleware, processes the request, and returns a response.
+        It also handles connection management, CSRF checks, and streaming content.
+
+        """
         if self._middleware_chain is None:
             self.load_middleware(is_async=True)
         # Extract body file from the scope, if provided.
@@ -264,10 +323,11 @@ class AsyncClientHandler(BaseHandler):
 
 def store_rendered_templates(store, signal, sender, template, context, **kwargs):
     """
-    Store templates and contexts that are rendered.
 
-    The context is copied so that it is an accurate representation at the time
-    of rendering.
+    Stores rendered templates along with their corresponding contexts.
+
+    The stored context is a snapshot of the context at the time of rendering.
+
     """
     store.setdefault("templates", []).append(template)
     if "context" not in store:
@@ -277,11 +337,13 @@ def store_rendered_templates(store, signal, sender, template, context, **kwargs)
 
 def encode_multipart(boundary, data):
     """
+
     Encode multipart POST data from a dictionary of form values.
 
     The key will be used as the form data name; the value will be transmitted
     as content. If the value is a file, the contents of the file will be sent
     as an application/octet-stream; otherwise, str(value) will be sent.
+
     """
     lines = []
 
@@ -338,6 +400,17 @@ def encode_multipart(boundary, data):
 
 
 def encode_file(boundary, key, file):
+    """
+
+    Encodes a file into a sequence of bytes suitable for inclusion in a multipart/form-data HTTP request.
+
+    :param boundary: The boundary string used to separate parts of the request.
+    :param key: The name of the form field associated with the file.
+    :param file: The file to encode.
+
+    :return: A list of bytes representing the encoded file.
+
+    """
     def to_bytes(s):
         return force_bytes(s, settings.DEFAULT_CHARSET)
 
@@ -389,6 +462,16 @@ class RequestFactory:
         query_params=None,
         **defaults,
     ):
+        """
+        Initializes a request object with default settings and optional customizations.
+
+        :param json_encoder: The JSON encoder to use (defaults to DjangoJSONEncoder)
+        :param headers: HTTP headers to be used in the request (optional)
+        :param query_params: Query parameters to be appended to the request URL (optional)
+        :param defaults: Additional default settings for the request (optional)
+
+        The initialized object includes attributes for JSON encoding, cookies, and error handling.
+        """
         self.json_encoder = json_encoder
         self.defaults = defaults
         self.cookies = SimpleCookie()
@@ -436,6 +519,11 @@ class RequestFactory:
         return WSGIRequest(self._base_environ(**request))
 
     def _encode_data(self, data, content_type):
+        """
+        Encodes data according to the specified content type. 
+        If the content type is multipart, uses a boundary to encode the data; 
+        otherwise, encodes the data using a charset derived from the content type or a default charset.
+        """
         if content_type is MULTIPART_CONTENT:
             return encode_multipart(BOUNDARY, data)
         else:
@@ -467,7 +555,16 @@ class RequestFactory:
     def get(
         self, path, data=None, secure=False, *, headers=None, query_params=None, **extra
     ):
-        """Construct a GET request."""
+        """
+        Send an HTTP GET request to the specified path, optionally including data or query parameters.
+
+        :param path: The URL path to request
+        :param data: Data to be included as query parameters (mutually exclusive with query_params)
+        :param secure: Whether to use a secure connection
+        :param headers: Optional HTTP headers to include in the request
+        :param query_params: Optional query parameters to include in the request (mutually exclusive with data)
+        :returns: The response from the GET request
+        """
         if query_params and data:
             raise ValueError("query_params and data arguments are mutually exclusive.")
         query_params = data or query_params
@@ -510,7 +607,20 @@ class RequestFactory:
     def head(
         self, path, data=None, secure=False, *, headers=None, query_params=None, **extra
     ):
-        """Construct a HEAD request."""
+        """
+        Construct a HEAD request to retrieve metadata without a response body.
+
+        :param path: The path of the request.
+        :param data: Optional data to be sent with the request. Use either data or query_params.
+        :param secure: Whether the request should be made securely.
+        :param headers: Optional headers to be sent with the request.
+        :param query_params: Optional query parameters to be sent with the request. Use either query_params or data.
+        :param extra: Additional keyword arguments.
+
+        :raises ValueError: If both data and query_params are provided.
+        :returns: The constructed HEAD request.
+
+        """
         if query_params and data:
             raise ValueError("query_params and data arguments are mutually exclusive.")
         query_params = data or query_params
@@ -642,7 +752,9 @@ class RequestFactory:
         query_params=None,
         **extra,
     ):
-        """Construct an arbitrary HTTP request."""
+        """
+        Construct an arbitrary HTTP request with the given method, path, and other parameters, returning a request object. This method supports various options such as data, content type, security, headers, and query parameters, providing flexibility in crafting custom HTTP requests.
+        """
         parsed = urlsplit(str(path))  # path can be lazy
         data = force_bytes(data, settings.DEFAULT_CHARSET)
         r = {
@@ -717,7 +829,9 @@ class AsyncRequestFactory(RequestFactory):
         return scope
 
     def request(self, **request):
-        """Construct a generic request object."""
+        """
+        Constructs a generic ASGI request object, optionally using file contents as the request body.
+        """
         # This is synchronous, which means all methods on this class are.
         # AsyncClient, however, has an async request function, which makes all
         # its methods async.
@@ -742,7 +856,14 @@ class AsyncRequestFactory(RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Construct an arbitrary HTTP request."""
+        """
+        Construct an arbitrary HTTP request.
+
+        This function allows you to create a custom HTTP request with various options,
+        including the request method, path, data, headers, query parameters, and security settings.
+        It returns an HTTP request object that can be used for further processing or testing.\"\"\"
+        ```
+        """
         parsed = urlsplit(str(path))  # path can be lazy.
         data = force_bytes(data, settings.DEFAULT_CHARSET)
         s = {
@@ -788,9 +909,7 @@ class ClientMixin:
 
     def check_exception(self, response):
         """
-        Look for a signaled exception, clear the current context exception
-        data, re-raise the signaled exception, and clear the signaled exception
-        from the local cache.
+        Look for a signaled exception in the current context, handle it by re-raising and then clearing the exception from the local cache, if configured to do so.
         """
         response.exc_info = self.exc_info
         if self.exc_info:
@@ -801,7 +920,9 @@ class ClientMixin:
 
     @property
     def session(self):
-        """Return the current session variables."""
+        """
+        Return the current session variables. Retrieves or creates a new session based on the presence of a session cookie in the request. If a session cookie exists, the corresponding session is returned; otherwise, a new session is created and a session cookie is set in the response.
+        """
         engine = import_module(settings.SESSION_ENGINE)
         cookie = self.cookies.get(settings.SESSION_COOKIE_NAME)
         if cookie:
@@ -812,6 +933,13 @@ class ClientMixin:
         return session
 
     async def asession(self):
+        """
+        Retrieves or creates an asynchronous session for the current request.
+
+         Returns a session object stored in the session engine, creating a new one if none exists.
+
+         :return: The asynchronous session object associated with the request
+        """
         engine = import_module(settings.SESSION_ENGINE)
         cookie = self.cookies.get(settings.SESSION_COOKIE_NAME)
         if cookie:
@@ -823,10 +951,7 @@ class ClientMixin:
 
     def login(self, **credentials):
         """
-        Set the Factory to appear as if it has successfully logged into a site.
-
-        Return True if login is possible or False if the provided credentials
-        are incorrect.
+        Simulates a successful login to a site by authenticating provided credentials, returning True on success or False if credentials are invalid.
         """
         from django.contrib.auth import authenticate
 
@@ -837,7 +962,12 @@ class ClientMixin:
         return False
 
     async def alogin(self, **credentials):
-        """See login()."""
+        """
+        Login asynchronously using the provided credentials. 
+
+        This function authenticates a user and logs them in if the credentials are valid, 
+        returning True upon success and False otherwise.
+        """
         from django.contrib.auth import aauthenticate
 
         user = await aauthenticate(**credentials)
@@ -859,6 +989,9 @@ class ClientMixin:
         await self._alogin(user, backend)
 
     def _get_backend(self):
+        """
+        Returns the path of the first authentication backend that supports retrieving a user.
+        """
         from django.contrib.auth import load_backend
 
         for backend_path in settings.AUTHENTICATION_BACKENDS:
@@ -867,6 +1000,15 @@ class ClientMixin:
                 return backend_path
 
     def _login(self, user, backend=None):
+        """
+        .. method:: _login(user, backend=None)
+
+            Authenticate a user within the current session.
+
+            :param user: The user to be authenticated
+            :param backend: Optional authentication backend to use for login
+            :note: This method is intended for internal use and modifies the session state accordingly.
+        """
         from django.contrib.auth import login
 
         # Create a fake request to store login details.
@@ -882,6 +1024,14 @@ class ClientMixin:
         self._set_login_cookies(request)
 
     async def _alogin(self, user, backend=None):
+        """
+
+        Performs an asynchronous login for the given user, utilizing the provided backend.
+
+        This function handles the low-level details of Django's authentication mechanism,
+        including session management and setting necessary login cookies.
+
+        """
         from django.contrib.auth import alogin
 
         # Create a fake request to store login details.
@@ -912,7 +1062,9 @@ class ClientMixin:
         self.cookies[session_cookie].update(cookie_data)
 
     def logout(self):
-        """Log out the user by removing the cookies and session object."""
+        """
+        End the current user session by removing cookies and clearing the session object, logging them out of the application.
+        """
         from django.contrib.auth import get_user, logout
 
         request = HttpRequest()
@@ -926,7 +1078,10 @@ class ClientMixin:
         self.cookies = SimpleCookie()
 
     async def alogout(self):
-        """See logout()."""
+        """
+        Performs an asynchronous logout operation, clearing the user's session and cookies.\"\"\"
+        ```
+        """
         from django.contrib.auth import aget_user, alogout
 
         request = HttpRequest()
@@ -941,6 +1096,24 @@ class ClientMixin:
         self.cookies = SimpleCookie()
 
     def _parse_json(self, response, **extra):
+        """
+
+        Parses the JSON content of a response object.
+
+        Checks if the response's Content-Type is application/json and loads the JSON data.
+        If the JSON data has already been loaded, it returns the cached result.
+
+        Args:
+            response: The response object to parse.
+            **extra: Additional keyword arguments to pass to json.loads.
+
+        Returns:
+            The parsed JSON data.
+
+        Raises:
+            ValueError: If the response's Content-Type is not application/json.
+
+        """
         if not hasattr(response, "_json"):
             if not JSON_CONTENT_TYPE_RE.match(response.get("Content-Type")):
                 raise ValueError(
@@ -962,7 +1135,13 @@ class ClientMixin:
         query_params=None,
         **extra,
     ):
-        """Follow a single redirect contained in response using GET."""
+        """
+        .. method:: _follow_redirect(response, *, data='', content_type='', headers=None, query_params=None, **extra)
+
+            Follows a single redirect contained in the provided response using a GET request.
+            Handles various HTTP redirect status codes and adapts the request method accordingly.
+            Returns the response from the subsequent request.
+        """
         response_url = response.url
         redirect_chain = response.redirect_chain
         redirect_chain.append((response_url, response.status_code))
@@ -1011,7 +1190,7 @@ class ClientMixin:
 
     def _ensure_redirects_not_cyclic(self, response):
         """
-        Raise a RedirectCycleError if response contains too many redirects.
+        Raises a RedirectCycleError if the provided response contains a redirect loop or exceeds the maximum allowed number of redirects, helping prevent infinite redirect chains.
         """
         redirect_chain = response.redirect_chain
         if redirect_chain[-1] in redirect_chain[:-1]:
@@ -1053,6 +1232,17 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **defaults,
     ):
+        """
+        Initialize a client instance with optional CSRF checks, request exception handling, and default settings.
+
+        :param bool enforce_csrf_checks: Flag to enable CSRF checks
+        :param bool raise_request_exception: Flag to raise exceptions for invalid requests
+        :param headers: Optional default headers
+        :param query_params: Optional default query parameters
+        :param defaults: Additional default settings
+
+        Initializes the client handler, sets up request exception handling, and stores default settings for use in subsequent requests.
+        """
         super().__init__(headers=headers, query_params=query_params, **defaults)
         self.handler = ClientHandler(enforce_csrf_checks)
         self.raise_request_exception = raise_request_exception
@@ -1062,10 +1252,7 @@ class Client(ClientMixin, RequestFactory):
 
     def request(self, **request):
         """
-        Make a generic request. Compose the environment dictionary and pass
-        to the handler, return the result of the handler. Assume defaults for
-        the query environment, which can be overridden using the arguments to
-        the request.
+        Make a generic request, composing the environment dictionary and passing it to the handler to retrieve a response, while handling exceptions, tracking template rendering, and storing relevant data.
         """
         environ = self._base_environ(**request)
 
@@ -1118,7 +1305,22 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using GET."""
+        """
+
+        Perform an HTTP GET request to the specified path.
+
+        This method retrieves a response from the server, allowing for optional data, headers, and query parameters to be included.
+        It also supports following redirects and using a secure connection.
+
+        :param path: The URL path to request
+        :param data: Optional data to include in the request
+        :param follow: Whether to follow redirects (default: False)
+        :param secure: Whether to use a secure connection (default: False)
+        :param headers: Optional headers to include in the request
+        :param query_params: Optional query parameters to include in the request
+        :return: The response from the server
+
+        """
         self.extra = extra
         self.headers = headers
         response = super().get(
@@ -1147,7 +1349,11 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using POST."""
+        """
+        Sends a POST request to the specified path on the server, 
+        optionally with data, custom headers, and query parameters, 
+        and returns the server's response, following redirects if requested.
+        """
         self.extra = extra
         self.headers = headers
         response = super().post(
@@ -1181,7 +1387,11 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using HEAD."""
+        """
+        Sends a HEAD request to the server and returns the response. 
+        This method allows for custom headers, query parameters, and redirect handling. 
+        It can also include a request body and specify connection security.
+        """
         self.extra = extra
         self.headers = headers
         response = super().head(
@@ -1210,7 +1420,22 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using OPTIONS."""
+        """
+
+        Sends an HTTP OPTIONS request to the server.
+
+        :param path: The URL path of the request.
+        :param data: Optional request body data.
+        :param content_type: The MIME type of the request body, defaults to 'application/octet-stream'.
+        :param follow: If True, follows redirects, defaults to False.
+        :param secure: Whether the request should be made over a secure connection, defaults to False.
+        :param headers: Optional dictionary of request headers.
+        :param query_params: Optional dictionary of query parameters.
+        :param extra: Additional keyword arguments passed to the underlying request.
+
+        :return: The server's response to the OPTIONS request.
+
+        """
         self.extra = extra
         self.headers = headers
         response = super().options(
@@ -1245,7 +1470,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a resource to the server using PUT."""
+        """
+        Sends a resource to the server using the HTTP PUT method, allowing for customization of request headers, query parameters, and content type, with optional support for following redirects.
+        """
         self.extra = extra
         self.headers = headers
         response = super().put(
@@ -1280,7 +1507,10 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a resource to the server using PATCH."""
+        """
+        Sends a PATCH request to the server to update an existing resource, 
+        optionally following redirects and handling additional request parameters.
+        """
         self.extra = extra
         self.headers = headers
         response = super().patch(
@@ -1315,7 +1545,20 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a DELETE request to the server."""
+        """
+        Send a DELETE request to the server.
+
+        Sends a DELETE request to the specified path with optional data, content type, and additional parameters.
+
+        :param path: The path of the URL to send the request to
+        :param data: The data to be sent with the request (default is empty)
+        :param content_type: The content type of the data being sent (default is application/octet-stream)
+        :param follow: Whether to follow redirects (default is False)
+        :param secure: Whether to use a secure connection (default is False)
+        :param headers: Additional headers to include with the request
+        :param query_params: Additional query parameters to include with the request
+        :return: The response from the server
+        """
         self.extra = extra
         self.headers = headers
         response = super().delete(
@@ -1349,7 +1592,9 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a TRACE request to the server."""
+        """
+        Send a TRACE request to the server, optionally following redirects and customizing the request with headers, query parameters, and other settings.
+        """
         self.extra = extra
         self.headers = headers
         response = super().trace(
@@ -1376,7 +1621,7 @@ class Client(ClientMixin, RequestFactory):
         **extra,
     ):
         """
-        Follow any redirects by requesting responses from the server using GET.
+        Handles HTTP redirects by following the redirect chain and making subsequent GET requests until a non-redirect status code is received.
         """
         response.redirect_chain = []
         while response.status_code in REDIRECT_STATUS_CODES:
@@ -1411,6 +1656,9 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **defaults,
     ):
+        """
+        Initializes an asynchronous client instance, allowing for customization of CSRF checks, request exception handling, and default request settings.
+        """
         super().__init__(headers=headers, query_params=query_params, **defaults)
         self.handler = AsyncClientHandler(enforce_csrf_checks)
         self.raise_request_exception = raise_request_exception
@@ -1420,10 +1668,7 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
 
     async def request(self, **request):
         """
-        Make a generic request. Compose the scope dictionary and pass to the
-        handler, return the result of the handler. Assume defaults for the
-        query environment, which can be overridden using the arguments to the
-        request.
+        Makes a generic asynchronous request, composing the necessary scope and passing it to a handler for processing, allowing for customizable query environments and handling exceptions, rendering templates, and storing responses.
         """
         scope = self._base_scope(**request)
         # Curry a data dictionary into an instance of the template renderer
@@ -1475,7 +1720,19 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using GET."""
+        """
+        Sends a GET request to the server and returns the response.
+
+        Accepts optional parameters for request data, headers, query parameters, and redirects handling. Supports secure connections and customization through additional keyword arguments.
+
+        :param path: URL path for the request
+        :param data: Optional data to be sent with the request
+        :param follow: Whether to follow redirects
+        :param secure: Whether to use a secure connection
+        :param headers: Optional headers for the request
+        :param query_params: Optional query parameters for the request
+        :return: The response from the server
+        """
         self.extra = extra
         self.headers = headers
         response = await super().get(
@@ -1504,7 +1761,20 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using POST."""
+        """
+        Sends a POST request to the server, allowing for optional data, custom headers, and query parameters.
+
+         :param path: The path of the request
+         :param data: Optional data to be sent with the request
+         :param content_type: The content type of the request, defaults to multipart
+         :param follow: Whether to automatically follow redirects, defaults to False
+         :param secure: Whether the request should be secure, defaults to False
+         :param headers: Optional custom headers to be sent with the request
+         :param query_params: Optional query parameters to be sent with the request
+         :param extra: Additional keyword arguments to be passed to the request
+
+         :return: The response from the server
+        """
         self.extra = extra
         self.headers = headers
         response = await super().post(
@@ -1538,7 +1808,13 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using HEAD."""
+        """
+        Sends a HEAD request to the server and returns the response.
+
+        This method allows you to request metadata about a resource without retrieving the resource itself.
+        It supports optional data, headers, and query parameters, as well as automatic redirect handling and secure connections.
+        The response is returned as-is, unless the 'follow' parameter is set to True, in which case redirects are automatically handled.
+        """
         self.extra = extra
         self.headers = headers
         response = await super().head(
@@ -1567,7 +1843,10 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **extra,
     ):
-        """Request a response from the server using OPTIONS."""
+        """
+        Sends an HTTP OPTIONS request to the server and returns the response. 
+        It supports following redirects, custom headers, query parameters, and extra request options.
+        """
         self.extra = extra
         self.headers = headers
         response = await super().options(
@@ -1602,7 +1881,22 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a resource to the server using PUT."""
+        """
+        Send a resource to the server using PUT.
+
+        This method uploads data to the specified path on the server, optionally following redirects if the server responds with a redirect status code.
+
+        :param path: The path to the resource on the server.
+        :param data: The data to be sent.
+        :param content_type: The MIME type of the data.
+        :param follow: Whether to follow redirects.
+        :param secure: Whether to use a secure connection.
+        :param headers: Additional HTTP headers to send.
+        :param query_params: Query parameters to include in the request.
+        :param extra: Additional keyword arguments to pass to the underlying request method.
+
+        :return: The server's response to the PUT request.
+        """
         self.extra = extra
         self.headers = headers
         response = await super().put(
@@ -1637,7 +1931,13 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a resource to the server using PATCH."""
+        """
+        Sends a patch request to the server, allowing for partial modification of a resource.
+
+        Supports additional parameters for customizing the request, including headers, query parameters, and SSL security.
+        If follow is True, automatically handles redirects in the response.
+        Returns the server's response to the patch request.
+        """
         self.extra = extra
         self.headers = headers
         response = await super().patch(
@@ -1672,7 +1972,23 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a DELETE request to the server."""
+        """
+
+        Send a DELETE request to the server.
+
+        This method allows you to delete a resource at the specified path.
+        It supports optional data, content type, and headers, and can also follow redirects.
+        The response from the server is returned.
+
+        :param path: The path of the resource to delete
+        :param data: The data to send with the request (default is empty string)
+        :param content_type: The MIME type of the data (default is application/octet-stream)
+        :param follow: Whether to follow redirects (default is False)
+        :param secure: Whether the request should be sent securely (default is False)
+        :param headers: Additional headers to include in the request (default is None)
+        :param query_params: Query parameters to include in the request (default is None)
+
+        """
         self.extra = extra
         self.headers = headers
         response = await super().delete(
@@ -1706,7 +2022,23 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **extra,
     ):
-        """Send a TRACE request to the server."""
+        """
+
+        Send a TRACE request to the server.
+
+        Sends an HTTP TRACE request to the specified path with optional data, headers, and query parameters.
+        The request can be configured to follow redirects and choose the security mode.
+        Returns the server response. 
+
+        :param path: URL path of the request
+        :param data: Optional request body
+        :param follow: Whether to follow redirects
+        :param secure: Whether to use a secure connection
+        :param headers: Optional request headers
+        :param query_params: Optional query parameters
+        :param extra: Additional keyword arguments
+
+        """
         self.extra = extra
         self.headers = headers
         response = await super().trace(
@@ -1733,7 +2065,7 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         **extra,
     ):
         """
-        Follow any redirects by requesting responses from the server using GET.
+        Follow HTTP redirects by making GET requests to the server, handling cyclic redirects and maintaining a redirect chain, until a non-redirect status code is received.
         """
         response.redirect_chain = []
         while response.status_code in REDIRECT_STATUS_CODES:

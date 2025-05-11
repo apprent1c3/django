@@ -52,21 +52,10 @@ def load_command_class(app_name, name):
 @functools.cache
 def get_commands():
     """
-    Return a dictionary mapping command names to their callback applications.
-
-    Look for a management.commands package in django.core, and in each
-    installed application -- if a commands package exists, register all
-    commands in that package.
-
-    Core commands are always included. If a settings module has been
-    specified, also include user-defined commands.
-
-    The dictionary is in the format {command_name: app_name}. Key-value
-    pairs from this dictionary can then be used in calls to
-    load_command_class(app_name, command_name)
-
-    The dictionary is cached on the first call and reused on subsequent
-    calls.
+    Retrieves a mapping of command names to their corresponding application names.
+    Includes both core and user-defined commands from installed Django applications.
+    The resulting dictionary can be used to load command classes via `load_command_class`.
+    The command mapping is cached for efficiency after the initial retrieval.
     """
     commands = {name: "django.core" for name in find_commands(__path__[0])}
 
@@ -86,19 +75,10 @@ def call_command(command_name, *args, **options):
 
     This is the primary API you should use for calling specific commands.
 
-    `command_name` may be a string or a command object. Using a string is
-    preferred unless the command object is required for further processing or
-    testing.
-
-    Some examples:
-        call_command('migrate')
-        call_command('shell', plain=True)
-        call_command('sqlmigrate', 'myapp')
-
-        from django.core.management.commands import flush
-        cmd = flush.Command()
-        call_command(cmd, verbosity=0, interactive=False)
-        # Do something with cmd ...
+    :arg string command_name: the name of the command to call, or a command object
+    :arg \*args: positional arguments to pass to the command
+    :arg \*\*options: keyword arguments to pass to the command
+    :return: the result of executing the command
     """
     if isinstance(command_name, BaseCommand):
         # Command object passed in.
@@ -135,6 +115,9 @@ def call_command(command_name, *args, **options):
 
     def get_actions(parser):
         # Parser actions and actions from sub-parser choices.
+        """
+        Recursively yields all actions in a parser, including sub-parser actions.
+        """
         for opt in parser._actions:
             if isinstance(opt, _SubParsersAction):
                 for sub_opt in opt.choices.values():
@@ -200,6 +183,11 @@ class ManagementUtility:
     """
 
     def __init__(self, argv=None):
+        """
+        Initializes the object, storing command line arguments and deriving the program name from the first argument.
+
+        It ensures that the program name is correctly identified, even when running as a module (e.g. 'python -m django' instead of '__main__.py').
+        """
         self.argv = argv or sys.argv[:]
         self.prog_name = os.path.basename(self.argv[0])
         if self.prog_name == "__main__.py":
@@ -207,7 +195,9 @@ class ManagementUtility:
         self.settings_exception = None
 
     def main_help_text(self, commands_only=False):
-        """Return the script's main help text, as a string."""
+        """
+        Return the script's main help text, including available subcommands and their descriptions, filtered by the commands_only parameter which controls whether only command names or detailed usage information is provided.
+        """
         if commands_only:
             usage = sorted(get_commands())
         else:
@@ -245,9 +235,7 @@ class ManagementUtility:
 
     def fetch_command(self, subcommand):
         """
-        Try to fetch the given subcommand, printing a message with the
-        appropriate command called from the command line (usually
-        "django-admin" or "manage.py") if it can't be found.
+        Fetches the given subcommand by attempting to find a matching command and returns its corresponding class. If the subcommand cannot be found, it provides suggestions and exits with an error message, guiding the user on how to proceed.
         """
         # Get commands outside of try block to prevent swallowing exceptions
         commands = get_commands()
@@ -277,24 +265,7 @@ class ManagementUtility:
 
     def autocomplete(self):
         """
-        Output completion suggestions for BASH.
-
-        The output of this function is passed to BASH's `COMPREPLY` variable
-        and treated as completion suggestions. `COMPREPLY` expects a space
-        separated string as the result.
-
-        The `COMP_WORDS` and `COMP_CWORD` BASH environment variables are used
-        to get information about the cli input. Please refer to the BASH
-        man-page for more information about this variables.
-
-        Subcommand options are saved as pairs. A pair consists of
-        the long option string (e.g. '--exclude') and a boolean
-        value indicating if the option requires arguments. When printing to
-        stdout, an equal sign is appended to options which require arguments.
-
-        Note: If debugging this function, it is recommended to write the debug
-        output in a separate file. Otherwise the debug output will be treated
-        and formatted as potential completion suggestions.
+        Output completion suggestions for BASH, using environment variables `COMP_WORDS` and `COMP_CWORD` to determine the current command-line input and print relevant options and subcommands, formatted as required by `COMPREPLY`.
         """
         # Don't complete if user hasn't sourced bash_completion file.
         if "DJANGO_AUTO_COMPLETE" not in os.environ:
@@ -352,8 +323,7 @@ class ManagementUtility:
 
     def execute(self):
         """
-        Given the command-line arguments, figure out which subcommand is being
-        run, create a parser appropriate to that command, and run it.
+        Determines and executes the specified subcommand based on the provided command-line arguments, handling settings, help output, and version information as needed.
         """
         try:
             subcommand = self.argv[1]

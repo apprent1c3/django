@@ -27,6 +27,14 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
     request_factory = RequestFactory()
 
     def test_log_message(self):
+        """
+
+        Tests the logging of messages by the WSGIRequestHandler.
+
+        Verifies that log messages are correctly recorded at the expected log levels 
+        (info, warning, error) for different HTTP status codes.
+
+        """
         request = WSGIRequest(self.request_factory.get("/").environ)
         request.makefile = lambda *args, **kwargs: BytesIO()
         handler = WSGIRequestHandler(request, "192.168.0.2", None)
@@ -51,6 +59,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
                         )
 
     def test_https(self):
+        """
+        Tests that an error message is logged when attempting to access the development server over HTTPS, which is not supported.
+        """
         request = WSGIRequest(self.request_factory.get("/").environ)
         request.makefile = lambda *args, **kwargs: BytesIO()
 
@@ -65,11 +76,8 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         )
 
     def test_strips_underscore_headers(self):
-        """WSGIRequestHandler ignores headers containing underscores.
-
-        This follows the lead of nginx and Apache 2.4, and is to avoid
-        ambiguity between dashes and underscores in mapping to WSGI environ,
-        which can have security implications.
+        """
+        Tests that the WSGIRequestHandler correctly ignores HTTP headers containing underscores to prevent ambiguity and potential security issues.
         """
 
         def test_app(environ, start_response):
@@ -109,6 +117,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         self.assertEqual(body, b"HTTP_SOME_HEADER:good")
 
     def test_no_body_returned_for_head_requests(self):
+        """
+        Tests that a HEAD request to the server does not return a response body, while still including a Content-Length header for GET requests.
+        """
         hello_world_body = b"<!DOCTYPE html><html><body>Hello World</body></html>"
         content_length = len(hello_world_body)
 
@@ -162,6 +173,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         self.assertNotIn(b"Connection: close\r\n", lines)
 
     def test_non_zero_content_length_set_head_request(self):
+        """
+        Tests a WSGI request handler's HEAD request handling when the response body has a non-zero Content-Length, verifying the response includes the Content-Length header and no Connection: close header.
+        """
         hello_world_body = b"<!DOCTYPE html><html><body>Hello World</body></html>"
         content_length = len(hello_world_body)
 
@@ -205,7 +219,9 @@ class WSGIServerTestCase(SimpleTestCase):
     request_factory = RequestFactory()
 
     def test_broken_pipe_errors(self):
-        """WSGIServer handles broken pipe errors."""
+        """
+        Tests that WSGIServer correctly handles broken pipe errors, including BrokenPipeError, ConnectionAbortedError, and ConnectionResetError, by checking for the expected log message and ensuring no error output is produced.
+        """
         request = WSGIRequest(self.request_factory.get("/").environ)
         client_address = ("192.168.2.0", 8080)
         msg = f"- Broken pipe from {client_address}"

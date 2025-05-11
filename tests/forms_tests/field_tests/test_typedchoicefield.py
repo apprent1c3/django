@@ -7,6 +7,9 @@ from django.test import SimpleTestCase
 
 class TypedChoiceFieldTest(SimpleTestCase):
     def test_typedchoicefield_1(self):
+        """
+        Checks the behavior of a TypedChoiceField with integer choices, verifying that valid choices are correctly cleaned and invalid choices raise a ValidationError.
+        """
         f = TypedChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int)
         self.assertEqual(1, f.clean("1"))
         msg = "'Select a valid choice. 2 is not one of the available choices.'"
@@ -26,6 +29,10 @@ class TypedChoiceFieldTest(SimpleTestCase):
     def test_typedchoicefield_4(self):
         # Even more weirdness: if you have a valid choice but your coercion function
         # can't coerce, you'll still get a validation error. Don't do this!
+        """
+        Tests the behavior of TypedChoiceField when an invalid choice is provided, 
+        checking that it correctly raises a ValidationError with the expected message.
+        """
         f = TypedChoiceField(choices=[("A", "A"), ("B", "B")], coerce=int)
         msg = "'Select a valid choice. B is not one of the available choices.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -53,6 +60,11 @@ class TypedChoiceFieldTest(SimpleTestCase):
 
     def test_typedchoicefield_has_changed(self):
         # has_changed should not trigger required validation
+        """
+        Tests the functionality of the TypedChoiceField's has_changed method, 
+        verifying it returns False when the initial and current values are the same 
+        and True when they are different, considering various input scenarios and field configurations.
+        """
         f = TypedChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int, required=True)
         self.assertFalse(f.has_changed(None, ""))
         self.assertFalse(f.has_changed(1, "1"))
@@ -71,8 +83,7 @@ class TypedChoiceFieldTest(SimpleTestCase):
 
     def test_typedchoicefield_special_coerce(self):
         """
-        A coerce function which results in a value not present in choices
-        should raise an appropriate error (#21397).
+        Tests that a TypedChoiceField raises an error when a coerce function returns a value not present in the available choices.
         """
 
         def coerce_func(val):

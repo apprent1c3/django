@@ -20,10 +20,7 @@ class SingleObjectMixin(ContextMixin):
 
     def get_object(self, queryset=None):
         """
-        Return the object the view is displaying.
-
-        Require `self.queryset` and a `pk` or `slug` argument in the URLconf.
-        Subclasses can override this to return any object.
+        Returns the object being displayed by the view, typically based on a primary key or slug provided in the URL. The object is retrieved from a queryset, which can be specified or defaults to the view's queryset. If neither a primary key nor a slug is provided, an AttributeError is raised; if the object is not found, an Http404 is raised.
         """
         # Use a custom queryset if provided; this is required for subclasses
         # like DateDetailView
@@ -60,10 +57,7 @@ class SingleObjectMixin(ContextMixin):
 
     def get_queryset(self):
         """
-        Return the `QuerySet` that will be used to look up the object.
-
-        This method is called by the default implementation of get_object() and
-        may not be called if get_object() is overridden.
+        Return the QuerySet used to look up objects, defaulting to the model's default manager if not explicitly set.
         """
         if self.queryset is None:
             if self.model:
@@ -81,7 +75,13 @@ class SingleObjectMixin(ContextMixin):
         return self.slug_field
 
     def get_context_object_name(self, obj):
-        """Get the name to use for the object."""
+        """
+
+        Determines the name to be used for a given object in a context.
+        The name is derived from either a predefined context object name, 
+        the model name if the object is a Django model instance, or None otherwise.
+
+        """
         if self.context_object_name:
             return self.context_object_name
         elif isinstance(obj, models.Model):
@@ -90,7 +90,10 @@ class SingleObjectMixin(ContextMixin):
             return None
 
     def get_context_data(self, **kwargs):
-        """Insert the single object into the context dict."""
+        """
+        Adds the single object instance and its context name to the template context dictionary, 
+        combining it with any additional keyword arguments before passing it to the superclass method for further processing.
+        """
         context = {}
         if self.object:
             context["object"] = self.object
@@ -116,13 +119,12 @@ class SingleObjectTemplateResponseMixin(TemplateResponseMixin):
 
     def get_template_names(self):
         """
-        Return a list of template names to be used for the request. May not be
-        called if render_to_response() is overridden. Return the following list:
 
-        * the value of ``template_name`` on the view (if provided)
-        * the contents of the ``template_name_field`` field on the
-          object instance that the view is operating upon (if available)
-        * ``<app_label>/<model_name><template_name_suffix>.html``
+        Return a list of template names to be used for the request. The list includes 
+        the view's template name, the template name field on the object instance, and 
+        a default template name constructed from the app label, model name, and 
+        template name suffix.
+
         """
         try:
             names = super().get_template_names()

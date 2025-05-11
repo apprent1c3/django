@@ -13,6 +13,9 @@ class RadioSelectTest(ChoiceWidgetTest):
     widget = RadioSelect
 
     def test_render(self):
+        """
+        ```\"\"\"Tests rendering of a radio input widget with a list of Beatles, including a blank choice.\"\"\"```
+        """
         html = """
         <div>
           <div>
@@ -181,7 +184,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_compare_to_str(self):
         """
-        The value is compared to its str().
+        Tests the radio widget's rendering with different choice values, ensuring the selected value matches its string representation.
         """
         html = """
         <div>
@@ -228,8 +231,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_choices_constructor_generator(self):
         """
-        If choices is passed to the constructor and is a generator, it can be
-        iterated over multiple times without getting consumed.
+        Tests that a generator passed as the choices argument to the constructor can be iterated over multiple times without being consumed.
         """
 
         def get_choices():
@@ -294,7 +296,7 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     def test_choices_optgroup(self):
         """
-        Choices can be nested one level in order to create HTML optgroups.
+        Tests the rendering of choices with nested optgroups for radio buttons, ensuring correct HTML output.
         """
         html = """
         <div>
@@ -427,6 +429,9 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_input_value(self):
+        """
+        Tests that the widget does not localize input values, specifically when rendering radio buttons with numeric and time-based choices.
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -492,6 +497,9 @@ class RadioSelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests rendering of a form field with a fieldset, verifying the correct HTML structure and markup is produced when the fieldset widget is used.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(

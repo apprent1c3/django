@@ -16,6 +16,9 @@ class FloorTests(TestCase):
         self.assertIsNone(obj.null_floor)
 
     def test_decimal(self):
+        """
+        Tests the floor function on DecimalFields, ensuring the correct application of the floor operation and return type.
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_floor=Floor("n1"), n2_floor=Floor("n2")
@@ -26,6 +29,9 @@ class FloorTests(TestCase):
         self.assertEqual(obj.n2_floor, Decimal(math.floor(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the database's floor function on floating point numbers, verifying it returns the correct results as float values.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_floor=Floor("f1"), f2_floor=Floor("f2")
@@ -36,6 +42,11 @@ class FloorTests(TestCase):
         self.assertEqual(obj.f2_floor, math.floor(obj.f2))
 
     def test_integer(self):
+        """
+
+        Tests the Floor database function on integer fields, verifying it returns integer values and correctly floors the input values.
+
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_floor=Floor("small"),
@@ -50,6 +61,13 @@ class FloorTests(TestCase):
         self.assertEqual(obj.big_floor, math.floor(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the transformation of a Decimal field using the Floor lookup.
+
+        Verifies that the Floor lookup correctly filters DecimalModel instances based on the floor value of the 'n1' field.
+
+        """
         with register_lookup(DecimalField, Floor):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("3.4"), n2=Decimal("0"))

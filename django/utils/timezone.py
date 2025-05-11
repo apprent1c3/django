@@ -31,7 +31,9 @@ __all__ = [
 
 
 def get_fixed_timezone(offset):
-    """Return a tzinfo instance with a fixed offset from UTC."""
+    """
+    Returns a timezone information object representing a fixed offset from Coordinated Universal Time (UTC), allowing for easy conversion and manipulation of dates and times in a specific time zone.
+    """
     if isinstance(offset, timedelta):
         offset = offset.total_seconds() // 60
     sign = "-" if offset < 0 else "+"
@@ -127,6 +129,13 @@ class override(ContextDecorator):
         self.timezone = timezone
 
     def __enter__(self):
+        """
+        Enters a runtime context where the timezone is temporarily altered.
+
+        Sets the timezone to the value specified by this object, or disables timezone
+        awareness if no timezone is provided, restoring the original timezone when exiting
+        the context.
+        """
         self.old_timezone = getattr(_active, "value", None)
         if self.timezone is None:
             deactivate()
@@ -166,13 +175,7 @@ def template_localtime(value, use_tz=None):
 
 def localtime(value=None, timezone=None):
     """
-    Convert an aware datetime.datetime to local time.
-
-    Only aware datetimes are allowed. When value is omitted, it defaults to
-    now().
-
-    Local time is defined by the current time zone, unless another time zone
-    is specified.
+    Converts an aware datetime object to local time, using a specified or default timezone, and raises an error if the input is naive. If no datetime is provided, it defaults to the current time.
     """
     if value is None:
         value = now()
@@ -235,7 +238,14 @@ def is_naive(value):
 
 
 def make_aware(value, timezone=None):
-    """Make a naive datetime.datetime in a given time zone aware."""
+    """
+    Make a naive datetime object aware by associating it with a specific time zone.
+
+    :param value: The naive datetime object to be converted
+    :param timezone: The time zone to use, defaults to the current time zone if not provided
+    :raises ValueError: If the provided datetime object is already time zone aware
+    :return: A time zone aware datetime object
+    """
     if timezone is None:
         timezone = get_current_timezone()
     # Check that we won't overwrite the timezone of an aware datetime.
@@ -246,7 +256,19 @@ def make_aware(value, timezone=None):
 
 
 def make_naive(value, timezone=None):
-    """Make an aware datetime.datetime naive in a given time zone."""
+    """
+    Convert an aware datetime object to a naive one in a specified time zone.
+
+    Args:
+        value (datetime): The aware datetime object to convert.
+        timezone (timezone, optional): The time zone to convert to. Defaults to the current time zone if not provided.
+
+    Returns:
+        datetime: A naive datetime object in the specified time zone.
+
+    Raises:
+        ValueError: If the input datetime object is already naive.
+    """
     if timezone is None:
         timezone = get_current_timezone()
     # Emulate the behavior of astimezone() on Python < 3.6.

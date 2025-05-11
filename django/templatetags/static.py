@@ -23,7 +23,10 @@ class PrefixNode(template.Node):
     @classmethod
     def handle_token(cls, parser, token, name):
         """
-        Class method to parse prefix node and return a Node.
+
+        Class method to parse a prefix node and return a Node. It ensures the node's first argument 
+        is 'as' when multiple arguments are present and extracts the variable name if 'as' is used.
+
         """
         # token.split_contents() isn't useful here because tags using this
         # method don't accept variable as arguments.
@@ -40,6 +43,12 @@ class PrefixNode(template.Node):
 
     @classmethod
     def handle_simple(cls, name):
+        """
+        Retrieves a URL prefix from Django settings, handling cases where Django is not installed.
+
+        :param name: The setting name to retrieve from Django settings
+        :return: The URL prefix, or an empty string if Django is not installed or the setting is not found
+        """
         try:
             from django.conf import settings
         except ImportError:
@@ -49,6 +58,9 @@ class PrefixNode(template.Node):
         return prefix
 
     def render(self, context):
+        """
+        Renders the object in the given context, either returning the rendered prefix or storing it under a variable name in the context.
+        """
         prefix = self.handle_simple(self.name)
         if self.varname is None:
             return prefix
@@ -113,6 +125,9 @@ class StaticNode(template.Node):
         return self.handle_simple(path)
 
     def render(self, context):
+        """
+        Renders a URL within a given context, optionally escaping special characters and storing the result in a variable. If no variable name is specified, returns the rendered URL directly.
+        """
         url = self.url(context)
         if context.autoescape:
             url = conditional_escape(url)
@@ -123,6 +138,11 @@ class StaticNode(template.Node):
 
     @classmethod
     def handle_simple(cls, path):
+        """
+        Returns the URL for a given static file path.
+
+        Handles static file URL resolution, taking into account whether Django's staticfiles app is installed. If installed, it uses the staticfiles storage engine; otherwise, it constructs the URL manually using the static URL prefix and the provided path.
+        """
         if apps.is_installed("django.contrib.staticfiles"):
             from django.contrib.staticfiles.storage import staticfiles_storage
 
@@ -133,7 +153,12 @@ class StaticNode(template.Node):
     @classmethod
     def handle_token(cls, parser, token):
         """
-        Class method to parse prefix node and return a Node.
+
+            Class method to parse prefix node and return a Node.
+
+            Creates a new Node instance based on the provided token, handling the
+            prefix syntax and performing basic validation of the input arguments.
+
         """
         bits = token.split_contents()
 

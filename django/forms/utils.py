@@ -19,14 +19,7 @@ def pretty_name(name):
 
 def flatatt(attrs):
     """
-    Convert a dictionary of attributes to a single string.
-    The returned string will contain a leading space followed by key="value",
-    XML-style pairs. In the case of a boolean value, the key will appear
-    without a value. It is assumed that the keys do not need to be
-    XML-escaped. If the passed dictionary is empty, then return an empty
-    string.
-
-    The result is passed through 'mark_safe' (by way of 'format_html_join').
+    Convert a dictionary of attributes to a single XML-style string, suitable for use in HTML tags. Boolean values are represented as key-only, other values as key-value pairs. The returned string is marked as safe for use in HTML output.
     """
     key_value_attrs = []
     boolean_attrs = []
@@ -148,6 +141,13 @@ class ErrorList(UserList, list, RenderableErrorMixin):
     template_name_ul = "django/forms/errors/list/ul.html"
 
     def __init__(self, initlist=None, error_class=None, renderer=None):
+        """
+        Initializes the object with an optional initial list and custom error handling settings.
+
+        :param initlist: The initial list to use, defaults to None.
+        :param error_class: Custom error class name, defaults to 'errorlist'.
+        :param renderer: Optional renderer to use, defaults to the default renderer if not provided.
+        """
         super().__init__(initlist)
 
         if error_class is None:
@@ -165,6 +165,13 @@ class ErrorList(UserList, list, RenderableErrorMixin):
         return copy
 
     def get_json_data(self, escape_html=False):
+        """
+        Retrieve data as a JSON-compatible list of error objects.
+
+        Each error object contains a 'message' and a 'code'. If escape_html is True,
+        HTML characters in the message are escaped.
+
+        """
         errors = []
         for error in self.as_data():
             message = next(iter(error))
@@ -212,8 +219,7 @@ class ErrorList(UserList, list, RenderableErrorMixin):
 
 def from_current_timezone(value):
     """
-    When time zone support is enabled, convert naive datetimes
-    entered in the current time zone to aware datetimes.
+    When time zone support is enabled, converts naive datetimes entered in the current time zone to aware datetimes, handling potential ambiguities or non-existent times.
     """
     if settings.USE_TZ and value is not None and timezone.is_naive(value):
         current_timezone = timezone.get_current_timezone()

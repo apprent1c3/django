@@ -16,6 +16,9 @@ class SqrtTests(TestCase):
         self.assertIsNone(obj.null_sqrt)
 
     def test_decimal(self):
+        """
+        Test whether the square root operation correctly processes decimal fields in a model, by creating a test object, annotating it with square roots of its decimal fields, and verifying the results.
+        """
         DecimalModel.objects.create(n1=Decimal("12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_sqrt=Sqrt("n1"), n2_sqrt=Sqrt("n2")
@@ -26,6 +29,12 @@ class SqrtTests(TestCase):
         self.assertAlmostEqual(obj.n2_sqrt, Decimal(math.sqrt(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the calculation of square roots for floating point numbers in the database.
+
+        Verifies that the Sqrt database function correctly calculates the square root
+        of floating point values and returns the result as a float.
+        """
         FloatModel.objects.create(f1=27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_sqrt=Sqrt("f1"), f2_sqrt=Sqrt("f2")
@@ -36,6 +45,11 @@ class SqrtTests(TestCase):
         self.assertAlmostEqual(obj.f2_sqrt, math.sqrt(obj.f2))
 
     def test_integer(self):
+        """
+        '''Tests the calculation of square roots for integer fields in the IntegerModel.
+        Verifies that the sqrt annotation returns the correct floating point values.
+        Ensures the calculated square roots are consistent with the math library.'''
+        """
         IntegerModel.objects.create(small=20, normal=15, big=1)
         obj = IntegerModel.objects.annotate(
             small_sqrt=Sqrt("small"),
@@ -50,6 +64,9 @@ class SqrtTests(TestCase):
         self.assertAlmostEqual(obj.big_sqrt, math.sqrt(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of a DecimalField to calculate its square root and filter objects based on the result.
+        """
         with register_lookup(DecimalField, Sqrt):
             DecimalModel.objects.create(n1=Decimal("6.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

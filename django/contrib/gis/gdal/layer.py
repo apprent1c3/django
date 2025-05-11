@@ -26,10 +26,8 @@ class Layer(GDALBase):
 
     def __init__(self, layer_ptr, ds):
         """
-        Initialize on an OGR C pointer to the Layer and the `DataSource` object
-        that owns this layer.  The `DataSource` object is required so that a
-        reference to it is kept with this Layer.  This prevents garbage
-        collection of the `DataSource` while this Layer is still active.
+        Initializes a layer object with an OGR C pointer and its owning DataSource, 
+        preventing the DataSource from being garbage collected while the layer is active.
         """
         if not layer_ptr:
             raise GDALException("Cannot create Layer, invalid pointer given")
@@ -40,7 +38,14 @@ class Layer(GDALBase):
         self._random_read = self.test_capability(b"RandomRead")
 
     def __getitem__(self, index):
-        "Get the Feature at the specified index."
+        """
+        Retrieve a Feature or a subset of Features from the Layer by their index.
+
+            Index can be an integer to get a single Feature or a slice object to get multiple Features.
+            Note that negative indices are not supported and will raise an IndexError.
+            Returns a Feature object if an integer index is provided, or a list of Feature objects if a slice is provided.
+            Any other type of index will raise a TypeError.
+        """
         if isinstance(index, int):
             # An integer index was given -- we cannot do a check based on the
             # number of features because the beginning and ending feature IDs
@@ -74,10 +79,10 @@ class Layer(GDALBase):
 
     def _make_feature(self, feat_id):
         """
-        Helper routine for __getitem__ that constructs a Feature from the given
-        Feature ID.  If the OGR Layer does not support random-access reading,
-        then each feature of the layer will be incremented through until the
-        a Feature is found matching the given feature ID.
+
+        Helper routine to construct a Feature from a given Feature ID, 
+        supporting both random-access and sequential reading from an OGR Layer.
+
         """
         if self._random_read:
             # If the Layer supports random reading, return.
@@ -125,7 +130,9 @@ class Layer(GDALBase):
 
     @property
     def srs(self):
-        "Return the Spatial Reference used in this Layer."
+        """
+        Returns the Spatial Reference System (SRS) associated with this Layer, or None if it cannot be retrieved.
+        """
         try:
             ptr = capi.get_layer_srs(self.ptr)
             return SpatialReference(srs_api.clone_srs(ptr))
@@ -182,6 +189,10 @@ class Layer(GDALBase):
             return None
 
     def _set_spatial_filter(self, filter):
+        """
+        Sets a spatial filter on this object, allowing only features that overlap with the specified filter to be returned. 
+        The filter can be specified as an OGRGeometry instance, a bounding box defined by a 4-tuple of (xmin, ymin, xmax, ymax) coordinates, or None to clear the filter.
+        """
         if isinstance(filter, OGRGeometry):
             capi.set_spatial_filter(self.ptr, filter.ptr)
         elif isinstance(filter, (tuple, list)):
@@ -213,8 +224,15 @@ class Layer(GDALBase):
 
     def get_geoms(self, geos=False):
         """
-        Return a list containing the OGRGeometry for every Feature in
-        the Layer.
+
+            Returns a list of geometries for every feature in the layer.
+
+            Args:
+                geos (bool): If True, returns GEOSGeometry objects, otherwise returns OGRGeometry objects.
+
+            Returns:
+                list: A list of geometry objects.
+
         """
         if geos:
             from django.contrib.gis.geos import GEOSGeometry

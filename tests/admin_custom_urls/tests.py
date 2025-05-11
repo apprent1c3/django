@@ -21,6 +21,9 @@ class AdminCustomUrlsTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a superuser and a set of actions with various names and descriptions, including edge cases for testing purposes.
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -44,7 +47,11 @@ class AdminCustomUrlsTest(TestCase):
 
     def test_basic_add_GET(self):
         """
-        Ensure GET on the add_view works.
+
+            Tests that a GET request to the add view returns a successful response.
+
+            Verifies that the view renders a template and returns a 200 status code.
+
         """
         add_url = reverse("admin_custom_urls:admin_custom_urls_action_add")
         self.assertTrue(add_url.endswith("/!add/"))
@@ -80,6 +87,11 @@ class AdminCustomUrlsTest(TestCase):
     def test_admin_URLs_no_clash(self):
         # Should get the change_view for model instance with PK 'add', not show
         # the add_view
+        """
+        Tests that admin URLs for custom actions do not clash with other URLs, 
+        verifying that the correct page is displayed for both the 'add' action and 
+        a URL with a path to an HTML document.
+        """
         url = reverse(
             "admin_custom_urls:%s_action_change" % Action._meta.app_label,
             args=(quote("add"),),
@@ -99,8 +111,7 @@ class AdminCustomUrlsTest(TestCase):
 
     def test_post_save_add_redirect(self):
         """
-        ModelAdmin.response_post_save_add() controls the redirection after
-        the 'Save' button has been pressed when adding a new object.
+        Tests that the Save button in the admin interface redirects to the object's history page after adding a new object.
         """
         post_data = {"name": "John Doe"}
         self.assertEqual(Person.objects.count(), 0)
@@ -116,8 +127,10 @@ class AdminCustomUrlsTest(TestCase):
 
     def test_post_save_change_redirect(self):
         """
-        ModelAdmin.response_post_save_change() controls the redirection after
-        the 'Save' button has been pressed when editing an existing object.
+
+        Tests that after editing an existing object and pressing the 'Save' button,
+        the response redirects to the object's delete page.
+
         """
         Person.objects.create(name="John Doe")
         self.assertEqual(Person.objects.count(), 1)
@@ -135,8 +148,7 @@ class AdminCustomUrlsTest(TestCase):
 
     def test_post_url_continue(self):
         """
-        The ModelAdmin.response_add()'s parameter `post_url_continue` controls
-        the redirection after an object has been created.
+        Tests the behavior of the `post_url_continue` parameter in ModelAdmin's `response_add` method, verifying that it correctly redirects to the object's history page after a new object has been created.
         """
         post_data = {"name": "SuperFast", "_continue": "1"}
         self.assertEqual(Car.objects.count(), 0)

@@ -38,6 +38,9 @@ from .models import (
 class FilteredRelationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the application, creating authors, editors, and books with various relationships to facilitate testing of the model's functionality.
+        """
         cls.author1 = Author.objects.create(name="Alice")
         cls.author2 = Author.objects.create(name="Jane")
         cls.editor_a = Editor.objects.create(name="a")
@@ -682,6 +685,9 @@ class FilteredRelationTests(TestCase):
             FilteredRelation("book", condition=expression)
 
     def test_with_prefetch_related(self):
+        """
+        Tests that prefetch_related() raises a ValueError when used with FilteredRelation, which is not supported.
+        """
         msg = "prefetch_related() is not supported with FilteredRelation."
         qs = Author.objects.annotate(
             book_title_contains_b=FilteredRelation(
@@ -741,6 +747,12 @@ class FilteredRelationTests(TestCase):
         self.assertCountEqual(qs, [self.book1, self.book4])
 
     def test_conditional_expression_outside_relation_name(self):
+        """
+
+        Tests that a conditional expression can be used outside of a relation name in FilteredRelation.
+        Verifies that the filtering works correctly and returns the expected Authors.
+
+        """
         tests = [
             Q(Case(When(book__author__name="Alice", then=True), default=False)),
             Q(
@@ -758,6 +770,9 @@ class FilteredRelationTests(TestCase):
                 self.assertSequenceEqual(qs, [self.author2, self.author2])
 
     def test_conditional_expression_with_lookup(self):
+        """
+        Tests the use of conditional expressions with lookup in filtered relations to annotate authors with books titled 'poem'.
+        """
         lookups = [
             Q(book__title__istartswith="poem"),
             Q(IStartsWith(F("book__title"), "poem")),
@@ -842,6 +857,9 @@ class FilteredRelationTests(TestCase):
 class FilteredRelationAggregationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating authors, editors, books, borrowers, and their respective reservations and rental sessions.
+        """
         cls.author1 = Author.objects.create(name="Alice")
         cls.editor_a = Editor.objects.create(name="a")
         cls.book1 = Book.objects.create(
@@ -876,16 +894,7 @@ class FilteredRelationAggregationTests(TestCase):
 
     def test_aggregate(self):
         """
-        filtered_relation() not only improves performance but also creates
-        correct results when aggregating with multiple LEFT JOINs.
-
-        Books can be reserved then rented by a borrower. Each reservation and
-        rental session are recorded with Reservation and RentalSession models.
-        Every time a reservation or a rental session is over, their state is
-        changed to 'stopped'.
-
-        Goal: Count number of books that are either currently reserved or
-        rented by borrower1 or available.
+        Verifies that filtering with multiple LEFT JOINs using filtered_relation() produces accurate results when aggregating counts of books that are currently reserved, rented, or available.
         """
         qs = (
             Book.objects.annotate(
@@ -991,6 +1000,9 @@ class FilteredRelationAggregationTests(TestCase):
 class FilteredRelationAnalyticalAggregationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for testing, including authors, editors, books, sellers, currencies, exchange rates, and book daily sales.
+        """
         author = Author.objects.create(name="Author")
         editor = Editor.objects.create(name="Editor")
         cls.book1 = Book.objects.create(
@@ -1082,6 +1094,9 @@ class FilteredRelationAnalyticalAggregationTests(TestCase):
         )
 
     def test_aggregate(self):
+        """
+        Tests the aggregate functionality of annotated Book objects, specifically the calculation of total sales sums in USD for each book based on filtered daily sales, using various conditions to validate the annotated querysets.
+        """
         tests = [
             Q(daily_sales__sale_date__gte=self.sales_date2),
             ~Q(daily_sales__seller=self.seller1),

@@ -24,12 +24,7 @@ class MigrateTests(TransactionTestCase):
 
     def test_migrate_gis(self):
         """
-        Tests basic usage of the migrate command when a model uses Geodjango
-        fields (#22001).
-
-        It's also used to showcase an error in migrations where spatialite is
-        enabled and geo tables are renamed resulting in unique constraint
-        failure on geometry_columns (#23030).
+        Tests the migration process for models using GeoDjango fields, verifying that tables are correctly created, modified, and deleted during migration. Additionally, checks for errors related to spatialite and unique constraint failures when renaming geo tables.
         """
         # The right tables exist
         self.assertTableExists("gis_migrations_neighborhood")

@@ -62,6 +62,9 @@ class URLPrefixTests(URLTestCaseBase):
     """
 
     def test_not_prefixed(self):
+        """
+        Tests URL reversal for routes that do not include a language prefix, ensuring consistency across translations.
+        """
         with translation.override("en"):
             self.assertEqual(reverse("not-prefixed"), "/not-prefixed/")
             self.assertEqual(
@@ -74,6 +77,9 @@ class URLPrefixTests(URLTestCaseBase):
             )
 
     def test_prefixed(self):
+        """
+        Tests that URL prefixing behaves correctly for different languages, verifying that the prefix matches the current language code.
+        """
         with translation.override("en"):
             self.assertEqual(reverse("prefixed"), "/en/prefixed/")
         with translation.override("nl"):
@@ -103,6 +109,12 @@ class URLDisabledTests(URLTestCaseBase):
 class RequestURLConfTests(SimpleTestCase):
     @override_settings(ROOT_URLCONF="i18n.patterns.urls.path_unused")
     def test_request_urlconf_considered(self):
+        """
+
+        Tests that the LocaleMiddleware considers the urlconf when determining the language code.
+        Verifies that the LANGUAGE_CODE attribute of the request is correctly set based on the url prefix.
+
+        """
         request = RequestFactory().get("/nl/")
         request.urlconf = "i18n.patterns.urls.default"
         middleware = LocaleMiddleware(lambda req: HttpResponse())
@@ -132,6 +144,12 @@ class URLTranslationTests(URLTestCaseBase):
     """
 
     def test_no_prefix_translated(self):
+        """
+        Tests URL reversal for translated routes without prefix in multiple languages.
+
+        Ensures that routes are correctly reversed and translated for different languages,
+        including URLs with and without slug parameters.
+        """
         with translation.override("en"):
             self.assertEqual(reverse("no-prefix-translated"), "/translated/")
             self.assertEqual(
@@ -161,6 +179,13 @@ class URLTranslationTests(URLTestCaseBase):
             )
 
     def test_users_url(self):
+        """
+
+        Tests that URLs are correctly reversed with language prefixes.
+
+        Verifies that the 'users' URL is properly localized for different languages.
+
+        """
         with translation.override("en"):
             self.assertEqual(reverse("users"), "/en/users/")
 
@@ -172,6 +197,9 @@ class URLTranslationTests(URLTestCaseBase):
             self.assertEqual(reverse("users"), "/pt-br/usuarios/")
 
     def test_translate_url_utility(self):
+        """
+        Tests the translate_url utility function by asserting correct URL translations between English ('en') and Dutch ('nl') languages, covering various URL patterns and query arguments.
+        """
         with translation.override("en"):
             self.assertEqual(
                 translate_url("/en/nonexistent/", "nl"), "/en/nonexistent/"
@@ -209,6 +237,12 @@ class URLTranslationTests(URLTestCaseBase):
             self.assertEqual(translation.get_language(), "nl")
 
     def test_reverse_translated_with_captured_kwargs(self):
+        """
+        Test that URL reversing works correctly with translated URLs and captured keyword arguments.
+
+        Verifies that the reverse function produces the expected URL for different languages
+        when the matched URL has captured keyword arguments.
+        """
         with translation.override("en"):
             match = resolve("/translated/apo/")
         # Links to the same page in other languages.
@@ -238,6 +272,11 @@ class URLNamespaceTests(URLTestCaseBase):
     """
 
     def test_account_register(self):
+        """
+
+        Tests the account registration URL patterns to ensure correct translation and reversal of URLs.
+
+        """
         with translation.override("en"):
             self.assertEqual(reverse("account:register"), "/en/account/register/")
             self.assertEqual(
@@ -335,8 +374,7 @@ class URLVaryAcceptLanguageTests(URLTestCaseBase):
 
     def test_en_redirect(self):
         """
-        The redirect to a prefixed URL depends on 'Accept-Language' and
-        'Cookie', but once prefixed no header is set.
+        Tests redirect to a URL prefixed with 'en' when 'Accept-Language' is set to 'en', verifying the redirect behavior and HTTP headers.
         """
         response = self.client.get(
             "/account/register/", headers={"accept-language": "en"}
@@ -360,6 +398,9 @@ class URLRedirectWithoutTrailingSlashTests(URLTestCaseBase):
         self.assertRedirects(response, "/not-prefixed/", 301)
 
     def test_en_redirect(self):
+        """
+        Tests that URLs are correctly redirected to their English language equivalents when the 'en' accept language header is provided.
+        """
         response = self.client.get(
             "/account/register", headers={"accept-language": "en"}, follow=True
         )

@@ -24,12 +24,17 @@ class FindersCheckTests(CollectionTestCase):
             finder.check()
 
     def test_check_finders(self):
-        """check_finders() concatenates all errors."""
+        """
+        Checks and aggregates errors from multiple finders, returning a consolidated list of errors.
+        """
         error1 = Error("1")
         error2 = Error("2")
         error3 = Error("3")
 
         def get_finders():
+            """
+            Returns a list of finder instances, which are classes implementing the BaseFinder interface, used to identify specific errors or issues.
+            """
             class Finder1(BaseFinder):
                 def check(self, **kwargs):
                     return [error1]

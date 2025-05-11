@@ -14,6 +14,11 @@ class EmptyRouter:
 
 
 def get_max_column_name_length():
+    """
+    Determines the maximum allowed column name length across multiple databases.
+
+    Returns a tuple containing the maximum allowed length and the database alias where this length was found. The calculation takes into account the database connection features, ignoring databases that truncate names and selecting the shortest allowed length among the remaining ones.
+    """
     allowed_len = None
     db_alias = None
 
@@ -31,6 +36,9 @@ def get_max_column_name_length():
 @isolate_apps("invalid_models_tests")
 class UniqueTogetherTests(SimpleTestCase):
     def test_non_iterable(self):
+        """
+        Tests that models with invalid unique_together Meta option raise the correct error.
+        """
         class Model(models.Model):
             class Meta:
                 unique_together = 42
@@ -47,6 +55,9 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_list_containing_non_iterable(self):
+        """
+        Tests a model validation check to ensure that all elements in the 'unique_together' Meta option are either lists or tuples, rejecting non-iterable values.
+        """
         class Model(models.Model):
             one = models.IntegerField()
             two = models.IntegerField()
@@ -66,6 +77,9 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_non_list(self):
+        """
+        Checks that the 'unique_together' constraint in a model's Meta class is properly defined as a list or tuple, and raises an error if it is not.
+        """
         class Model(models.Model):
             class Meta:
                 unique_together = "not-a-list"
@@ -82,6 +96,9 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_valid_model(self):
+        """
+        Checks if a model with a unique_together constraint is valid. Verifies that no duplicate combinations of the specified fields exist.
+        """
         class Model(models.Model):
             one = models.IntegerField()
             two = models.IntegerField()
@@ -93,6 +110,9 @@ class UniqueTogetherTests(SimpleTestCase):
         self.assertEqual(Model.check(), [])
 
     def test_pointing_to_missing_field(self):
+        """
+        Tests that the model validation correctly identifies 'unique_together' constraints referencing missing fields.
+        """
         class Model(models.Model):
             class Meta:
                 unique_together = [["missing_field"]]
@@ -110,6 +130,9 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_pointing_to_m2m(self):
+        """
+        Tests that ManyToManyFields raise an error when used in unique_together constraints in a model's Meta options.
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -129,6 +152,9 @@ class UniqueTogetherTests(SimpleTestCase):
         )
 
     def test_pointing_to_fk(self):
+        """
+        Tests that a model with multiple foreign keys to the same model can correctly implement unique constraints on the related fields, ensuring data integrity and preventing duplicate relationships between instances.
+        """
         class Foo(models.Model):
             pass
 
@@ -149,6 +175,9 @@ class UniqueTogetherTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class IndexesTests(TestCase):
     def test_pointing_to_missing_field(self):
+        """
+        Tests that a model with an index referencing a missing field correctly raises an error.
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [models.Index(fields=["missing_field"], name="name")]
@@ -165,6 +194,13 @@ class IndexesTests(TestCase):
         )
 
     def test_pointing_to_m2m_field(self):
+        """
+        Tests that a model raises an error when its Meta.indexes attribute references a ManyToManyField, which is not permitted.\"\"\"
+
+        However, since this is an internal test and likely used only for validation in a specific context, a slightly modified version could be:
+
+        \"\"\"Verifies that ManyToManyFields are not allowed in model indexes, as per database constraints.
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -184,6 +220,9 @@ class IndexesTests(TestCase):
         )
 
     def test_pointing_to_non_local_field(self):
+        """
+        Tests that a model's index cannot point to a field inherited from its non-local parent model, enforcing the requirement that indexes only reference local fields or fields with a clear inheritance path.
+        """
         class Foo(models.Model):
             field1 = models.IntegerField()
 
@@ -207,6 +246,14 @@ class IndexesTests(TestCase):
         )
 
     def test_pointing_to_fk(self):
+        """
+
+        Tests that a model's foreign key fields are correctly indexed when related_name is used.
+
+        Verifies the model validation does not raise any errors when a composite index
+        is created with a ForeignKey field that has a related_name and a field of another model.
+
+        """
         class Foo(models.Model):
             pass
 
@@ -226,6 +273,11 @@ class IndexesTests(TestCase):
         self.assertEqual(Bar.check(), [])
 
     def test_name_constraints(self):
+        """
+
+        Tests that index names in a Django model's Meta indexes do not start with an underscore or a number.
+
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [
@@ -247,6 +299,9 @@ class IndexesTests(TestCase):
         )
 
     def test_max_name_length(self):
+        """
+        Tests that Django models raise a validation error when an index name exceeds the maximum allowed length of 30 characters.
+        """
         index_name = "x" * 31
 
         class Model(models.Model):
@@ -266,6 +321,9 @@ class IndexesTests(TestCase):
         )
 
     def test_index_with_condition(self):
+        """
+        Tests the creation of an index with a condition on a model field, verifying that the database supports partial indexes or correctly reports a warning if it does not.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -298,6 +356,9 @@ class IndexesTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_index_with_condition_required_db_features(self):
+        """
+        Tests that a model with a conditionally required database feature is valid when the feature is supported, using an example model that defines an index with a condition.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -314,6 +375,9 @@ class IndexesTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_index_with_include(self):
+        """
+        Checks if the database supports indexes with non-key columns (covering indexes) for a model with a defined index that includes non-key columns.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -346,6 +410,9 @@ class IndexesTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_index_with_include_required_db_features(self):
+        """
+        Tests whether a model with a covering index that includes a field is valid when the required database feature 'supports_covering_indexes' is specified.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -363,6 +430,9 @@ class IndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_index_include_pointing_to_missing_field(self):
+        """
+        Tests that an Index with an include referencing a missing field raises an error.
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [
@@ -382,6 +452,9 @@ class IndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_index_include_pointing_to_m2m_field(self):
+        """
+        Tests that an error is raised when a model's indexing configuration includes a ManyToManyField, which is not permitted.
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -402,6 +475,9 @@ class IndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_index_include_pointing_to_non_local_field(self):
+        """
+        Tests that an error is raised when a model's index includes a non-local field obtained through multi-table inheritance.
+        """
         class Parent(models.Model):
             field1 = models.IntegerField()
 
@@ -428,6 +504,9 @@ class IndexesTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_index_include_pointing_to_fk(self):
+        """
+        Tests that the database validation process correctly handles covering indexes with included columns referencing foreign key fields.
+        """
         class Target(models.Model):
             pass
 
@@ -447,6 +526,9 @@ class IndexesTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_func_index(self):
+        """
+        Tests the checking of model indexes on a database, specifically when an index is defined on an expression, verifying that a warning is raised if the database backend does not support expression indexes.
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -466,6 +548,9 @@ class IndexesTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), expected)
 
     def test_func_index_required_db_features(self):
+        """
+        Tests that a model with required database features is valid when those features are supported.
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -476,6 +561,13 @@ class IndexesTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_func_index_complex_expression_custom_lookup(self):
+        """
+        Tests a custom lookup 'Abs' used within an index with a complex expression.
+
+         Verifies that a model's check method returns no errors when the 'Abs' lookup is 
+         correctly registered and used in an index of a model field, preventing potential 
+         division by zero issues with a custom expression involving absolute value calculation.
+        """
         class Model(models.Model):
             height = models.IntegerField()
             weight = models.IntegerField()
@@ -493,6 +585,9 @@ class IndexesTests(TestCase):
             self.assertEqual(Model.check(), [])
 
     def test_func_index_pointing_to_missing_field(self):
+        """
+        Tests that a model with an index pointing to a missing field correctly reports the error.
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [models.Index(Lower("missing_field").desc(), name="name")]
@@ -509,6 +604,9 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_missing_field_nested(self):
+        """
+        Checks that a model's index pointing to a missing field in a nested expression raises the correct error.
+        """
         class Model(models.Model):
             class Meta:
                 indexes = [
@@ -527,6 +625,13 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_m2m_field(self):
+        """
+
+        Tests that an error is raised when an index is defined on a ManyToManyField.
+
+        The function checks that Django model checks correctly identify and prevent the creation of indexes on ManyToManyFields.
+
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -546,6 +651,9 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_non_local_field(self):
+        """
+        Tests that an index on a non-local field inherited from a parent model raises an error.
+        """
         class Foo(models.Model):
             field1 = models.CharField(max_length=15)
 
@@ -567,6 +675,9 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_fk(self):
+        """
+        Checks that a model's index pointing to a foreign key column is correctly defined, ensuring proper casing of the referenced field names.
+        """
         class Foo(models.Model):
             pass
 
@@ -615,8 +726,9 @@ class FieldNamesTests(TestCase):
     )
     def test_M2M_long_column_name(self):
         """
-        #13711 -- Model check for long M2M column names when database has
-        column name length limits.
+        Tests the model validation for ManyToManyField column names that exceed the 
+        database's column name length limit, ensuring appropriate errors are raised when 
+        the model is checked for issues.
         """
 
         # A model with very long name which will be used to set relations to.
@@ -724,8 +836,7 @@ class FieldNamesTests(TestCase):
     )
     def test_local_field_long_column_name(self):
         """
-        #13711 -- Model check for long column names
-        when database does not support long names.
+        Tests that a model validation error is raised when a field's automatically generated column name exceeds the database's maximum allowed length, and verifies that setting a manual column name resolves the issue.
         """
 
         class ModelWithLongField(models.Model):
@@ -812,6 +923,9 @@ class FieldNamesTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class ShadowingFieldsTests(SimpleTestCase):
     def test_field_name_clash_with_child_accessor(self):
+        """
+        Tests that a field name in a child model that clashes with an accessor automatically created by a parent's field raises an error.
+        """
         class Parent(models.Model):
             pass
 
@@ -831,6 +945,9 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_field_name_clash_with_m2m_through(self):
+        """
+        Tests the error handling for aMany-To-Many field name clash with the 'through' model when the field name in the model overlaps with a field name in a parent model.
+        """
         class Parent(models.Model):
             clash_id = models.IntegerField()
 
@@ -861,6 +978,13 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_multiinheritance_clash(self):
+        """
+
+        Tests that multiple inheritance clashes between two parent models are correctly identified.
+
+        Verifies that checks for field clashes, including both the auto-generated 'id' field and explicitly defined fields, are handled properly when a child model inherits from multiple parents with conflicting fields.
+
+        """
         class Mother(models.Model):
             clash = models.IntegerField()
 
@@ -893,6 +1017,9 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_inheritance_clash(self):
+        """
+        Checks for inheritance model field clashes, ensuring that foreign key fields do not conflict with fields inherited from parent models.
+        """
         class Parent(models.Model):
             f_id = models.IntegerField()
 
@@ -917,6 +1044,9 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_multigeneration_inheritance(self):
+        """
+        Tests multigeneration inheritance in model fields to ensure field name clashes are detected across hierarchical model relationships.
+        """
         class GrandParent(models.Model):
             clash = models.IntegerField()
 
@@ -942,6 +1072,12 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_diamond_mti_common_parent(self):
+        """
+
+        Tests that Multi-Table Inheritance (MTI) model validation correctly identifies 
+        clashing fields when a model has a common parent with one of its base classes.
+
+        """
         class GrandParent(models.Model):
             pass
 
@@ -967,6 +1103,9 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_id_clash(self):
+        """
+        Tests for id clash error between a foreign key and an integer field in a model, verifying that Django correctly raises an error when a model contains both a foreign key to another model and an integer field with a name that could be mistaken for the foreign key's id.
+        """
         class Target(models.Model):
             pass
 
@@ -990,6 +1129,9 @@ class ShadowingFieldsTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class OtherModelTests(SimpleTestCase):
     def test_unique_primary_key(self):
+        """
+        Tests that a primary key field in a model must be named 'id' and have primary_key=True.
+        """
         invalid_id = models.IntegerField(primary_key=False)
 
         class Model(models.Model):
@@ -1008,6 +1150,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_non_iterable(self):
+        """
+        Tests that the model's Meta.ordering attribute raises an error when set to a non-iterable value, such as a string, instead of the expected tuple or list.
+        """
         class Model(models.Model):
             class Meta:
                 ordering = "missing_field"
@@ -1025,6 +1170,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_just_ordering_no_errors(self):
+        """
+        Tests that a model with a PositiveIntegerField specified as the ordering field does not raise any errors when checked.
+        """
         class Model(models.Model):
             order = models.PositiveIntegerField()
 
@@ -1034,6 +1182,13 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(Model.check(), [])
 
     def test_just_order_with_respect_to_no_errors(self):
+        """
+
+        Tests that the Answer model, which has an order_with_respect_to field, 
+        checks for errors correctly when no errors are present, specifically 
+        when ordering is done with respect to its question foreign key field.
+
+        """
         class Question(models.Model):
             pass
 
@@ -1046,6 +1201,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(Answer.check(), [])
 
     def test_ordering_with_order_with_respect_to(self):
+        """
+        Tests that using 'ordering' and 'order_with_respect_to' together in a model's Meta raises an error, as these two settings are mutually exclusive.
+        """
         class Question(models.Model):
             pass
 
@@ -1069,6 +1227,11 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_non_valid(self):
+        """
+
+        Verifies that the check method correctly identifies a non-existent 'ordering' field with a ManyToManyField relation.
+
+        """
         class RelationModel(models.Model):
             pass
 
@@ -1091,6 +1254,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_missing_field(self):
+        """
+        Tests that a model's Meta.ordering attribute raises an error when referencing a field that does not exist in the model.
+        """
         class Model(models.Model):
             class Meta:
                 ordering = ("missing_field",)
@@ -1108,6 +1274,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_missing_foreignkey_field(self):
+        """
+        Tests a model's ordering attribute when pointing to a missing foreign key field, ensuring a correct error is raised when the field does not exist.
+        """
         class Model(models.Model):
             missing_fk_field = models.IntegerField()
 
@@ -1127,6 +1296,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_missing_related_field(self):
+        """
+        Tests that a model with an ordering specification that points to a missing related field is detected and reported as an error by the model's check method.
+        """
         class Model(models.Model):
             test = models.IntegerField()
 
@@ -1146,6 +1318,12 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_missing_related_model_field(self):
+        """
+
+        Tests that the model validation correctly identifies ordering fields that reference
+        missing related model fields.
+
+        """
         class Parent(models.Model):
             pass
 
@@ -1168,6 +1346,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_non_related_field(self):
+        """
+        Tests the validation of model ordering when referencing a non-existent field through a non-related field, ensuring the check method returns the expected error when attempting to order by a field that does not exist.
+        """
         class Child(models.Model):
             parent = models.IntegerField()
 
@@ -1187,6 +1368,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_two_related_model_field(self):
+        """
+        Tests that the model checker correctly identifies and reports an error when the 'ordering' Meta option references a related field that does not exist.
+        """
         class Parent2(models.Model):
             pass
 
@@ -1212,6 +1396,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_multiple_times_to_model_fields(self):
+        """
+        Tests that a model's Meta.ordering attribute correctly handles references to nonexistent fields in a related model, specifically when attempting to order by a field that is multiple relationships deep but does not exist.
+        """
         class Parent(models.Model):
             field1 = models.CharField(max_length=100)
             field2 = models.CharField(max_length=100)
@@ -1235,6 +1422,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_allows_registered_lookups(self):
+        """
+        Tests that model ordering allows registered lookup functions, specifically Lower case, to be used in the Meta ordering definition without raising errors.
+        """
         class Model(models.Model):
             test = models.CharField(max_length=100)
 
@@ -1245,6 +1435,9 @@ class OtherModelTests(SimpleTestCase):
             self.assertEqual(Model.check(), [])
 
     def test_ordering_pointing_to_lookup_not_transform(self):
+        """
+        Verifies that a model with an `ordering` Meta attribute pointing to a lookup (like 'isnull') does not incorrectly trigger any model checks, ensuring expected model validation behavior.
+        """
         class Model(models.Model):
             test = models.CharField(max_length=100)
 
@@ -1254,6 +1447,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(Model.check(), [])
 
     def test_ordering_pointing_to_related_model_pk(self):
+        """
+        Tests whether the Child model's foreign key to the Parent model can be used for ordering, verifying that no errors are raised when checking the model's ordering definition.
+        """
         class Parent(models.Model):
             pass
 
@@ -1266,6 +1462,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(Child.check(), [])
 
     def test_ordering_pointing_to_foreignkey_field(self):
+        """
+        Tests that Django models do not allow ordering to be specified via a field that references a foreign key directly.
+        """
         class Parent(models.Model):
             pass
 
@@ -1344,6 +1543,11 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_inherited_overriden_property_no_clash(self):
+        """
+        ..: 
+            Tests that a model inheriting a property from a parent class does not clash with an attribute of the same name, 
+            when the property is overridden in the child class.
+        """
         class Cheese:
             @property
             def filling_id(self):
@@ -1373,6 +1577,9 @@ class OtherModelTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL_BAD_VALUE="not-a-model")
     def test_swappable_missing_app_name(self):
+        """
+        Tests that the swappable model validation raises an error when the provided value is missing the app name.
+        """
         class Model(models.Model):
             class Meta:
                 swappable = "TEST_SWAPPED_MODEL_BAD_VALUE"
@@ -1390,6 +1597,9 @@ class OtherModelTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL_BAD_MODEL="not_an_app.Target")
     def test_swappable_missing_app(self):
+        """
+        Tests the error handling of a swappable model when the referenced app is missing.
+        """
         class Model(models.Model):
             class Meta:
                 swappable = "TEST_SWAPPED_MODEL_BAD_MODEL"
@@ -1406,6 +1616,10 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_two_m2m_through_same_relationship(self):
+        """
+        Tests that a model validation error is raised when two many-to-many fields 
+        use the same intermediate model through the same relationship.
+        """
         class Person(models.Model):
             pass
 
@@ -1434,6 +1648,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_two_m2m_through_same_model_with_different_through_fields(self):
+        """
+        Tests that two Many-To-Many fields in the same model can use the same intermediate model with different through fields, without causing conflicts or errors. Verifies the correctness of the ShippingMethod model's relationships with Country through ShippingMethodPrice.
+        """
         class Country(models.Model):
             pass
 
@@ -1458,6 +1675,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(ShippingMethod.check(), [])
 
     def test_onetoone_with_parent_model(self):
+        """
+        Tests a one-to-one relationship between two models, specifically when one model is a subclass of the other, to ensure that the validation check does not return any errors.
+        """
         class Place(models.Model):
             pass
 
@@ -1469,6 +1689,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(ParkingLot.check(), [])
 
     def test_onetoone_with_explicit_parent_link_parent_model(self):
+        """
+        Tests that a one-to-one relationship with an explicit parent link on the parent model is correctly validated.
+        """
         class Place(models.Model):
             pass
 
@@ -1483,6 +1706,11 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(ParkingLot.check(), [])
 
     def test_m2m_table_name_clash(self):
+        """
+
+        Tests that a ManyToMany field raises an error when its intermediary table name clashes with another model's table name.
+
+        """
         class Foo(models.Model):
             bar = models.ManyToManyField("Bar", db_table="myapp_bar")
 
@@ -1509,6 +1737,10 @@ class OtherModelTests(SimpleTestCase):
         DATABASE_ROUTERS=["invalid_models_tests.test_models.EmptyRouter"]
     )
     def test_m2m_table_name_clash_database_routers_installed(self):
+        """
+        Tests for field warnings when a many-to-many field's intermediary table name clashes 
+        with an existing model table name, specifically when database routers are installed.
+        """
         class Foo(models.Model):
             bar = models.ManyToManyField("Bar", db_table="myapp_bar")
 
@@ -1537,6 +1769,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_m2m_field_table_name_clash(self):
+        """
+        Tests that Many-to-Many fields with identical table names generate a clash error, ensuring Django's model validation catches and reports table naming conflicts between different models.
+        """
         class Foo(models.Model):
             pass
 
@@ -1568,6 +1803,12 @@ class OtherModelTests(SimpleTestCase):
         DATABASE_ROUTERS=["invalid_models_tests.test_models.EmptyRouter"]
     )
     def test_m2m_field_table_name_clash_database_routers_installed(self):
+        """
+        Tests the clash of ManyToMany field table names between models when database routers are installed.
+
+        Verifies that the model validation correctly identifies and warns about table name clashes
+        in the presence of custom database routing configuration, ensuring proper database separation.
+        """
         class Foo(models.Model):
             pass
 
@@ -1596,6 +1837,10 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_m2m_autogenerated_table_name_clash(self):
+        """
+        Tests that an error is raised when a many-to-many field's 
+        intermediary table name clashes with an existing model's table name.
+        """
         class Foo(models.Model):
             class Meta:
                 db_table = "bar_foos"
@@ -1623,6 +1868,12 @@ class OtherModelTests(SimpleTestCase):
         DATABASE_ROUTERS=["invalid_models_tests.test_models.EmptyRouter"]
     )
     def test_m2m_autogenerated_table_name_clash_database_routers_installed(self):
+        """
+
+        Tests the automatic table name generation for many-to-many fields to detect clashes 
+        when using database routers, ensuring the system correctly identifies potential errors.
+
+        """
         class Foo(models.Model):
             class Meta:
                 db_table = "bar_foos"
@@ -1652,6 +1903,9 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_m2m_unmanaged_shadow_models_not_checked(self):
+        """
+        Tests that unmanaged ManyToManyField models with a custom through model do not trigger validation checks.
+        """
         class A1(models.Model):
             pass
 
@@ -1682,6 +1936,9 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(C2.check(), [])
 
     def test_m2m_to_concrete_and_proxy_allowed(self):
+        """
+        Tests that many-to-many relationships are correctly established when using both a concrete model and a proxy model as intermediates. Verifies that the relationship checks pass without raising any errors.
+        """
         class A(models.Model):
             pass
 
@@ -1703,6 +1960,9 @@ class OtherModelTests(SimpleTestCase):
 
     @isolate_apps("django.contrib.auth", kwarg_name="apps")
     def test_lazy_reference_checks(self, apps):
+        """
+        Tests the check for lazy references in models and signals, ensuring that the application correctly identifies and reports references to non-existent models and apps.
+        """
         class DummyModel(models.Model):
             author = models.ForeignKey("Author", models.CASCADE)
 
@@ -1783,6 +2043,9 @@ class OtherModelTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class DbTableCommentTests(TestCase):
     def test_db_table_comment(self):
+        """
+        Tests the database table comment functionality by checking if a warning is raised when the database does not support comments on tables.
+        """
         class Model(models.Model):
             class Meta:
                 db_table_comment = "Table comment"
@@ -1803,6 +2066,9 @@ class DbTableCommentTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_db_table_comment_required_db_features(self):
+        """
+        Verifies that a model's table comment is correctly validated against required database features.
+        """
         class Model(models.Model):
             class Meta:
                 db_table_comment = "Table comment"
@@ -1813,6 +2079,9 @@ class DbTableCommentTests(TestCase):
 
 class MultipleAutoFieldsTests(TestCase):
     def test_multiple_autofields(self):
+        """
+        Tests that a model cannot have multiple auto-generated fields, ensuring data integrity by preventing incorrect model definitions.
+        """
         msg = (
             "Model invalid_models_tests.MultipleAutoFields can't have more "
             "than one auto-generated field."
@@ -1828,6 +2097,13 @@ class MultipleAutoFieldsTests(TestCase):
 class JSONFieldTests(TestCase):
     @skipUnlessDBFeature("supports_json_field")
     def test_ordering_pointing_to_json_field_value(self):
+        """
+
+        Tests that a model can be ordered by a value within a JSONField.
+
+        This test ensures that the ORM can correctly handle ordering based on a JSON field's value.
+
+        """
         class Model(models.Model):
             field = models.JSONField()
 
@@ -1837,6 +2113,14 @@ class JSONFieldTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_check_jsonfield(self):
+        """
+
+        Checks if a model with a JSONField can be validated by the database.
+
+        If the database does not support JSONFields, a list containing a validation error is expected.
+        Otherwise, an empty list is returned.
+
+        """
         class Model(models.Model):
             field = models.JSONField()
 
@@ -1849,6 +2133,9 @@ class JSONFieldTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), expected)
 
     def test_check_jsonfield_required_db_features(self):
+        """
+        Checks if models with JSONFields validate the required database features for storing JSON data, ensuring compatibility with the underlying database system.
+        """
         class Model(models.Model):
             field = models.JSONField()
 
@@ -1861,6 +2148,9 @@ class JSONFieldTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class ConstraintsTests(TestCase):
     def test_check_constraints(self):
+        """
+        Tests the model's check constraints for integrity, specifically the ability to enforce a minimum age requirement, and verifies the correct handling of database backends with and without check constraint support.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -1887,6 +2177,11 @@ class ConstraintsTests(TestCase):
         self.assertCountEqual(errors, expected)
 
     def test_check_constraints_required_db_features(self):
+        """
+        Verifies that the check_constraints_required_db_features validation works correctly.
+
+        Tests that a model with required database features and a check constraint raises no errors when validated against the available databases if the required feature is supported.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -1901,6 +2196,13 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_check_constraint_pointing_to_missing_field(self):
+        """
+
+        Checks that creating a model with a check constraint referencing a missing field raises an error.
+
+        Validates that the check constraint validation detects and reports a nonexistent field reference when the database supports table check constraints.
+
+        """
         class Model(models.Model):
             class Meta:
                 required_db_features = {"supports_table_check_constraints"}
@@ -1929,6 +2231,11 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_reverse_fk(self):
+        """
+
+        Tests that a check constraint referencing a reverse foreign key raises a validation error.
+
+        """
         class Model(models.Model):
             parent = models.ForeignKey("self", models.CASCADE, related_name="parents")
 
@@ -1950,6 +2257,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_reverse_o2o(self):
+        """
+        Tests that a check constraint in a model pointing to a reverse one-to-one field raises the correct error, as Django does not support this type of constraint.
+        """
         class Model(models.Model):
             parent = models.OneToOneField("self", models.CASCADE)
 
@@ -1974,6 +2284,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_m2m_field(self):
+        """
+        Tests that using a ManyToManyField in a CheckConstraint raises a validation error.
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -1996,6 +2309,11 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_fk(self):
+        """
+        Tests that check constraints referencing foreign keys are properly validated.\"\"\"
+
+        \"\"\"Verifies that the model's check constraint condition pointing to a foreign key is handled correctly.
+        """
         class Target(models.Model):
             pass
 
@@ -2015,6 +2333,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_pk(self):
+        """
+        Tests that a check constraint pointing to the primary key is correctly evaluated.
+        """
         class Model(models.Model):
             age = models.SmallIntegerField()
 
@@ -2030,6 +2351,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_non_local_field(self):
+        """
+        Tests that a CheckConstraint on a model with multi-table inheritance correctly raises an error when referencing a non-local field.
+        """
         class Parent(models.Model):
             field1 = models.IntegerField()
 
@@ -2056,6 +2380,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_joined_fields(self):
+        """
+        Tests Django's validation of check constraints that reference joined fields across models, ensuring that the framework correctly raises errors when these constraints are defined.
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
             field1 = models.PositiveSmallIntegerField()
@@ -2106,6 +2433,11 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_joined_fields_complex_check(self):
+        """
+
+        Tests that a CheckConstraint which references joined fields raises the expected validation error.
+
+        """
         class Model(models.Model):
             name = models.PositiveSmallIntegerField()
             field1 = models.PositiveSmallIntegerField()
@@ -2148,6 +2480,9 @@ class ConstraintsTests(TestCase):
         self.assertCountEqual(errors, expected_errors)
 
     def test_check_constraint_raw_sql_check(self):
+        """
+        Tests that check constraints with raw SQL conditions raise the expected warnings when validating the model.
+        """
         class Model(models.Model):
             class Meta:
                 required_db_features = {"supports_table_check_constraints"}
@@ -2210,6 +2545,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), expected_warnings)
 
     def test_unique_constraint_with_condition(self):
+        """
+        Tests the unique constraint on a model field with a condition, verifying the database backend supports it and checking for expected warnings.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2242,6 +2580,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_unique_constraint_with_condition_required_db_features(self):
+        """
+        Tests that a model with a unique constraint and a condition using required_db_features performs validation correctly.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2258,6 +2599,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_unique_constraint_condition_pointing_to_missing_field(self):
+        """
+        Checks if a :class:`~django.db.models.UniqueConstraint` with a condition referencing a non-existent field generates the expected error message.
+        """
         class Model(models.Model):
             age = models.SmallIntegerField()
 
@@ -2288,6 +2632,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_condition_pointing_to_joined_fields(self):
+        """
+        Checks the UniqueConstraint condition pointing to joined fields on a model, verifying that it raises an error if the condition references a joined field.
+        """
         class Model(models.Model):
             age = models.SmallIntegerField()
             parent = models.ForeignKey("self", models.CASCADE)
@@ -2318,6 +2665,12 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_pointing_to_reverse_o2o(self):
+        """
+
+        Tests that Django correctly raises an error when a UniqueConstraint on a OneToOneField 
+        in a model refers to a nonexistent field in the related object.
+
+        """
         class Model(models.Model):
             parent = models.OneToOneField("self", models.CASCADE)
 
@@ -2347,6 +2700,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_deferrable_unique_constraint(self):
+        """
+        Tests whether a database backend supports deferrable unique constraints, checking for warnings if the feature is not available.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2379,6 +2735,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_deferrable_unique_constraint_required_db_features(self):
+        """
+        Tests if a model with a deferrable unique constraint correctly specifies required database features for immediate deferral behavior.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2395,6 +2754,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_unique_constraint_pointing_to_missing_field(self):
+        """
+        Checks that a model with a unique constraint referencing a missing field raises an error during model checking.
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -2413,6 +2775,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_pointing_to_m2m_field(self):
+        """
+        Tests that a UniqueConstraint cannot be applied to a ManyToManyField.
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -2432,6 +2797,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_pointing_to_non_local_field(self):
+        """
+        Tests that a UniqueConstraint in a child model referencing a field from a parent model using multi-table inheritance raises the appropriate error.
+        """
         class Parent(models.Model):
             field1 = models.IntegerField()
 
@@ -2457,6 +2825,9 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_pointing_to_fk(self):
+        """
+        Tests the enforcement of a unique constraint on a model where the constraint involves two foreign keys, verifying that the model's validation correctly identifies and reports any unsatisfied constraints.
+        """
         class Target(models.Model):
             pass
 
@@ -2472,6 +2843,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_unique_constraint_with_include(self):
+        """
+        Verifies that a model with a unique constraint including a non-key column behaves as expected, checking for support of covering indexes in the underlying database.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2504,6 +2878,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_unique_constraint_with_include_required_db_features(self):
+        """
+        Tests the functionality of a unique constraint with the include parameter, ensuring it works with databases that support covering indexes.
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2521,6 +2898,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_unique_constraint_include_pointing_to_missing_field(self):
+        """
+        Tests that a UniqueConstraint with an include pointing to a missing field raises an error.
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -2544,6 +2924,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_unique_constraint_include_pointing_to_m2m_field(self):
+        """
+        Tests that a UniqueConstraint cannot include a ManyToManyField, verifying that an error is raised when trying to create such a constraint.
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -2570,6 +2953,11 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_unique_constraint_include_pointing_to_non_local_field(self):
+        """
+        Tests the behavior of unique constraints with included fields when using multi-table inheritance.
+
+        Verifies that an error is raised when a unique constraint's included field is not local to the model, but rather inherited from a parent model.
+        """
         class Parent(models.Model):
             field1 = models.IntegerField()
 
@@ -2600,6 +2988,14 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_unique_constraint_include_pointing_to_fk(self):
+        """
+
+        Tests that a unique constraint with an include clause pointing to a foreign key is correctly validated.
+
+        The test case verifies that the check method does not report any errors for a model with a unique constraint
+        defined on the primary key and including foreign key fields.
+
+        """
         class Target(models.Model):
             pass
 
@@ -2619,6 +3015,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_func_unique_constraint(self):
+        """
+        Tests the model validation behavior when a unique constraint is defined on an expression field, verifying that a warning is raised if the database backend does not support expression indexes.
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -2641,6 +3040,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), expected)
 
     def test_func_unique_constraint_required_db_features(self):
+        """
+        Checks if a model with a unique constraint and required database features can be validated without errors.
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -2653,6 +3055,10 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_unique_constraint_nulls_distinct(self):
+        """
+        Tests that UniqueConstraints with nulls_distinct flag function correctly, 
+        including checking for database support and emitting warnings when necessary.
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -2683,6 +3089,9 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), expected)
 
     def test_unique_constraint_nulls_distinct_required_db_features(self):
+        """
+        Checks the creation of a unique constraint that treats NULL values as distinct, verifying that the corresponding database features are properly required.
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -2700,6 +3109,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_expression_custom_lookup(self):
+        """
+        Tests the support for custom lookup types in unique constraints using expressions.
+        """
         class Model(models.Model):
             height = models.IntegerField()
             weight = models.IntegerField()
@@ -2718,6 +3130,13 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_missing_field(self):
+        """
+        Tests that a unique constraint raising an error when pointing to a missing field on a model.
+
+        Checks that Django correctly identifies and reports the error when a unique constraint
+        refers to a field that does not exist in the model, in a database that supports expression indexes.
+
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -2737,6 +3156,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_missing_field_nested(self):
+        """
+        Tests that a unique constraint referencing a missing field within a nested database function raises the correct error when checking the model.
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -2756,6 +3178,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_m2m_field(self):
+        """
+        Tests that a UniqueConstraint referencing a ManyToManyField raises a validation error, as such constraints are not supported.
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -2776,6 +3201,9 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_non_local_field(self):
+        """
+        Tests the validation of a UniqueConstraint referencing a non-local field in a model with multi-table inheritance.
+        """
         class Foo(models.Model):
             field1 = models.CharField(max_length=15)
 
@@ -2798,6 +3226,12 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_fk(self):
+        """
+
+        Tests the creation of a unique constraint on a model field pointing to a foreign key,
+        ensuring that the constraint is correctly applied when using a database expression.
+
+        """
         class Foo(models.Model):
             id = models.CharField(primary_key=True, max_length=255)
 

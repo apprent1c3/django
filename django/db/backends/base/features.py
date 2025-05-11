@@ -399,7 +399,10 @@ class BaseDatabaseFeatures:
 
     @cached_property
     def supports_transactions(self):
-        """Confirm support for transactions."""
+        """
+        xác-ringroup was removed and changed to more meaningful response: 
+        \"\"\"Indicates whether the database connection supports transactions, determined by attempting to insert and then rollback a test record.
+        """
         with self.connection.cursor() as cursor:
             cursor.execute("CREATE TABLE ROLLBACK_TEST (X INT)")
             self.connection.set_autocommit(False)

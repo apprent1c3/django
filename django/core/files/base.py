@@ -9,6 +9,9 @@ class File(FileProxyMixin):
     DEFAULT_CHUNK_SIZE = 64 * 2**10
 
     def __init__(self, file, name=None):
+        """
+        Initializes an object with a file and optional name, extracting the name from the file if not provided.
+        """
         self.file = file
         if name is None:
             name = getattr(file, "name", None)
@@ -30,6 +33,14 @@ class File(FileProxyMixin):
 
     @cached_property
     def size(self):
+        """
+        Return the size of the file.
+
+        Determines the size of the file by checking for the `size` attribute, 
+        then the file name to use `os.path.getsize`, and finally by seeking 
+        to the end of the file if it is seekable. Raises an AttributeError 
+        if the size cannot be determined.
+        """
         if hasattr(self.file, "size"):
             return self.file.size
         if hasattr(self.file, "name"):
@@ -47,8 +58,7 @@ class File(FileProxyMixin):
 
     def chunks(self, chunk_size=None):
         """
-        Read the file and yield chunks of ``chunk_size`` bytes (defaults to
-        ``File.DEFAULT_CHUNK_SIZE``).
+        Reads the file in chunks of a specified size, yielding each chunk as it is read, allowing for efficient processing of large files in memory-constrained environments.
         """
         chunk_size = chunk_size or self.DEFAULT_CHUNK_SIZE
         try:
@@ -74,6 +84,12 @@ class File(FileProxyMixin):
 
     def __iter__(self):
         # Iterate over this file-like object by newlines
+        """
+
+        Returns an iterator over lines in the object, handling line endings and buffering
+        to ensure correct line breaks and chunks are processed. 
+
+        """
         buffer_ = None
         for chunk in self.chunks():
             for line in chunk.splitlines(True):
@@ -106,6 +122,26 @@ class File(FileProxyMixin):
         self.close()
 
     def open(self, mode=None, *args, **kwargs):
+        """
+
+        Open the file associated with this object.
+
+        If the file is already open, it is rewound to the beginning. If it is closed,
+        it is reopened with the specified mode, defaulting to the mode with which it
+        was originally opened if not provided.
+
+        Args:
+            mode (str): The mode in which to open the file.
+            *args: Additional positional arguments to pass to the open function.
+            **kwargs: Additional keyword arguments to pass to the open function.
+
+        Returns:
+            self: The object itself, with the file opened or rewound.
+
+        Raises:
+            ValueError: If the file cannot be reopened.
+
+        """
         if not self.closed:
             self.seek(0)
         elif self.name and os.path.exists(self.name):

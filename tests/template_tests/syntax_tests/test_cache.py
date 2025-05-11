@@ -60,7 +60,7 @@ class CacheTagTests(SimpleTestCase):
     )
     def test_cache08(self):
         """
-        Allow first argument to be a variable.
+        Test that the cache tag's first argument can be a variable, ensuring that the cached content is rendered correctly when the variable's value matches the expected cache duration.
         """
         context = {"foo": 2, "time": 2}
         self.engine.render_to_string("cache06", context)
@@ -153,7 +153,10 @@ class CacheTagTests(SimpleTestCase):
         }
     )
     def test_none_timeout(self):
-        """A timeout of None means "cache forever"."""
+        """
+        Verifies that a cache timeout of None results in content being cached indefinitely, 
+        preventing subsequent updates to the cached template fragment from being rendered.
+        """
         output = self.engine.render_to_string("first")
         self.assertEqual(output, "content")
         output = self.engine.render_to_string("second")
@@ -187,8 +190,7 @@ class CacheTests(SimpleTestCase):
     )
     def test_cache_fragment_cache(self):
         """
-        When a cache called "template_fragments" is present, the cache tag
-        will use it in preference to 'default'
+        Tests that the cache tag uses the 'template_fragments' cache in preference to 'default' when it exists.
         """
         t1 = self.engine.from_string(
             "{% load cache %}{% cache 1 fragment %}foo{% endcache %}"
@@ -206,9 +208,8 @@ class CacheTests(SimpleTestCase):
 
     def test_cache_missing_backend(self):
         """
-        When a cache that doesn't exist is specified, the cache tag will
-        raise a TemplateSyntaxError
-        '"""
+        Tests that a TemplateSyntaxError is raised when a cache with a non-existent backend is specified in a template's cache tag.
+        """
         t = self.engine.from_string(
             '{% load cache %}{% cache 1 backend using="unknown" %}bar{% endcache %}'
         )

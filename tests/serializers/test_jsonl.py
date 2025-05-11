@@ -33,6 +33,9 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Validate if a given string contains valid JSON data on each non-empty line.
+        """
         try:
             for line in serial_str.split("\n"):
                 if line:
@@ -64,6 +67,12 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @isolate_apps("serializers")
     def test_custom_encoder(self):
+        """
+        Tests the serialization of Decimal Fields with a custom JSON encoder.
+
+        Verifies that a custom encoder can be used to convert Decimal values to a JSON-compatible format.
+
+        """
         class ScoreDecimal(models.Model):
             score = models.DecimalField()
 
@@ -101,8 +110,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_invalid_field(self):
         """
-        If there is an invalid field value, the error message contains the
-        model associated with it.
+        Tests that a helpful error message is provided when deserializing a JSON object with an invalid field value, including the associated model in the error message.
         """
         test_string = (
             '{"pk": "1","model": "serializers.player",'
@@ -114,8 +122,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_foreign_keys(self):
         """
-        Invalid foreign keys with a natural key throws a helpful error message,
-        such as what the failing key is.
+        Tests that a helpful error message is raised when a natural key references an invalid foreign key, including details about the failing key.
         """
         test_string = (
             '{"pk": 1, "model": "serializers.category",'
@@ -130,7 +137,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_non_natural(self):
         """
-        Invalid many-to-many keys throws a helpful error message.
+        Invalid many-to-many keys throws a helpful error message, ensuring that when an invalid key is provided for a many-to-many relationship, a clear and descriptive error message is returned to facilitate debugging.
         """
         test_strings = [
             """{
@@ -161,8 +168,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_natural1(self):
         """
-        Invalid many-to-many keys throws a helpful error message where one of a
-        list of natural keys is invalid.
+        Tests that an informative error message is raised when a many-to-many relationship contains an invalid natural key.
         """
         test_strings = [
             """{
@@ -199,8 +205,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_natural2(self):
         """
-        Invalid many-to-many keys throws a helpful error message where a
-        natural many-to-many key has only a single value.
+        Tests that a meaningful error message is raised when an invalid many-to-many key with a single value is encountered during deserialization, ensuring helpful feedback is provided for incorrect natural many-to-many keys.
         """
         test_strings = [
             """{
@@ -232,7 +237,7 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_not_iterable(self):
         """
-        Not iterable many-to-many field value throws a helpful error message.
+        Tests that a non-iterable value for a many-to-many field raises an informative DeserializationError with a helpful error message.
         """
         test_string = (
             '{"pk": 1,"model": "serializers.m2mdata","fields": {"data": null}}'

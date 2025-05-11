@@ -43,6 +43,9 @@ class URLEncodeTests(SimpleTestCase):
         self.assertEqual(urlencode({"a": (1, 2)}, doseq=False), "a=%281%2C+2%29")
 
     def test_custom_iterable_not_doseq(self):
+        """
+        Tests the functionality of the urlencode function when passed a custom iterable object with doseq set to False, verifying that the object's string representation is used in the URL encoding process instead of its iterable contents.
+        """
         class IterableWithStr:
             def __str__(self):
                 return "custom"
@@ -336,6 +339,10 @@ class HttpDateProcessingTests(unittest.TestCase):
     @unittest.skipIf(platform.architecture()[0] == "32bit", "The Year 2038 problem.")
     @mock.patch("django.utils.http.datetime")
     def test_parsing_rfc850(self, mocked_datetime):
+        """
+        Test that the parse_http_date function correctly handles RFC 850 formatted date strings, 
+        accounting for the Year 2038 problem and ensuring correct parsing across different dates and years.
+        """
         mocked_datetime.side_effect = datetime
         now_1 = datetime(2019, 11, 6, 8, 49, 37, tzinfo=timezone.utc)
         now_2 = datetime(2020, 11, 6, 8, 49, 37, tzinfo=timezone.utc)
@@ -396,7 +403,9 @@ class HttpDateProcessingTests(unittest.TestCase):
         )
 
     def test_parsing_asctime_nonascii_digits(self):
-        """Non-ASCII unicode decimals raise an error."""
+        """
+        Tests that non-ASCII digits in asctime format raise a ValueError when parsing HTTP dates.
+        """
         with self.assertRaises(ValueError):
             parse_http_date("Sun Nov  6 08:49:37 １９９４")
         with self.assertRaises(ValueError):
@@ -478,8 +487,7 @@ class ParseHeaderParameterTests(unittest.TestCase):
 
     def test_rfc2231_wrong_title(self):
         """
-        Test wrongly formatted RFC 2231 headers (missing double single quotes).
-        Parsing should not crash (#24209).
+        Test wrongly formatted RFC 2231 headers with missing double single quotes to ensure parsing does not crash, by verifying the title is correctly extracted from the header.
         """
         test_data = (
             (

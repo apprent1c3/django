@@ -34,6 +34,14 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+
+        Configures a parser with arguments for controlling the behavior of the data dumping process.
+
+        The added arguments allow specification of the data to dump, output format, indentation, database, and exclusion of certain models.
+         They also enable use of natural foreign and primary keys, dumping of all models using Django's base manager, and output redirection.
+
+        """
         parser.add_argument(
             "args",
             metavar="app_label[.ModelName]",
@@ -102,6 +110,30 @@ class Command(BaseCommand):
         )
 
     def handle(self, *app_labels, **options):
+        """
+
+        Handles the dumping of Django application data into a serialized format.
+
+        This function provides a flexible way to export data from the database, allowing
+        for customization of the output format, indentation, and included/excluded models.
+        It also supports exporting data to a file or to the standard output.
+
+        Parameters can be provided to customize the output, including:
+        - format: The serialization format (e.g. json, xml, etc.)
+        - indent: The number of spaces to use for indentation
+        - database: The database to use for the dump
+        - exclude: A list of models or apps to exclude from the dump
+        - output: The file path to write the output to
+        - traceback: Whether to display the full traceback on error
+        - use_natural_foreign_keys: Whether to use natural foreign keys in the output
+        - use_natural_primary_keys: Whether to use natural primary keys in the output
+        - use_base_manager: Whether to use the base manager for the models
+        - primary_keys: A list of primary keys to include in the dump
+
+        The function will raise a CommandError if the specified format is unknown or
+        if there are any issues with the provided parameters.
+
+        """
         format = options["format"]
         indent = options["indent"]
         using = options["database"]
@@ -183,8 +215,11 @@ class Command(BaseCommand):
 
         def get_objects(count_only=False):
             """
-            Collate the objects to be serialized. If count_only is True, just
-            count the number of objects to be serialized.
+            Collate objects to be serialized, optionally counting them instead of retrieving.
+
+                :param bool count_only: If True, returns the count of objects to be serialized; otherwise, yields the objects themselves.
+
+                :yields: Either an integer count of objects or an iterator over the objects to be serialized.
             """
             if use_natural_foreign_keys:
                 models = serializers.sort_dependencies(

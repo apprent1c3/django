@@ -18,32 +18,9 @@ opt_dict = {
 
 def colorize(text="", opts=(), **kwargs):
     """
-    Return your text, enclosed in ANSI graphics codes.
+    Return your text, enclosed in ANSI graphics codes, allowing for customizable foreground, background, and style options. 
 
-    Depends on the keyword arguments 'fg' and 'bg', and the contents of
-    the opts tuple/list.
-
-    Return the RESET code if no parameters are given.
-
-    Valid colors:
-        'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'
-
-    Valid options:
-        'bold'
-        'underscore'
-        'blink'
-        'reverse'
-        'conceal'
-        'noreset' - string will not be auto-terminated with the RESET code
-
-    Examples:
-        colorize('hello', fg='red', bg='blue', opts=('blink',))
-        colorize()
-        colorize('goodbye', opts=('underscore',))
-        print(colorize('first line', fg='red', opts=('noreset',)))
-        print('this should be red too')
-        print(colorize('and so should this'))
-        print('this should not be red')
+    Valid colors include 'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white' and valid options include 'bold', 'underscore', 'blink', 'reverse', 'conceal', 'noreset'. If no parameters are given, returns the RESET code.
     """
     code_list = []
     if text == "" and len(opts) == 1 and opts[0] == "reset":
@@ -141,35 +118,14 @@ DEFAULT_PALETTE = DARK_PALETTE
 
 
 def parse_color_setting(config_string):
-    """Parse a DJANGO_COLORS environment variable to produce the system palette
+    """
+    Parse a DJANGO_COLORS environment variable to produce the system palette. 
 
-    The general form of a palette definition is:
+    The function takes a configuration string as input, where the string can define a named palette or individual roles with foreground and background colors, and display options. 
 
-        "palette;role=fg;role=fg/bg;role=fg,option,option;role=fg/bg,option,option"
+    The function returns the parsed palette as a dictionary, or the default 'nocolor' palette if the input string is empty, or None if the resulting palette is equivalent to the 'nocolor' palette. 
 
-    where:
-        palette is a named palette; one of 'light', 'dark', or 'nocolor'.
-        role is a named style used by Django
-        fg is a foreground color.
-        bg is a background color.
-        option is a display options.
-
-    Specifying a named palette is the same as manually specifying the individual
-    definitions for each role. Any individual definitions following the palette
-    definition will augment the base palette definition.
-
-    Valid roles:
-        'error', 'success', 'warning', 'notice', 'sql_field', 'sql_coltype',
-        'sql_keyword', 'sql_table', 'http_info', 'http_success',
-        'http_redirect', 'http_not_modified', 'http_bad_request',
-        'http_not_found', 'http_server_error', 'migrate_heading',
-        'migrate_label'
-
-    Valid colors:
-        'black', 'red', 'green', 'yellow', 'blue', 'magenta', 'cyan', 'white'
-
-    Valid options:
-        'bold', 'underscore', 'blink', 'reverse', 'conceal', 'noreset'
+    Roles, colors, and options can be combined in various ways to create custom color schemes for Django applications.
     """
     if not config_string:
         return PALETTES[DEFAULT_PALETTE]

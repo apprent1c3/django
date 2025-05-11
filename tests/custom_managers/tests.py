@@ -48,8 +48,7 @@ class CustomManagerTests(TestCase):
 
     def test_queryset_copied_to_default(self):
         """
-        The methods of a custom QuerySet are properly copied onto the
-        default Manager.
+        Verifies that custom QuerySet methods are successfully copied to the default Manager, while ensuring private methods remain inaccessible.
         """
         for manager_name in self.custom_manager_names:
             with self.subTest(manager_name=manager_name):
@@ -62,6 +61,9 @@ class CustomManagerTests(TestCase):
                     manager._private_method()
 
     def test_manager_honors_queryset_only(self):
+        """
+        Tests that custom managers honor the queryset-only restriction and do not expose opt-out public methods.
+        """
         for manager_name in self.custom_manager_names:
             with self.subTest(manager_name=manager_name):
                 manager = getattr(Person, manager_name)
@@ -77,7 +79,7 @@ class CustomManagerTests(TestCase):
 
     def test_manager_use_queryset_methods(self):
         """
-        Custom manager will use the queryset methods
+        Verifies that custom managers use queryset methods as expected, by testing filtering and value retrieval functionality on a custom queryset instance.
         """
         for manager_name in self.custom_manager_names:
             with self.subTest(manager_name=manager_name):
@@ -103,8 +105,7 @@ class CustomManagerTests(TestCase):
 
     def test_manager_attributes(self):
         """
-        Custom manager method is only available on the manager and not on
-        querysets.
+        Verifies that a custom manager method is inaccessible through querysets, ensuring it's only callable on the manager instance itself.
         """
         Person.custom_queryset_custom_manager.manager_only()
         msg = "'CustomQuerySet' object has no attribute 'manager_only'"
@@ -148,6 +149,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_fk_related_manager(self):
+        """
+        Tests the functionality of foreign key related managers, specifically how they interact with custom managers and their ability to filter related objects based on certain conditions.
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -196,6 +200,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_gfk_related_manager(self):
+        """
+        Tests the functionality of a related manager for retrieving favorite things and people, verifying that it correctly filters results based on the type of person.
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_thing=self.b1
         )
@@ -244,6 +251,15 @@ class CustomManagerTests(TestCase):
         )
 
     def test_m2m_related_manager(self):
+        """
+
+        Tests the many-to-many related manager functionality.
+
+        Verifies that the related managers for 'authors' and 'fun_authors' of a book (self.b1) 
+        correctly return the associated persons based on their 'fun' status, and that custom 
+        managers 'boring_people' and 'fun_people' return the expected results.
+
+        """
         bugs = Person.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.authors.add(bugs)
         droopy = Person.objects.create(first_name="Droopy", last_name="Dog", fun=False)
@@ -290,6 +306,11 @@ class CustomManagerTests(TestCase):
         )
 
     def test_removal_through_default_fk_related_manager(self, bulk=True):
+        """
+        Tests removal of related objects through the default foreign key related manager, 
+        covering removal of single objects and clearing all related objects, 
+        with and without bulk operations.
+        """
         bugs = FunPerson.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -334,6 +355,13 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_default_fk_related_manager(bulk=False)
 
     def test_removal_through_specified_fk_related_manager(self, bulk=True):
+        """
+
+        Tests the removal of objects from a related manager's queryset through a specified foreign key.
+
+        The test covers removal of a single object, as well as clearing the entire queryset, with and without bulk operations.
+
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -383,6 +411,13 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_specified_fk_related_manager(bulk=False)
 
     def test_removal_through_default_gfk_related_manager(self, bulk=True):
+        """
+
+        Tests removal of objects from a related manager through the default GFK (Generic Foreign Key) related manager.
+
+        The test covers scenarios including bulk removal and clearing of related objects.
+
+        """
         bugs = FunPerson.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_thing=self.b1
         )
@@ -433,6 +468,13 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_default_gfk_related_manager(bulk=False)
 
     def test_removal_through_specified_gfk_related_manager(self, bulk=True):
+        """
+
+        Tests the removal of objects through a specified generic foreign key (GFK) related manager.
+        Checks removal behavior for both bulk and non-bulk operations, as well as clearing the relationship.
+        Verifies the correct behavior of related managers after removing objects.
+
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_thing=self.b1
         )
@@ -483,6 +525,10 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_specified_gfk_related_manager(bulk=False)
 
     def test_removal_through_default_m2m_related_manager(self):
+        """
+        Tests removal of related objects through the default many-to-many related manager.
+        Verification that the manager correctly adds or removes associated instances and updates the underlying database relation accordingly.
+        """
         bugs = FunPerson.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.fun_authors.add(bugs)
         droopy = FunPerson.objects.create(
@@ -523,6 +569,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_removal_through_specified_m2m_related_manager(self):
+        """
+        Tests the removal of objects through a specified many-to-many related manager, verifying that removal and clearing operations affect the correct subsets of related objects.
+        """
         bugs = Person.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.authors.add(bugs)
         droopy = Person.objects.create(first_name="Droopy", last_name="Dog", fun=False)
@@ -567,6 +616,9 @@ class CustomManagerTests(TestCase):
         )
 
     def test_deconstruct_default(self):
+        """
+        Tests that a default Manager instance is correctly deconstructed into its constituent parts, including the manager class path, query set path, and initialization arguments.
+        """
         mgr = models.Manager()
         as_manager, mgr_path, qs_path, args, kwargs = mgr.deconstruct()
         self.assertFalse(as_manager)
@@ -581,6 +633,14 @@ class CustomManagerTests(TestCase):
         self.assertEqual(qs_path, "custom_managers.models.CustomQuerySet")
 
     def test_deconstruct_from_queryset(self):
+        """
+
+        Tests the deconstruction of a custom manager from a queryset.
+
+        Verifies that the deconstruct method correctly identifies the manager path, 
+        arguments, and keyword arguments, and returns them in the expected format.
+
+        """
         mgr = DeconstructibleCustomManager("a", "b")
         as_manager, mgr_path, qs_path, args, kwargs = mgr.deconstruct()
         self.assertFalse(as_manager)
@@ -639,6 +699,10 @@ class TestCars(TestCase):
     def test_managers(self):
         # Each model class gets a "_default_manager" attribute, which is a
         # reference to the first manager defined in the class.
+        """
+        Tests the functionality of custom managers in the Car model, verifying 
+        that they correctly filter and order results based on their specified conditions.
+        """
         Car.cars.create(name="Corvette", mileage=21, top_speed=180)
         Car.cars.create(name="Neon", mileage=31, top_speed=100)
 
@@ -702,10 +766,9 @@ class TestCars(TestCase):
 
 class CustomManagersRegressTestCase(TestCase):
     def test_filtered_default_manager(self):
-        """Even though the default manager filters out some records,
-        we must still be able to save (particularly, save by updating
-        existing records) those filtered instances. This is a
-        regression test for #8990, #9527"""
+        """
+        Tests that the default manager correctly saves instances that are filtered out, ensuring that updates to existing records are persisted, even if they are not visible through the default manager.
+        """
         related = RelatedModel.objects.create(name="xyzzy")
         obj = RestrictedModel.objects.create(name="hidden", related=related)
         obj.name = "still hidden"
@@ -717,8 +780,7 @@ class CustomManagersRegressTestCase(TestCase):
 
     def test_refresh_from_db_when_default_manager_filters(self):
         """
-        Model.refresh_from_db() works for instances hidden by the default
-        manager.
+        Tests whether Model.refresh_from_db() correctly updates an instance even when it is hidden by the default manager's filters.
         """
         book = Book._base_manager.create(is_published=False)
         Book._base_manager.filter(pk=book.pk).update(title="Hi")
@@ -726,7 +788,9 @@ class CustomManagersRegressTestCase(TestCase):
         self.assertEqual(book.title, "Hi")
 
     def test_save_clears_annotations_from_base_manager(self):
-        """Model.save() clears annotations from the base manager."""
+        """
+        Tests that saving a model instance clears any annotations from its base manager, ensuring that subsequent queries return unannotated results.
+        """
         self.assertEqual(Book._meta.base_manager.name, "annotated_objects")
         book = Book.annotated_objects.create(title="Hunting")
         Person.objects.create(
@@ -745,9 +809,9 @@ class CustomManagersRegressTestCase(TestCase):
         self.assertEqual(Book.annotated_objects.first().title, "New Hunting")
 
     def test_delete_related_on_filtered_manager(self):
-        """Deleting related objects should also not be distracted by a
-        restricted manager on the related object. This is a regression
-        test for #2698."""
+        """
+        Tests that deleting a related object also removes associated objects filtered by a restricted manager, ensuring correct cascade deletion behavior.
+        """
         related = RelatedModel.objects.create(name="xyzzy")
 
         for name, public in (("one", True), ("two", False), ("three", False)):
@@ -766,6 +830,9 @@ class CustomManagersRegressTestCase(TestCase):
         # The same test case as the last one, but for one-to-one
         # models, which are implemented slightly different internally,
         # so it's a different code path.
+        """
+        Tests that deleting a related object properly cleans up associated one-to-one relationships managed by OneToOneRestrictedModel's restricted manager.
+        """
         obj = RelatedModel.objects.create(name="xyzzy")
         OneToOneRestrictedModel.objects.create(name="foo", is_public=False, related=obj)
         obj = RelatedModel.objects.get(name="xyzzy")

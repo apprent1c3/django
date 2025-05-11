@@ -7,7 +7,9 @@ from django.utils.autoreload import is_django_module
 
 
 def watch_for_translation_changes(sender, **kwargs):
-    """Register file watchers for .mo files in potential locale paths."""
+    """
+    Registers file watchers for translation files (.mo) in locale directories, enabling automatic detection of changes to internationalization settings, but only if internationalization is enabled in the project settings.
+    """
     from django.conf import settings
 
     if settings.USE_I18N:
@@ -23,7 +25,9 @@ def watch_for_translation_changes(sender, **kwargs):
 
 
 def translation_file_changed(sender, file_path, **kwargs):
-    """Clear the internal translations cache if a .mo file is modified."""
+    """
+    Clears the internal translations cache when a.mo translation file is modified, ensuring that changes are reflected in the application.
+    """
     if file_path.suffix == ".mo":
         import gettext
 

@@ -47,6 +47,11 @@ if is_psycopg3:
 
     @lru_cache
     def postgis_adapters(geo_oid, geog_oid, raster_oid):
+        """
+        Returns a tuple of BaseDumper subclasses for PostGIS text and binary formats.
+        The returned dumpers handle geographic and raster data types, 
+        facilitating the creation of geometry, geography, and raster dumpers with specified OIDs.
+        """
         class BaseDumper(Dumper):
             def __init_subclass__(cls, base_dumper):
                 super().__init_subclass__()
@@ -68,6 +73,10 @@ if is_psycopg3:
                     return RasterType
 
             def upgrade(self, obj, format):
+                """
+                Returns a dumper object based on the type of object being upgraded, 
+                supporting geometry, geography, and raster types.
+                """
                 if obj.is_geometry:
                     if obj.geography:
                         return self.GeographyDumper(GeographyType)
@@ -101,6 +110,9 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
     }
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the database connection object, setting specific database features, operations, and introspection classes if no database alias is specified.
+        """
         if kwargs.get("alias", "") == NO_DB_ALIAS:
             # Don't initialize PostGIS-specific stuff for non-db connections.
             self.features_class = PsycopgDatabaseFeatures
@@ -110,6 +122,9 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
         super().__init__(*args, **kwargs)
 
     def prepare_database(self):
+        """
+        Initializes the database by creating the PostGIS extension if it does not already exist, enabling geometric data types support.
+        """
         super().prepare_database()
         # Check that postgis extension is installed.
         with self.cursor() as cursor:
@@ -131,6 +146,9 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
     if is_psycopg3:
 
         def _register_type(self, pg_connection, typename):
+            """
+            Registers a PostgreSQL type with the given connection, ensuring it's properly configured for adaptation. If the type's info isn't already cached, it's fetched from the database using the provided typename, and then registered with the connection. Returns the type's OID if registration is successful, otherwise returns None.
+            """
             registry = self._type_infos[typename]
             try:
                 info = registry[self.alias]
@@ -146,6 +164,9 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
             return info.oid if info else None
 
         def register_geometry_adapters(self, pg_connection, clear_caches=False):
+            """
+            Registers geometry adapters with a PostgreSQL connection, allowing for the efficient transfer of spatial data between the database and the application. If requested, clears any existing type caches before registering the adapters. The adapters support text and binary dumpers for geometry, geography, and raster types.
+            """
             if clear_caches:
                 for typename in self._type_infos:
                     self._type_infos[typename].pop(self.alias, None)

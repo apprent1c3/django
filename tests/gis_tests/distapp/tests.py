@@ -55,7 +55,7 @@ class DistanceTest(TestCase):
 
     def test_init(self):
         """
-        Test initialization of distance models.
+        Tests that the initial data for various location models is correctly populated, verifying the count of objects in the database for cities, zip codes, and interstate models.
         """
         self.assertEqual(9, SouthTexasCity.objects.count())
         self.assertEqual(9, SouthTexasCityFt.objects.count())
@@ -68,7 +68,7 @@ class DistanceTest(TestCase):
     @skipUnlessDBFeature("supports_dwithin_lookup")
     def test_dwithin(self):
         """
-        Test the `dwithin` lookup type.
+        Test the `dwithin` lookup type by creating and verifying spatial distance queries for various distance measurements in both Texas and Australia locations.
         """
         # Distances -- all should be equal (except for the
         # degree/meter pair in au_cities, that's somewhat
@@ -131,6 +131,13 @@ class DistanceTest(TestCase):
         # Retrieving the cities within a 20km 'donut' w/a 7km radius 'hole'
         # (thus, Houston and Southside place will be excluded as tested in
         # the `test02_dwithin` above).
+        """
+        Test case for distance lookups in geographic queries.
+
+            Verifies that distance-based filters can be applied to geographic fields,
+            returning objects within a specified range from a reference point or polygon.
+
+        """
         for model in [SouthTexasCity, SouthTexasCityFt]:
             stx_pnt = self.stx_pnt.transform(
                 model._meta.get_field("point").srid, clone=True
@@ -156,7 +163,7 @@ class DistanceTest(TestCase):
     @skipUnlessDBFeature("supports_distances_lookups", "supports_distance_geodetic")
     def test_geodetic_distance_lookups(self):
         """
-        Test distance lookups on geodetic coordinate systems.
+        Test the functionality of geodetic distance lookups in the model. Verifies the results of distance comparisons between geodetic coordinates, ensuring correct cities are filtered based on distance thresholds. Also tests validation for distance lookup arguments and usage with different distance measures and spheroid directives.
         """
         # Line is from Canberra to Sydney.  Query is for all other cities within
         # a 100km of that line (which should exclude only Hobart & Adelaide).
@@ -237,6 +244,14 @@ class DistanceTest(TestCase):
 
     @skipUnlessDBFeature("supports_distances_lookups")
     def test_distance_lookups_with_expression_rhs(self):
+        """
+
+        Tests distance lookups with an expression as the right-hand side.
+
+        Verifies that distance filters work correctly with different
+        radius expressions and geographic lookup types.
+
+        """
         stx_pnt = self.stx_pnt.transform(
             SouthTexasCity._meta.get_field("point").srid, clone=True
         )
@@ -311,6 +326,9 @@ class DistanceTest(TestCase):
         )
 
     def test_mysql_geodetic_distance_error(self):
+        """
+        Tests that an error is raised when a geodetic distance query with non-degree units is executed on a MySQL database, ensuring only numeric values of degree units are allowed.
+        """
         if not connection.ops.mysql:
             self.skipTest("This is a MySQL-specific test.")
         msg = (
@@ -419,8 +437,8 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Distance_function")
     def test_distance_simple(self):
         """
-        Test a simple distance query, with projected coordinates and without
-        transformation.
+        Tests the calculation of a simple distance between two geographic points, 
+        verifying that the result is accurate within a specified tolerance.
         """
         lagrange = GEOSGeometry("POINT(805066.295722839 4231496.29461335)", 32140)
         houston = (
@@ -434,7 +452,7 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Distance_function", "has_Transform_function")
     def test_distance_projected(self):
         """
-        Test the `Distance` function on projected coordinate systems.
+        Test the `Distance` function's accuracy on geographic points with projected coordinate systems, comparing calculated distances against expected values in meters and survey feet.
         """
         # The point for La Grange, TX
         lagrange = GEOSGeometry("POINT(-96.876369 29.905320)", 4326)
@@ -493,7 +511,12 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Distance_function", "supports_distance_geodetic")
     def test_distance_geodetic(self):
         """
-        Test the `Distance` function on geodetic coordinate systems.
+
+            Test the `Distance` function on geodetic coordinate systems.
+
+            Verifies that the distance calculation between a LineString and a set of points
+            in a geodetic coordinate system returns accurate results.
+
         """
         # Testing geodetic distance calculation with a non-point geometry
         # (a LineString of Wollongong and Shellharbour coords).
@@ -529,6 +552,10 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Distance_function", "supports_distance_geodetic")
     def test_distance_geodetic_spheroid(self):
+        """
+        Tests the accuracy of geodetic distance calculations between geographic points, 
+        using both spheroid and sphere models, against known results for various cities in Australia.
+        """
         tol = 2 if connection.ops.oracle else 4
 
         # Got the reference distances using the raw SQL statements:
@@ -653,7 +680,7 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Distance_function", "has_Transform_function")
     def test_distance_transform(self):
         """
-        Test the `Distance` function used with `Transform` on a geographic field.
+        Tests the correctness of spatial query functionality, specifically the `Distance` function in conjunction with `Transform`, on geographic data, ensuring accurate distance calculations and ordering.
         """
         # We'll be using a Polygon (created by buffering the centroid
         # of 77005 to 100m) -- which aren't allowed in geographic distance
@@ -701,7 +728,11 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Length_function")
     def test_length(self):
         """
-        Test the `Length` function.
+
+            Tests the functionality of the Length function to calculate the length of geographic paths.
+
+            Verifies the correctness of length calculations for different paths and checks if the database supports the Length function.
+
         """
         # Reference query (should use `length_spheroid`).
         #  SELECT ST_length_spheroid(
@@ -738,7 +769,13 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Perimeter_function")
     def test_perimeter(self):
         """
-        Test the `Perimeter` function.
+
+            Test the functionality of the Perimeter geographic function.
+
+            Verifies that the Perimeter function accurately calculates the perimeter of 
+            geometric shapes, specifically polygons, and correctly handles point geometries 
+            with zero perimeter.
+
         """
         # Reference query:
         #  SELECT ST_Perimeter(distapp_southtexaszipcode.poly)
@@ -765,6 +802,14 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     def test_perimeter_geodetic(self):
         # Currently only Oracle supports calculating the perimeter on geodetic
         # geometries (without being transformed).
+        """
+        Tests the calculation of the perimeter of a geometric object using the Perimeter function, specifically with geodetic support.
+
+        Verifies that the perimeter is correctly calculated when supported by the database, and raises an error when not supported.
+
+        Also tests the perimeter calculation with spatial transformations.
+
+        """
         qs1 = CensusZipcode.objects.annotate(perim=Perimeter("poly"))
         if connection.features.supports_perimeter_geodetic:
             self.assertAlmostEqual(qs1[0].perim.m, 18406.3818954314, 3)
@@ -782,7 +827,7 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     )
     def test_measurement_null_fields(self):
         """
-        Test the measurement functions on fields with NULL values.
+        Check that measurement functions (Distance and Area) return None when operating on fields with NULL geometry values.
         """
         # Creating SouthTexasZipcode w/NULL value.
         SouthTexasZipcode.objects.create(name="78212")

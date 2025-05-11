@@ -55,6 +55,16 @@ class LogEntryManager(models.Manager):
         self, user_id, queryset, action_flag, change_message="", *, single_object=False
     ):
         # RemovedInDjango60Warning.
+        """
+        Logs a sequence of actions performed by a user on a set of objects.
+
+         :param user_id: The ID of the user performing the action
+         :param queryset: A queryset of objects affected by the action
+         :param action_flag: A flag indicating the type of action performed
+         :param change_message: An optional message describing the changes made, can be a list or a string
+         :param single_object: Whether to save a single log entry, defaults to False
+         :return: Either a single saved log entry or a list of bulk created log entries
+        """
         if type(self).log_action != LogEntryManager.log_action:
             warnings.warn(
                 "The usage of log_action() is deprecated. Implement log_actions() "
@@ -141,6 +151,9 @@ class LogEntry(models.Model):
         return str(self.action_time)
 
     def __str__(self):
+        """
+        Returns a human-readable string representation of the LogEntry object, describing the type of log entry (addition, change, or deletion) and the affected object, with translated text.
+        """
         if self.is_addition():
             return gettext("Added “%(object)s”.") % {"object": self.object_repr}
         elif self.is_change():
@@ -164,8 +177,10 @@ class LogEntry(models.Model):
 
     def get_change_message(self):
         """
-        If self.change_message is a JSON structure, interpret it as a change
-        string, properly translated.
+        Return a human-readable string describing changes, properly translated.
+
+            If the change message is a JSON structure, it is parsed and translated accordingly.
+            Otherwise, the original change message is returned unchanged.
         """
         if self.change_message and self.change_message[0] == "[":
             try:

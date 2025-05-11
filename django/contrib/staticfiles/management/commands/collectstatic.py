@@ -20,6 +20,9 @@ class Command(BaseCommand):
     requires_system_checks = [Tags.staticfiles]
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, setting up internal state for tracking file operations and configuring storage and styling options.
+        """
         super().__init__(*args, **kwargs)
         self.copied_files = []
         self.symlinked_files = []
@@ -30,6 +33,9 @@ class Command(BaseCommand):
 
     @cached_property
     def local(self):
+        """
+        Returns whether the storage system has a concept of a local path, i.e., it can resolve an empty path.
+        """
         try:
             self.storage.path("")
         except NotImplementedError:
@@ -37,6 +43,9 @@ class Command(BaseCommand):
         return True
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments to the parser for customizing file handling behavior, such as ignoring files, post-processing, and modifying the file system. The arguments control whether to prompt the user for input, perform post-processing, ignore specific files or directories, run in dry-run mode, clear existing files, create symbolic links, and use default ignore patterns.
+        """
         parser.add_argument(
             "--noinput",
             "--no-input",
@@ -91,7 +100,7 @@ class Command(BaseCommand):
 
     def set_options(self, **options):
         """
-        Set instance variables based on an options dict
+        Sets instance variables based on the provided options dictionary, configuring the behavior of the instance with regards to interactivity, verbosity, symlinking, clearing, dry runs, ignore patterns, and post-processing.
         """
         self.interactive = options["interactive"]
         self.verbosity = options["verbosity"]
@@ -106,9 +115,7 @@ class Command(BaseCommand):
 
     def collect(self):
         """
-        Perform the bulk of the work of collectstatic.
-
-        Split off from handle() to facilitate testing.
+        Performs the primary work of collecting static files, handling file copying, symlinking, and post-processing as needed. It iterates through files found by registered finders, applies the chosen handler (copy or symlink), and logs any conflicts or post-processing results, returning a dictionary of collected, modified, and post-processed files.
         """
         if self.symlink and not self.local:
             raise CommandError("Can't symlink to a remote destination.")
@@ -168,6 +175,11 @@ class Command(BaseCommand):
         }
 
     def handle(self, **options):
+        """
+        Handle the collection of static files according to the provided options. 
+
+        This function prepares the collection process, warns the user about potential file overwriting or deletion if necessary, and then proceeds to collect the static files if confirmed by the user. It returns a success message indicating the number of static files that were copied or symlinked, along with any unmodified or post-processed files.
+        """
         self.set_options(**options)
         message = ["\n"]
         if self.dry_run:
@@ -246,7 +258,11 @@ class Command(BaseCommand):
 
     def clear_dir(self, path):
         """
-        Delete the given relative path using the destination storage backend.
+
+            Recursively deletes all files and subdirectories in the specified directory path.
+
+            :param path: Relative path to the directory to be cleared
+
         """
         if not self.storage.exists(path):
             return
@@ -273,7 +289,7 @@ class Command(BaseCommand):
 
     def delete_file(self, path, prefixed_path, source_storage):
         """
-        Check if the target file should be deleted if it already exists.
+        Deletes a file if it exists, unless it is unmodified and skipping unmodified files is allowed, in which case it is skipped instead of deleted.
         """
         if self.storage.exists(prefixed_path):
             try:
@@ -324,7 +340,13 @@ class Command(BaseCommand):
 
     def link_file(self, path, prefixed_path, source_storage):
         """
-        Attempt to link ``path``
+        Create a symbolic link to a source file.
+
+        Attempts to create a symbolic link at the specified path, linking to the source file
+        located in the source storage. If the link already exists or the file cannot be
+        deleted, the operation is skipped. Supports dry-run mode, where the linking action
+        is only simulated. If symlinking is not supported on the current platform, an error
+        is raised. The linked path is tracked to avoid duplicate operations.
         """
         # Skip this file if it was already copied earlier
         if prefixed_path in self.symlinked_files:
@@ -359,7 +381,7 @@ class Command(BaseCommand):
 
     def copy_file(self, path, prefixed_path, source_storage):
         """
-        Attempt to copy ``path`` with storage
+        Copies a file from a source storage to a destination storage, skipping the copy if the file has already been copied earlier, and logging each step of the process.
         """
         # Skip this file if it was already copied earlier
         if prefixed_path in self.copied_files:

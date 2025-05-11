@@ -7,6 +7,11 @@ from .models import Article, Reporter, Writer
 
 class M2MIntermediaryTests(TestCase):
     def test_intermediary(self):
+        """
+        Tests the intermediary model Writer, ensuring it correctly establishes relationships 
+        between Reporters and Articles, and that queries involving these relationships are 
+        accurate and ordered as expected.
+        """
         r1 = Reporter.objects.create(first_name="John", last_name="Smith")
         r2 = Reporter.objects.create(first_name="Jane", last_name="Doe")
 

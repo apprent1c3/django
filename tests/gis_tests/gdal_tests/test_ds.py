@@ -113,7 +113,15 @@ bad_ds = (TestDS("foo"),)
 
 class DataSourceTest(SimpleTestCase):
     def test01_valid_shp(self):
-        "Testing valid SHP Data Source files."
+        """
+
+        Tests the validity of SHP Data Source files by checking 
+        if the data source has the correct name, driver, and layer 
+        access functionality. Verifies that an IndexError is 
+        raised when attempting to access an out-of-range layer 
+        index or a non-existent layer name.
+
+        """
 
         for source in ds_list:
             # Loading up the data source
@@ -150,7 +158,14 @@ class DataSourceTest(SimpleTestCase):
                 DataSource(source.ds)
 
     def test03a_layers(self):
-        "Testing Data Source Layers."
+        """
+        Testing Data Source Layers.
+
+            Tests the functionality of DataSource layers by verifying various properties,
+            such as layer name, string representation, number of features, fields, extent,
+            and feature access. It also checks error handling for invalid operations,
+            like negative indices and out-of-range field access.
+        """
         for source in ds_list:
             ds = DataSource(source.ds)
 
@@ -212,7 +227,9 @@ class DataSourceTest(SimpleTestCase):
                             feat.__getitem__("invalid")
 
     def test03b_layer_slice(self):
-        "Test indexing and slicing on Layers."
+        """
+        Tests that indexing and slicing operations on Layers return the expected features and their corresponding field values.
+        """
         # Using the first data-source because the same slice
         # can be used for both the layer and the control values.
         source = ds_list[0]
@@ -228,7 +245,7 @@ class DataSourceTest(SimpleTestCase):
 
     def test03c_layer_references(self):
         """
-        Ensure OGR objects keep references to the objects they belong to.
+        Verifies that OGR layer objects maintain proper references to their parent data sources, ensuring consistent data access and integrity.
         """
         source = ds_list[0]
 
@@ -249,7 +266,13 @@ class DataSourceTest(SimpleTestCase):
         self.assertEqual(str(lyr[0]["str"]), "1")
 
     def test04_features(self):
-        "Testing Data Source Features."
+        """
+
+        Verifies that data sources contain the expected features.
+
+        Checks each feature in every layer of each data source to ensure that it has the correct number of fields, geometric type, and field types.
+
+        """
         for source in ds_list:
             ds = DataSource(source.ds)
 
@@ -274,7 +297,11 @@ class DataSourceTest(SimpleTestCase):
                         self.assertIn(fld.name, source.fields)
 
     def test05_geometries(self):
-        "Testing Geometries from Data Source Features."
+        """
+        Tests retrieval and validation of geometries from data source features, 
+        ensuring consistency between native and GEOS geometry representations, 
+        as well as matching geometry type and spatial reference system with expected values.
+        """
         for source in ds_list:
             ds = DataSource(source.ds)
 
@@ -298,7 +325,10 @@ class DataSourceTest(SimpleTestCase):
                         self.assertIsNotNone(re.match(wgs_84_wkt_regex, g.srs.wkt))
 
     def test06_spatial_filter(self):
-        "Testing the Layer.spatial_filter property."
+        """
+        Tests the Layer.spatial_filter property by verifying its default value, 
+        setting it with valid and invalid inputs, and checking its effect on feature filtering.
+        """
         ds = DataSource(get_ds_file("cities", "shp"))
         lyr = ds[0]
 
@@ -348,6 +378,9 @@ class DataSourceTest(SimpleTestCase):
         self.assertEqual(676586997978, feat.get("ALAND10"))
 
     def test_nonexistent_field(self):
+        """
+        Tests that requesting a nonexistent field raises a GDALException with the expected error message.
+        """
         source = ds_list[0]
         ds = DataSource(source.ds)
         msg = "invalid field name: nonexistent"

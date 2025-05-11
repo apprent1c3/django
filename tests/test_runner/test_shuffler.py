@@ -39,6 +39,9 @@ class ShufflerTests(SimpleTestCase):
         self.assertEqual(shuffler.seed_display, "100 (test)")
 
     def test_hash_item_seed(self):
+        """
+        Tests the _hash_item method of the Shuffler class to ensure it generates the correct hash values for various input seeds.
+        """
         cases = [
             (1234, "64ad3fb166ddb41a2ca24f1803b8b722"),
             # Passing a string gives the same value.
@@ -52,6 +55,9 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_hash_item_key(self):
+        """
+        Tests the _hash_item method of the Shuffler class to ensure it correctly generates hash values for items using different key functions.
+        """
         cases = [
             (lambda x: x, "64ad3fb166ddb41a2ca24f1803b8b722"),
             (lambda x: x.upper(), "ee22e8597bff91742affe4befbf4649a"),
@@ -63,6 +69,9 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_shuffle_key(self):
+        """
+        Tests the shuffle functionality of the Shuffler class with different key functions, ensuring that the shuffled output matches the expected result for each case.
+        """
         cases = [
             (lambda x: x, ["a", "d", "b", "c"]),
             (lambda x: x.upper(), ["d", "c", "a", "b"]),
@@ -74,6 +83,10 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_shuffle_consistency(self):
+        """
+        Tests the consistency of the Shuffler class when shuffling sequences with varying lengths and initial elements. 
+        Verifies that the shuffled output matches expected results for different input sequences and seeds.
+        """
         seq = [str(n) for n in range(5)]
         cases = [
             (None, ["3", "0", "2", "4", "1"]),

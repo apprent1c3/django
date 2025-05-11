@@ -23,6 +23,9 @@ class FormsUtilsTestCase(SimpleTestCase):
         # flatatt #
         ###########
 
+        """
+        Tests the functionality of the flatatt function, which converts a dictionary of HTML attributes into a string representation.
+        """
         self.assertEqual(flatatt({"id": "header"}), ' id="header"')
         self.assertEqual(
             flatatt({"class": "news", "title": "Read this"}),
@@ -45,7 +48,7 @@ class FormsUtilsTestCase(SimpleTestCase):
 
     def test_flatatt_no_side_effects(self):
         """
-        flatatt() does not modify the dict passed in.
+        Verify that the flatatt function does not modify the input dictionary and produces consistent output.
         """
         attrs = {"foo": "bar", "true": True, "false": False}
         attrs_copy = copy.copy(attrs)
@@ -66,6 +69,9 @@ class FormsUtilsTestCase(SimpleTestCase):
         ###################
 
         # Can take a string.
+        """
+        Tests rendering of form validation errors as HTML lists, covering various input types such as single messages, lists of messages, dictionaries of messages, and HTML-safe content.
+        """
         self.assertHTMLEqual(
             str(ErrorList(ValidationError("There was an error.").messages)),
             '<ul class="errorlist"><li>There was an error.</li></ul>',
@@ -162,6 +168,12 @@ class FormsUtilsTestCase(SimpleTestCase):
         )
 
     def test_error_dict_copy(self):
+        """
+        Tests the copying of an ErrorDict instance to ensure its contents are correctly duplicated.
+
+         Verifies both shallow and deep copying, checking for equivalence between the original and copied instances,
+         as well as their serialized data representations.
+        """
         e = ErrorDict()
         e["__all__"] = ErrorList(
             [
@@ -198,6 +210,9 @@ class FormsUtilsTestCase(SimpleTestCase):
         self.assertIsInstance(ErrorDict(), dict)
 
     def test_error_dict_is_json_serializable(self):
+        """
+        Tests if an ErrorDict instance is JSON serializable, ensuring that its nested structure of errors is correctly converted to a JSON-compatible format.
+        """
         init_errors = ErrorDict(
             [
                 (

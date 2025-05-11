@@ -32,8 +32,10 @@ class SafeString(str, SafeData):
 
     def __add__(self, rhs):
         """
-        Concatenating a safe string with another safe bytestring or
-        safe string is safe. Otherwise, the result is no longer safe.
+
+        Overrides the addition operator to safely concatenate SafeString instances with other safe bytestrings or strings.
+        If the operand is another SafeData instance, returns a new SafeString; otherwise returns the result of the concatenation.
+
         """
         t = super().__add__(rhs)
         if isinstance(rhs, SafeData):
@@ -58,12 +60,7 @@ def _safety_decorator(safety_marker, func):
 @keep_lazy(SafeString)
 def mark_safe(s):
     """
-    Explicitly mark a string as safe for (HTML) output purposes. The returned
-    object can be used everywhere a string is appropriate.
-
-    If used on a method as a decorator, mark the returned data as safe.
-
-    Can be called multiple times on a single string.
+    Explicitly mark a string as safe for HTML output, returning a SafeString object that can be used in place of a regular string.
     """
     if hasattr(s, "__html__"):
         return s

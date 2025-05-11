@@ -14,7 +14,18 @@ class SecurityMiddlewareTest(SimpleTestCase):
         return {"wsgi.url_scheme": "https"}
 
     def response(self, *args, headers=None, **kwargs):
+        """
+        Returns a function that constructs an HttpResponse object with the given arguments and keyword arguments.
+
+         The returned function can be used to create an HttpResponse with optional custom headers, specified in the headers dictionary.
+
+         :param headers: A dictionary of HTTP headers to be added to the HttpResponse, defaults to None
+         :return: A function that returns an HttpResponse object
+        """
         def get_response(req):
+            """
+            Constructs an HTTP response object, optionally applying provided headers before returning the response.
+            """
             response = HttpResponse(*args, **kwargs)
             if headers:
                 for k, v in headers.items():
@@ -24,6 +35,9 @@ class SecurityMiddlewareTest(SimpleTestCase):
         return get_response
 
     def process_response(self, *args, secure=False, request=None, **kwargs):
+        """
+        Process a response, optionally applying security settings to the underlying request and passing it through a middleware pipeline.
+        """
         request_kwargs = {}
         if secure:
             request_kwargs.update(self.secure_request_kwargs)
@@ -237,8 +251,7 @@ class SecurityMiddlewareTest(SimpleTestCase):
 
     def test_referrer_policy_on(self):
         """
-        With SECURE_REFERRER_POLICY set to a valid value, the middleware adds a
-        "Referrer-Policy" header to the response.
+        Tests that the \"Referrer-Policy\" header is correctly added to the response based on the SECURE_REFERRER_POLICY setting.
         """
         tests = (
             ("strict-origin", "strict-origin"),
@@ -283,8 +296,7 @@ class SecurityMiddlewareTest(SimpleTestCase):
 
     def test_coop_on(self):
         """
-        With SECURE_CROSS_ORIGIN_OPENER_POLICY set to a valid value, the
-        middleware adds a "Cross-Origin_Opener-Policy" header to the response.
+        Tests that the middleware correctly sets the \"Cross-Origin-Opener-Policy\" header in the response when SECURE_CROSS_ORIGIN_OPENER_POLICY is set to a valid value.
         """
         tests = ["same-origin", "same-origin-allow-popups", "unsafe-none"]
         for value in tests:

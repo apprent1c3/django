@@ -24,7 +24,7 @@ class RecorderTests(TestCase):
 
     def test_apply(self):
         """
-        Tests marking migrations as applied/unapplied.
+        Tests the functionality of marking migrations as applied or unapplied, ensuring that the migration recorder accurately tracks the state of migrations across different database connections.
         """
         recorder = MigrationRecorder(connection)
         self.assertEqual(
@@ -50,8 +50,7 @@ class RecorderTests(TestCase):
 
     def test_has_table_cached(self):
         """
-        The has_table() method caches a positive result and not continually
-        query for the existence of the migrations table.
+        Verifies that the has_table method returns a cached result instead of re-executing a database query, optimizing performance by avoiding repeated checks for the existence of a specific table.
         """
         recorder = MigrationRecorder(connection)
         self.assertIs(recorder.has_table(), True)
@@ -83,8 +82,12 @@ class LoaderTests(TestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     def test_load(self):
         """
-        Makes sure the loader can load the migrations for the test apps,
-        and then render them out to a new Apps.
+
+        Tests the migration loader's ability to load and render migrations for test apps.
+
+        Verifies the loader can resolve the correct migration plan and project state, 
+        including the correct models and fields.
+
         """
         # Load and test the plan
         migration_loader = MigrationLoader(connection)
@@ -137,7 +140,7 @@ class LoaderTests(TestCase):
     )
     def test_load_unmigrated_dependency(self):
         """
-        The loader can load migrations with a dependency on an unmigrated app.
+        Tests that a migration loader can handle migrations that depend on an app that has not been migrated, ensuring dependencies are loaded correctly.
         """
         # Load and test the plan
         migration_loader = MigrationLoader(connection)
@@ -200,7 +203,10 @@ class LoaderTests(TestCase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_name_match(self):
-        "Tests prefix name matching"
+        """
+        Verifies that the MigrationLoader correctly matches migration names by prefix, 
+        handling cases where there are multiple, no, or exact matches.
+        """
         migration_loader = MigrationLoader(connection)
         self.assertEqual(
             migration_loader.get_migration_by_prefix("migrations", "0001").name,
@@ -271,9 +277,7 @@ class LoaderTests(TestCase):
     )
     def test_explicit_missing_module(self):
         """
-        If a MIGRATION_MODULES override points to a missing module, the error
-        raised during the importation attempt should be propagated unless
-        `ignore_no_migrations=True`.
+        Tests the behavior of MigrationLoader when MIGRATION_MODULES points to a missing module, ensuring that the import error is propagated unless ignore_no_migrations is True.
         """
         with self.assertRaisesMessage(ImportError, "missing-module"):
             migration_loader = MigrationLoader(connection)
@@ -285,7 +289,9 @@ class LoaderTests(TestCase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_loading_squashed(self):
-        "Tests loading a squashed migration"
+        """
+        Verifies the correct loading of squashed migrations, ensuring that migration graphs are updated correctly after applying changes.
+        """
         migration_loader = MigrationLoader(connection)
         recorder = MigrationRecorder(connection)
         self.addCleanup(recorder.flush)
@@ -306,7 +312,9 @@ class LoaderTests(TestCase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed_complex"}
     )
     def test_loading_squashed_complex(self):
-        "Tests loading a complex set of squashed migrations"
+        """
+        Verifies that the migration loader can handle a complex set of squashed migrations by testing the number of unapplied migrations at each step after applying individual migrations and rebuilding the migration graph.
+        """
 
         loader = MigrationLoader(connection)
         recorder = MigrationRecorder(connection)
@@ -366,6 +374,9 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_complex_multi_apps(self):
+        """
+        Tests the migration loader's ability to correctly plan the application of squashed migrations across multiple apps, ensuring the correct order of migration application is maintained.
+        """
         loader = MigrationLoader(connection)
         loader.build_graph()
 
@@ -393,6 +404,13 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_complex_multi_apps_partially_applied(self):
+        """
+        張:'.$ 
+        \"\"\"Tests the migration loading process with partially applied complex multi-app migrations.
+
+            Verifies that the migration plan correctly handles squashed migrations 
+            and respects the partially applied state of migrations in multiple apps.
+        """
         loader = MigrationLoader(connection)
         recorder = MigrationRecorder(connection)
         self.record_applied(recorder, "app1", "1_auto")
@@ -415,7 +433,11 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_erroneous(self):
-        "Tests loading a complex but erroneous set of squashed migrations"
+        """
+        Tests loading a complex but erroneous set of squashed migrations, ensuring 
+        that the migration loader correctly handles dependencies and applied migrations 
+        in the presence of errors, such as nonexistent migration nodes.
+        """
 
         loader = MigrationLoader(connection)
         recorder = MigrationRecorder(connection)
@@ -472,6 +494,9 @@ class LoaderTests(TestCase):
         INSTALLED_APPS=["migrations"],
     )
     def test_check_consistent_history(self):
+        """
+        Checks for consistency in migration history by verifying that applied migrations match expected dependency order.
+        """
         loader = MigrationLoader(connection=None)
         loader.check_consistent_history(connection)
         recorder = MigrationRecorder(connection)
@@ -489,8 +514,8 @@ class LoaderTests(TestCase):
     )
     def test_check_consistent_history_squashed(self):
         """
-        MigrationLoader.check_consistent_history() should ignore unapplied
-        squashed migrations that have all of their `replaces` applied.
+        Checks the consistency of migration history, ignoring unapplied squashed migrations 
+        where all migrations that they replace have been applied.
         """
         loader = MigrationLoader(connection=None)
         recorder = MigrationRecorder(connection)
@@ -515,7 +540,16 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_ref_squashed(self):
-        "Tests loading a squashed migration with a new migration referencing it"
+        """
+        Tests the loading of a squashed migration with a new migration referencing it.
+
+        Verifies that the migration loader correctly handles a complex migration history,
+        where migrations are squashed and referenced by new migrations in other apps.
+
+        Checks the migration plan and applied migrations in various scenarios to ensure
+        the loader produces the expected results when replace_migrations is enabled or
+        disabled, and when some migrations are already applied.
+        """
         r"""
         The sample migrations are structured like this:
 
@@ -598,7 +632,9 @@ class LoaderTests(TestCase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_private"}
     )
     def test_ignore_files(self):
-        """Files prefixed with underscore, tilde, or dot aren't loaded."""
+        """
+        Tests that migration files prefixed with underscore, tilde, or dot are ignored by the migration loader.
+        """
         loader = MigrationLoader(connection)
         loader.load_disk()
         migrations = [
@@ -612,7 +648,9 @@ class LoaderTests(TestCase):
         },
     )
     def test_loading_namespace_package(self):
-        """Migration directories without an __init__.py file are ignored."""
+        """
+        Tests that migration directories without an __init__.py file are ignored during migration loading.
+        """
         loader = MigrationLoader(connection)
         loader.load_disk()
         migrations = [
@@ -623,8 +661,7 @@ class LoaderTests(TestCase):
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_loading_package_without__file__(self):
         """
-        To support frozen environments, MigrationLoader loads migrations from
-        regular packages with no __file__ attribute.
+        To support frozen environments, MigrationLoader loads migrations from regular packages with no __file__ attribute.
         """
         test_module = import_module("migrations.test_migrations")
         loader = MigrationLoader(connection)
@@ -651,7 +688,7 @@ class LoaderTests(TestCase):
 class PycLoaderTests(MigrationTestBase):
     def test_valid(self):
         """
-        To support frozen environments, MigrationLoader loads .pyc migrations.
+        Tests whether MigrationLoader correctly loads compiled.pyc migration files from disk, ensuring compatibility with frozen environments.
         """
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -666,8 +703,7 @@ class PycLoaderTests(MigrationTestBase):
 
     def test_invalid(self):
         """
-        MigrationLoader reraises ImportErrors caused by "bad magic number" pyc
-        files with a more helpful message.
+        Tests that MigrationLoader correctly handles and re-raises ImportErrors caused by stale or corrupted.pyc files.
         """
         with self.temporary_migration_module(
             module="migrations.test_migrations_bad_pyc"

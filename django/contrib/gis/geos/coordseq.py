@@ -19,7 +19,15 @@ class GEOSCoordSeq(GEOSBase):
     ptr_type = CS_PTR
 
     def __init__(self, ptr, z=False):
-        "Initialize from a GEOS pointer."
+        """
+        Initializes a Coordinate Sequence object from a GEOS pointer.
+
+         param ptr: A CS_PTR object representing the GEOS pointer.
+         param z: A boolean indicating whether to include z-coordinates. Defaults to False.
+
+         Raises:
+            TypeError: If the provided pointer is not a CS_PTR object.
+        """
         if not isinstance(ptr, CS_PTR):
             raise TypeError("Coordinate sequence should initialize with a CS_PTR.")
         self._ptr = ptr
@@ -44,7 +52,9 @@ class GEOSCoordSeq(GEOSBase):
         return self._point_getter(index)
 
     def __setitem__(self, index, value):
-        "Set the coordinate sequence value at the given index."
+        """
+        Set the coordinate sequence value at a specified index, accepting values as lists, tuples, or numpy arrays of matching dimension (2D or 3D).
+        """
         # Checking the input value
         if isinstance(value, (list, tuple)):
             pass
@@ -179,7 +189,9 @@ class GEOSCoordSeq(GEOSBase):
 
     @property
     def kml(self):
-        "Return the KML representation for the coordinates."
+        """
+        Returns the KML representation of the coordinates as a string, formatted according to the KML specification with optional altitude values if available.
+        """
         # Getting the substitution string depending on whether the coordinates have
         #  a Z dimension.
         if self.hasz:
@@ -193,7 +205,10 @@ class GEOSCoordSeq(GEOSBase):
 
     @property
     def tuple(self):
-        "Return a tuple version of this coordinate sequence."
+        """
+        Returns a tuple representation of the coordinate sequence, 
+        enabling easy access and storage of the sequence as a standard Python tuple.
+        """
         n = self.size
         get_point = self._point_getter
         if n == 1:
@@ -202,7 +217,16 @@ class GEOSCoordSeq(GEOSBase):
 
     @property
     def is_counterclockwise(self):
-        """Return whether this coordinate sequence is counterclockwise."""
+        """
+        Return whether this coordinate sequence is oriented counterclockwise.
+
+        The orientation is determined by the ordering of the coordinates, with
+        sequences that proceed counterclockwise around their bounding box considered
+        counterclockwise.
+
+        :raises: GEOSException if an error occurs in the underlying GEOS C function
+        :rtype: bool
+        """
         ret = c_byte()
         if not capi.cs_is_ccw(self.ptr, byref(ret)):
             raise GEOSException(

@@ -68,6 +68,14 @@ class DatabaseErrorWrapper:
         pass
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+
+        Re-raises database exceptions to match Django's exception hierarchy.
+
+        Converts any caught database exception to its corresponding Django exception type,
+        raising the new exception with the original traceback and error message.
+
+        """
         if exc_type is None:
             return
         for dj_exc_type in (
@@ -102,8 +110,7 @@ class DatabaseErrorWrapper:
 
 def load_backend(backend_name):
     """
-    Return a database backend's "base" module given a fully qualified database
-    backend name, or raise an error if it doesn't exist.
+    Return a database backend's base module given a fully qualified database backend name, handling aliases and providing informative error messages for unavailable backends.
     """
     # This backend was renamed in Django 1.9.
     if backend_name == "django.db.backends.postgresql_psycopg2":
@@ -145,6 +152,16 @@ class ConnectionHandler(BaseConnectionHandler):
     thread_critical = True
 
     def configure_settings(self, databases):
+        """
+        Configures the provided database settings by applying default values and validation rules.
+
+         The function ensures that a database alias is defined and that each database connection has the required settings.
+
+         It also sets up default test settings for each database connection.
+
+         :param databases: A dictionary of database settings
+         :return: The updated database settings with default values applied and validation rules enforced
+        """
         databases = super().configure_settings(databases)
         if databases == {}:
             databases[DEFAULT_DB_ALIAS] = {"ENGINE": "django.db.backends.dummy"}
@@ -203,6 +220,15 @@ class ConnectionRouter:
 
     @cached_property
     def routers(self):
+        """
+        Returns a list of database router instances.
+
+        The routers are loaded from the DATABASE_ROUTERS setting, with string values
+        imported as classes and instantiated. 
+
+        Precomputes and caches the result.
+
+        """
         if self._routers is None:
             self._routers = settings.DATABASE_ROUTERS
         routers = []
@@ -215,7 +241,37 @@ class ConnectionRouter:
         return routers
 
     def _router_func(action):
+        """
+
+        Determines the database to use for a given model based on the provided action.
+
+        The function iterates through a list of routers, attempting to find a match for the 
+        specified action. If a match is found, the chosen database is returned; otherwise, 
+        it defaults to the instance's database if an instance is provided, or the default 
+        database alias. The function is used to dynamically route database operations.
+
+        """
         def _route_db(self, model, **hints):
+            """
+            ROUTE_DB_METHOD
+            Parameters
+            ----------
+            model : str
+                Model for which database routing is being performed
+            hints : dict
+                Additional hints for database routing
+
+            Returns
+            -------
+            str
+                Name of the chosen database, or None if no router claims the model
+
+            Notes
+            -----
+            This method iterates over available routers and asks each one to choose a database for the given model.
+            If a router chooses a database, the method returns that choice. If no router claims the model, 
+            it falls back to the instance's database if it exists, or the default database alias.
+            """
             chosen_db = None
             for router in self.routers:
                 try:
@@ -238,6 +294,12 @@ class ConnectionRouter:
     db_for_write = _router_func("db_for_write")
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+        Determines whether a relation between two objects is allowed, 
+        consulting a list of routers for a decision. 
+        If no router decides, the function defaults to allowing 
+        the relation if both objects are in the same database.
+        """
         for router in self.routers:
             try:
                 method = router.allow_relation
@@ -251,6 +313,13 @@ class ConnectionRouter:
         return obj1._state.db == obj2._state.db
 
     def allow_migrate(self, db, app_label, **hints):
+        """
+        Determine if migrations are allowed for a given database and app label.
+
+        Queries each database router in sequence to determine if migration is permitted,
+        returning the result of the first router that makes a decision. If no router makes
+        a decision, defaults to allowing migration.
+        """
         for router in self.routers:
             try:
                 method = router.allow_migrate

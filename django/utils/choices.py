@@ -21,6 +21,11 @@ class BaseChoiceIterator:
         return super().__eq__(other)
 
     def __getitem__(self, index):
+        """
+        Returns the element at the specified index from the collection.
+
+        Supports both positive and negative indexing. Raises IndexError if the index is out of range
+        """
         if index < 0:
             # Suboptimally consume whole iterator to handle negative index.
             return list(self)[index]
@@ -60,7 +65,10 @@ class CallableChoiceIterator(BaseChoiceIterator):
 
 
 def flatten_choices(choices):
-    """Flatten choices by removing nested values."""
+    """
+    Yield a sequence of choice tuples with nested values removed, 
+    suitable for use in forms, menus, or other selection interfaces.
+    """
     for value_or_group, label_or_nested in choices or ():
         if isinstance(label_or_nested, (list, tuple)):
             yield from label_or_nested
@@ -69,7 +77,14 @@ def flatten_choices(choices):
 
 
 def normalize_choices(value, *, depth=0):
-    """Normalize choices values consistently for fields and widgets."""
+    """
+    Normalize choices values consistently for fields and widgets.
+
+    This function takes a value and recursively normalizes it into a standardized format,
+     handling various input types such as choices, mappings, iterators, and callables.
+    It ensures that choices are consistently represented, making it easier to work with
+     fields and widgets in Django applications.
+    """
     # Avoid circular import when importing django.forms.
     from django.db.models.enums import ChoicesType
 

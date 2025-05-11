@@ -9,6 +9,11 @@ from .models import Article, Entry
 
 def wraps_decorator(f):
     @wraps(f)
+    """
+    A decorator that preserves the original function's metadata while adding a suffix to its return value.
+
+    This decorator is useful for adding a consistent modification to the output of multiple functions without altering their original behavior or documentation. The suffix '-- decorated by @wraps.' is appended to the return value of the decorated function.
+    """
     def wrapper(*args, **kwargs):
         value = f(*args, **kwargs)
         return f"{value} -- decorated by @wraps."

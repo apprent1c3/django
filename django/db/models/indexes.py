@@ -26,6 +26,9 @@ class Index:
         condition=None,
         include=None,
     ):
+        """
+        Initializes an index definition for a database table, specifying the fields or expressions to be indexed, along with optional properties such as the index name, tablespace, operator classes, condition, and included columns.
+        """
         if opclasses and not name:
             raise ValueError("An index must be named to use opclasses.")
         if not isinstance(condition, (NoneType, Q)):
@@ -83,6 +86,14 @@ class Index:
         return bool(self.expressions)
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+        ..: 
+            Returns a SQL condition based on the provided model instance and schema editor.
+
+            :param model: Model instance to create the condition for
+            :param schema_editor: Schema editor instance to use for connection and quoting
+            :return: SQL string representing the condition, or None if no condition is specified
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)
@@ -92,6 +103,16 @@ class Index:
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
     def create_sql(self, model, schema_editor, using="", **kwargs):
+        """
+        Create the SQL statement for generating an index.
+
+        This function uses the provided model, schema editor, and other parameters to construct the SQL statement for creating an index on the specified fields or expressions in the database. It considers various factors such as the fields to include, condition for the index, database connection features, and specified options like index name, database tablespace, and operator classes.
+
+        :param model: The model for which the index is being created
+        :param schema_editor: The schema editor to use for creating the index
+        :param using: The database to use for creating the index
+        :param **kwargs: Additional keyword arguments to pass to the schema editor
+        """
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
         ]
@@ -135,6 +156,11 @@ class Index:
         return schema_editor._delete_index_sql(model, self.name, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the current database index into its constituent parts, 
+        returning a tuple containing the full path to the index class, 
+        the index expressions, and keyword arguments for index creation.
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.indexes", "django.db.models")
         kwargs = {"name": self.name}
@@ -157,11 +183,9 @@ class Index:
 
     def set_name_with_model(self, model):
         """
-        Generate a unique name for the index.
 
-        The name is divided into 3 parts - table name (12 chars), field name
-        (8 chars) and unique hash + suffix (10 chars). Each part is made to
-        fit its size by truncating the excess length.
+        Generate a unique and database-compatible name for an index based on a given model.
+
         """
         _, table_name = split_identifier(model._meta.db_table)
         column_names = [
@@ -241,6 +265,19 @@ class IndexExpression(Func):
         summarize=False,
         for_save=False,
     ):
+        """
+
+        Resolves an indexed expression by flattening the expression, validating 
+        its structure, and then resolving the root expression and any wrapper 
+        expressions in the correct order.
+
+        The function ensures that only one instance of each wrapper type is used, 
+        and that the wrappers are topmost expressions. It handles different 
+        resolving scenarios, including wrapping the root expression if necessary, 
+        and sets up the source expressions for the wrappers and the main expression 
+        before delegating to the parent class for final resolution.
+
+        """
         expressions = list(self.flatten())
         # Split expressions and wrappers.
         index_expressions, wrappers = partition(

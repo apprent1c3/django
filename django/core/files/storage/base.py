@@ -23,9 +23,7 @@ class Storage:
 
     def save(self, name, content, max_length=None):
         """
-        Save new content to the file specified by name. The content should be
-        a proper File object or any Python file-like object, ready to be read
-        from the beginning.
+        Saves a file with the given name and content, handling file-like objects and providing a unique available name if needed, optionally enforcing a maximum filename length.
         """
         # Get the proper name for the file, as it will actually be saved.
         if name is None:
@@ -74,8 +72,7 @@ class Storage:
 
     def get_available_name(self, name, max_length=None):
         """
-        Return a filename that's free on the target storage system and
-        available for new content to be written to.
+        Return a filename that's free on the target storage system and available for new content to be written to, ensuring it adheres to the specified maximum length and avoiding path traversal attempts.
         """
         name = str(name).replace("\\", "/")
         dir_name, file_name = os.path.split(name)
@@ -116,8 +113,10 @@ class Storage:
 
     def generate_filename(self, filename):
         """
-        Validate the filename by calling get_valid_name() and return a filename
-        to be passed to the save() method.
+
+        Generates a valid filename by sanitizing and normalizing the input filename, 
+        preventing path traversal attempts and ensuring safe usage with the save() method.
+
         """
         filename = str(filename).replace("\\", "/")
         # `filename` may include a path as returned by FileField.upload_to.

@@ -12,6 +12,9 @@ from .models import Celebrity, Fan, Staff, StaffTag, Tag
 class DistinctOnTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data used across multiple tests, including tags, staff members, and their relationships, as well as celebrities and their fans.
+        """
         cls.t1 = Tag.objects.create(name="t1")
         cls.t2 = Tag.objects.create(name="t2", parent=cls.t1)
         cls.t3 = Tag.objects.create(name="t3", parent=cls.t1)
@@ -34,7 +37,9 @@ class DistinctOnTests(TestCase):
         cls.fan3 = Fan.objects.create(fan_of=cls.celeb2)
 
     def test_basic_distinct_on(self):
-        """QuerySet.distinct('field', ...) works"""
+        """
+        Tests the functionality of the distinct() method on QuerySets, ensuring it correctly removes duplicate rows based on the specified fields and handles ordering, joining, and chaining of queries.
+        """
         # (qset, expected) tuples
         qsets = (
             (
@@ -124,6 +129,9 @@ class DistinctOnTests(TestCase):
             Staff.objects.all()[0:5].distinct("name")
 
     def test_transform(self):
+        """
+        Tests that the `Lower` lookup type correctly transforms and retrieves objects based on lowercase name values, ensuring case-insensitive querying.
+        """
         new_name = self.t1.name.upper()
         self.assertNotEqual(self.t1.name, new_name)
         Tag.objects.create(name=new_name)
@@ -135,6 +143,9 @@ class DistinctOnTests(TestCase):
 
     def test_distinct_not_implemented_checks(self):
         # distinct + annotate not allowed
+        """
+        Tests that using distinct fields in combination with aggregate or annotate methods raises a NotImplementedError. Checks both ordenings of distinct and aggregate/annotate calls.
+        """
         msg = "annotate() + distinct(fields) is not implemented."
         with self.assertRaisesMessage(NotImplementedError, msg):
             Celebrity.objects.annotate(Max("id")).distinct("id")[0]
@@ -150,6 +161,9 @@ class DistinctOnTests(TestCase):
             Celebrity.objects.distinct("id").aggregate(Max("id"))
 
     def test_distinct_on_in_ordered_subquery(self):
+        """
+        Verifies that the `distinct` method with an `order_by` clause in a subquery produces the expected results when used with `filter(pk__in=...)`, ensuring correct ordering and distinctness of results.
+        """
         qs = Staff.objects.distinct("name").order_by("name", "id")
         qs = Staff.objects.filter(pk__in=qs).order_by("name")
         self.assertSequenceEqual(qs, [self.p1_o1, self.p2_o1, self.p3_o1])

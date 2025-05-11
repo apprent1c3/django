@@ -94,6 +94,9 @@ class SimpleListFilter(FacetsMixin, ListFilter):
     parameter_name = None
 
     def __init__(self, request, params, model, model_admin):
+        """
+        Initializes a list filter, checks for required configuration, and processes input parameters to restrict a model's lookup choices.
+        """
         super().__init__(request, params, model, model_admin)
         if self.parameter_name is None:
             raise ImproperlyConfigured(
@@ -132,6 +135,13 @@ class SimpleListFilter(FacetsMixin, ListFilter):
         return [self.parameter_name]
 
     def get_facet_counts(self, pk_attname, filtered_qs):
+        """
+        .. method:: get_facet_counts(pk_attname, filtered_qs)
+
+            Retrieves facet counts for each choice in the lookup list.
+
+            This method iterates over the available choices, temporarily sets each choice as a parameter, and counts the number of matching rows in the queryset for that choice. The results are returned as a dictionary where the keys are choice indices with a '__c' suffix, and the values are the corresponding counts. The original parameter value is restored after the calculation.
+        """
         original_value = self.used_parameters.get(self.parameter_name)
         counts = {}
         for i, choice in enumerate(self.lookup_choices):
@@ -146,6 +156,11 @@ class SimpleListFilter(FacetsMixin, ListFilter):
         return counts
 
     def choices(self, changelist):
+        """
+        Generates a list of choices for a filter, including an \"All\" option and choices based on lookup values. 
+        When facet support is enabled, the choices are decorated with counts of matching items. 
+        Each choice is represented as a dictionary containing information about its selection state, query string, and display value.
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -174,6 +189,9 @@ class FieldListFilter(FacetsMixin, ListFilter):
     list_separator = ","
 
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        Initializes the filter instance, setting up its configuration from the provided field, request, and parameters, and preparing the lookup values for filtering.
+        """
         self.field = field
         self.field_path = field_path
         self.title = getattr(field, "verbose_name", field_path)
@@ -189,6 +207,9 @@ class FieldListFilter(FacetsMixin, ListFilter):
         return True
 
     def queryset(self, request, queryset):
+        """
+        Filters a given queryset based on the lookup parameters, raising an exception if the parameters are invalid.
+        """
         try:
             q_object = build_q_object_from_lookup_parameters(self.used_parameters)
             return queryset.filter(q_object)
@@ -199,6 +220,15 @@ class FieldListFilter(FacetsMixin, ListFilter):
 
     @classmethod
     def register(cls, test, list_filter_class, take_priority=False):
+        """
+
+        Registers a test and a corresponding list filter class to the class.
+
+        The test and list filter class are added to the internal list of field list filters.
+        If :param take_priority: is True, the registration is added at a priority location;
+        otherwise, it is appended to the end of the list.
+
+        """
         if take_priority:
             # This is to allow overriding the default filters for certain types
             # of fields with some custom filters. The first found in the list
@@ -221,6 +251,30 @@ class FieldListFilter(FacetsMixin, ListFilter):
 
 class RelatedFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+
+        Initializes a lookup object for a model field.
+
+        It sets up the lookup keyword arguments, values, and choices for the given field,
+        and provides a title and display settings for the lookup.
+
+        :param field: The model field to create the lookup for.
+        :param request: The current request.
+        :param params: The request parameters.
+        :param model: The model that the field belongs to.
+        :param model_admin: The model admin instance.
+        :param field_path: The path to the field in the model.
+
+        :ivar lookup_kwarg: The keyword argument used for exact lookup.
+        :ivar lookup_kwarg_isnull: The keyword argument used for null lookup.
+        :ivar lookup_val: The value for the exact lookup.
+        :ivar lookup_val_isnull: The value for the null lookup.
+        :ivar lookup_choices: The choices available for the lookup.
+        :ivar lookup_title: The title of the lookup.
+        :ivar title: The title of the lookup.
+        :ivar empty_value_display: The display string for empty values.
+
+        """
         other_model = get_model_from_relation(field)
         self.lookup_kwarg = "%s__%s__exact" % (field_path, field.target_field.name)
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
@@ -246,6 +300,9 @@ class RelatedFieldListFilter(FieldListFilter):
         return self.field.null or (self.field.is_relation and self.field.many_to_many)
 
     def has_output(self):
+        """
+        Checks if the object has more than one possible output, considering the presence of an empty choice.
+        """
         if self.include_empty_choice:
             extra = 1
         else:
@@ -257,7 +314,17 @@ class RelatedFieldListFilter(FieldListFilter):
 
     def field_admin_ordering(self, field, request, model_admin):
         """
-        Return the model admin's ordering for related field, if provided.
+
+        Return the ordering for a related field as defined by its model admin, if available.
+
+        This is useful for ordering related objects based on the configuration defined in the related model's admin interface.
+
+        :param field: The field for which to retrieve the ordering.
+        :param request: The current request.
+        :param model_admin: The model admin instance.
+
+        :return: A tuple of field names to order by, or an empty tuple if no ordering is defined.
+
         """
         try:
             related_admin = model_admin.admin_site.get_model_admin(
@@ -286,6 +353,12 @@ class RelatedFieldListFilter(FieldListFilter):
         return counts
 
     def choices(self, changelist):
+        """
+        Generates a list of choices for a filter, including an \"All\" option and 
+        individual choices with optional facet counts. Each choice includes 
+        information on whether it is currently selected, its query string, and 
+        its display text. If configured, also includes an empty choice.
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -327,6 +400,9 @@ FieldListFilter.register(lambda f: f.remote_field, RelatedFieldListFilter)
 
 class BooleanFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        Initializes a lookup filter for a specific field, handling exact and null value lookups. It processes the request parameters, extracts lookup values and sets up the filter accordingly.
+        """
         self.lookup_kwarg = "%s__exact" % field_path
         self.lookup_kwarg2 = "%s__isnull" % field_path
         self.lookup_val = get_last_value_from_parameters(params, self.lookup_kwarg)
@@ -358,6 +434,12 @@ class BooleanFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+        Generates a list of choices for a boolean field in the admin changelist, 
+        including options for \"All\", \"Yes\", \"No\", and \"Unknown\" if the field allows null values.
+        Each choice includes the display title, query string for the choice, and whether it is currently selected. 
+        If facets are enabled, also includes the count of items matching each choice.
+        """
         field_choices = dict(self.field.flatchoices)
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
@@ -398,6 +480,9 @@ FieldListFilter.register(
 
 class ChoicesFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        Initializes a filter class, setting up lookups for exact and null values in a specific model field.
+        """
         self.lookup_kwarg = "%s__exact" % field_path
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
         self.lookup_val = params.get(self.lookup_kwarg)
@@ -423,6 +508,17 @@ class ChoicesFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+        Return a list of choices for the current filter.
+
+        The list includes an 'All' option and a list of choices with their respective counts,
+        if add_facets is enabled. Each choice contains a query string to apply the filter,
+        a display title, and a selected flag indicating whether the choice is currently applied.
+
+        If none_title is available (i.e., there's a choice with a null lookup value), it is also added
+        to the list of choices. The query string for the none_title choice is constructed to filter
+        by a null value for the given lookup field.
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -463,6 +559,9 @@ FieldListFilter.register(lambda f: bool(f.choices), ChoicesFieldListFilter)
 
 class DateFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        Initializes a date filter for a Django admin interface, providing options to filter by specific date ranges and null values. The filter links include \"Any date\", \"Today\", \"Past 7 days\", \"This month\", and \"This year\", with optional \"No date\" and \"Has date\" links if the field allows null values.
+        """
         self.field_generic = "%s__" % field_path
         self.date_params = {
             k: v[-1] for k, v in params.items() if k.startswith(self.field_generic)
@@ -539,6 +638,9 @@ class DateFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+        Returns a list of link choices for filtering data by date, including the display title, query string, and whether the link is currently selected. If facets are enabled, the display title includes the facet count for each choice.
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         for i, (title, param_dict) in enumerate(self.links):
@@ -563,6 +665,17 @@ FieldListFilter.register(lambda f: isinstance(f, models.DateField), DateFieldLis
 # more appropriate, and the AllValuesFieldListFilter won't get used for it.
 class AllValuesFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+
+        Initialize a class instance for handling lookup queries on a specific model field.
+
+        This class instance is responsible for managing the lookup query parameters, 
+        validating user input, and generating a list of choices for the lookup field.
+
+        It also provides a way to determine the display value for empty fields 
+        and to perform queries on the model's queryset.
+
+        """
         self.lookup_kwarg = field_path
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
         self.lookup_val = params.get(self.lookup_kwarg)
@@ -598,6 +711,9 @@ class AllValuesFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+        Generates a list of choices for a facet filter, including an \"All\" option. Each choice is represented as a dictionary containing a boolean indicating whether the choice is selected, a query string to apply the choice, and a display title. If facet counts are enabled, the display title includes the count. An \"empty\" or \"None\" choice is also generated if applicable, with its display title updated to include the count if available.
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         yield {
@@ -653,6 +769,13 @@ class RelatedOnlyFieldListFilter(RelatedFieldListFilter):
 
 class EmptyFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+        Initialize a list filter for a model field, ensuring compatibility with the field's configuration.
+
+        The filter cannot be used with fields that do not allow empty strings and null values, raising an ImproperlyConfigured exception in such cases.
+
+        Parameters are used to determine the filter's lookup keyword argument and value, which are then used to initialize the filter's parent class.
+        """
         if not field.empty_strings_allowed and not field.null:
             raise ImproperlyConfigured(
                 "The list filter '%s' cannot be used with field '%s' which "
@@ -667,6 +790,11 @@ class EmptyFieldListFilter(FieldListFilter):
         super().__init__(field, request, params, model, model_admin, field_path)
 
     def get_lookup_condition(self):
+        """
+        Returns a Django Q object representing the lookup conditions for the field.
+
+        The condition includes checks for empty strings if allowed and null values if the field is nullable, combined using an OR operator.
+        """
         lookup_conditions = []
         if self.field.empty_strings_allowed:
             lookup_conditions.append((self.field_path, ""))
@@ -675,6 +803,11 @@ class EmptyFieldListFilter(FieldListFilter):
         return models.Q.create(lookup_conditions, connector=models.Q.OR)
 
     def queryset(self, request, queryset):
+        """
+        Filters a queryset based on the provided lookup value, either including or excluding matching objects. 
+
+        Raises an error if the lookup value is not '0' or '1'. If the lookup parameter is not used, the original queryset is returned.
+        """
         if self.lookup_kwarg not in self.used_parameters:
             return queryset
         if self.lookup_val not in ("0", "1"):
@@ -696,6 +829,12 @@ class EmptyFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+        Generates facets for filtering choices, with optional counts.
+
+        Returns an iterable of dictionaries, each containing information for a single facet,
+        such as its display title, query string, and whether it's currently selected.
+        """
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
         for lookup, title, count_field in (

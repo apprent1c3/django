@@ -23,6 +23,9 @@ class OrderedSetTests(SimpleTestCase):
         self.assertEqual(list(s.dict.keys()), [1, 2, 3])
 
     def test_remove(self):
+        """
+        Tests the removal of an element from an OrderedSet, verifying that the element is correctly removed and the set's length is updated accordingly.
+        """
         s = OrderedSet()
         self.assertEqual(len(s), 0)
         s.add(1)
@@ -32,6 +35,9 @@ class OrderedSetTests(SimpleTestCase):
         self.assertNotIn(2, s)
 
     def test_discard(self):
+        """
+        Verifies the functionality of the discard method in an OrderedSet, ensuring it correctly handles elements that are not present in the set.
+        """
         s = OrderedSet()
         self.assertEqual(len(s), 0)
         s.add(1)
@@ -57,6 +63,9 @@ class OrderedSetTests(SimpleTestCase):
         self.assertTrue(s)
 
     def test_len(self):
+        """
+        Tests that the length of an OrderedSet is correctly calculated, accounting for duplicate additions.
+        """
         s = OrderedSet()
         self.assertEqual(len(s), 0)
         s.add(1)
@@ -75,6 +84,15 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertEqual(repr(d), "<MultiValueDict: {'key': 'value'}>")
 
     def test_multivaluedict(self):
+        """
+        Tests the functionality of a MultiValueDict.
+
+        This test case checks the behavior of a MultiValueDict, including key lookups,
+        listing values, and setting default values. It verifies that the dict returns
+        the last value for a key when used as a normal dictionary, and returns a list
+        of values when the getlist method is used. It also checks error handling and
+        default value behavior.
+        """
         d = MultiValueDict(
             {"name": ["Adrian", "Simon"], "position": ["Developer"], "empty": []}
         )
@@ -115,6 +133,9 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertEqual(d.getlist("name"), ["Adrian", "Simon"])
 
     def test_copy(self):
+        """
+        /tests copying behavior of MultiValueDict instances, verifying that changes made to a copied dictionary do not affect the original and vice versa, except for mutable elements like lists which can still be modified after copying.
+        """
         for copy_func in [copy.copy, lambda d: d.copy()]:
             with self.subTest(copy_func):
                 d1 = MultiValueDict({"developers": ["Carl", "Fred"]})
@@ -132,6 +153,9 @@ class MultiValueDictTests(SimpleTestCase):
                 self.assertEqual(d2["key"], ["Penguin"])
 
     def test_deepcopy(self):
+        """
+        Tests that the deepcopy operation correctly creates a new, independent copy of a MultiValueDict, including nested objects.
+        """
         d1 = MultiValueDict({"a": [[123]]})
         d2 = copy.copy(d1)
         d3 = copy.deepcopy(d1)
@@ -143,6 +167,9 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertEqual(x, pickle.loads(pickle.dumps(x)))
 
     def test_dict_translation(self):
+        """
+        Test that translation of a MultiValueDict to a standard dictionary is correct and complete.
+        """
         mvd = MultiValueDict(
             {
                 "devs": ["Bob", "Joe"],
@@ -185,6 +212,14 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertEqual(list(x.lists()), [("a", [3])])
 
     def test_setdefault(self):
+        """
+
+        Tests the functionality of the setdefault method for MultiValueDict.
+
+        Verifies that it returns the last value for an existing key and adds a new value 
+        for a non-existent key, updating the dictionary accordingly.
+
+        """
         x = MultiValueDict({"a": [1, 2]})
         a = x.setdefault("a", 3)
         b = x.setdefault("b", 3)
@@ -234,6 +269,9 @@ class MultiValueDictTests(SimpleTestCase):
         # MultiValueDict.update() raises equivalent exceptions to
         # dict.update().
         # Non-iterable values raise TypeError.
+        """
+        Tests that MultiValueDict's update method raises the correct exceptions for invalid input types. It verifies that TypeError is raised for most unsupported types and ValueError for some other invalid types.
+        """
         for value in [None, True, False, 123, 123.45]:
             with self.subTest(value), self.assertRaises(TypeError):
                 MultiValueDict().update(value)
@@ -340,6 +378,10 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertEqual(copy, self.dict1)
 
     def test_getitem(self):
+        """
+        Tests the case-insensitive behavior of dictionary key retrieval.\"\"\"
+        ```
+        """
         self.assertEqual(self.dict1["Accept"], "application/json")
         self.assertEqual(self.dict1["accept"], "application/json")
         self.assertEqual(self.dict1["aCCept"], "application/json")
@@ -348,6 +390,9 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertEqual(self.dict1["Content-type"], "text/html")
 
     def test_in(self):
+        """
+        Tests the presence of specific HTTP headers in a dictionary, ensuring case-insensitivity for 'Accept' and 'Content-Type' headers.
+        """
         self.assertIn("Accept", self.dict1)
         self.assertIn("accept", self.dict1)
         self.assertIn("aCCept", self.dict1)
@@ -355,6 +400,9 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertIn("Content-Type", self.dict1)
 
     def test_del(self):
+        """
+        Tests that attempting to delete an item from a CaseInsensitiveMapping object raises a TypeError and leaves the object unchanged.
+        """
         self.assertIn("Accept", self.dict1)
         msg = "'CaseInsensitiveMapping' object does not support item deletion"
         with self.assertRaisesMessage(TypeError, msg):
@@ -362,6 +410,9 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertIn("Accept", self.dict1)
 
     def test_set(self):
+        """
+        Tests that CaseInsensitiveMapping objects are immutable and cannot be modified using item assignment.
+        """
         self.assertEqual(len(self.dict1), 2)
         msg = "'CaseInsensitiveMapping' object does not support item assignment"
         with self.assertRaisesMessage(TypeError, msg):

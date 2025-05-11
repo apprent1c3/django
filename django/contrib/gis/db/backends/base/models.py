@@ -10,7 +10,8 @@ class SpatialRefSysMixin:
     @property
     def srs(self):
         """
-        Return a GDAL SpatialReference object.
+        Returns a clone of the GDAL SpatialReference object associated with this instance, 
+        created from the WKT (Well-Known Text) or PROJ.4 text representation if not already set.
         """
         # TODO: Is caching really necessary here?  Is complexity worth it?
         if hasattr(self, "_srs"):
@@ -97,7 +98,10 @@ class SpatialRefSysMixin:
 
     @property
     def units(self):
-        "Return a tuple of the units and the name."
+        """
+        Returns a tuple containing the appropriate units and name for the object, 
+        depending on whether it is projected, local, or geographic.
+        """
         if self.projected or self.local:
             return (self.linear_units, self.linear_name)
         elif self.geographic:
@@ -116,8 +120,11 @@ class SpatialRefSysMixin:
     @classmethod
     def get_spheroid(cls, wkt, string=True):
         """
-        Class method used by GeometryField on initialization to
-        retrieve the `SPHEROID[..]` parameters from the given WKT.
+        Retrieves SPHEROID parameters from a given Well-Known Text (WKT) string.
+
+        Returns a string representation of the SPHEROID parameters, 
+        unless `string` is `False`, in which case it returns a tuple containing 
+        the spheroid name and parameters.
         """
         srs = gdal.SpatialReference(wkt)
         sphere_params = srs.ellipsoid

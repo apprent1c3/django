@@ -68,6 +68,9 @@ class DeprecatedFieldsTests(SimpleTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     def test_postgres_jsonfield_deprecated(self):
+        """
+        Tests the deprecation of the `JSONField` from `django.contrib.postgres.fields` and verifies that using it results in a deprecation error, recommending the use of `django.db.models.JSONField` instead.
+        """
         from django.contrib.postgres.fields import JSONField
 
         class PostgresJSONFieldModel(models.Model):
@@ -88,6 +91,9 @@ class DeprecatedFieldsTests(SimpleTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     def test_postgres_ci_fields_deprecated(self):
+        """
+        Tests the deprecation of PostgreSQL specific case-insensitive fields (CICharField, CIEmailField, CITextField) in a model, ensuring that the expected errors are raised when checking the model.
+        """
         from django.contrib.postgres.fields import (
             ArrayField,
             CICharField,

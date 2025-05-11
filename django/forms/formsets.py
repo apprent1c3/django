@@ -89,6 +89,14 @@ class BaseFormSet(RenderableFormMixin):
         form_kwargs=None,
         error_messages=None,
     ):
+        """
+        Initializes a form instance with optional data, files, and custom settings.
+
+        Sets up the form's state, including its bound status, prefix, and error handling
+        configuration. Accepts various parameters to customize form behavior, such as
+        auto-generated field IDs, initial values, and error messages. The form's
+        validation and rendering settings are also configured during initialization.
+        """
         self.is_bound = data is not None or files is not None
         self.prefix = prefix or self.get_default_prefix()
         self.auto_id = auto_id
@@ -128,6 +136,9 @@ class BaseFormSet(RenderableFormMixin):
         return True
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, providing information about its binding status, validity, and total form count.
+        """
         if self._errors is None:
             is_valid = "Unknown"
         else:
@@ -145,7 +156,10 @@ class BaseFormSet(RenderableFormMixin):
 
     @cached_property
     def management_form(self):
-        """Return the ManagementForm instance for this FormSet."""
+        """
+        Returns the ManagementForm instance associated with this FormSet, 
+        handling both bound and unbound scenarios to manage form counting and validation.
+        """
         if self.is_bound:
             form = ManagementForm(
                 self.data,
@@ -169,7 +183,9 @@ class BaseFormSet(RenderableFormMixin):
         return form
 
     def total_form_count(self):
-        """Return the total number of forms in this FormSet."""
+        """
+        Return the total number of forms in this FormSet, considering factors such as the management form data, initial form count, and form limits (min, max, and extra).
+        """
         if self.is_bound:
             # return absolute_max if it is lower than the actual total form
             # count in the data; this is DoS protection to prevent clients
@@ -190,7 +206,9 @@ class BaseFormSet(RenderableFormMixin):
         return total_forms
 
     def initial_form_count(self):
-        """Return the number of forms that are required in this FormSet."""
+        """
+        Returns the number of initial forms in this FormSet, either by retrieving the initial form count from the management form if the formset is bound, or by counting the number of initial data provided.
+        """
         if self.is_bound:
             return self.management_form.cleaned_data[INITIAL_FORM_COUNT]
         else:
@@ -217,7 +235,9 @@ class BaseFormSet(RenderableFormMixin):
         return self.form_kwargs.copy()
 
     def _construct_form(self, i, **kwargs):
-        """Instantiate and return the i-th form instance in a formset."""
+        """
+        Instantiate and return the i-th form instance in a formset, applying default values and additional keyword arguments as needed.
+        """
         defaults = {
             "auto_id": self.auto_id,
             "prefix": self.add_prefix(i),
@@ -282,7 +302,10 @@ class BaseFormSet(RenderableFormMixin):
 
     @property
     def deleted_forms(self):
-        """Return a list of forms that have been marked for deletion."""
+        """
+        Return a list of forms that have been marked for deletion, 
+        after validation and deletion permission checks have passed.
+        """
         if not self.is_valid() or not self.can_delete:
             return []
         # construct _deleted_form_indexes which is just a list of form indexes
@@ -300,8 +323,10 @@ class BaseFormSet(RenderableFormMixin):
     @property
     def ordered_forms(self):
         """
-        Return a list of form in the order specified by the incoming data.
-        Raise an AttributeError if ordering is not allowed.
+        Return a list of forms in a specified order, considering form validity, changes, and deletion rules.
+
+            Raises:
+                AttributeError: If ordering is not allowed for the object.
         """
         if not self.is_valid() or not self.can_order:
             raise AttributeError(
@@ -377,7 +402,9 @@ class BaseFormSet(RenderableFormMixin):
         return form.cleaned_data.get(DELETION_FIELD_NAME, False)
 
     def is_valid(self):
-        """Return True if every form in self.forms is valid."""
+        """
+        Verifies whether all forms within this object are valid, considering forms marked for deletion and non-form errors.
+        """
         if not self.is_bound:
             return False
         # Accessing errors triggers a full clean the first time only.
@@ -395,8 +422,7 @@ class BaseFormSet(RenderableFormMixin):
 
     def full_clean(self):
         """
-        Clean all of self.data and populate self._errors and
-        self._non_form_errors.
+        Performs a thorough cleaning of the formset, validating each form and the formset as a whole, and populates error collections accordingly.
         """
         self._errors = []
         self._non_form_errors = self.error_class(
@@ -475,7 +501,9 @@ class BaseFormSet(RenderableFormMixin):
         return any(form.has_changed() for form in self)
 
     def add_fields(self, form, index):
-        """A hook for adding extra fields on to each form instance."""
+        """
+        A hook for adding extra fields to each form instance, such as ordering and deletion fields, depending on the formset's configuration and the form's index.
+        """
         initial_form_count = self.initial_form_count()
         if self.can_order:
             # Only pre-fill the ordering field for initial forms.
@@ -506,8 +534,7 @@ class BaseFormSet(RenderableFormMixin):
 
     def is_multipart(self):
         """
-        Return True if the formset needs to be multipart, i.e. it
-        has FileInput, or False otherwise.
+        Indicates whether the formset requires a multipart form submission, meaning it contains a file input field.
         """
         if self.forms:
             return self.forms[0].is_multipart()
@@ -545,7 +572,25 @@ def formset_factory(
     can_delete_extra=True,
     renderer=None,
 ):
-    """Return a FormSet for the given form class."""
+    """
+    Return a FormSet class for the given form class, allowing customization of form behavior such as ordering, deletion, and validation of form instances.
+
+    :arg form: The form class to create a FormSet for.
+    :arg formset: The base FormSet class to use (defaults to BaseFormSet).
+    :arg extra: The number of extra forms to display (defaults to 1).
+    :arg can_order: Whether forms can be ordered (defaults to False).
+    :arg can_delete: Whether forms can be deleted (defaults to False).
+    :arg max_num: The maximum number of forms allowed (defaults to None).
+    :arg validate_max: Whether to validate the maximum number of forms (defaults to False).
+    :arg min_num: The minimum number of forms required (defaults to None).
+    :arg validate_min: Whether to validate the minimum number of forms (defaults to False).
+    :arg absolute_max: The absolute maximum number of forms allowed (defaults to max_num + DEFAULT_MAX_NUM).
+    :arg can_delete_extra: Whether extra forms can be deleted (defaults to True).
+    :arg renderer: The renderer to use for the FormSet (defaults to None).
+
+    :return: A FormSet class for the given form class.
+
+    """
     if min_num is None:
         min_num = DEFAULT_MIN_NUM
     if max_num is None:

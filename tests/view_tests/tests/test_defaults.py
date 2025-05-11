@@ -27,6 +27,9 @@ class DefaultsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, including authors, articles, and a site, to provide a consistent dataset for testing purposes.
+        """
         author = Author.objects.create(name="Boris")
         Article.objects.create(
             title="Old Article",
@@ -55,7 +58,9 @@ class DefaultsTests(TestCase):
         Site(id=1, domain="testserver", name="testserver").save()
 
     def test_page_not_found(self):
-        "A 404 status is returned by the page_not_found view"
+        """
+        Tests the page_not_found view to ensure it correctly returns a 404 status code and displays a \"Not Found\" message for non-existent URLs.
+        """
         for url in self.nonexistent_urls:
             response = self.client.get(url)
             self.assertEqual(response.status_code, 404)
@@ -84,7 +89,7 @@ class DefaultsTests(TestCase):
     )
     def test_csrf_token_in_404(self):
         """
-        The 404 page should have the csrf_token available in the context
+        Tests if the CSRF token is properly included in the context of the 404 error page template.
         """
         # See ticket #14565
         for url in self.nonexistent_urls:
@@ -149,7 +154,9 @@ class DefaultsTests(TestCase):
     )
     def test_custom_templates(self):
         """
-        404.html and 500.html templates are picked by their respective handler.
+
+        Tests the custom 404 and 500 error templates by simulating respective error scenarios and verifying the correct template is used.
+
         """
         response = self.client.get("/server_error/")
         self.assertContains(response, "test template for a 500 error", status_code=500)
@@ -175,8 +182,7 @@ class DefaultsTests(TestCase):
 
     def test_custom_templates_wrong(self):
         """
-        Default error views should raise TemplateDoesNotExist when passed a
-        template that doesn't exist.
+        Tests that default error views correctly handle non-existent custom templates by raising a TemplateDoesNotExist exception.
         """
         request = self.request_factory.get("/")
 
@@ -193,6 +199,9 @@ class DefaultsTests(TestCase):
             server_error(request, template_name="nonexistent")
 
     def test_error_pages(self):
+        """
+        Tests the rendering of error pages to ensure they have the correct HTML structure and title.
+        """
         request = self.request_factory.get("/")
         for response, title in (
             (bad_request(request, Exception()), b"Bad Request (400)"),

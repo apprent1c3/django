@@ -48,6 +48,14 @@ class LoginRequiredMiddleware(MiddlewareMixin):
     redirect_field_name = REDIRECT_FIELD_NAME
 
     def process_view(self, request, view_func, view_args, view_kwargs):
+        """
+
+        Checks if a view requires user authentication and handles permission accordingly.
+
+        If the user is authenticated, or the view does not require authentication, this function does nothing.
+        Otherwise, it redirects to a permission handling mechanism to handle the unauthorized access.
+
+        """
         if request.user.is_authenticated:
             return None
 
@@ -70,6 +78,9 @@ class LoginRequiredMiddleware(MiddlewareMixin):
         return getattr(view_func, "redirect_field_name", self.redirect_field_name)
 
     def handle_no_permission(self, request, view_func):
+        """
+        Handles the case when a user lacks permission to access a certain view, redirecting them to the login page. If the login URL is on the same scheme and netloc as the current request, it redirects to the login page using the full path, otherwise it uses the absolute URI.
+        """
         path = request.build_absolute_uri()
         resolved_login_url = resolve_url(self.get_login_url(view_func))
         # If the login url is the same scheme and net location then use the
@@ -110,6 +121,9 @@ class RemoteUserMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         # AuthenticationMiddleware is required so that request.user exists.
+        """
+        Authenticate a user based on a remote user header and update the request object with the authenticated user if valid, or remove any existing authenticated user if the header is missing or does not match the current user.
+        """
         if not hasattr(request, "user"):
             raise ImproperlyConfigured(
                 "The Django remote user auth middleware requires the"
@@ -149,8 +163,8 @@ class RemoteUserMiddleware(MiddlewareMixin):
 
     def clean_username(self, username, request):
         """
-        Allow the backend to clean the username, if the backend defines a
-        clean_username method.
+        Cleans a username by delegating to the currently active authentication backend, 
+        if it provides a cleaning method, to normalize or preprocess the input username.
         """
         backend_str = request.session[auth.BACKEND_SESSION_KEY]
         backend = auth.load_backend(backend_str)
@@ -162,8 +176,7 @@ class RemoteUserMiddleware(MiddlewareMixin):
 
     def _remove_invalid_user(self, request):
         """
-        Remove the current authenticated user in the request which is invalid
-        but only if the user is authenticated via the RemoteUserBackend.
+        Remove the current authenticated user from the request if they were authenticated via RemoteUserBackend and are now invalid.
         """
         try:
             stored_backend = load_backend(

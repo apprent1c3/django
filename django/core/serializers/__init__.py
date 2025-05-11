@@ -53,17 +53,8 @@ class BadSerializer:
 
 
 def register_serializer(format, serializer_module, serializers=None):
-    """Register a new serializer.
-
-    ``serializer_module`` should be the fully qualified module name
-    for the serializer.
-
-    If ``serializers`` is provided, the registration will be added
-    to the provided dictionary.
-
-    If ``serializers`` is not provided, the registration will be made
-    directly into the global register of serializers. Adding serializers
-    directly is not a thread-safe operation.
+    """
+    Registers a serializer for a given data format, allowing it to be used for serialization and deserialization operations. The serializer is identified by its fully qualified module name. If a dictionary of serializers is provided, the registration is added to it; otherwise, it is added to the global serializer register. Note that direct registration to the global register is not thread-safe.
     """
     if serializers is None and not _serializers:
         _load_serializers()
@@ -89,7 +80,9 @@ def register_serializer(format, serializer_module, serializers=None):
 
 
 def unregister_serializer(format):
-    "Unregister a given serializer. This is not a thread-safe operation."
+    """
+    Removes a serializer from the registration list, preventing it from being used for future serialization operations.
+    """
     if not _serializers:
         _load_serializers()
     if format not in _serializers:
@@ -98,6 +91,15 @@ def unregister_serializer(format):
 
 
 def get_serializer(format):
+    """
+    Returns a serializer instance for the given format.
+
+    Raises:
+        SerializerDoesNotExist: if the format does not have a corresponding serializer.
+
+    Returns:
+        Serializer: a serializer instance for the specified format
+    """
     if not _serializers:
         _load_serializers()
     if format not in _serializers:
@@ -118,6 +120,11 @@ def get_public_serializer_formats():
 
 
 def get_deserializer(format):
+    """
+    Retrieves a deserializer instance for the given format. 
+    Radians this from a lookup cache, loading available serializers if necessary.
+    Raises an exception if the requested format does not exist.
+    """
     if not _serializers:
         _load_serializers()
     if format not in _serializers:
@@ -148,9 +155,7 @@ def deserialize(format, stream_or_string, **options):
 
 def _load_serializers():
     """
-    Register built-in and settings-defined serializers. This is done lazily so
-    that user code has a chance to (e.g.) set up custom settings without
-    needing to be careful of import order.
+    Registers built-in and custom serializers, allowing for flexible data serialization and deserialization based on predefined formats. This registration process is performed lazily to accommodate user-defined settings and custom serializations.
     """
     global _serializers
     serializers = {}
@@ -165,14 +170,18 @@ def _load_serializers():
 
 
 def sort_dependencies(app_list, allow_cycles=False):
-    """Sort a list of (app_config, models) pairs into a single list of models.
+    """
+    Sort a list of application configuration and models into a single sorted list of models.
 
-    The single list of models is sorted so that any model with a natural key
-    is serialized before a normal model, and any model with a natural key
-    dependency has it's dependencies serialized first.
+    The ordering prioritizes models with natural keys and their dependencies, 
+    ensuring that models with dependencies are serialized after their dependencies.
 
-    If allow_cycles is True, return the best-effort ordering that will respect
-    most of dependencies but ignore some of them to break the cycles.
+    If cyclic dependencies are detected and :param allow_cycles: is True, 
+    an approximate ordering is returned to minimize dependency violations.
+
+    :param app_list: A list of (app_config, models) pairs
+    :param allow_cycles: Allow or disallow cyclic dependencies
+    :return: A sorted list of models
     """
     # Process the list of models, and get the list of dependencies
     model_dependencies = []

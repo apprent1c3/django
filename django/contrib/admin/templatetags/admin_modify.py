@@ -10,8 +10,11 @@ register = template.Library()
 
 def prepopulated_fields_js(context):
     """
-    Create a list of prepopulated_fields that should render JavaScript for
-    the prepopulated fields for both the admin form and inlines.
+    Generate a list of prepopulated fields and their corresponding JavaScript data for rendering in admin forms and inlines. 
+
+    It collects prepopulated fields from the admin form and inline formsets, then constructs a JSON representation of these fields, including their dependencies and validation parameters. 
+
+    The function updates the context with the list of prepopulated fields and their JSON representation, making them available for further processing.
     """
     prepopulated_fields = []
     if "adminform" in context:
@@ -60,7 +63,7 @@ def prepopulated_fields_js_tag(parser, token):
 
 def submit_row(context):
     """
-    Display the row of buttons for delete and save.
+    Display the row of buttons for delete and save, taking into account various permissions and context settings. The function determines which buttons to show based on the current user's permissions and the state of the object being edited, and returns a context object with these settings.
     """
     add = context["add"]
     change = context["change"]
@@ -132,7 +135,10 @@ def change_form_object_tools_tag(parser, token):
 
 @register.filter
 def cell_count(inline_admin_form):
-    """Return the number of cells used in a tabular inline."""
+    """
+    Calculates the total number of cells required to display an inline admin form, 
+    including visible fields and delete controls if applicable.
+    """
     count = 1  # Hidden cell with hidden 'id' field
     for fieldset in inline_admin_form:
         # Count all visible fields.

@@ -61,6 +61,9 @@ class HttpRequest:
         # Any variable assignment made here should also happen in
         # `WSGIRequest.__init__()`.
 
+        """
+        Initializes a request object with attributes for storing HTTP request data, including query parameters, cookies, metadata, files, and URL path information.
+        """
         self.GET = QueryDict(mutable=True)
         self.POST = QueryDict(mutable=True)
         self.COOKIES = {}
@@ -98,7 +101,9 @@ class HttpRequest:
         )
 
     def _set_content_type_params(self, meta):
-        """Set content_type, content_params, and encoding."""
+        """
+        Sets content type and encoding parameters based on the provided metadata.
+        """
         self.content_type, self.content_params = parse_header_parameters(
             meta.get("CONTENT_TYPE", "")
         )
@@ -112,8 +117,7 @@ class HttpRequest:
 
     def _get_raw_host(self):
         """
-        Return the HTTP host using the environment or request headers. Skip
-        allowed hosts protection, so may return an insecure host.
+        Return the raw HTTP host, bypassing allowed hosts protection, using environment or request headers.
         """
         # We try three options, in order of decreasing preference.
         if settings.USE_X_FORWARDED_HOST and ("HTTP_X_FORWARDED_HOST" in self.META):
@@ -129,7 +133,10 @@ class HttpRequest:
         return host
 
     def get_host(self):
-        """Return the HTTP host using the environment or request headers."""
+        """
+        Return the HTTP host from the environment or request headers, 
+        validating it against the list of allowed hosts defined in the settings.
+        """
         host = self._get_raw_host()
 
         # Allow variants of localhost if ALLOWED_HOSTS is empty and DEBUG=True.
@@ -151,7 +158,9 @@ class HttpRequest:
             raise DisallowedHost(msg)
 
     def get_port(self):
-        """Return the port number for the request as a string."""
+        """
+        Returns the port number for the current request as a string, taking into account the possibility of the request being proxied and the port being forwarded.
+        """
         if settings.USE_X_FORWARDED_PORT and "HTTP_X_FORWARDED_PORT" in self.META:
             port = self.META["HTTP_X_FORWARDED_PORT"]
         else:
@@ -179,9 +188,9 @@ class HttpRequest:
 
     def get_signed_cookie(self, key, default=RAISE_ERROR, salt="", max_age=None):
         """
-        Attempt to return a signed cookie. If the signature fails or the
-        cookie has expired, raise an exception, unless the `default` argument
-        is provided,  in which case return that value.
+        Retrieves a signed cookie value for a given key, validating its signature and expiration.
+        If the signature is invalid or the cookie has expired, returns the default value if provided, otherwise raises an exception.
+        Optional parameters allow specifying a custom salt and maximum age for the cookie.
         """
         try:
             cookie_value = self.COOKIES[key]
@@ -203,12 +212,10 @@ class HttpRequest:
 
     def build_absolute_uri(self, location=None):
         """
-        Build an absolute URI from the location and the variables available in
-        this request. If no ``location`` is specified, build the absolute URI
-        using request.get_full_path(). If the location is absolute, convert it
-        to an RFC 3987 compliant URI and return it. If location is relative or
-        is scheme-relative (i.e., ``//example.com/``), urljoin() it to a base
-        URL constructed from the request variables.
+        Builds an absolute URI from a given location and request variables.
+
+        If no location is specified, the absolute URI is constructed using the current request path.
+        The function handles absolute, relative, and scheme-relative locations, conforming to RFC 3987.
         """
         if location is None:
             # Make it an absolute url (but schemeless and domainless) for the
@@ -253,6 +260,9 @@ class HttpRequest:
 
     @property
     def scheme(self):
+        """
+        Determines the scheme of the current request (either 'http' or 'https'), taking into account any secure proxy SSL headers that may be set in the project's settings. If no such headers are configured, falls back to a default scheme detection method.
+        """
         if settings.SECURE_PROXY_SSL_HEADER:
             try:
                 header, secure_value = settings.SECURE_PROXY_SSL_HEADER
@@ -277,9 +287,7 @@ class HttpRequest:
     @encoding.setter
     def encoding(self, val):
         """
-        Set the encoding used for GET/POST accesses. If the GET or POST
-        dictionary has already been created, remove and recreate it on the
-        next access (so that it is decoded correctly).
+        Sets the encoding used for GET/POST requests, updating existing data structures to ensure correct decoding on next access.
         """
         self._encoding = val
         if hasattr(self, "GET"):
@@ -323,6 +331,9 @@ class HttpRequest:
 
     @property
     def body(self):
+        """
+        @return the request body as bytes, handling potential upload size limits and ensuring it is only accessed before reading from the request's data stream
+        """
         if not hasattr(self, "_body"):
             if self._read_started:
                 raise RawPostDataException(
@@ -353,7 +364,9 @@ class HttpRequest:
         self._files = MultiValueDict()
 
     def _load_post_and_files(self):
-        """Populate self._post and self._files if the content-type is a form type"""
+        """
+        Populate self._post and self._files based on the request's content-type, handling form data from 'multipart/form-data' and 'application/x-www-form-urlencoded' types.
+        """
         if self.method != "POST":
             self._post, self._files = (
                 QueryDict(encoding=self._encoding),
@@ -410,6 +423,13 @@ class HttpRequest:
     # containing that data.
 
     def read(self, *args, **kwargs):
+        """
+        Reads data from the underlying stream.
+
+        Raises:
+            UnreadablePostError: if an OS-related error occurs during the read operation.
+
+        """
         self._read_started = True
         try:
             return self._stream.read(*args, **kwargs)
@@ -417,6 +437,15 @@ class HttpRequest:
             raise UnreadablePostError(*e.args) from e
 
     def readline(self, *args, **kwargs):
+        """
+
+        Reads a line from the associated stream.
+
+        This method wraps the underlying stream's readline functionality, catching any OSError exceptions that occur and re-raising them as UnreadablePostError.
+
+        :raises UnreadablePostError: If an error occurs while reading from the stream
+
+        """
         self._read_started = True
         try:
             return self._stream.readline(*args, **kwargs)
@@ -436,6 +465,9 @@ class HttpHeaders(CaseInsensitiveMapping):
     UNPREFIXED_HEADERS = {"CONTENT_TYPE", "CONTENT_LENGTH"}
 
     def __init__(self, environ):
+        """
+        Initializes the object with HTTP request headers extracted from the environment.
+        """
         headers = {}
         for header, value in environ.items():
             name = self.parse_header_name(header)
@@ -449,6 +481,18 @@ class HttpHeaders(CaseInsensitiveMapping):
 
     @classmethod
     def parse_header_name(cls, header):
+        """
+
+        Normalize and standardize an HTTP header name.
+
+        Normalizes the input header name by removing any HTTP prefix if present,
+        handling unprefixed headers, and converting the name to title case with
+        hyphens instead of underscores.
+
+        Returns the normalized header name, or None if the input header is not
+        a valid unprefixed header.
+
+        """
         if header.startswith(cls.HTTP_PREFIX):
             header = header.removeprefix(cls.HTTP_PREFIX)
         elif header not in cls.UNPREFIXED_HEADERS:
@@ -502,6 +546,9 @@ class QueryDict(MultiValueDict):
     _encoding = None
 
     def __init__(self, query_string=None, mutable=False, encoding=None):
+        """
+        Initializes a query string parser, decoding and parsing a given query string into key-value pairs, handling encoding and potential errors.
+        """
         super().__init__()
         self.encoding = encoding or settings.DEFAULT_CHARSET
         query_string = query_string or ""
@@ -534,8 +581,8 @@ class QueryDict(MultiValueDict):
     @classmethod
     def fromkeys(cls, iterable, value="", mutable=False, encoding=None):
         """
-        Return a new QueryDict with keys (may be repeated) from an iterable and
-        values from value.
+        Return a new QueryDict instance populated with keys from an iterable and 
+        assigned a specified value, with optional configuration for mutability and encoding.
         """
         q = cls("", mutable=True, encoding=encoding)
         for key in iterable:
@@ -575,6 +622,9 @@ class QueryDict(MultiValueDict):
         return result
 
     def __deepcopy__(self, memo):
+        """
+        Implements deep copying for the object, creating a new instance with the same properties and recursively copied attribute values, and storing the new instance in the memo dictionary to prevent infinite recursion.
+        """
         result = self.__class__("", mutable=True, encoding=self.encoding)
         memo[id(self)] = result
         for key, value in self.lists():
@@ -623,14 +673,8 @@ class QueryDict(MultiValueDict):
         """
         Return an encoded string of all query string arguments.
 
-        `safe` specifies characters which don't require quoting, for example::
-
-            >>> q = QueryDict(mutable=True)
-            >>> q['next'] = '/a&b/'
-            >>> q.urlencode()
-            'next=%2Fa%26b%2F'
-            >>> q.urlencode(safe='/')
-            'next=/a%26b/'
+            :param safe: characters that don't require quoting, defaults to None
+            :return: encoded query string
         """
         output = []
         if safe:
@@ -675,6 +719,14 @@ class MediaType:
         return self.main_type == "*" and self.sub_type == "*"
 
     def match(self, other):
+        """
+        Checks if this MediaType matches the given other MediaType.
+
+        The match is considered successful if this MediaType is set to accept all types,
+        or if the main types match and the sub-type is either a wildcard or matches exactly.
+
+        :returns: True if the MediaTypes match, False otherwise
+        """
         if self.is_all_types:
             return True
         other = MediaType(other)
@@ -688,11 +740,7 @@ class MediaType:
 # this slightly more restricted function, used by QueryDict.
 def bytes_to_text(s, encoding):
     """
-    Convert bytes objects to strings, using the given encoding. Illegally
-    encoded input characters are replaced with Unicode "unknown" codepoint
-    (\ufffd).
-
-    Return any non-bytes objects without change.
+    Converts bytes objects to strings using a specified encoding, replacing any invalid characters with a Unicode replacement character, while leaving non-bytes objects unchanged.
     """
     if isinstance(s, bytes):
         return str(s, encoding, "replace")
@@ -702,10 +750,8 @@ def bytes_to_text(s, encoding):
 
 def split_domain_port(host):
     """
-    Return a (domain, port) tuple from a given host.
-
-    Returned domain is lowercased. If the host is invalid, the domain will be
-    empty.
+    Return a (domain, port) tuple from a given host. 
+    Returned domain is lowercased. If the host is invalid, the domain will be empty.
     """
     if match := host_validation_re.fullmatch(host.lower()):
         domain, port = match.groups(default="")

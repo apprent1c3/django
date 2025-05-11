@@ -7,6 +7,9 @@ from . import FormFieldAssertionsMixin
 
 class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_emailfield_1(self):
+        """
+        Checks the functionality of the EmailField, including its maximum length, widget rendering, and validation rules, ensuring that it correctly handles empty, invalid, and valid email addresses.
+        """
         f = EmailField()
         self.assertEqual(f.max_length, 320)
         self.assertWidgetRendersTo(
@@ -34,6 +37,12 @@ class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(addr, f.clean(addr))
 
     def test_emailfield_not_required(self):
+        """
+        Tests the behavior of the EmailField when the required flag is set to False.
+
+        This test ensures that the EmailField correctly handles empty input, valid email addresses, 
+        and invalid email addresses when it is not required to have a value.
+        """
         f = EmailField(required=False)
         self.assertEqual("", f.clean(""))
         self.assertEqual("", f.clean(None))
@@ -47,6 +56,11 @@ class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("foo")
 
     def test_emailfield_min_max_length(self):
+        """
+        Tests the validation and rendering of an EmailField with custom minimum and maximum length constraints.
+
+        Verifies that the field correctly enforces its length limits, raising ValidationErrors for input that is too short or too long, and that it renders the correct HTML attributes to convey these constraints to the client-side.
+        """
         f = EmailField(min_length=10, max_length=15)
         self.assertWidgetRendersTo(
             f,

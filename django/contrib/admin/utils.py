@@ -33,7 +33,13 @@ class FieldIsAForeignKeyColumnName(Exception):
 
 def lookup_spawns_duplicates(opts, lookup_path):
     """
-    Return True if the given lookup path spawns duplicates.
+
+    Check if a lookup path in a model can result in duplicate records.
+
+    This function traverses the lookup path and checks for many-to-many relationships,
+    which can cause duplicate records to be returned. It returns True if such a path
+    is found, indicating that the lookup may yield duplicate results, and False otherwise.
+
     """
     lookup_fields = lookup_path.split(LOOKUP_SEP)
     # Go through the fields (following all relations) and look for an m2m.
@@ -64,7 +70,7 @@ def get_last_value_from_parameters(parameters, key):
 
 def prepare_lookup_value(key, value, separator=","):
     """
-    Return a lookup value prepared to be used in queryset filtering.
+    Prepare a lookup value for use in queryset filtering, handling special cases for 'in' and 'isnull' lookups, and supporting iterable values.
     """
     if isinstance(value, list):
         return [prepare_lookup_value(key, v, separator=separator) for v in value]
@@ -101,7 +107,7 @@ def unquote(s):
 
 def flatten(fields):
     """
-    Return a list which is a single level of flattening of the original list.
+    Reduce a nested list of fields to a single level of depth, concatenating sublists and preserving non-list elements.
     """
     flat = []
     for field in fields:
@@ -113,7 +119,10 @@ def flatten(fields):
 
 
 def flatten_fieldsets(fieldsets):
-    """Return a list of field names from an admin fieldsets structure."""
+    """
+    Return a list of field names extracted from a nested admin fieldsets structure, 
+    flattening the fields into a single list for easier access and manipulation.
+    """
     field_names = []
     for name, opts in fieldsets:
         field_names.extend(flatten(opts["fields"]))
@@ -122,11 +131,7 @@ def flatten_fieldsets(fieldsets):
 
 def get_deleted_objects(objs, request, admin_site):
     """
-    Find all objects related to ``objs`` that should also be deleted. ``objs``
-    must be a homogeneous iterable of objects (e.g. a QuerySet).
-
-    Return a nested list of strings suitable for display in the
-    template with the ``unordered_list`` filter.
+    Find all objects related to the provided homogeneous iterable of objects that should also be deleted and return a nested list of strings suitable for display, along with additional metadata such as the count of objects to delete by model, the objects protected from deletion, and the models that require delete permissions.
     """
     try:
         obj = objs[0]
@@ -139,6 +144,12 @@ def get_deleted_objects(objs, request, admin_site):
     perms_needed = set()
 
     def format_callback(obj):
+        """
+        Formats a string representation of an object, including a link to its admin page if available.
+
+        Returns a formatted string with the object's verbose name and value. If the object is registered in the admin site, 
+        a link to the object's change page is included, provided the user has permission to view the page.
+        """
         model = obj.__class__
         opts = obj._meta
 
@@ -191,6 +202,15 @@ class NestedObjects(Collector):
         self.edges.setdefault(source, []).append(target)
 
     def collect(self, objs, source=None, source_attr=None, **kwargs):
+        """
+        Collects and processes a list of objects by establishing relationships and adding them to the model object collection.
+
+        It optionally uses the provided source and source attribute to establish edges between related objects. 
+
+        The function also handles protected and restricted errors that may occur during the collection process, storing the affected objects for further handling. 
+
+        It extends the functionality of the parent class by calling its collect method with the provided objects and source attribute, passing any additional keyword arguments.
+        """
         for obj in objs:
             if source_attr and not source_attr.endswith("+"):
                 related_name = source_attr % {
@@ -215,6 +235,14 @@ class NestedObjects(Collector):
         )
 
     def _nested(self, obj, seen, format_callback):
+        """
+        Traverses a nested structure recursively, gathering all objects and their children.
+
+        :arg obj: The current object being processed
+        :arg seen: A set of objects that have already been visited
+        :arg format_callback: An optional function to format the object before inclusion in the result
+        :returns: A list containing the current object and, if applicable, a list of its children
+        """
         if obj in seen:
             return []
         seen.add(obj)
@@ -231,7 +259,7 @@ class NestedObjects(Collector):
 
     def nested(self, format_callback=None):
         """
-        Return the graph as a nested list.
+        Returns the graph as a nested list, providing a hierarchical representation of its structure, optionally formatted using a custom callback function.
         """
         seen = set()
         roots = []
@@ -249,10 +277,8 @@ class NestedObjects(Collector):
 
 def model_format_dict(obj):
     """
-    Return a `dict` with keys 'verbose_name' and 'verbose_name_plural',
-    typically for use with string formatting.
-
-    `obj` may be a `Model` instance, `Model` subclass, or `QuerySet` instance.
+    Return a dictionary containing verbose name and plural form of a model for use in string formatting, 
+    compatible with Model instances, Model subclasses, and QuerySet instances.
     """
     if isinstance(obj, (models.Model, models.base.ModelBase)):
         opts = obj._meta
@@ -268,12 +294,14 @@ def model_format_dict(obj):
 
 def model_ngettext(obj, n=None):
     """
-    Return the appropriate `verbose_name` or `verbose_name_plural` value for
+
+    Return the appropriate `verbose_name` or `verbose_name_plural` value for 
     `obj` depending on the count `n`.
 
-    `obj` may be a `Model` instance, `Model` subclass, or `QuerySet` instance.
-    If `obj` is a `QuerySet` instance, `n` is optional and the length of the
+    `obj` may be a `Model` instance, `Model` subclass, or `QuerySet` instance. 
+    If `obj` is a `QuerySet` instance, `n` is optional and the length of the 
     `QuerySet` is used.
+
     """
     if isinstance(obj, models.query.QuerySet):
         if n is None:
@@ -285,6 +313,16 @@ def model_ngettext(obj, n=None):
 
 
 def lookup_field(name, obj, model_admin=None):
+    """
+    Lookup a field on an object, resolving it through the object's attributes or a model admin if provided.
+
+        Returns a tuple containing the field, attribute and value of the looked-up field.
+
+        :param name: The name of the field to look up
+        :param obj: The object to look up the field on
+        :param model_admin: An optional model admin instance to use for resolving the field
+        :return: A tuple containing the field, attribute and value of the looked-up field
+    """
     opts = obj._meta
     try:
         f = _get_non_gfk_field(opts, name)
@@ -321,11 +359,11 @@ def lookup_field(name, obj, model_admin=None):
 
 def _get_non_gfk_field(opts, name):
     """
-    For historical reasons, the admin app relies on GenericForeignKeys as being
-    "not found" by get_field(). This could likely be cleaned up.
+    Returns a non-generic foreign key field from a model's options.
 
-    Reverse relations should also be excluded as these aren't attributes of the
-    model (rather something like `foo_set`).
+    Excludes fields that are reverse relations or generic foreign keys, 
+    raising exceptions if such fields are encountered. 
+    The returned field is expected to be a direct attribute of the model.
     """
     field = opts.get_field(name)
     if (
@@ -350,12 +388,10 @@ def _get_non_gfk_field(opts, name):
 
 def label_for_field(name, model, model_admin=None, return_attr=False, form=None):
     """
-    Return a sensible label for a field name. The name can be a callable,
-    property (but not created with @property decorator), or the name of an
-    object's attribute, as well as a model field, including across related
-    objects. If return_attr is True, also return the resolved attribute
-    (which could be a callable). This will be None if (and only if) the name
-    refers to a field.
+    Return a human-readable label for a field name, providing support for 
+    model fields, attributes, callables, properties, and related objects.
+    Optionally returns the resolved attribute or callable associated with 
+    the field name, if specified by the return_attr parameter.
     """
     attr = None
     try:
@@ -415,6 +451,9 @@ def label_for_field(name, model, model_admin=None, return_attr=False, form=None)
 
 
 def help_text_for_field(name, model):
+    """
+    Retrieves the help text for a given model field, if it exists. Returns the help text as a string, or an empty string if the field does not have help text or does not exist.
+    """
     help_text = ""
     try:
         field = _get_non_gfk_field(model._meta, name)
@@ -427,6 +466,19 @@ def help_text_for_field(name, model):
 
 
 def display_for_field(value, field, empty_value_display):
+    """
+
+    Display a human-readable representation of a field value in a Django application.
+
+    This function takes into account the specific type of field, formatting the value accordingly.
+    For example, boolean fields are displayed as icons, date and time fields are localized, and file fields are displayed as links.
+    It also handles the case where the field value is empty, in which case a custom display value can be returned.
+
+    :param value: The value of the field to be displayed.
+    :param field: The Django model field associated with the value.
+    :param empty_value_display: The value to display when the field value is empty.
+
+    """
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
     if getattr(field, "flatchoices", None):
@@ -464,6 +516,18 @@ def display_for_field(value, field, empty_value_display):
 
 
 def display_for_value(value, empty_value_display, boolean=False):
+    """
+
+    Return a human-readable representation of a given value, applying special formatting 
+    for specific data types such as booleans, dates, and numbers. If the value is empty, 
+    it returns a custom display string.
+
+    :param value: The value to be formatted
+    :param empty_value_display: The string to display when the value is empty
+    :param boolean: Whether to format the value as a boolean icon (Django admin style)
+    :returns: A formatted string representation of the value
+
+    """
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
     if boolean:
@@ -496,12 +560,12 @@ def get_model_from_relation(field):
 
 
 def reverse_field_path(model, path):
-    """Create a reversed field path.
+    """
+    Create a reversed field path for a given model and related field path.
 
-    E.g. Given (Order, "user__groups"),
-    return (Group, "user__order").
-
-    Final field must be a related model, not a data field.
+    Given a model and a field path representing a relation to another model,
+    returns a tuple containing the related model and the reversed field path.
+    The final field in the path must be a related model, not a data field.
     """
     reversed_path = []
     parent = model
@@ -527,13 +591,8 @@ def reverse_field_path(model, path):
 
 
 def get_fields_from_path(model, path):
-    """Return list of Fields given path relative to model.
-
-    e.g. (ModelX, "user__groups__name") -> [
-        <django.db.models.fields.related.ForeignKey object at 0x...>,
-        <django.db.models.fields.related.ManyToManyField object at 0x...>,
-        <django.db.models.fields.CharField object at 0x...>,
-    ]
+    """
+    Return a list of Fields corresponding to the given path relative to a model, splitting the path into its constituent parts and navigating the model's relationships.
     """
     pieces = path.split(LOOKUP_SEP)
     fields = []
@@ -548,9 +607,7 @@ def get_fields_from_path(model, path):
 
 def construct_change_message(form, formsets, add):
     """
-    Construct a JSON structure describing changes from a changed object.
-    Translations are deactivated so that strings are stored untranslated.
-    Translation happens later on LogEntry access.
+    Construct a JSON structure describing changes from a changed object, including fields changed, added, or deleted, with translations deactivated to allow for later translation on LogEntry access.
     """
     # Evaluating `form.changed_data` prior to disabling translations is required
     # to avoid fields affected by localization from being included incorrectly,
@@ -604,6 +661,13 @@ def construct_change_message(form, formsets, add):
 
 
 def _get_changed_field_labels_from_form(form, changed_data):
+    """
+    Return a list of human-readable labels for the fields that have changed in a form submission.
+
+        :param form: The form instance containing field definitions.
+        :param changed_data: A dictionary of field names that have changed.
+        :return: A list of field labels corresponding to the changed fields.
+    """
     changed_field_labels = []
     for field_name in changed_data:
         try:

@@ -91,6 +91,15 @@ class B(models.Model):
 
 
 def create_a(name):
+    """
+    Create a new instance of A with default relationships.
+
+    Initializes a new instance of A with the given name and sets up its relationships
+    with default instances of R and RChild.
+
+    :param name: The name of the new A instance
+    :return: The newly created A instance
+    """
     a = A(name=name)
     for name in (
         "auto",

@@ -57,6 +57,9 @@ class MiddlewareMixinTests(SimpleTestCase):
     ]
 
     def test_repr(self):
+        """
+        Tests the string representation of MiddlewareMixin and CsrfViewMiddleware instances.
+        """
         class GetResponse:
             def __call__(self):
                 return HttpResponse()
@@ -84,6 +87,9 @@ class MiddlewareMixinTests(SimpleTestCase):
         )
 
     def test_passing_explicit_none(self):
+        """
+        Test that each middleware raises a ValueError when get_response is explicitly set to None.
+        """
         msg = "get_response must be provided."
         for middleware in self.middlewares:
             with self.subTest(middleware=middleware):
@@ -91,6 +97,9 @@ class MiddlewareMixinTests(SimpleTestCase):
                     middleware(None)
 
     def test_coroutine(self):
+        """
+        Tests that middlewares return coroutine functions when given an asynchronous view and non-coroutine functions when given a synchronous view.
+        """
         async def async_get_response(request):
             return HttpResponse()
 
@@ -110,9 +119,7 @@ class MiddlewareMixinTests(SimpleTestCase):
 
     def test_sync_to_async_uses_base_thread_and_connection(self):
         """
-        The process_request() and process_response() hooks must be called with
-        the sync_to_async thread_sensitive flag enabled, so that database
-        operations use the correct thread and connection.
+        Tests that the sync_to_async function uses the base thread and connection when calling process_request and process_response hooks. Ensures database operations are executed with the correct thread and connection context.
         """
 
         def request_lifecycle():

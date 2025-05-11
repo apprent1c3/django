@@ -38,6 +38,9 @@ class Command(BaseCommand):
     server_cls = WSGIServer
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments to the parser for customizing the Django development server settings, including address, protocol, and runtime behavior.
+        """
         parser.add_argument(
             "addrport", nargs="?", help="Optional port number, or ipaddr:port"
         )
@@ -79,6 +82,15 @@ class Command(BaseCommand):
         return get_internal_wsgi_application()
 
     def handle(self, *args, **options):
+        """
+        Handles the initialization and validation of server settings.
+
+        Validates the ALLOWED_HOSTS setting when DEBUG is False, and checks for IPv6 support.
+        Parses the address and port from the provided options, and sets default values if necessary.
+        Raises CommandError if invalid input is provided.
+
+         Calls the run method with the validated options after initialization.\"
+        """
         if not settings.DEBUG and not settings.ALLOWED_HOSTS:
             raise CommandError("You must set settings.ALLOWED_HOSTS if DEBUG is False.")
 
@@ -112,7 +124,9 @@ class Command(BaseCommand):
         self.run(**options)
 
     def run(self, **options):
-        """Run the server, using the autoreloader if needed."""
+        """
+        Runs the server, optionally utilizing the autoreloader for automatic restarts on code changes.
+        """
         use_reloader = options["use_reloader"]
 
         if use_reloader:
@@ -123,6 +137,15 @@ class Command(BaseCommand):
     def inner_run(self, *args, **options):
         # If an exception was silenced in ManagementUtility.execute in order
         # to be raised in the child process, raise it now.
+        """
+        Start the server and begin handling requests.
+
+        This method initializes the server, performs system checks and migrations, 
+        and then runs the server with the specified handler and options. 
+        It handles common server startup errors, such as permission issues and port conflicts, 
+        and provides informative error messages. 
+        The server can be shutdown manually using KeyboardInterrupt.
+        """
         autoreload.raise_last_exception()
 
         threading = options["use_threading"]
@@ -170,6 +193,9 @@ class Command(BaseCommand):
             sys.exit(0)
 
     def on_bind(self, server_port):
+        """
+        Displays a startup message for the development server, including the current time, Django version, and instructions on how to quit the server.
+        """
         quit_command = "CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C"
 
         if self._raw_ipv6:

@@ -30,6 +30,9 @@ class ModTests(TestCase):
         self.assertAlmostEqual(obj.f_mod, math.fmod(obj.f1, obj.f2))
 
     def test_integer(self):
+        """
+        Tests the usage of the modulo operation in Django's ORM by creating an IntegerModel instance, annotating it with the results of the modulo operation on its fields, and verifying that the results are floats and match the expected values calculated using the math.fmod function.
+        """
         IntegerModel.objects.create(small=20, normal=15, big=1)
         obj = IntegerModel.objects.annotate(
             small_mod=Mod("small", "normal"),

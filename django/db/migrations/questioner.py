@@ -25,7 +25,12 @@ class MigrationQuestioner:
         self.dry_run = dry_run
 
     def ask_initial(self, app_label):
-        """Should we create an initial migration for the app?"""
+        """
+        Determines whether an initial migration should be created for an app.
+
+        Returns True if the app label is specified or if there are no existing migration files, 
+        otherwise returns the default value for ask_initial from the options dictionary.
+        """
         # If it was specified on the command line, definitely true
         if app_label in self.specified_apps:
             return True
@@ -97,6 +102,13 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         self.prompt_output = prompt_output or OutputWrapper(sys.stdout)
 
     def _boolean_input(self, question, default=None):
+        """
+        Prompt the user for a boolean input with a given question.
+
+        The question is displayed to the user, who is then prompted to respond with either 'yes' or 'no'.
+        If a default value is provided, it will be used if the user enters an empty response.
+        The function continues to prompt the user until a valid 'yes' or 'no' response is given, returning True for 'yes' and False for 'no'.
+        """
         self.prompt_output.write(f"{question} ", ending="")
         result = input()
         if not result and default is not None:
@@ -107,6 +119,15 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return result[0].lower() == "y"
 
     def _choice_input(self, question, choices):
+        """
+
+        Prompt the user to select an option from a list of choices.
+
+        :param question: The prompt to display to the user.
+        :param choices: A list of options for the user to choose from.
+        :returns: The index (1-based) of the chosen option.
+
+        """
         self.prompt_output.write(f"{question}")
         for i, choice in enumerate(choices):
             self.prompt_output.write(" %s) %s" % (i + 1, choice))
@@ -125,11 +146,12 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
 
     def _ask_default(self, default=""):
         """
-        Prompt for a default value.
 
-        The ``default`` argument allows providing a custom default value (as a
-        string) which will be shown to the user and used as the return value
-        if the user doesn't provide any other input.
+            Prompts the user for a default value, allowing for custom input or acceptance of a provided default.
+
+            :param default: The default value to display to the user, used as the return value if no other input is provided
+            :return: The evaluated input value, using the datetime and django.utils.timezone modules if needed
+
         """
         self.prompt_output.write("Please enter the default value as valid Python.")
         if default:
@@ -164,7 +186,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
                     self.prompt_output.write("Invalid input: %s" % e)
 
     def ask_not_null_addition(self, field_name, model_name):
-        """Adding a NOT NULL field to a model."""
+        """
+        Asks for user input when adding a NOT NULL field to a model, as the database requires a default value to populate existing rows. If the dry run mode is disabled, prompts the user to either provide a one-off default or quit to define a default manually in the model file, returning the default value if provided.
+        """
         if not self.dry_run:
             choice = self._choice_input(
                 f"It is impossible to add a non-nullable field '{field_name}' "
@@ -187,7 +211,14 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return None
 
     def ask_not_null_alteration(self, field_name, model_name):
-        """Changing a NULL field to NOT NULL."""
+        """
+        Handle alteration of a nullable field to non-nullable on a model.
+
+        Prompts the user to select a fix when changing a nullable field to non-nullable,
+        as existing rows with null values need a default value to be populated.
+        Returns a default value or a flag indicating no default was provided,
+        or exits the program if the user chooses to define a default manually.
+        """
         if not self.dry_run:
             choice = self._choice_input(
                 f"It is impossible to change a nullable field '{field_name}' "
@@ -247,7 +278,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         )
 
     def ask_auto_now_add_addition(self, field_name, model_name):
-        """Adding an auto_now_add field to a model."""
+        """
+        Adds an auto_now_add field to a model, handling the requirement for a default value to populate existing rows.
+        """
         if not self.dry_run:
             choice = self._choice_input(
                 f"It is impossible to add the field '{field_name}' with "
@@ -267,7 +300,9 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return None
 
     def ask_unique_callable_default_addition(self, field_name, model_name):
-        """Adding a unique field with a callable default."""
+        """
+        Warns about the implications of adding a unique field with a callable default and prompts for a course of action to ensure data integrity during migration.
+        """
         if not self.dry_run:
             version = get_docs_version()
             choice = self._choice_input(

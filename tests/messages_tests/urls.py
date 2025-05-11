@@ -26,6 +26,16 @@ TEMPLATE = """{% if messages %}
 def add(request, message_type):
     # Don't default to False here to test that it defaults to False if
     # unspecified.
+    """
+
+    Add messages of a specific type to the message queue.
+
+    Adds one or more messages to the message queue based on the provided message type.
+    Optionally, allows the messages to be added silently without raising exceptions.
+
+    Redirects to the message display page after adding the messages.
+
+    """
     fail_silently = request.POST.get("fail_silently", None)
     for msg in request.POST.getlist("messages"):
         if fail_silently is not None:

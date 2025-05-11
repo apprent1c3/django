@@ -49,7 +49,7 @@ class AppsTests(SimpleTestCase):
 
     def test_ready(self):
         """
-        Tests the ready property of the main registry.
+        Tests the ready status of the main application registry, verifying it is properly initialized and operating correctly.
         """
         # The main app registry is always ready when the tests run.
         self.assertIs(apps.ready, True)
@@ -61,7 +61,7 @@ class AppsTests(SimpleTestCase):
 
     def test_bad_app_config(self):
         """
-        Tests when INSTALLED_APPS contains an incorrect app config.
+        Verifies that Django raises an ImproperlyConfigured exception when an incorrect application configuration is provided in INSTALLED_APPS.
         """
         msg = "'apps.apps.BadConfig' must supply a name attribute."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
@@ -70,7 +70,7 @@ class AppsTests(SimpleTestCase):
 
     def test_not_an_app_config(self):
         """
-        Tests when INSTALLED_APPS contains a class that isn't an app config.
+        Tests that an error is raised when a non-AppConfig class is included in INSTALLED_APPS.
         """
         msg = "'apps.apps.NotAConfig' isn't a subclass of AppConfig."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
@@ -79,8 +79,7 @@ class AppsTests(SimpleTestCase):
 
     def test_no_such_app(self):
         """
-        Tests when INSTALLED_APPS contains an app that doesn't exist, either
-        directly or via an app config.
+        Testswhether the INSTALLED_APPS setting can detect and handle non-existent applications, raising appropriate exceptions when such apps are referenced either directly or via application configurations.
         """
         with self.assertRaises(ImportError):
             with self.settings(INSTALLED_APPS=["there is no such app"]):
@@ -128,7 +127,9 @@ class AppsTests(SimpleTestCase):
         self.assertIsInstance(config, AppConfig)
 
     def test_two_default_configs_app(self):
-        """Load an app that provides two default AppConfig classes."""
+        """
+        Tests that an app with multiple default AppConfig classes raises a RuntimeError when loaded.
+        """
         msg = (
             "'apps.two_default_configs_app.apps' declares more than one "
             "default AppConfig: 'TwoConfig', 'TwoConfigBis'."
@@ -158,7 +159,12 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_get_app_config(self):
         """
-        Tests apps.get_app_config().
+
+        Tests the functionality of getting application configurations through the apps module.
+
+        Verifies that the function successfully retrieves the app configuration for installed apps,
+         handles cases where the app is not installed, and provides meaningful error messages for incorrect app labels.
+
         """
         app_config = apps.get_app_config("admin")
         self.assertEqual(app_config.name, "django.contrib.admin")
@@ -176,7 +182,7 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_is_installed(self):
         """
-        Tests apps.is_installed().
+        Tests whether the given apps are installed in the current Django project.
         """
         self.assertIs(apps.is_installed("django.contrib.admin"), True)
         self.assertIs(apps.is_installed("django.contrib.auth"), True)
@@ -186,7 +192,7 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_get_model(self):
         """
-        Tests apps.get_model().
+        Tests the get_model function from the apps module, ensuring it correctly retrieves models by name, handles case-insensitive matching, and raises expected errors for non-existent or improperly formatted model names.
         """
         self.assertEqual(apps.get_model("admin", "LogEntry"), LogEntry)
         with self.assertRaises(LookupError):
@@ -207,6 +213,9 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_clear_cache(self):
         # Set cache.
+        """
+        Tests the cache clearing functionality of the apps module, ensuring that the swappable settings name and models caches are properly cleared.
+        """
         self.assertIsNone(apps.get_swappable_settings_name("admin.LogEntry"))
         apps.get_models()
 
@@ -245,7 +254,7 @@ class AppsTests(SimpleTestCase):
 
     def test_models_py(self):
         """
-        The models in the models.py file were loaded correctly.
+        Tests the loading of models from the models.py file, verifying that the correct models are registered and accessible.
         """
         self.assertEqual(apps.get_model("apps", "TotallyNormal"), TotallyNormal)
         with self.assertRaises(LookupError):
@@ -257,7 +266,7 @@ class AppsTests(SimpleTestCase):
 
     def test_models_not_loaded(self):
         """
-        apps.get_models() raises an exception if apps.models_ready isn't True.
+        Tests that apps.get_models() raises an exception when the models are not loaded.
         """
         apps.models_ready = False
         try:
@@ -272,7 +281,7 @@ class AppsTests(SimpleTestCase):
 
     def test_dynamic_load(self):
         """
-        Makes a new model at runtime and ensures it goes into the right place.
+        Tests dynamic model loading to ensure the model is created and stored correctly at runtime.
         """
         old_models = list(apps.get_app_config("apps").get_models())
         # Construct a new model in a new app registry
@@ -294,7 +303,7 @@ class AppsTests(SimpleTestCase):
 
     def test_model_clash(self):
         """
-        Test for behavior when two models clash in the app registry.
+        Tests the application's behavior when multiple models with the same name are registered in the app registry, checking for correct warning and error messages.
         """
         new_apps = Apps(["apps"])
         meta_contents = {
@@ -333,8 +342,7 @@ class AppsTests(SimpleTestCase):
 
     def test_get_containing_app_config_apps_not_ready(self):
         """
-        apps.get_containing_app_config() should raise an exception if
-        apps.apps_ready isn't True.
+        Tests that get_containing_app_config raises an exception when apps are not yet loaded.
         """
         apps.apps_ready = False
         try:
@@ -348,7 +356,13 @@ class AppsTests(SimpleTestCase):
     @isolate_apps("apps", kwarg_name="apps")
     def test_lazy_model_operation(self, apps):
         """
-        Tests apps.lazy_model_operation().
+
+            Tests the lazy model operation functionality in the apps module.
+
+            Verifies that the lazy model operation method correctly handles model
+            classes and pending operations, ensuring that models are properly added
+            and removed from the pending operations set as needed.
+
         """
         model_classes = []
         initial_pending = set(apps._pending_operations)
@@ -401,7 +415,9 @@ class AppConfigTests(SimpleTestCase):
     """Unit tests for AppConfig class."""
 
     def test_path_set_explicitly(self):
-        """If subclass sets path as class attr, no module attributes needed."""
+        """
+        Verifies that when a subclass of AppConfig explicitly sets the path as a class attribute, it takes precedence and no module attributes are required.
+        """
 
         class MyAppConfig(AppConfig):
             path = "foo"
@@ -411,7 +427,9 @@ class AppConfigTests(SimpleTestCase):
         self.assertEqual(ac.path, "foo")
 
     def test_explicit_path_overrides(self):
-        """If path set as class attr, overrides __path__ and __file__."""
+        """
+        Tests that a path set as a class attribute overrides the __path__ and __file__ attributes.
+        """
 
         class MyAppConfig(AppConfig):
             path = "foo"
@@ -472,6 +490,9 @@ class AppConfigTests(SimpleTestCase):
         self.assertEqual(repr(ac), "<AppConfig: label>")
 
     def test_invalid_label(self):
+        """
+        Checks that setting an invalid label in an application configuration raises an ImproperlyConfigured exception.
+        """
         class MyAppConfig(AppConfig):
             label = "invalid.label"
 
@@ -515,7 +536,7 @@ class NamespacePackageAppTests(SimpleTestCase):
 
     def test_single_path(self):
         """
-        A Py3.3+ namespace package can be an app if it has only one path.
+        Tests the case where a Py3.3+ namespace package is recognized as an application due to having a single path.
         """
         with extend_sys_path(self.base_location):
             with self.settings(INSTALLED_APPS=["nsapp"]):
@@ -524,10 +545,7 @@ class NamespacePackageAppTests(SimpleTestCase):
 
     def test_multiple_paths(self):
         """
-        A Py3.3+ namespace package with multiple locations cannot be an app.
-
-        (Because then we wouldn't know where to load its templates, static
-        assets, etc. from.)
+        Tests that a namespace package with multiple locations cannot be installed as an application due to ambiguity in locating templates and static assets.
         """
         # Temporarily add two directories to sys.path that both contain
         # components of the "nsapp" package.
@@ -538,7 +556,7 @@ class NamespacePackageAppTests(SimpleTestCase):
 
     def test_multiple_paths_explicit_path(self):
         """
-        Multiple locations are ok only if app-config has explicit path.
+        Tests that multiple app locations are allowed when an explicit path is defined in the application configuration.
         """
         # Temporarily add two directories to sys.path that both contain
         # components of the "nsapp" package.
@@ -581,6 +599,9 @@ class QueryPerformingAppTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_query_default_database_using_stored_procedure(self):
+        """
+        Tests the ability to query the default database using a stored procedure.
+        """
         connection = connections["default"]
         with connection.cursor() as cursor:
             cursor.execute(connection.features.create_test_procedure_without_params_sql)
@@ -593,6 +614,15 @@ class QueryPerformingAppTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_query_other_database_using_stored_procedure(self):
+        """
+        Tests querying another database using a stored procedure.
+
+        This test case checks the ability to execute a stored procedure on a different
+        database and verifies the functionality of querying across databases.
+
+        The test creates a temporary stored procedure, runs the necessary setup, and
+        then removes the procedure after completion.
+        """
         connection = connections["other"]
         with connection.cursor() as cursor:
             cursor.execute(connection.features.create_test_procedure_without_params_sql)
@@ -604,6 +634,26 @@ class QueryPerformingAppTests(TransactionTestCase):
                 editor.remove_procedure("test_procedure")
 
     def run_setup(self, app_config_name):
+        """
+        Runs Django setup with a custom app configuration and returns query results.
+
+        Parameters
+        ----------
+        app_config_name : str
+            The name of the custom app configuration to use.
+
+        Returns
+        -------
+        query_results
+            The results of the queries performed during setup.
+
+        Notes
+        -----
+        This function temporarily overrides the installed apps and Django settings to
+        perform the setup with the specified custom app configuration. It also catches
+        and verifies a specific RuntimeWarning during the setup process.
+
+        """
         custom_settings = override_settings(
             INSTALLED_APPS=[f"apps.query_performing_app.apps.{app_config_name}"]
         )

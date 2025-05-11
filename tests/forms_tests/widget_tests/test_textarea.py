@@ -64,6 +64,9 @@ class TextareaTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests that a form field is rendered correctly without a fieldset when the widget does not specify its use.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

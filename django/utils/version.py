@@ -22,7 +22,15 @@ PY313 = sys.version_info >= (3, 13)
 
 
 def get_version(version=None):
-    """Return a PEP 440-compliant version number from VERSION."""
+    """
+    Return a PEP 440-compliant version number.
+
+    This function generates a version string in the format specified by PEP 440,
+    taking into account pre-release versions and post-release changesets. If no
+    version is provided, it defaults to the current project version. The returned
+    version string can be used for distribution, packaging, or other purposes where
+    a standardized version format is required.
+    """
     version = get_complete_version(version)
 
     # Now build the two parts of the version number:
@@ -54,8 +62,10 @@ def get_main_version(version=None):
 
 def get_complete_version(version=None):
     """
-    Return a tuple of the django version. If version argument is non-empty,
-    check for correctness of the tuple provided.
+
+    Return a tuple representing the Django version. If a version is provided, its correctness is validated.
+     Otherwise, the current Django version is returned.
+
     """
     if version is None:
         from django import VERSION as version
@@ -67,6 +77,10 @@ def get_complete_version(version=None):
 
 
 def get_docs_version(version=None):
+    """
+    Returns the version of the documentation, either as 'dev' if the provided version is not final, 
+    or the major and minor version numbers if it is final
+    """
     version = get_complete_version(version)
     if version[3] != "final":
         return "dev"
@@ -76,11 +90,8 @@ def get_docs_version(version=None):
 
 @functools.lru_cache
 def get_git_changeset():
-    """Return a numeric identifier of the latest git changeset.
-
-    The result is the UTC timestamp of the changeset in YYYYMMDDHHMMSS format.
-    This value isn't guaranteed to be unique, but collisions are very unlikely,
-    so it's sufficient for generating the development version numbers.
+    """
+    Returns a numeric identifier of the latest git changeset as a UTC timestamp in YYYYMMDDHHMMSS format, used for generating development version numbers.
     """
     # Repository may not be found if __file__ is undefined, e.g. in a frozen
     # module.
@@ -108,8 +119,7 @@ version_component_re = _lazy_re_compile(r"(\d+|[a-z]+|\.)")
 
 def get_version_tuple(version):
     """
-    Return a tuple of version numbers (e.g. (1, 2, 3)) from the version
-    string (e.g. '1.2.3').
+    Return a tuple of version numbers from a version string, suitable for numerical comparison.
     """
     version_numbers = []
     for item in version_component_re.split(version):

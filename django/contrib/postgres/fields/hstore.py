@@ -54,6 +54,15 @@ class HStoreField(CheckFieldDefaultMixin, Field):
         )
 
     def get_prep_value(self, value):
+        """
+        Prepare the given value for database storage by converting nested dictionary keys and values, as well as list items, to strings.\"\"\"
+
+         Args:
+            value: The value to be prepared for database storage.
+
+         Returns:
+            The prepared value.
+        """
         value = super().get_prep_value(value)
 
         if isinstance(value, dict):

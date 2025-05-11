@@ -16,6 +16,9 @@ class CeilTests(TestCase):
         self.assertIsNone(obj.null_ceil)
 
     def test_decimal(self):
+        """
+        Tests the ceiling function on decimal fields, ensuring it returns the correct results and the output is of Decimal type.
+        """
         DecimalModel.objects.create(n1=Decimal("12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_ceil=Ceil("n1"), n2_ceil=Ceil("n2")
@@ -26,6 +29,9 @@ class CeilTests(TestCase):
         self.assertEqual(obj.n2_ceil, Decimal(math.ceil(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the application of the ceiling function to floating point numbers in a database model, verifying the correctness of the calculation and the resulting data type.
+        """
         FloatModel.objects.create(f1=-12.5, f2=21.33)
         obj = FloatModel.objects.annotate(
             f1_ceil=Ceil("f1"), f2_ceil=Ceil("f2")
@@ -36,6 +42,9 @@ class CeilTests(TestCase):
         self.assertEqual(obj.f2_ceil, math.ceil(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the Ceil database function on integer fields, verifying it correctly returns the ceiling of the values as integers.
+        """
         IntegerModel.objects.create(small=-11, normal=0, big=-100)
         obj = IntegerModel.objects.annotate(
             small_ceil=Ceil("small"),
@@ -50,6 +59,18 @@ class CeilTests(TestCase):
         self.assertEqual(obj.big_ceil, math.ceil(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of DecimalField values using the Ceil lookup function.\"\"\"
+
+         argument:
+         None
+
+         return:
+         None 
+
+         note:
+         The test creates DecimalModel objects, applies the Ceil transformation to filter objects with a ceiling value greater than 3, and verifies the result.
+        """
         with register_lookup(DecimalField, Ceil):
             DecimalModel.objects.create(n1=Decimal("3.12"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.25"), n2=Decimal("0"))

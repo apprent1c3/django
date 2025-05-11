@@ -55,6 +55,18 @@ class Command(BaseCommand):
         bpython.embed()
 
     def python(self, options):
+        """
+        Run an interactive Python shell with customized startup behavior.
+
+        Provides an interactive Python environment where startup scripts (as specified
+        by the PYTHONSTARTUP environment variable or ~/.pythonrc.py) are executed and
+        their imported objects are made available for interactive use. The shell also
+        attempts to enable readline and tab completion for a more user-friendly experience.
+
+        :param options: A dictionary containing configuration options, including 'no_startup'
+                        to disable execution of startup scripts.
+
+        """
         import code
 
         # Set up a dictionary to serve as the environment for the shell.
@@ -113,6 +125,13 @@ class Command(BaseCommand):
 
     def handle(self, **options):
         # Execute the command and exit.
+        """
+        Handles the execution of a command or shell interface.
+
+        Optionally executes a given command, reads and executes from standard input, 
+        or attempts to run an available shell interface. Raises an error if no suitable 
+        interface can be imported.
+        """
         if options["command"]:
             exec(options["command"], globals())
             return

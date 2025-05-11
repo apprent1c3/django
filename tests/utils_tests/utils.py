@@ -3,9 +3,7 @@ import platform
 
 def on_macos_with_hfs():
     """
-    MacOS 10.13 (High Sierra) and lower can use HFS+ as a filesystem.
-    HFS+ has a time resolution of only one second which can be too low for
-    some of the tests.
+    Checks if the current macOS version is using HFS+ filepath, where time resolution is limited to one second, affecting test reliability.
     """
     macos_version = platform.mac_ver()[0]
     if macos_version != "":

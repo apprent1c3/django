@@ -79,6 +79,9 @@ class TemplateLoaderTests(SimpleTestCase):
             select_template("template_loader/hello.html")
 
     def test_select_template_not_found(self):
+        """
+        Tests that the select_template function raises a TemplateDoesNotExist exception when no template is found, and verifies the exception's chain attributes.
+        """
         with self.assertRaises(TemplateDoesNotExist) as e:
             select_template(
                 ["template_loader/unknown.html", "template_loader/missing.html"]
@@ -150,6 +153,9 @@ class TemplateLoaderTests(SimpleTestCase):
             render_to_string([])
 
     def test_render_to_string_with_list_not_found(self):
+        """
+        Tests that rendering a template to a string raises a TemplateDoesNotExist exception when the template is not found, and verifies the exception chain contains the correct template names and backend names.
+        """
         with self.assertRaises(TemplateDoesNotExist) as e:
             render_to_string(
                 ["template_loader/unknown.html", "template_loader/missing.html"]

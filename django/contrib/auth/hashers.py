@@ -35,9 +35,16 @@ def is_password_usable(encoded):
 
 def verify_password(password, encoded, preferred="default"):
     """
-    Return two booleans. The first is whether the raw password matches the
-    three part encoded digest, and the second whether to regenerate the
-    password.
+
+    Verifies a raw password against an encoded password digest.
+
+    Returns a tuple of two booleans: the first indicating whether the raw password
+    matches the encoded digest, and the second indicating whether the password
+    should be regenerated.
+
+    The verification process takes into account the preferred hashing algorithm and
+    may update the encoded digest if necessary.
+
     """
     fake_runtime = password is None or not is_password_usable(encoded)
 
@@ -71,11 +78,7 @@ def verify_password(password, encoded, preferred="default"):
 
 def check_password(password, encoded, setter=None, preferred="default"):
     """
-    Return a boolean of whether the raw password matches the three part encoded
-    digest.
-
-    If setter is specified, it'll be called when you need to regenerate the
-    password.
+    Verify a raw password against an encoded password digest, with optional password regeneration via a provided setter function.
     """
     is_correct, must_update = verify_password(password, encoded, preferred=preferred)
     if setter and is_correct and must_update:
@@ -84,7 +87,9 @@ def check_password(password, encoded, setter=None, preferred="default"):
 
 
 async def acheck_password(password, encoded, setter=None, preferred="default"):
-    """See check_password()."""
+    """
+    Asynchronously checks if a provided password matches an encoded password, with optional support for updating the encoded password if necessary.
+    """
     is_correct, must_update = verify_password(password, encoded, preferred=preferred)
     if setter and is_correct and must_update:
         await setter(password)
@@ -93,12 +98,7 @@ async def acheck_password(password, encoded, setter=None, preferred="default"):
 
 def make_password(password, salt=None, hasher="default"):
     """
-    Turn a plain-text password into a hash for database storage
-
-    Same as encode() but generate a new random salt. If password is None then
-    return a concatenation of UNUSABLE_PASSWORD_PREFIX and a random string,
-    which disallows logins. Additional random string reduces chances of gaining
-    access to staff or superuser accounts. See ticket #20079 for more info.
+    Turns a plain-text password into a hash for secure database storage, generating a random salt if none is provided. If no password is given, returns a unique unusable password string to prevent unauthorized access.
     """
     if password is None:
         return UNUSABLE_PASSWORD_PREFIX + get_random_string(
@@ -115,6 +115,11 @@ def make_password(password, salt=None, hasher="default"):
 
 @functools.lru_cache
 def get_hashers():
+    """
+    Return a list of configured password hashers.
+
+    The function iterates over the password hashers specified in the settings, imports and instantiates each one, and checks if it specifies an algorithm name. It raises an exception if an invalid hasher is found. The list of valid hashers is then returned and cached for future calls.
+    """
     hashers = []
     for hasher_path in settings.PASSWORD_HASHERS:
         hasher_cls = import_string(hasher_path)
@@ -141,10 +146,7 @@ def reset_hashers(*, setting, **kwargs):
 
 def get_hasher(algorithm="default"):
     """
-    Return an instance of a loaded password hasher.
-
-    If algorithm is 'default', return the default hasher. Lazily import hashers
-    specified in the project's settings file if needed.
+    Return an instance of a loaded password hasher. The default hasher is returned if no algorithm is specified, otherwise a hasher matching the given algorithm is lazily loaded from the project's settings.
     """
     if hasattr(algorithm, "algorithm"):
         return algorithm
@@ -166,11 +168,13 @@ def get_hasher(algorithm="default"):
 
 def identify_hasher(encoded):
     """
-    Return an instance of a loaded password hasher.
 
-    Identify hasher algorithm by examining encoded hash, and call
-    get_hasher() to return hasher. Raise ValueError if
-    algorithm cannot be identified, or if hasher is not loaded.
+    Return an instance of a loaded password hasher based on the encoded hash.
+
+    Determines the hashing algorithm used to create the encoded hash and returns
+    a corresponding hasher instance. Raises a ValueError if the algorithm cannot
+    be identified or if the hasher is not loaded.
+
     """
     # Ancient versions of Django created plain MD5 passwords and accepted
     # MD5 passwords with an empty salt.
@@ -216,6 +220,12 @@ class BasePasswordHasher:
     salt_entropy = 128
 
     def _load_library(self):
+        """
+        Loads the library associated with the current hasher object.
+
+        The library is expected to be specified in the `library` attribute, which can be a string or a tuple containing the library name and module path.
+        If the library is not specified or import fails, a ValueError is raised.
+        """
         if self.library is not None:
             if isinstance(self.library, (tuple, list)):
                 name, mod_path = self.library
@@ -322,6 +332,11 @@ class PBKDF2PasswordHasher(BasePasswordHasher):
     digest = hashlib.sha256
 
     def encode(self, password, salt, iterations=None):
+        """
+        Generates a password hash using the PBKDF2 algorithm. 
+        Takes a password and salt, and optionally the number of iterations to use (defaults to the object's iterations if not provided). 
+        Returns a string in the format 'algorithm$iterations$salt$hash'.
+        """
         self._check_encode_args(password, salt)
         iterations = iterations or self.iterations
         hash = pbkdf2(password, salt, iterations, digest=self.digest)
@@ -407,6 +422,9 @@ class Argon2PasswordHasher(BasePasswordHasher):
         return self.algorithm + data.decode("ascii")
 
     def decode(self, encoded):
+        """
+        Decodes an Argon2-encrypted string into its constituent parameters, including the algorithm, variety, salt, and computational cost settings. The decoded parameters are returned as a dictionary for further processing or verification.
+        """
         argon2 = self._load_library()
         algorithm, rest = encoded.split("$", 1)
         assert algorithm == self.algorithm
@@ -428,6 +446,15 @@ class Argon2PasswordHasher(BasePasswordHasher):
         }
 
     def verify(self, password, encoded):
+        """
+        Verifies if a provided password matches an encoded password.
+
+        The function checks if the given password is valid for the encoded password using the Argon2 password hashing algorithm.
+
+        :arg password: The password to verify.
+        :arg encoded: The encoded password to verify against.
+        :returns: True if the password matches, False otherwise.
+        """
         argon2 = self._load_library()
         algorithm, rest = encoded.split("$", 1)
         assert algorithm == self.algorithm
@@ -450,6 +477,14 @@ class Argon2PasswordHasher(BasePasswordHasher):
         }
 
     def must_update(self, encoded):
+        """
+        Determines whether an update is required based on the encoded parameters and current settings.
+
+        The decision to update is made by comparing the current parameters with the new ones and checking if the salt needs to be updated according to the specified entropy. 
+
+        Returns:
+            bool: True if an update is required, False otherwise.
+        """
         decoded = self.decode(encoded)
         current_params = decoded["params"]
         new_params = self.params()
@@ -498,6 +533,13 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         return bcrypt.gensalt(self.rounds)
 
     def encode(self, password, salt):
+        """
+        Encodes a password using the bcrypt algorithm, optionally pre-processing it with a specified digest function.
+
+        :param password: The password to be encoded
+        :param salt: The salt to use for the encoding process
+        :returns: The encoded password as a string, prefixed with the algorithm identifier
+        """
         bcrypt = self._load_library()
         password = password.encode()
         # Hash the password prior to using bcrypt to prevent password
@@ -540,6 +582,14 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         return decoded["work_factor"] != self.rounds
 
     def harden_runtime(self, password, encoded):
+        """
+
+        Harden the runtime of password encoding by performing additional iterations.
+
+        This function aims to slow down the encoding process by a factor proportional to the difference between the current and target number of rounds.
+        It helps defend against brute-force attacks by making the encoding process more computationally expensive.
+
+        """
         _, data = encoded.split("$", 1)
         salt = data[:29]  # Length of the salt in bcrypt.
         rounds = data.split("$")[2]
@@ -580,6 +630,11 @@ class ScryptPasswordHasher(BasePasswordHasher):
     work_factor = 2**14
 
     def encode(self, password, salt, n=None, r=None, p=None):
+        """
+        Encrypts a password using the scrypt algorithm, returning a string in a format suitable for storage and later verification. 
+
+        The function takes a password, a salt, and optional scrypt parameters (work factor, block size, and parallelism), using defaults from the current object if not provided.
+        """
         self._check_encode_args(password, salt)
         n = n or self.work_factor
         r = r or self.block_size

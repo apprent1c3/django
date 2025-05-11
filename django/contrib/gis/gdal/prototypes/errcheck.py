@@ -24,7 +24,7 @@ def ptr_byref(args, offset=-1):
 # ### String checking Routines ###
 def check_const_string(result, func, cargs, offset=None, cpl=False):
     """
-    Similar functionality to `check_string`, but does not free the pointer.
+    Checks the result of a function that returns a constant string, similar to check_string but without freeing the pointer, optionally retrieving the string from a pointer at a specified offset within the function arguments.
     """
     if offset:
         check_err(result, cpl=cpl)
@@ -36,12 +36,7 @@ def check_const_string(result, func, cargs, offset=None, cpl=False):
 
 def check_string(result, func, cargs, offset=-1, str_result=False):
     """
-    Check the string output returned from the given function, and free
-    the string pointer allocated by OGR.  The `str_result` keyword
-    may be used when the result is the string pointer, otherwise
-    the OGR error code is assumed.  The `offset` keyword may be used
-    to extract the string pointer passed in by-reference at the given
-    slice offset in the function arguments.
+    Checks string output returned from an OGR function, handling memory management and error codes appropriately.
     """
     if str_result:
         # For routines that return a string.
@@ -74,7 +69,9 @@ def check_envelope(result, func, cargs, offset=-1):
 
 # ### Geometry error-checking routines ###
 def check_geom(result, func, cargs):
-    "Check a function that returns a geometry."
+    """
+    Validate a geometry returned by a function, ensuring it is not empty or invalid, and raise an exception if the geometry pointer is not valid.
+    """
     # OGR_G_Clone may return an integer, even though the
     # restype is set to c_void_p
     if isinstance(result, int):
@@ -95,6 +92,9 @@ def check_geom_offset(result, func, cargs, offset=-1):
 
 # ### Spatial Reference error-checking routines ###
 def check_srs(result, func, cargs):
+    """
+    Checks and validates the spatial reference pointer returned from a function, raising an exception if it is invalid.
+    """
     if isinstance(result, int):
         result = c_void_p(result)
     if not result:
@@ -122,7 +122,9 @@ def check_errcode(result, func, cargs, cpl=False):
 
 
 def check_pointer(result, func, cargs):
-    "Make sure the result pointer is valid."
+    """
+    Validate the result pointer returned from a function, raising an exception if it is invalid.
+    """
     if isinstance(result, int):
         result = c_void_p(result)
     if result:

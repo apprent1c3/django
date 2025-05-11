@@ -15,6 +15,14 @@ CSRF_TOKEN = "1bcdefghij2bcdefghij3bcdefghij4bcdefghij5bcdefghij6bcdefghijABCD"
 
 class CsrfTestMixin:
     def get_request(self, token=CSRF_TOKEN):
+        """
+
+        Creates a new HTTP POST request object with optional CSRF token.
+
+        :param token: CSRF token to include in the request, defaults to CSRF_TOKEN
+        :return: An HttpRequest object with POST method and CSRF token if provided
+
+        """
         request = HttpRequest()
         request.method = "POST"
         if token:
@@ -40,6 +48,9 @@ class CsrfProtectTests(CsrfTestMixin, SimpleTestCase):
 
     def test_csrf_protect_decorator(self):
         @csrf_protect
+        """
+        Tests the functionality of the csrf_protect decorator to validate CSRF tokens and handle invalid requests, ensuring that valid requests pass through and invalid requests are rejected with a 403 status code.
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -55,6 +66,12 @@ class CsrfProtectTests(CsrfTestMixin, SimpleTestCase):
 
     async def test_csrf_protect_decorator_async_view(self):
         @csrf_protect
+        """
+
+        Tests the effect of applying the csrf_protect decorator to an asynchronous view.
+        Verifies that the decorator correctly handles valid and invalid CSRF tokens.
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -86,6 +103,9 @@ class RequiresCsrfTokenTests(CsrfTestMixin, SimpleTestCase):
 
     def test_requires_csrf_token_decorator(self):
         @requires_csrf_token
+        """
+        Tests the requires_csrf_token decorator to ensure it correctly handles CSRF tokens in synchronous views.
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -101,6 +121,11 @@ class RequiresCsrfTokenTests(CsrfTestMixin, SimpleTestCase):
 
     async def test_requires_csrf_token_decorator_async_view(self):
         @requires_csrf_token
+        """
+
+        Tests the requires_csrf_token decorator on an asynchronous view, ensuring it processes CSRF tokens correctly.
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -132,6 +157,12 @@ class EnsureCsrfCookieTests(CsrfTestMixin, SimpleTestCase):
 
     def test_ensure_csrf_cookie_decorator(self):
         @ensure_csrf_cookie
+        """
+
+        Tests that the ensure_csrf_cookie decorator correctly sets the CSRF cookie
+        and handles the presence or absence of a CSRF token in the request.
+
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -147,6 +178,13 @@ class EnsureCsrfCookieTests(CsrfTestMixin, SimpleTestCase):
 
     async def test_ensure_csrf_cookie_decorator_async_view(self):
         @ensure_csrf_cookie
+        """
+        Tests the ensure_csrf_cookie decorator with an async view.
+
+        Ensures that the decorator properly sets the CSRF cookie and handles
+        requests with and without a CSRF token, allowing the view to return a
+        successful response in both cases.
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -178,6 +216,9 @@ class CsrfExemptTests(SimpleTestCase):
 
     def test_csrf_exempt_decorator(self):
         @csrf_exempt
+        """
+        Tests that the csrf_exempt decorator correctly marks a view as exempt from CSRF checks and that the view functions correctly, returning an HttpResponse.
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -186,6 +227,9 @@ class CsrfExemptTests(SimpleTestCase):
 
     async def test_csrf_exempt_decorator_async_view(self):
         @csrf_exempt
+        """
+        Tests that the csrf_exempt decorator correctly marks an asynchronous view as exempt from CSRF checks and that the view responds with an HttpResponse.
+        """
         async def async_view(request):
             return HttpResponse()
 

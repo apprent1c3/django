@@ -2,6 +2,15 @@ from django.db import migrations, models
 
 
 def add_legacy_name(apps, schema_editor):
+    """
+
+    Updates legacy names for content types to match their corresponding model object names.
+
+    This function iterates over all content types in the database, updating their names to
+    match the object name of their corresponding model. If the model is not found, the 
+    content type's model name is used instead.
+
+    """
     alias = schema_editor.connection.alias
     ContentType = apps.get_model("contenttypes", "ContentType")
     for ct in ContentType.objects.using(alias):

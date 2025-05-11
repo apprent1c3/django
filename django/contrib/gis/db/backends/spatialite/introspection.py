@@ -27,6 +27,14 @@ class SpatiaLiteIntrospection(DatabaseIntrospection):
     data_types_reverse = GeoFlexibleFieldLookupDict()
 
     def get_geometry_type(self, table_name, description):
+        """
+        Returns the Django field type and parameters for a geometry column.
+
+        :param table_name: The name of the database table.
+        :param description: Column description object containing the column name.
+        :raises Exception: If the geometry column is not found.
+        :returns: A tuple containing the Django field type and a dictionary of field parameters.
+        """
         with self.connection.cursor() as cursor:
             # Querying the `geometry_columns` table to get additional metadata.
             cursor.execute(
@@ -63,6 +71,10 @@ class SpatiaLiteIntrospection(DatabaseIntrospection):
         return field_type, field_params
 
     def get_constraints(self, cursor, table_name):
+        """
+        Retrieves constraints for a given table, including spatial indexes, and returns them as a dictionary. 
+        The spatial indexes are identified from the geometry_columns table and added to the constraints dictionary with a unique key in the format 'column_name__spatial__index'.
+        """
         constraints = super().get_constraints(cursor, table_name)
         cursor.execute(
             "SELECT f_geometry_column "

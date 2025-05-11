@@ -66,6 +66,14 @@ async def async_regular(request):
 
 
 async def async_streaming(request):
+    """
+    Returns a StreamingHttpResponse object that provides asynchronous streaming content.
+
+    This function is used to generate a streaming HTTP response, allowing for efficient
+    handling of large or continuous data without loading it all into memory at once.
+
+    :returns: A StreamingHttpResponse object containing the streamed content.
+    """
     async def async_streaming_generator():
         yield b"streaming"
         yield b" "

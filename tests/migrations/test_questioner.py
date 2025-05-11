@@ -78,6 +78,16 @@ class QuestionerHelperMethodsTests(SimpleTestCase):
 
     @mock.patch("builtins.input", side_effect=[10, "garbage", 1])
     def test_questioner_bad_user_choice(self, mock_input):
+        """
+        Return user's choice from a given set of options.
+
+        Prompts the user with a question and a list of choices, handling invalid inputs
+        until a valid choice is made.
+
+        :param question: the question to be asked to the user
+        :param choices: a string of characters representing the available choices
+        :returns: the index of the chosen option (1-indexed)
+        """
         question = "Make a choice:"
         value = self.questioner._choice_input(question, choices="abc")
         expected_msg = f"{question}\n" f" 1) a\n" f" 2) b\n" f" 3) c\n"

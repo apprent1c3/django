@@ -21,6 +21,15 @@ logger = logging.getLogger("django.contrib.gis")
 
 def load_geos():
     # Custom library path set?
+    """
+
+    Loads the GEOS library, a spatial geometry library, and returns a ctypes interface to it.
+
+    Attempts to find the library using the GEOS_LIBRARY_PATH setting, and falls back to searching for known library names on Windows, POSIX, and other systems.
+
+    Raises ImportError if the library cannot be found.
+
+    """
     try:
         from django.conf import settings
 
@@ -78,6 +87,12 @@ NOTICEFUNC = CFUNCTYPE(None, c_char_p, c_char_p)
 
 
 def notice_h(fmt, lst):
+    """
+    Logs a warning message with a GEOS notice prefix.
+
+    The message is formatted using the provided format string and list.
+    If formatting fails, the original format string is logged instead.
+    """
     fmt, lst = fmt.decode(), lst.decode()
     try:
         warn_msg = fmt % lst
@@ -92,6 +107,16 @@ ERRORFUNC = CFUNCTYPE(None, c_char_p, c_char_p)
 
 
 def error_h(fmt, lst):
+    """
+    Logs a GEOS error message.
+
+    Formats the provided error message using the given format string and list,
+    and logs it at the error level. If formatting fails, logs the original format string.
+
+    :param fmt: The format string for the error message.
+    :param lst: The list to format into the error message.
+
+    """
     fmt, lst = fmt.decode(), lst.decode()
     try:
         err_msg = fmt % lst
@@ -142,6 +167,9 @@ class GEOSFuncFactory:
     errcheck = None
 
     def __init__(self, func_name, *, restype=None, errcheck=None, argtypes=None):
+        """
+        Initializes a wrapper for a foreign function, specifying its name and optionally its return type, error checking function, and argument types.
+        """
         self.func_name = func_name
         if restype is not None:
             self.restype = restype
@@ -155,6 +183,10 @@ class GEOSFuncFactory:
 
     @cached_property
     def func(self):
+        """
+        Returns a GEOS function object with specified arguments and return type, 
+        caching the result to avoid repeated initialization.
+        """
         from django.contrib.gis.geos.prototypes.threadsafe import GEOSFunc
 
         func = GEOSFunc(self.func_name)

@@ -49,6 +49,13 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        Adds command-line arguments for fixture loading to the given parser.
+
+        Allows specification of fixtures to load, the database to load into, and other options
+        for controlling the loading process, such as ignoring non-existent fields and excluding
+        specific apps or models.
+        """
         parser.add_argument(
             "args", metavar="fixture", nargs="+", help="Fixture labels."
         )
@@ -90,6 +97,14 @@ class Command(BaseCommand):
         )
 
     def handle(self, *fixture_labels, **options):
+        """
+
+        Handle fixture loading for the given labels and options.
+
+        Loads the specified fixtures into the database, applying the provided options such as database, app label, verbosity, 
+        exclusions, and format. This operation is performed within a transaction to ensure data consistency.
+
+        """
         self.ignore = options["ignore"]
         self.using = options["database"]
         self.app_label = options["app_label"]
@@ -111,7 +126,9 @@ class Command(BaseCommand):
 
     @cached_property
     def compression_formats(self):
-        """A dict mapping format names to (open function, mode arg) tuples."""
+        """
+        Returns a dictionary mapping compression format names to functions that can be used to open files in those formats, along with the corresponding mode arguments.
+        """
         # Forcing binary mode may be revisited after dropping Python 2 support
         # (see #22399).
         compression_formats = {
@@ -128,7 +145,9 @@ class Command(BaseCommand):
         return compression_formats
 
     def reset_sequences(self, connection, models):
-        """Reset database sequences for the given connection and models."""
+        """
+        Reset database sequences for the given connection and models, executing SQL commands necessary to update sequence values.
+        """
         sequence_sql = connection.ops.sequence_reset_sql(no_style(), models)
         if sequence_sql:
             if self.verbosity >= 2:
@@ -138,6 +157,15 @@ class Command(BaseCommand):
                     cursor.execute(line)
 
     def loaddata(self, fixture_labels):
+        """
+
+        Loads fixture data from the specified labels into the database.
+
+        This function prepares the database by disabling constraint checks, loads the 
+        fixtures, saves any deferred fields, and then checks the constraints. It 
+        also provides feedback on the number of objects installed.
+
+        """
         connection = connections[self.using]
 
         # Keep a count of the installed objects and fixtures
@@ -196,7 +224,9 @@ class Command(BaseCommand):
                 )
 
     def save_obj(self, obj):
-        """Save an object if permitted."""
+        """
+        Save an object to the database if migration is permitted for its model and the object's app is not excluded, handling potential database errors.
+        """
         if (
             obj.object._meta.app_config in self.excluded_apps
             or type(obj.object) in self.excluded_models
@@ -224,7 +254,17 @@ class Command(BaseCommand):
         return saved
 
     def load_label(self, fixture_label):
-        """Load fixtures files for a given label."""
+        """
+        Loads fixtures files for a given label, deserializes the data, and saves it to the database.
+
+        The function iterates over all fixture files matching the given label, 
+        reads their contents, and imports the data into the database. It also 
+        keeps track of the loading progress and provides feedback to the user if 
+        the verbosity level is high enough.
+
+        :arg fixture_label: The label of the fixtures to be loaded
+
+        """
         show_progress = self.verbosity >= 3
         for fixture_file, fixture_dir, fixture_name in self.find_fixtures(
             fixture_label
@@ -280,6 +320,9 @@ class Command(BaseCommand):
                 )
 
     def get_fixture_name_and_dirs(self, fixture_name):
+        """
+        Returns the name and list of directories for a given fixture, handling both absolute and relative fixture paths.
+        """
         dirname, basename = os.path.split(fixture_name)
         if os.path.isabs(fixture_name):
             fixture_dirs = [dirname]
@@ -303,6 +346,18 @@ class Command(BaseCommand):
         }
 
     def find_fixture_files_in_dir(self, fixture_dir, fixture_name, targets):
+        """
+
+        Finds fixture files in a directory that match the target file names.
+
+        This function searches for files in the specified directory that start with the given fixture name and have a name that matches one of the target file names.
+
+        :param fixture_dir: The directory to search for fixture files.
+        :param fixture_name: The base name of the fixture files to search for.
+        :param targets: A list of target file names to match.
+        :returns: A list of tuples containing the path to the found files, their directory, and their fixture name.
+
+        """
         fixture_files_in_dir = []
         path = os.path.join(fixture_dir, fixture_name)
         for candidate in glob.iglob(glob.escape(path) + "*"):
@@ -314,7 +369,10 @@ class Command(BaseCommand):
 
     @functools.cache
     def find_fixtures(self, fixture_label):
-        """Find fixture files for a given label."""
+        """
+        Find fixture files for a given label by parsing the label, searching designated directories, 
+        and returning the fixture files that match the specified name and formats.
+        """
         if fixture_label == READ_STDIN:
             return [(READ_STDIN, None, READ_STDIN)]
 
@@ -355,11 +413,7 @@ class Command(BaseCommand):
     @cached_property
     def fixture_dirs(self):
         """
-        Return a list of fixture directories.
-
-        The list contains the 'fixtures' subdirectory of each installed
-        application, if it exists, the directories in FIXTURE_DIRS, and the
-        current directory.
+        Return a list of fixture directories, including the 'fixtures' subdirectory of each installed application, custom directories specified in settings.FIXTURE_DIRS, and the current directory. Ensures the provided directories are unique and do not conflict with default app fixtures.
         """
         dirs = []
         fixture_dirs = settings.FIXTURE_DIRS
@@ -385,7 +439,12 @@ class Command(BaseCommand):
 
     def parse_name(self, fixture_name):
         """
-        Split fixture name in name, serialization format, compression format.
+
+            Split a fixture name into its components, including the name, serialization format, and compression format.
+
+            The function handles special cases, such as reading from standard input, and validates the serialization and compression formats.
+            It returns a tuple containing the name, serialization format, and compression format, in that order.
+
         """
         if fixture_name == READ_STDIN:
             if not self.format:

@@ -56,7 +56,9 @@ class DeleteLockingTest(TransactionTestCase):
         self.addCleanup(self.conn2.rollback)
 
     def test_concurrent_delete(self):
-        """Concurrent deletes don't collide and lock the database (#9479)."""
+        """
+        Tests that concurrent deletion of database records does not result in collisions or database locks.
+        """
         with transaction.atomic():
             Book.objects.create(id=1, pagecount=100)
             Book.objects.create(id=2, pagecount=200)
@@ -83,8 +85,7 @@ class DeleteLockingTest(TransactionTestCase):
 class DeleteCascadeTests(TestCase):
     def test_generic_relation_cascade(self):
         """
-        Django cascades deletes through generic-related objects to their
-        reverse relations.
+        Tests that Django correctly cascades deletes through generic-related objects to their reverse relations, ensuring related objects are deleted when the parent object is removed.
         """
         person = Person.objects.create(name="Nelson Mandela")
         award = Award.objects.create(name="Nobel", content_object=person)
@@ -97,10 +98,7 @@ class DeleteCascadeTests(TestCase):
 
     def test_fk_to_m2m_through(self):
         """
-        If an M2M relationship has an explicitly-specified through model, and
-        some other model has an FK to that through model, deletion is cascaded
-        from one of the participants in the M2M, to the through model, to its
-        related model.
+        Tests that deletion of a model participating in a many-to-many relationship with an explicitly-specified through model cascades to the through model and its related models.
         """
         juan = Child.objects.create(name="Juan")
         paints = Toy.objects.create(name="Paints")
@@ -115,6 +113,9 @@ class DeleteCascadeTests(TestCase):
         self.assertEqual(PlayedWithNote.objects.count(), 0)
 
     def test_15776(self):
+        """
+        Tests the cascade deletion behavior of policy objects, ensuring that all associated versions, locations, and items are properly removed when a policy is deleted.
+        """
         policy = Policy.objects.create(pk=1, policy_number="1234")
         version = Version.objects.create(policy=policy)
         location = Location.objects.create(version=version)
@@ -127,11 +128,7 @@ class DeleteCascadeTransactionTests(TransactionTestCase):
 
     def test_inheritance(self):
         """
-        Auto-created many-to-many through tables referencing a parent model are
-        correctly found by the delete cascade when a child of that parent is
-        deleted.
-
-        Refs #14896.
+        Tests that many-to-many through tables referencing a parent model are correctly handled by the delete cascade when a child of that parent is deleted.
         """
         r = Researcher.objects.create()
         email = Email.objects.create(
@@ -143,7 +140,7 @@ class DeleteCascadeTransactionTests(TransactionTestCase):
 
     def test_to_field(self):
         """
-        Cascade deletion works with ForeignKey.to_field set to non-PK.
+        Tests the cascading deletion of related objects when a ForeignKey's to_field is set to a non-primary key field, ensuring that both the parent and child objects are properly deleted.
         """
         apple = Food.objects.create(name="apple")
         Eaten.objects.create(food=apple, meal="lunch")
@@ -156,7 +153,11 @@ class DeleteCascadeTransactionTests(TransactionTestCase):
 class LargeDeleteTests(TestCase):
     def test_large_deletes(self):
         """
-        If the number of objects > chunk size, deletion still occurs.
+
+            Validate that bulk deletion of objects works correctly even when the number of objects exceeds the chunk size.
+
+            Tests that all objects are successfully deleted and that post-delete signals are properly handled.
+
         """
         for x in range(300):
             Book.objects.create(pagecount=x + 100)
@@ -179,7 +180,9 @@ class ProxyDeleteTest(TestCase):
     """
 
     def create_image(self):
-        """Return an Image referenced by both a FooImage and a FooFile."""
+        """
+        Creates and returns an Image instance associated with both a FooImage and a FooFile, establishing the necessary relationships between them.
+        """
         # Create an Image
         test_image = Image()
         test_image.save()
@@ -195,8 +198,11 @@ class ProxyDeleteTest(TestCase):
 
     def test_delete_proxy(self):
         """
-        Deleting the *proxy* instance bubbles through to its non-proxy and
-        *all* referring objects are deleted.
+
+            Tests the cascading deletion behavior of proxy instances.
+
+            Verifies that deleting a proxy object also removes all related objects.
+
         """
         self.create_image()
 
@@ -212,8 +218,7 @@ class ProxyDeleteTest(TestCase):
 
     def test_delete_proxy_of_proxy(self):
         """
-        Deleting a proxy-of-proxy instance should bubble through to its proxy
-        and non-proxy parents, deleting *all* referring objects.
+        Deletes a proxy-of-proxy instance and verifies that all referring proxy and non-proxy objects are also deleted, ensuring a complete removal of related objects from the database.
         """
         test_image = self.create_image()
 
@@ -237,8 +242,7 @@ class ProxyDeleteTest(TestCase):
 
     def test_delete_concrete_parent(self):
         """
-        Deleting an instance of a concrete model should also delete objects
-        referencing its proxy subclass.
+        Deletes a concrete model instance and verifies that all referencing proxy subclass objects are also removed.
         """
         self.create_image()
 
@@ -255,12 +259,8 @@ class ProxyDeleteTest(TestCase):
 
     def test_delete_proxy_pair(self):
         """
-        If a pair of proxy models are linked by an FK from one concrete parent
-        to the other, deleting one proxy model cascade-deletes the other, and
-        the deletion happens in the right order (not triggering an
-        IntegrityError on databases unable to defer integrity checks).
-
-        Refs #17918.
+        Tests the cascade deletion of proxy model pairs linked by a foreign key, 
+        ensuring the deletion occurs in the correct order to prevent IntegrityErrors.
         """
         # Create an Image (proxy of File) and FooFileProxy (proxy of FooFile,
         # which has an FK to File)
@@ -273,6 +273,9 @@ class ProxyDeleteTest(TestCase):
         self.assertEqual(len(FooFileProxy.objects.all()), 0)
 
     def test_19187_values(self):
+        """
+        Tests that calling delete() on QuerySets obtained from values() or values_list() raises a TypeError with the expected error message.
+        """
         msg = "Cannot call delete() after .values() or .values_list()"
         with self.assertRaisesMessage(TypeError, msg):
             Image.objects.values().delete()
@@ -342,6 +345,9 @@ class DeleteTests(TestCase):
         # When a subquery is performed by deletion code, the subquery must be
         # cleared of all ordering. There was a but that caused _meta ordering
         # to be used. Refs #19720.
+        """
+        Tests the deletion of OrderedPerson objects that are ordered and related to a House, verifying that the correct objects are removed when filtered by the House address.
+        """
         h = House.objects.create(address="Foo")
         OrderedPerson.objects.create(name="Jack", lives_in=h)
         OrderedPerson.objects.create(name="Bob", lives_in=h)
@@ -350,9 +356,8 @@ class DeleteTests(TestCase):
 
     def test_foreign_key_delete_nullifies_correct_columns(self):
         """
-        With a model (Researcher) that has two foreign keys pointing to the
-        same model (Contact), deleting an instance of the target model
-        (contact1) nullifies the correct fields of Researcher.
+        Tests if deleting an instance of a model that is referenced by two foreign keys
+        in another model correctly nullifies the corresponding foreign key fields.
         """
         contact1 = Contact.objects.create(label="Contact 1")
         contact2 = Contact.objects.create(label="Contact 2")
@@ -373,6 +378,9 @@ class DeleteTests(TestCase):
         self.assertIsNone(researcher2.secondary_contact)
 
     def test_self_reference_with_through_m2m_at_second_level(self):
+        """
+        Tests deletion of books using a subquery that self-references through a many-to-many relationship at the second level, verifying the query optimization and deletion result.
+        """
         toy = Toy.objects.create(name="Paints")
         child = Child.objects.create(name="Juan")
         Book.objects.create(pagecount=500, owner=child)
@@ -402,6 +410,12 @@ class DeleteDistinct(SimpleTestCase):
 
 class SetQueryCountTests(TestCase):
     def test_set_querycount(self):
+        """
+        ```\"\"\"Tests that deleting a location results in the correct query count.
+
+        Ensures the associated item and location_value are updated with a minimal number of database queries.\"\"\"
+        ```
+        """
         policy = Policy.objects.create()
         version = Version.objects.create(policy=policy)
         location = Location.objects.create(version=version)

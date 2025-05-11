@@ -5,6 +5,9 @@ from django.db import models
 
 class CustomEmailFieldUserManager(BaseUserManager):
     def create_user(self, username, password, email):
+        """
+        Creates a new user account with the specified username, password, and email address.
+        """
         user = self.model(username=username)
         user.set_password(password)
         user.email_address = email

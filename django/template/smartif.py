@@ -44,8 +44,17 @@ class TokenBase:
 
 def infix(bp, func):
     """
-    Create an infix operator, given a binding power and a function that
-    evaluates the node.
+
+    Create an infix operator with a specified binding power and evaluation function.
+
+    The returned operator can be used to parse expressions and evaluate the results
+    using the provided function. It handles the operator's binding power and
+    composition of the expression's left and right operands.
+
+    :param bp: The binding power of the infix operator
+    :param func: The function used to evaluate the operator's result
+    :return: An operator object that can be used in parsing and evaluating expressions
+
     """
 
     class Operator(TokenBase):
@@ -70,8 +79,18 @@ def infix(bp, func):
 
 def prefix(bp, func):
     """
-    Create a prefix operator, given a binding power and a function that
-    evaluates the node.
+
+    Create a prefix operator with a specified binding power and evaluation function.
+
+    This function generates an operator that applies the provided function to a single
+    expression, allowing for the creation of custom prefix operators. The binding power
+    determines the operator's precedence in expressions.
+
+    :param bp: The binding power of the operator.
+    :param func: The function to apply to the expression.
+
+    :return: A prefix operator with the specified binding power and evaluation function.
+
     """
 
     class Operator(TokenBase):
@@ -157,6 +176,9 @@ class IfParser:
 
     def __init__(self, tokens):
         # Turn 'is','not' and 'not','in' into single tokens.
+        """
+        Initializes a token processor, mapping input tokens into a standardized form and preparing them for further processing. The processor combines consecutive 'is' and 'not' tokens into 'is not', as well as 'not' and 'in' tokens into 'not in', and translates each token using a predefined translation method. The resulting tokens are stored internally and an internal pointer is set to the first token, ready for iteration.
+        """
         num_tokens = len(tokens)
         mapped_tokens = []
         i = 0
@@ -176,6 +198,9 @@ class IfParser:
         self.current_token = self.next_token()
 
     def translate_token(self, token):
+        """
+        Translates a given token into an operator function if it exists, otherwise creates a variable representation for the token.
+        """
         try:
             op = OPERATORS[token]
         except (KeyError, TypeError):
@@ -184,6 +209,9 @@ class IfParser:
             return op()
 
     def next_token(self):
+        """
+        Retrieves the next token from the sequence, advancing the internal position. If all tokens have been exhausted, returns an EndToken to signal completion.
+        """
         if self.pos >= len(self.tokens):
             return EndToken
         else:
@@ -201,6 +229,10 @@ class IfParser:
         return retval
 
     def expression(self, rbp=0):
+        """
+        Parses an expression based on the current token and its left and right binding powers (lbp/rbp),
+         returning the parsed expression's result. The function handles prefix and infix operators to build the expression tree.
+        """
         t = self.current_token
         self.current_token = self.next_token()
         left = t.nud(self)

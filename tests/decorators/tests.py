@@ -33,6 +33,18 @@ fully_decorated.anything = "Expected __dict__"
 
 def compose(*functions):
     # compose(f, g)(*args, **kwargs) == f(g(*args, **kwargs))
+    """
+
+    Composite multiple functions together, creating a new function that applies them in reverse order.
+
+    The returned function takes any number of arguments, applies the first function to them, and then applies each subsequent function to the result of the previous one.
+
+    Example use case: piping a value through a series of transformations.
+
+    :param functions: variable number of functions to compose
+    :return: a new function representing the composition of the input functions
+
+    """
     functions = list(reversed(functions))
 
     def _inner(*args, **kwargs):
@@ -87,7 +99,12 @@ class DecoratorsTest(TestCase):
 
     def test_user_passes_test_composition(self):
         """
-        The user_passes_test decorator can be applied multiple times (#9474).
+
+        Tests the composition of multiple user_passes_test decorators to ensure they are applied in the correct order.
+
+        The function verifies that when multiple decorators are applied to a view, they are executed in the correct sequence, 
+        allowing the view to operate as expected.
+
         """
 
         def test1(user):
@@ -171,6 +188,9 @@ class MethodDecoratorTests(SimpleTestCase):
     """
 
     def test_preserve_signature(self):
+        """
+        Tests if the simple decorator preserves the original function signature when applied to a method. Verifies that the decorated method still accepts arguments and returns the expected output.
+        """
         class Test:
             @simple_dec_m
             def say(self, arg):
@@ -181,6 +201,10 @@ class MethodDecoratorTests(SimpleTestCase):
     def test_preserve_attributes(self):
         # Sanity check myattr_dec and myattr2_dec
         @myattr_dec
+        """
+        Tests if decorators applied to functions and methods correctly preserve attributes, 
+        including when multiple decorators are used, and when applied using method_decorator.
+        """
         def func():
             pass
 
@@ -250,7 +274,9 @@ class MethodDecoratorTests(SimpleTestCase):
                 self.assertEqual(Test.method.__name__, "method")
 
     def test_new_attribute(self):
-        """A decorator that sets a new attribute on the method."""
+        """
+        Tests that a decorator can successfully set a new attribute on a method.
+        """
 
         def decorate(func):
             func.x = 1
@@ -266,6 +292,9 @@ class MethodDecoratorTests(SimpleTestCase):
         self.assertIs(obj.method(), True)
 
     def test_bad_iterable(self):
+        """
+        Test that attempting to use a non-subscriptable iterable with method_decorator raises a TypeError.
+        """
         decorators = {myattr_dec_m, myattr2_dec_m}
         msg = "'set' object is not subscriptable"
         with self.assertRaisesMessage(TypeError, msg):
@@ -278,6 +307,9 @@ class MethodDecoratorTests(SimpleTestCase):
 
     # Test for argumented decorator
     def test_argumented(self):
+        """
+        Tests that method decorators using class decorators correctly override method return values.
+        """
         class Test:
             @method_decorator(ClsDec(False))
             def method(self):
@@ -286,6 +318,9 @@ class MethodDecoratorTests(SimpleTestCase):
         self.assertIs(Test().method(), False)
 
     def test_descriptors(self):
+        """
+        Tests the behavior of method decorators when applied to methods wrapped with descriptors.
+        """
         def original_dec(wrapped):
             def _wrapped(arg):
                 return wrapped(arg)
@@ -323,7 +358,11 @@ class MethodDecoratorTests(SimpleTestCase):
 
     def test_class_decoration(self):
         """
-        @method_decorator can be used to decorate a class and its methods.
+
+        Tests the functionality of applying a decorator to a class method using @method_decorator.
+
+        Verifies that the decorator correctly overrides the original method's behavior.
+
         """
 
         def deco(func):
@@ -341,7 +380,7 @@ class MethodDecoratorTests(SimpleTestCase):
 
     def test_tuple_of_decorators(self):
         """
-        @method_decorator can accept a tuple of decorators.
+        Tests the `method_decorator` function to ensure it correctly handles a tuple of decorators, applying them in the specified order to a method.
         """
 
         def add_question_mark(func):
@@ -379,7 +418,7 @@ class MethodDecoratorTests(SimpleTestCase):
 
     def test_invalid_non_callable_attribute_decoration(self):
         """
-        @method_decorator on a non-callable attribute raises an error.
+        Tests that attempting to apply the method_decorator to a non-callable attribute raises a TypeError.
         """
         msg = (
             "Cannot decorate 'prop' as it isn't a callable attribute of "
@@ -397,7 +436,7 @@ class MethodDecoratorTests(SimpleTestCase):
 
     def test_invalid_method_name_to_decorate(self):
         """
-        @method_decorator on a nonexistent method raises an error.
+        Tests that attempting to decorate a nonexistent method using @method_decorator raises a ValueError with an informative error message.
         """
         msg = (
             "The keyword argument `name` must be the name of a method of the "
@@ -412,12 +451,21 @@ class MethodDecoratorTests(SimpleTestCase):
                     return "tests"
 
     def test_wrapper_assignments(self):
-        """@method_decorator preserves wrapper assignments."""
+        """
+        Verifies that the method_decorator preserves the original function's name and module when applying a decorator to a class method.
+        """
         func_name = None
         func_module = None
 
         def decorator(func):
             @wraps(func)
+            """
+
+            A decorator that captures the name and module of a function for later use.
+
+            Preserves the original function's behavior while making its metadata available.
+
+            """
             def inner(*args, **kwargs):
                 nonlocal func_name, func_module
                 func_name = getattr(func, "__name__", None)

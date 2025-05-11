@@ -85,6 +85,13 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_skips(self):
+        """
+        Returns a dictionary of test skips for Django tests.
+
+        The dictionary keys are reasons for skipping tests, and the values are sets of tests to skip.
+        The skips are determined based on the database connection settings and capabilities, such as
+        the use of PostgreSQL, connection pooling, and server-side bindings.
+        """
         skips = {
             "opclasses are PostgreSQL only.": {
                 "indexes.tests.SchemaIndexesNotPostgreSQLTests."

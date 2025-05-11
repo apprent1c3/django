@@ -12,6 +12,9 @@ class TestDataMixin:
     def setUpTestData(cls):
         # don't use the manager because we want to ensure the site exists
         # with pk=1, regardless of whether or not it already exists.
+        """
+        Sets up test data for the class, creating sites and flat pages for testing purposes.
+        """
         cls.site1 = Site(pk=1, domain="example.com", name="example.com")
         cls.site1.save()
         cls.fp1 = FlatPage.objects.create(
@@ -79,7 +82,14 @@ class FlatpageViewTests(TestDataMixin, TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_view_authenticated_flatpage(self):
-        "A flatpage served through a view can require authentication"
+        """
+
+        Tests that a view serving a flatpage correctly enforces authentication.
+
+        Verifies that an unauthenticated request results in a redirect to the login page,
+        and that an authenticated request successfully retrieves the flatpage content.
+
+        """
         response = self.client.get("/flatpage_root/sekrit/")
         self.assertRedirects(response, "/accounts/login/?next=/flatpage_root/sekrit/")
         user = User.objects.create_user("testuser", "test@example.com", "s3krit")
@@ -101,7 +111,9 @@ class FlatpageViewTests(TestDataMixin, TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_view_flatpage_special_chars(self):
-        "A flatpage with special chars in the URL can be served through a view"
+        """
+        Tests that a flatpage with special characters in its URL can be successfully retrieved through a view, verifying that the content is correctly served and displayed.
+        """
         fp = FlatPage.objects.create(
             url="/some.very_special~chars-here/",
             title="A very special page",
@@ -163,8 +175,7 @@ class FlatpageViewAppendSlashTests(TestDataMixin, TestCase):
 
     def test_redirect_view_flatpage_special_chars(self):
         """
-        A flatpage with special chars in the URL can be served through a view
-        and should add a slash.
+        Tests whether a view correctly redirects to a flatpage with special characters in its URL, ensuring a trailing slash is added for proper URL formatting.
         """
         fp = FlatPage.objects.create(
             url="/some.very_special~chars-here/",

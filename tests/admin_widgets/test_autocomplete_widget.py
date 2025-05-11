@@ -109,6 +109,9 @@ class AutocompleteMixinTests(TestCase):
         self.assertEqual(url, "/autocomplete/")
 
     def test_render_options(self):
+        """
+        Tests the rendering of select options in the AlbumForm, verifying that initial values are correctly selected and displayed in the form's table representation.
+        """
         beatles = Band.objects.create(name="The Beatles", style="rock")
         who = Band.objects.create(name="The Who", style="rock")
         # With 'band', a ForeignKey.
@@ -143,6 +146,12 @@ class AutocompleteMixinTests(TestCase):
         self.assertNotIn(self.empty_option, output)
 
     def test_render_options_fk_as_pk(self):
+        """
+
+        Tests that the VideoStreamForm correctly renders a foreign key field as a primary key, 
+        with the provided release event selected as the default option.
+
+        """
         beatles = Band.objects.create(name="The Beatles", style="rock")
         rubber_soul = Album.objects.create(name="Rubber Soul", band=beatles)
         release_event = ReleaseEvent.objects.create(
@@ -156,6 +165,10 @@ class AutocompleteMixinTests(TestCase):
         self.assertIn(selected_option, output)
 
     def test_media(self):
+        """
+        Tests that the media files for the AutocompleteSelect widget are correctly loaded 
+        for different languages, including language-specific Select2 files.
+        """
         rel = Album._meta.get_field("band").remote_field
         base_files = (
             "admin/js/vendor/jquery/jquery.min.js",

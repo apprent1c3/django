@@ -99,7 +99,9 @@ class Operation:
         return "%s: %s" % (self.__class__.__name__, self._constructor_args)
 
     def formatted_description(self):
-        """Output a description prefixed by a category symbol."""
+        """
+        Returns a formatted description of the object, prefixed with its category symbol, or a default symbol if the category is undefined.
+        """
         description = self.describe()
         if self.category is None:
             return f"{OperationCategory.MIXED.value} {description}"
@@ -148,9 +150,13 @@ class Operation:
 
     def reduce(self, operation, app_label):
         """
-        Return either a list of operations the actual operation should be
-        replaced with or a boolean that indicates whether or not the specified
-        operation can be optimized across.
+
+            Determines whether the specified operation can be optimized across this instance.
+
+            :param operation: The operation to check for optimization.
+            :param app_label: Application label (currently unused).
+            :return: A list of replacement operations or False if optimization is not possible.
+
         """
         if self.elidable:
             return [operation]

@@ -11,6 +11,9 @@ class QueryStringTagTests(SimpleTestCase):
 
     @setup({"querystring_empty": "{% querystring %}"})
     def test_querystring_empty(self):
+        """
+        Tests that a query string is correctly handled when empty, verifying the template renders without output.
+        """
         request = self.request_factory.get("/")
         template = self.engine.get_template("querystring_empty")
         context = RequestContext(request)
@@ -19,6 +22,10 @@ class QueryStringTagTests(SimpleTestCase):
 
     @setup({"querystring_non_empty": "{% querystring %}"})
     def test_querystring_non_empty(self):
+        """
+        Tests that the Querystring filter correctly handles non-empty query strings, 
+            ensuring the '?' character is included in the output when query parameters are present.
+        """
         request = self.request_factory.get("/", {"a": "b"})
         template = self.engine.get_template("querystring_non_empty")
         context = RequestContext(request)
@@ -27,6 +34,14 @@ class QueryStringTagTests(SimpleTestCase):
 
     @setup({"querystring_multiple": "{% querystring %}"})
     def test_querystring_multiple(self):
+        """
+        Tests the rendering of a query string with multiple parameters in a template.\"\"\"
+
+         \"\"\" 
+            Verifies that the query string is correctly formatted and 
+            special characters are properly escaped.
+
+        """
         request = self.request_factory.get("/", {"x": "y", "a": "b"})
         template = self.engine.get_template("querystring_multiple")
         context = RequestContext(request)
@@ -35,6 +50,13 @@ class QueryStringTagTests(SimpleTestCase):
 
     @setup({"querystring_replace": "{% querystring a=1 %}"})
     def test_querystring_replace(self):
+        """
+
+        Tests the querystring_replace template tag functionality.
+
+        Verifies that the tag correctly replaces query string parameters with new values.
+
+        """
         request = self.request_factory.get("/", {"x": "y", "a": "b"})
         template = self.engine.get_template("querystring_replace")
         context = RequestContext(request)
@@ -43,6 +65,9 @@ class QueryStringTagTests(SimpleTestCase):
 
     @setup({"querystring_add": "{% querystring test_new='something' %}"})
     def test_querystring_add(self):
+        """
+        Tests adding a new query string parameter to an existing request using the querystring template tag. Verifies that the output includes both original and newly added query string parameters.
+        """
         request = self.request_factory.get("/", {"a": "b"})
         template = self.engine.get_template("querystring_add")
         context = RequestContext(request)
@@ -51,6 +76,9 @@ class QueryStringTagTests(SimpleTestCase):
 
     @setup({"querystring_remove": "{% querystring test=None a=1 %}"})
     def test_querystring_remove(self):
+        """
+        Tests the removal of a query string parameter from a URL using the querystring template tag.
+        """
         request = self.request_factory.get("/", {"test": "value", "a": "1"})
         template = self.engine.get_template("querystring_remove")
         context = RequestContext(request)
@@ -59,6 +87,9 @@ class QueryStringTagTests(SimpleTestCase):
 
     @setup({"querystring_remove_nonexistent": "{% querystring nonexistent=None a=1 %}"})
     def test_querystring_remove_nonexistent(self):
+        """
+        Tests that the querystring template tag correctly removes nonexistent parameters when rendering a template.
+        """
         request = self.request_factory.get("/", {"x": "y", "a": "1"})
         template = self.engine.get_template("querystring_remove_nonexistent")
         context = RequestContext(request)
@@ -67,6 +98,9 @@ class QueryStringTagTests(SimpleTestCase):
 
     @setup({"querystring_list": "{% querystring a=my_list %}"})
     def test_querystring_add_list(self):
+        """
+        Tests that a list passed to the querystring template tag is correctly formatted as a query string with multiple key-value pairs.
+        """
         request = self.request_factory.get("/")
         template = self.engine.get_template("querystring_list")
         context = RequestContext(request, {"my_list": [2, 3]})

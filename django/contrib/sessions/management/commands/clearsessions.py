@@ -11,6 +11,12 @@ class Command(BaseCommand):
     )
 
     def handle(self, **options):
+        """
+        Clears expired sessions from the session store.
+
+        Raises:
+            CommandError: If the session engine does not support clearing expired sessions.
+        """
         engine = import_module(settings.SESSION_ENGINE)
         try:
             engine.SessionStore.clear_expired()

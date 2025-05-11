@@ -18,8 +18,7 @@ def cached_import(module_path, class_name):
 
 def import_string(dotted_path):
     """
-    Import a dotted module path and return the attribute/class designated by the
-    last name in the path. Raise ImportError if the import failed.
+    Imports a module or class by its dotted path and returns the corresponding attribute or class, raising an ImportError if the import fails or the attribute/class does not exist.
     """
     try:
         module_path, class_name = dotted_path.rsplit(".", 1)
@@ -37,13 +36,9 @@ def import_string(dotted_path):
 
 def autodiscover_modules(*args, **kwargs):
     """
-    Auto-discover INSTALLED_APPS modules and fail silently when
-    not present. This forces an import on them to register any admin bits they
-    may want.
+    Automatically imports and registers modules from INSTALLED_APPS.
 
-    You may provide a register_to keyword parameter as a way to access a
-    registry. This register_to object must have a _registry instance variable
-    to access it.
+    This function iterates over all installed apps, attempting to import specified modules from each. If a module is not found, it silently fails unless the module has a submodule by the same name, in which case an exception is raised. An optional `register_to` object can be provided to track registrations.
     """
     from django.apps import apps
 
@@ -72,7 +67,13 @@ def autodiscover_modules(*args, **kwargs):
 
 
 def module_has_submodule(package, module_name):
-    """See if 'module' is in 'package'."""
+    """
+    Check if a submodule exists within a given package. 
+
+    :param package: The package to search within.
+    :param module_name: The name of the submodule to look for.
+    :return: True if the submodule exists, False otherwise.
+    """
     try:
         package_name = package.__name__
         package_path = package.__path__

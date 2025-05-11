@@ -263,6 +263,9 @@ class TestSerialization(SimpleTestCase):
 
 class TestValidation(SimpleTestCase):
     def test_invalid_uuid(self):
+        """
+        Tests the validation of UUIDField by attempting to clean an invalid UUID and verifying that a ValidationError is raised with the expected error code and message.
+        """
         field = models.UUIDField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("550e8400", None)
@@ -290,6 +293,10 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(loaded.id, saved.id)
 
     def test_uuid_pk_on_bulk_create(self):
+        """
+        Tests whether PrimaryKeyUUIDModel instances can be successfully created in bulk, 
+            verifying that UUID primary keys are generated automatically for models with id set to None.
+        """
         u1 = PrimaryKeyUUIDModel()
         u2 = PrimaryKeyUUIDModel(id=None)
         PrimaryKeyUUIDModel.objects.bulk_create([u1, u2])
@@ -308,6 +315,9 @@ class TestAsPrimaryKey(TestCase):
 
     def test_update_with_related_model_instance(self):
         # regression for #24611
+        """
+        Tests that updating a related model instance works correctly when using a UUID as the primary key.
+        """
         u1 = PrimaryKeyUUIDModel.objects.create()
         u2 = PrimaryKeyUUIDModel.objects.create()
         r = RelatedToUUIDModel.objects.create(uuid_fk=u1)
@@ -316,6 +326,9 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(r.uuid_fk, u2)
 
     def test_update_with_related_model_id(self):
+        """
+        Tests the update functionality of a related model when its foreign key is updated to reference a different UUID object. Verifies that the related object's foreign key is correctly updated in the database.
+        """
         u1 = PrimaryKeyUUIDModel.objects.create()
         u2 = PrimaryKeyUUIDModel.objects.create()
         r = RelatedToUUIDModel.objects.create(uuid_fk=u1)
@@ -324,6 +337,12 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(r.uuid_fk, u2)
 
     def test_two_level_foreign_keys(self):
+        """
+        Verifies that two-level foreign key relationships are properly established with UUIDs.
+
+        Checks that a UUIDGrandchild instance has a valid UUID as its uuidchild_ptr_id,
+        both initially and after refreshing from the database.
+        """
         gc = UUIDGrandchild()
         # exercises ForeignKey.get_db_prep_value()
         gc.save()

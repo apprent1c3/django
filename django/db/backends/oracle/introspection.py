@@ -32,6 +32,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     }
 
     def get_field_type(self, data_type, description):
+        """
+        Maps Oracle database data types to Django field types, handling NUMBER and NCLOB types with specific rules for precision, scale, and JSON data.
+        """
         if data_type == oracledb.NUMBER:
             precision, scale = description[4:6]
             if scale == 0:
@@ -87,8 +90,16 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_table_description(self, cursor, table_name):
         """
-        Return a description of the table with the DB-API cursor.description
-        interface.
+
+            Retrieves a detailed description of a database table.
+
+            This includes information about each column, such as its name, data type, 
+            display size, default value, collation, and any relevant comments.
+
+            :param cursor: A DB-API cursor object
+            :param table_name: The name of the table to describe
+            :return: A list of FieldInfo objects describing the table
+
         """
         # A default collation for the given table/view/materialized view.
         cursor.execute(
@@ -216,6 +227,16 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return name.lower()
 
     def get_sequences(self, cursor, table_name, table_fields=()):
+        """
+        Retrieve identity sequence information for a given table.
+
+        Returns a list of dictionaries containing sequence information, including the sequence name, table name, and column name.
+
+        If the table has a primary key identity column, the sequence information is retrieved from the database.
+        If no primary key identity column is found, the function checks the provided table fields for any AutoField instances and returns their column information.
+
+        If no sequence information is found, an empty list is returned.
+        """
         cursor.execute(
             """
             SELECT
@@ -297,8 +318,11 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_constraints(self, cursor, table_name):
         """
-        Retrieve any constraints or keys (unique, pk, fk, check, index) across
-        one or more columns.
+
+            Retrieve constraints and keys for a given table, including primary keys, unique constraints, 
+            foreign keys, check constraints, and indexes, returning them as a dictionary of constraint names 
+            to their respective properties and columns.
+
         """
         constraints = {}
         # Loop over the constraints, getting PKs, uniques, and checks

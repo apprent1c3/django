@@ -18,8 +18,7 @@ class Field(GDALBase):
 
     def __init__(self, feat, index):
         """
-        Initialize on the feature object and the integer index of
-        the field within the feature.
+        Initialize an OGR Field object, mapping it to the specified feature and field index, allowing access to the field's properties and values.
         """
         # Setting the feature pointer and index.
         self._feat = feat
@@ -48,7 +47,12 @@ class Field(GDALBase):
         )
 
     def as_int(self, is_64=False):
-        "Retrieve the Field's value as an integer."
+        """
+        Retrieve the Field's value as an integer.
+
+        :param bool is_64: Whether to retrieve the value as a 64-bit integer. Default is False.
+        :return: The field value as an integer, or None if the field is not set.
+        """
         if is_64:
             return (
                 capi.get_field_as_integer64(self._feat.ptr, self._index)
@@ -63,14 +67,22 @@ class Field(GDALBase):
             )
 
     def as_string(self):
-        "Retrieve the Field's value as a string."
+        """
+        Retrieve the Field's value as a string, or None if the field is not set.
+        """
         if not self.is_set:
             return None
         string = capi.get_field_as_string(self._feat.ptr, self._index)
         return force_str(string, encoding=self._feat.encoding, strings_only=True)
 
     def as_datetime(self):
-        "Retrieve the Field's value as a tuple of date & time components."
+        """
+        Retrieve the Field's value as a datetime, returning None if the field is not set.
+
+         Returns a tuple containing year, month, day, hour, minute, second, and timezone.
+
+         Raises a GDALException if unable to retrieve date and time information from the field.
+        """
         if not self.is_set:
             return None
         yy, mm, dd, hh, mn, ss, tz = [c_int() for i in range(7)]
@@ -174,7 +186,9 @@ class OFTBinary(Field):
 class OFTDate(Field):
     @property
     def value(self):
-        "Return a Python `date` object for the OFTDate field."
+        """
+        Gets the value of the OFTDate field as a date object. Returns None if the value cannot be parsed or is invalid.
+        """
         try:
             yy, mm, dd, hh, mn, ss, tz = self.as_datetime()
             return date(yy.value, mm.value, dd.value)
@@ -185,7 +199,9 @@ class OFTDate(Field):
 class OFTDateTime(Field):
     @property
     def value(self):
-        "Return a Python `datetime` object for this OFTDateTime field."
+        """
+        Return a Python datetime object representing the value of this OFTDateTime field, or None if the conversion fails.
+        """
         # TODO: Adapt timezone information.
         #  See https://lists.osgeo.org/pipermail/gdal-dev/2006-February/007990.html
         #  The `tz` variable has values of: 0=unknown, 1=localtime (ambiguous),
@@ -200,7 +216,9 @@ class OFTDateTime(Field):
 class OFTTime(Field):
     @property
     def value(self):
-        "Return a Python `time` object for this OFTTime field."
+        """
+        Returns a time object representing the time component of this OFTTime field, or None if the value cannot be determined.
+        """
         try:
             yy, mm, dd, hh, mn, ss, tz = self.as_datetime()
             return time(hh.value, mn.value, ss.value)

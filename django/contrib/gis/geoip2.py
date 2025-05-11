@@ -59,26 +59,10 @@ class GeoIP2:
 
     def __init__(self, path=None, cache=0, country=None, city=None):
         """
-        Initialize the GeoIP object. No parameters are required to use default
-        settings. Keyword arguments may be passed in to customize the locations
-        of the GeoIP datasets.
-
-        * path: Base directory to where GeoIP data is located or the full path
-            to where the city or country data files (*.mmdb) are located.
-            Assumes that both the city and country data sets are located in
-            this directory; overrides the GEOIP_PATH setting.
-
-        * cache: The cache settings when opening up the GeoIP datasets. May be
-            an integer in (0, 1, 2, 4, 8) corresponding to the MODE_AUTO,
-            MODE_MMAP_EXT, MODE_MMAP, MODE_FILE, and MODE_MEMORY,
-            `GeoIPOptions` C API settings,  respectively. Defaults to 0,
-            meaning MODE_AUTO.
-
-        * country: The name of the GeoIP country data file. Defaults to
-            'GeoLite2-Country.mmdb'; overrides the GEOIP_COUNTRY setting.
-
-        * city: The name of the GeoIP city data file. Defaults to
-            'GeoLite2-City.mmdb'; overrides the GEOIP_CITY setting.
+        Initializes a GeoIP object, allowing for customization of location data sets and caching settings. 
+        The object requires a path to the GeoIP data, which can be a base directory or a specific file, 
+        and supports various caching modes for optimized performance. 
+        It also accepts country and city data file names, defaulting to 'GeoLite2-Country.mmdb' and 'GeoLite2-City.mmdb' if not provided.
         """
         if cache not in self.cache_options:
             raise GeoIP2Exception("Invalid GeoIP caching option: %s" % cache)
@@ -124,6 +108,15 @@ class GeoIP2:
         return self._reader.metadata()
 
     def _query(self, query, *, require_city=False):
+        """
+        :param str query: The query to execute (IP address or hostname)
+        :param bool require_city: Raise an exception if the GeoIP data file is not a city data file (default: False)
+        :raises TypeError: If query is not a string or IP address
+        :raises GeoIP2Exception: If require_city is True and the GeoIP data file is not a city data file
+        :raises ValidationError: If the query is an invalid IPv4 or IPv6 address
+        :return: The result of the GeoIP query (city or country data) 
+        :rtype: Depends on the type of the GeoIP database
+        """
         if not isinstance(query, (str, ipaddress.IPv4Address, ipaddress.IPv6Address)):
             raise TypeError(
                 "GeoIP query must be a string or instance of IPv4Address or "

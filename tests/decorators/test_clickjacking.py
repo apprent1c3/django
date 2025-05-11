@@ -27,6 +27,9 @@ class XFrameOptionsDenyTests(SimpleTestCase):
 
     def test_decorator_sets_x_frame_options_to_deny(self):
         @xframe_options_deny
+        """
+        Tests that the xframe_options_deny decorator correctly sets the X-Frame-Options header to 'DENY' in the HTTP response.
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -35,6 +38,9 @@ class XFrameOptionsDenyTests(SimpleTestCase):
 
     async def test_decorator_sets_x_frame_options_to_deny_async_view(self):
         @xframe_options_deny
+        """
+        Tests that the xframe_options_deny decorator correctly sets the X-Frame-Options header to 'DENY' for an asynchronous view.
+        """
         async def an_async_view(request):
             return HttpResponse()
 
@@ -59,6 +65,9 @@ class XFrameOptionsSameoriginTests(SimpleTestCase):
 
     def test_decorator_sets_x_frame_options_to_sameorigin(self):
         @xframe_options_sameorigin
+        """
+        Test that the xframe_options_sameorigin decorator correctly sets the X-Frame-Options header to SAMEORIGIN in HTTP responses.
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -67,6 +76,9 @@ class XFrameOptionsSameoriginTests(SimpleTestCase):
 
     async def test_decorator_sets_x_frame_options_to_sameorigin_async_view(self):
         @xframe_options_sameorigin
+        """
+        Tests that the xframe_options_sameorigin decorator sets the X-Frame-Options header to 'SAMEORIGIN' for an asynchronous view.
+        """
         async def an_async_view(request):
             return HttpResponse()
 
@@ -91,8 +103,8 @@ class XFrameOptionsExemptTests(SimpleTestCase):
 
     def test_decorator_stops_x_frame_options_being_set(self):
         """
-        @xframe_options_exempt instructs the XFrameOptionsMiddleware to NOT set
-        the header.
+        Tests that the @xframe_options_exempt decorator correctly prevents 
+        X-Frame-Options headers from being set on a view's response.
         """
 
         @xframe_options_exempt
@@ -111,6 +123,9 @@ class XFrameOptionsExemptTests(SimpleTestCase):
 
     async def test_exempt_decorator_async_view(self):
         @xframe_options_exempt
+        """
+        Tests the functionality of the xframe_options_exempt decorator when applied to an asynchronous view, ensuring it correctly sets the X-Frame-Options header to None and the xframe_options_exempt attribute to True, both with and without the XFrameOptionsMiddleware.
+        """
         async def an_async_view(request):
             return HttpResponse()
 

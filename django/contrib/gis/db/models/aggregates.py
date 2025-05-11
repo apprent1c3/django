@@ -30,6 +30,19 @@ class GeoAggregate(Aggregate):
         )
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        Processes the spatial aggregate operation as an Oracle-specific query.
+
+        This method generates SQL that can be executed by an Oracle database,
+        wrapping the spatial aggregate operation in the SDOAGGRTYPE function
+        with the specified tolerance. If the object represents an extent, it
+        falls back to the standard SQL generation method.
+
+        :param compiler: The database compiler to use for SQL generation.
+        :param connection: The database connection to use for SQL generation.
+        :param extra_context: Additional context to pass to the SQL generation process.
+
+        """
         if not self.is_extent:
             tolerance = self.extra.get("tolerance") or getattr(self, "tolerance", 0.05)
             clone = self.copy()
@@ -49,6 +62,9 @@ class GeoAggregate(Aggregate):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        Resolve an expression while enforcing geospatial constraints, ensuring that aggregate operations are only applied to geometry fields.
+        """
         c = super().resolve_expression(query, allow_joins, reuse, summarize, for_save)
         for field in c.get_source_fields():
             if not hasattr(field, "geom_type"):

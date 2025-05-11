@@ -34,7 +34,8 @@ class Signal:
 
     def __init__(self, use_caching=False):
         """
-        Create a new signal.
+        Initializes a new signal, preparing it to manage a set of receivers. 
+        The `use_caching` parameter determines whether caching is used to optimize receiver lookup.
         """
         self.receivers = []
         self.lock = threading.Lock()
@@ -49,37 +50,23 @@ class Signal:
 
     def connect(self, receiver, sender=None, weak=True, dispatch_uid=None):
         """
-        Connect receiver to sender for signal.
 
-        Arguments:
+            Connect a receiver function or method to a sender object for signal notification.
 
-            receiver
-                A function or an instance method which is to receive signals.
-                Receivers must be hashable objects. Receivers can be
-                asynchronous.
+            This method establishes a connection between a receiver, which can be a function or instance method,
+            and a sender, allowing the receiver to respond to signals emitted by the sender.
 
-                If weak is True, then receiver must be weak referenceable.
+            Parameters
+            ----------
+            receiver : callable
+                The function or instance method to receive signals.
+            sender : object, optional
+                The sender object to which the receiver should respond. Defaults to None.
+            weak : bool, optional
+                Whether to use a weak reference to the receiver. Defaults to True.
+            dispatch_uid : hashable, optional
+                A unique identifier for the receiver. Defaults to None.
 
-                Receivers must be able to accept keyword arguments.
-
-                If a receiver is connected with a dispatch_uid argument, it
-                will not be added if another receiver was already connected
-                with that dispatch_uid.
-
-            sender
-                The sender to which the receiver should respond. Must either be
-                a Python object, or None to receive events from any sender.
-
-            weak
-                Whether to use weak references to the receiver. By default, the
-                module will attempt to use weak references to the receiver
-                objects. If this parameter is false, then strong references will
-                be used.
-
-            dispatch_uid
-                An identifier used to uniquely identify a particular instance of
-                a receiver. This will usually be a string, though it may be
-                anything hashable.
         """
         from django.conf import settings
 
@@ -118,22 +105,7 @@ class Signal:
 
     def disconnect(self, receiver=None, sender=None, dispatch_uid=None):
         """
-        Disconnect receiver from sender for signal.
-
-        If weak references are used, disconnect need not be called. The receiver
-        will be removed from dispatch automatically.
-
-        Arguments:
-
-            receiver
-                The registered receiver to disconnect. May be none if
-                dispatch_uid is specified.
-
-            sender
-                The registered sender to disconnect
-
-            dispatch_uid
-                the unique identifier of the receiver to disconnect
+        Disconnect a receiver from a sender for a signal, allowing for flexible disconnection via receiver, sender, or unique dispatch UID.
         """
         if dispatch_uid:
             lookup_key = (dispatch_uid, _make_id(sender))
@@ -158,25 +130,7 @@ class Signal:
 
     def send(self, sender, **named):
         """
-        Send signal from sender to all connected receivers.
-
-        If any receiver raises an error, the error propagates back through send,
-        terminating the dispatch loop. So it's possible that all receivers
-        won't be called if an error is raised.
-
-        If any receivers are asynchronous, they are called after all the
-        synchronous receivers via a single call to async_to_sync(). They are
-        also executed concurrently with asyncio.gather().
-
-        Arguments:
-
-            sender
-                The sender of the signal. Either a specific object or None.
-
-            named
-                Named arguments which will be passed to receivers.
-
-        Return a list of tuple pairs [(receiver, response), ... ].
+        Send a signal from a specified sender to all connected receivers, handling both synchronous and asynchronous receivers, and return a list of receiver responses.
         """
         if (
             not self.receivers
@@ -206,26 +160,19 @@ class Signal:
         """
         Send signal from sender to all connected receivers in async mode.
 
-        All sync receivers will be wrapped by sync_to_async()
-        If any receiver raises an error, the error propagates back through
-        send, terminating the dispatch loop. So it's possible that all
-        receivers won't be called if an error is raised.
+        Asynchronously dispatches a signal to all attached receivers, 
+        handling both sync and async receivers. Any sync receivers are 
+        adapted and executed before async ones, which are run concurrently.
 
-        If any receivers are synchronous, they are grouped and called behind a
-        sync_to_async() adaption before executing any asynchronous receivers.
-
-        If any receivers are asynchronous, they are grouped and executed
-        concurrently with asyncio.gather().
-
-        Arguments:
+        若_declare arguments_: 
 
             sender
-                The sender of the signal. Either a specific object or None.
+                The object sending the signal, or None.
 
             named
-                Named arguments which will be passed to receivers.
+                Keyword arguments passed to receivers.
 
-        Return a list of tuple pairs [(receiver, response), ...].
+        Returns a list of tuples containing each receiver and its response.
         """
         if (
             not self.receivers
@@ -237,6 +184,14 @@ class Signal:
 
             @sync_to_async
             def sync_send():
+                """
+
+                Asynchronously sends a signal to all registered receivers and returns their responses.
+
+                :param: None
+                :returns: A list of tuples containing the receiver and its corresponding response.
+
+                """
                 responses = []
                 for receiver in sync_receivers:
                     response = receiver(signal=self, sender=sender, **named)
@@ -270,26 +225,13 @@ class Signal:
 
     def send_robust(self, sender, **named):
         """
-        Send signal from sender to all connected receivers catching errors.
+        Send a signal from a sender to connected receivers, catching and handling any errors that occur during signal transmission.
 
-        If any receivers are asynchronous, they are called after all the
-        synchronous receivers via a single call to async_to_sync(). They are
-        also executed concurrently with asyncio.gather().
+        The function differentiates between synchronous and asynchronous receivers, executing the latter concurrently using asyncio.gather(). 
 
-        Arguments:
+        It returns a list of tuples, where each tuple contains a receiver and its corresponding response. If a receiver raises an error, the error instance is returned as the response for that receiver. 
 
-            sender
-                The sender of the signal. Can be any Python object (normally one
-                registered with a connect if you actually want something to
-                occur).
-
-            named
-                Named arguments which will be passed to receivers.
-
-        Return a list of tuple pairs [(receiver, response), ... ].
-
-        If any receiver raises an error (specifically any subclass of
-        Exception), return the error instance as the result for that receiver.
+        The function takes two parameters: the sender of the signal and any named arguments to be passed to the receivers.
         """
         if (
             not self.receivers
@@ -312,6 +254,13 @@ class Signal:
         if async_receivers:
 
             async def asend_and_wrap_exception(receiver):
+                """
+                Send a signal to a receiver and handle any exceptions that occur.
+
+                The receiver is called with the signal and sender as arguments, and any additional
+                keyword arguments are passed through. If an exception occurs during the call, it
+                is logged and then returned. Otherwise, the response from the receiver is returned.
+                """
                 try:
                     response = await receiver(signal=self, sender=sender, **named)
                 except Exception as err:
@@ -333,28 +282,14 @@ class Signal:
 
     async def asend_robust(self, sender, **named):
         """
-        Send signal from sender to all connected receivers catching errors.
-
-        If any receivers are synchronous, they are grouped and called behind a
-        sync_to_async() adaption before executing any asynchronous receivers.
-
-        If any receivers are asynchronous, they are grouped and executed
-        concurrently with asyncio.gather.
+        Send a signal from a given sender to all connected receivers, handling exceptions and supporting both synchronous and asynchronous receivers. 
 
         Arguments:
+            sender: The sender of the signal.
+            **named: Named arguments passed to receivers.
 
-            sender
-                The sender of the signal. Can be any Python object (normally one
-                registered with a connect if you actually want something to
-                occur).
-
-            named
-                Named arguments which will be passed to receivers.
-
-        Return a list of tuple pairs [(receiver, response), ... ].
-
-        If any receiver raises an error (specifically any subclass of
-        Exception), return the error instance as the result for that receiver.
+        Returns:
+            A list of tuples, where each tuple contains a receiver and its response or error if an exception occurred.
         """
         if (
             not self.receivers
@@ -370,6 +305,9 @@ class Signal:
 
             @sync_to_async
             def sync_send():
+                """
+                Asynchronously sends a signal to a list of registered receivers, capturing and logging any failures that occur during the sending process, and returning a list of tuples containing each receiver and its corresponding response or error.
+                """
                 responses = []
                 for receiver in sync_receivers:
                     try:
@@ -387,6 +325,13 @@ class Signal:
                 return []
 
         async def asend_and_wrap_exception(receiver):
+            """
+            Send a signal to a receiver and handle any exceptions that occur.
+
+            Asynchronously invokes the receiver with the given signal and arguments.
+            If an exception is raised, it is logged as a robust failure and then returned,
+            otherwise the receiver's response is returned.
+            """
             try:
                 response = await receiver(signal=self, sender=sender, **named)
             except Exception as err:
@@ -415,10 +360,9 @@ class Signal:
 
     def _live_receivers(self, sender):
         """
-        Filter sequence of receivers to get resolved, live receivers.
-
-        This checks for weak references and resolves them, then returning only
-        live receivers.
+        Filters and resolves a sequence of receivers for a given sender, 
+        returning two lists: synchronous live receivers and asynchronous live receivers. 
+        It removes dead receivers, handles weak references, and supports caching for performance.
         """
         receivers = None
         if self.use_caching and not self._dead_receivers:
@@ -471,19 +415,16 @@ class Signal:
 
 def receiver(signal, **kwargs):
     """
-    A decorator for connecting receivers to signals. Used by passing in the
-    signal (or list of signals) and keyword arguments to connect::
-
-        @receiver(post_save, sender=MyModel)
-        def signal_receiver(sender, **kwargs):
-            ...
-
-        @receiver([post_save, post_delete], sender=MyModel)
-        def signals_receiver(sender, **kwargs):
-            ...
+    Connects a function to one or more signals, allowing it to receive notifications when the signals are sent.
     """
 
     def _decorator(func):
+        """
+        Registers a function to receive notifications from one or more signals.
+
+        Connects the provided function to the given signal(s), allowing it to react to events.
+        Returns the original function, unchanged, to enable decorator syntax usage.
+        """
         if isinstance(signal, (list, tuple)):
             for s in signal:
                 s.connect(func, **kwargs)

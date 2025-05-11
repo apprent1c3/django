@@ -28,8 +28,7 @@ class Nested:
 class BasicFieldTests(SimpleTestCase):
     def test_show_hidden_initial(self):
         """
-        Fields with choices respect show_hidden_initial as a kwarg to
-        formfield().
+        Tests whether fields with choices respect the show_hidden_initial parameter when generating form fields.
         """
         choices = [(0, 0), (1, 1)]
         model_field = models.Field(choices=choices)
@@ -41,7 +40,7 @@ class BasicFieldTests(SimpleTestCase):
 
     def test_field_repr(self):
         """
-        __repr__() of a field displays its name.
+        Verifies that the string representation of a field includes its name, adhering to the expected format for field representation, specifically for CharField instances in Django models.
         """
         f = Foo._meta.get_field("a")
         self.assertEqual(repr(f), "<django.db.models.fields.CharField: a>")
@@ -71,7 +70,9 @@ class BasicFieldTests(SimpleTestCase):
         self.assertEqual(m._meta.get_field("id").verbose_name, "verbose pk")
 
     def test_choices_form_class(self):
-        """Can supply a custom choices form class to Field.formfield()"""
+        """
+        Tests that a custom form class can be successfully passed to the formfield method of a model field with choices, verifying the returned form field is of the correct type.
+        """
         choices = [("a", "a")]
         field = models.CharField(choices=choices)
         klass = forms.TypedMultipleChoiceField
@@ -90,7 +91,9 @@ class BasicFieldTests(SimpleTestCase):
         self.assertEqual(str(f), "model_fields.Foo.a")
 
     def test_field_ordering(self):
-        """Fields are ordered based on their creation."""
+        """
+        Verifies that fields are ordered based on their creation, with auto-created fields coming first.
+        """
         f1 = models.Field()
         f2 = models.Field(auto_created=True)
         f3 = models.Field()
@@ -112,7 +115,9 @@ class BasicFieldTests(SimpleTestCase):
         self.assertEqual(path, "model_fields.tests.Nested.Field")
 
     def test_abstract_inherited_fields(self):
-        """Field instances from abstract models are not equal."""
+        """
+        Tests that field instances inherited from abstract models are not equal, verifying correct behavior of field comparison.
+        """
 
         class AbstractModel(models.Model):
             field = models.IntegerField()
@@ -139,6 +144,9 @@ class BasicFieldTests(SimpleTestCase):
         self.assertLess(inherit1_model_field, inherit2_model_field)
 
     def test_hash_immutability(self):
+        """
+        Tests that the hash of a model field does not change when it is assigned to a model.
+        """
         field = models.IntegerField()
         field_hash = hash(field)
 
@@ -151,6 +159,12 @@ class BasicFieldTests(SimpleTestCase):
 class ChoicesTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Class method to set up necessary class attributes before running tests.
+
+                Retrieves and caches various fields from the Choiceful model for use in subsequent tests, including fields with different types of choices and EMPTY choices values.
+
+        """
         super().setUpClass()
         cls.no_choices = Choiceful._meta.get_field("no_choices")
         cls.empty_choices = Choiceful._meta.get_field("empty_choices")
@@ -166,6 +180,9 @@ class ChoicesTests(SimpleTestCase):
         cls.choices_from_callable = Choiceful._meta.get_field("choices_from_callable")
 
     def test_choices(self):
+        """
+        Tests various scenarios for generating choices in a field, ensuring correct output for different input types and structures, including empty choices, static choices, and choices generated from dictionaries, iterators, and callable functions.
+        """
         self.assertIsNone(self.no_choices.choices)
         self.assertEqual(self.empty_choices.choices, [])
         self.assertEqual(self.empty_choices_bool.choices, [])
@@ -184,6 +201,9 @@ class ChoicesTests(SimpleTestCase):
         )
 
     def test_flatchoices(self):
+        """
+        Test that the flatchoices property returns the correct list of choices for various field configurations.
+        """
         self.assertEqual(self.no_choices.flatchoices, [])
         self.assertEqual(self.empty_choices.flatchoices, [])
         self.assertEqual(self.empty_choices_bool.flatchoices, [])
@@ -202,6 +222,9 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(Choiceful.check(), [])
 
     def test_invalid_choice(self):
+        """
+        Tests that a ValidationError is raised when an invalid choice is provided to a validator.
+        """
         model_instance = None  # Actual model instance not needed.
         self.no_choices.validate(0, model_instance)
         msg = "['Value 99 is not a valid choice.']"
@@ -211,6 +234,15 @@ class ChoicesTests(SimpleTestCase):
             self.with_choices.validate(99, model_instance)
 
     def test_formfield(self):
+        """
+
+
+        Test that form fields are correctly generated from model fields.
+
+        The function verifies that model fields without choices are represented as IntegerField instances,
+        and model fields with choices are represented as ChoiceField instances.
+
+        """
         no_choices_formfield = self.no_choices.formfield()
         self.assertIsInstance(no_choices_formfield, forms.IntegerField)
         fields = (
@@ -237,8 +269,7 @@ class ChoicesTests(SimpleTestCase):
 class GetFieldDisplayTests(SimpleTestCase):
     def test_choices_and_field_display(self):
         """
-        get_choices() interacts with get_FIELD_display() to return the expected
-        values.
+        Tests the interaction between the get_choices method and the get_FIELD_display method to ensure correct display values are returned for various input scenarios, including valid choices, invalid choices, and edge cases like None and empty strings.
         """
         self.assertEqual(Whiz(c=1).get_c_display(), "First")  # A nested value
         self.assertEqual(Whiz(c=0).get_c_display(), "Other")  # A top level value
@@ -254,6 +285,9 @@ class GetFieldDisplayTests(SimpleTestCase):
         self.assertEqual(val, "translated")
 
     def test_overriding_FIELD_display(self):
+        """
+        Tests that a model's FIELD display method can be overridden with a custom implementation, ensuring that the overridden method's return value is used instead of the default choice display value.
+        """
         class FooBar(models.Model):
             foo_bar = models.IntegerField(choices=[(1, "foo"), (2, "bar")])
 
@@ -264,6 +298,9 @@ class GetFieldDisplayTests(SimpleTestCase):
         self.assertEqual(f.get_foo_bar_display(), "something")
 
     def test_overriding_inherited_FIELD_display(self):
+        """
+        Tests that the display value of a model field is correctly overridden when the field is redefined in a subclass, ensuring that the subclass's choices are used instead of the parent class's choices.
+        """
         class Base(models.Model):
             foo = models.CharField(max_length=254, choices=[("A", "Base A")])
 
@@ -280,7 +317,10 @@ class GetFieldDisplayTests(SimpleTestCase):
 
     def test_iterator_choices(self):
         """
-        get_choices() works with Iterators.
+
+        Checks that get_choices() function works correctly with iterators by validating 
+        WhizIter instances with different input values.
+
         """
         self.assertEqual(WhizIter(c=1).c, 1)  # A nested value
         self.assertEqual(WhizIter(c=9).c, 9)  # Invalid value
@@ -289,7 +329,7 @@ class GetFieldDisplayTests(SimpleTestCase):
 
     def test_empty_iterator_choices(self):
         """
-        get_choices() works with empty iterators.
+        Tests that the get_choices() method functions correctly with empty iterators, returning the expected values when initialized with different types of input, including characters, None, and empty strings.
         """
         self.assertEqual(WhizIterEmpty(c="a").c, "a")  # A nested value
         self.assertEqual(WhizIterEmpty(c="b").c, "b")  # Invalid value
@@ -333,6 +373,13 @@ class GetChoicesTests(SimpleTestCase):
 class GetChoicesOrderingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data used by the class's test methods.
+
+        Populates the database with instances of Foo and Bar models for use in tests.
+
+        """
         cls.foo1 = Foo.objects.create(a="a", d="12.35")
         cls.foo2 = Foo.objects.create(a="b", d="12.34")
         cls.bar1 = Bar.objects.create(a=cls.foo1, b="b")
@@ -381,6 +428,9 @@ class GetChoicesOrderingTests(TestCase):
 class GetChoicesLimitChoicesToTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for a test class, creating instances of Foo and Bar models and assigning them as class attributes, along with retrieving the 'a' field from the Bar model for further testing.
+        """
         cls.foo1 = Foo.objects.create(a="a", d="12.34")
         cls.foo2 = Foo.objects.create(a="b", d="12.34")
         cls.bar1 = Bar.objects.create(a=cls.foo1, b="b")

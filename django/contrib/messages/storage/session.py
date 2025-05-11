@@ -34,7 +34,7 @@ class SessionStorage(BaseStorage):
 
     def _store(self, messages, response, *args, **kwargs):
         """
-        Store a list of messages to the request's session.
+        Stores a list of messages in the request's session, replacing any previous messages or removing them if the input list is empty.
         """
         if messages:
             self.request.session[self.session_key] = self.serialize_messages(messages)

@@ -18,11 +18,10 @@ class InvalidAlgorithm(ValueError):
 
 def salted_hmac(key_salt, value, secret=None, *, algorithm="sha1"):
     """
-    Return the HMAC of 'value', using a key generated from key_salt and a
-    secret (which defaults to settings.SECRET_KEY). Default algorithm is SHA1,
-    but any algorithm name supported by hashlib can be passed.
-
-    A different key_salt should be passed in for every application of HMAC.
+    Compute an HMAC (Keyed-Hashing for Message Authentication) for the given value, 
+    using a key derived from a key salt and a secret. The key salt should be unique 
+    for each HMAC computation. The function returns the HMAC of the value, 
+    using a specified algorithm, defaulting to SHA1 if not provided.
     """
     if secret is None:
         secret = settings.SECRET_KEY
@@ -68,7 +67,16 @@ def constant_time_compare(val1, val2):
 
 
 def pbkdf2(password, salt, iterations, dklen=0, digest=None):
-    """Return the hash of password using pbkdf2."""
+    """
+    Derives a key from a password using the PBKDF2 (Password-Based Key Derivation Function 2) algorithm.
+
+    :param password: The password to derive the key from.
+    :param salt: A random value to prevent attacks using precomputed tables.
+    :param iterations: The number of iterations to perform, increasing computational overhead.
+    :param dklen: The length of the derived key in bytes, defaults to the digest size.
+    :param digest: The digest algorithm to use, defaults to SHA-256.
+    :return: The derived key.
+    """
     if digest is None:
         digest = hashlib.sha256
     dklen = dklen or None

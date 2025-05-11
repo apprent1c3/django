@@ -39,6 +39,10 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     ignored_tables = []
 
     def get_field_type(self, data_type, description):
+        """
+        Determines the field type based on the provided data type and description, 
+        with adjustments for auto-incrementing fields, returning the adjusted type if necessary.
+        """
         field_type = super().get_field_type(data_type, description)
         if description.is_autofield or (
             # Required for pre-Django 4.1 serial columns.
@@ -80,8 +84,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_table_description(self, cursor, table_name):
         """
-        Return a description of the table with the DB-API cursor.description
-        interface.
+        Retrieves a detailed description of a database table, including column information such as names, nullability, default values, collation, auto field status, and comments, using the provided DB-API cursor and table name.
         """
         # Query the pg_catalog tables as cursor.description does not reliably
         # return the nullable property and information_schema.columns does not
@@ -179,9 +182,14 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_constraints(self, cursor, table_name):
         """
-        Retrieve any constraints or keys (unique, pk, fk, check, index) across
-        one or more columns. Also retrieve the definition of expression-based
-        indexes.
+
+            Retrieves all constraints, including unique, primary key, foreign key, check, and index constraints,
+            as well as expression-based index definitions, for the specified table.
+
+            :param cursor: Database cursor to execute queries.
+            :param table_name: Name of the table for which to retrieve constraints.
+            :return: Dictionary of constraint names mapped to their properties (columns, primary_key, unique, foreign_key, etc.).
+
         """
         constraints = {}
         # Loop over the key table, collecting things as constraints. The column

@@ -13,11 +13,8 @@ class DatabaseCreation(BaseDatabaseCreation):
     @cached_property
     def _maindb_connection(self):
         """
-        This is analogous to other backends' `_nodb_connection` property,
-        which allows access to an "administrative" connection which can
-        be used to manage the test databases.
-        For Oracle, the only connection that can be used for that purpose
-        is the main (non-test) connection.
+        Provides an \"administrative\" connection to manage the test databases, 
+        utilizing the main (non-test) connection as it is the only viable option for Oracle.
         """
         settings_dict = settings.DATABASES[self.connection.alias]
         user = settings_dict.get("SAVED_USER") or settings_dict["USER"]
@@ -27,6 +24,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return DatabaseWrapper(settings_dict, alias=self.connection.alias)
 
     def _create_test_db(self, verbosity=1, autoclobber=False, keepdb=False):
+        """
+        Creates a test database and test user, handling cases where they already exist, and allowing for options to autoclobber or keep the database after the test run. If the test database or user cannot be created, it provides an option to interactively delete the existing one or cancel the test run.
+        """
         parameters = self._get_test_db_params()
         with self._maindb_connection.cursor() as cursor:
             if self._test_database_create():
@@ -125,12 +125,7 @@ class DatabaseCreation(BaseDatabaseCreation):
 
     def _switch_to_test_user(self, parameters):
         """
-        Switch to the user that's used for creating the test database.
-
-        Oracle doesn't have the concept of separate databases under the same
-        user, so a separate user is used; see _create_test_db(). The main user
-        is also needed for cleanup when testing is completed, so save its
-        credentials in the SAVED_USER/SAVED_PASSWORD key in the settings dict.
+        Switch to a test user for creating a test database, specifically designed to accommodate Oracle's database user model, and save the main user credentials for later cleanup.
         """
         real_settings = settings.DATABASES[self.connection.alias]
         real_settings["SAVED_USER"] = self.connection.settings_dict["SAVED_USER"] = (
@@ -161,6 +156,18 @@ class DatabaseCreation(BaseDatabaseCreation):
     ):
         # There are objects in the test tablespace which prevent dropping it
         # The easy fix is to drop the test user -- but are we allowed to do so?
+        """
+        .. method:: _handle_objects_preventing_db_destruction
+            :param cursor: database cursor
+            :param parameters: test database parameters
+            :param verbosity: logging verbosity level
+            :param autoclobber: whether to automatically delete test user and database
+            :noindex:
+
+            Handles the case where the test database cannot be destroyed due to existing objects.
+            If the objects belong to the test user, offers to delete the user to allow the database to be recreated.
+            Otherwise, notifies the user that they must manually remove the objects or use a different tablespace.
+        """
         self.log(
             "There are objects in the old test database which prevent its destruction."
             "\nIf they belong to the test user, deleting the user will allow the test "
@@ -202,8 +209,10 @@ class DatabaseCreation(BaseDatabaseCreation):
 
     def _destroy_test_db(self, test_database_name, verbosity=1):
         """
-        Destroy a test database, prompting the user for confirmation if the
-        database already exists. Return the name of the test database created.
+
+        Destroys a test database by rolling back changes made during testing, 
+        including test user and database tables, in a controlled and secure manner.
+
         """
         self.connection.settings_dict["USER"] = self.connection.settings_dict[
             "SAVED_USER"
@@ -225,6 +234,21 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._maindb_connection.close()
 
     def _execute_test_db_creation(self, cursor, parameters, verbosity, keepdb=False):
+        """
+
+        Execute the creation of a test database.
+
+        This function handles the setup of a test database, including the creation of 
+        tablespaces and data/temporary files. It supports both managed and unmanaged 
+        Oracle database files, and can optionally allow certain Oracle errors to occur 
+        without failing the test database creation.
+
+        :param cursor: database cursor object
+        :param parameters: dictionary containing database creation parameters
+        :param verbosity: logging verbosity level
+        :param keepdb: flag indicating whether to keep the database after creation
+
+        """
         if verbosity >= 2:
             self.log("_create_test_db(): dbname = %s" % parameters["user"])
         if self._test_database_oracle_managed_files():
@@ -260,6 +284,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _create_test_user(self, cursor, parameters, verbosity, keepdb=False):
+        """
+        Creates a test user in a database with the specified permissions, handling potential errors and configuration options.
+        """
         if verbosity >= 2:
             self.log("_create_test_user(): username = %s" % parameters["user"])
         statements = [
@@ -311,6 +338,12 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._execute_statements(cursor, statements, parameters, verbosity)
 
     def _destroy_test_user(self, cursor, parameters, verbosity):
+        """
+        Destroys a test user from the database. 
+
+        عاParam parameters: A dictionary containing the 'user' key with the username to be destroyed.
+        Parameter verbosity: Controls the level of logging, with higher values providing more detailed output.
+        """
         if verbosity >= 2:
             self.log("_destroy_test_user(): user=%s" % parameters["user"])
             self.log("Be patient. This can take some time...")
@@ -322,6 +355,16 @@ class DatabaseCreation(BaseDatabaseCreation):
     def _execute_statements(
         self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
     ):
+        """
+        Execute a series of SQL statements with given parameters.
+
+        :param cursor: Database cursor object
+        :param statements: List of SQL statement templates
+        :param parameters: Dictionary of parameters to substitute into the templates
+        :param verbosity: Level of logging verbosity
+        :param allow_quiet_fail: Whether to suppress failure logging (default: False)
+        :raises Exception: If a statement execution fails
+        """
         for template in statements:
             stmt = template % parameters
             if verbosity >= 2:
@@ -337,9 +380,17 @@ class DatabaseCreation(BaseDatabaseCreation):
         self, cursor, statements, parameters, verbosity, acceptable_ora_err
     ):
         """
-        Execute statements which are allowed to fail silently if the Oracle
-        error code given by `acceptable_ora_err` is raised. Return True if the
-        statements execute without an exception, or False otherwise.
+        Execute SQL statements that are allowed to fail silently under certain Oracle error conditions. 
+
+        Parameters:
+            cursor (object): Database cursor object.
+            statements (list): List of SQL statements to be executed.
+            parameters (list): Parameters for the SQL statements.
+            verbosity (int): Verbosity level for execution output.
+            acceptable_ora_err (str): Oracle error code that can be ignored if raised.
+
+        Returns:
+            bool: True if statements execute without exception, False otherwise.
         """
         try:
             # Statement can fail when acceptable_ora_err is not None
@@ -379,8 +430,8 @@ class DatabaseCreation(BaseDatabaseCreation):
 
     def _test_settings_get(self, key, default=None, prefixed=None):
         """
-        Return a value from the test settings dict, or a given default, or a
-        prefixed entry from the main settings dict.
+        Retrieves a value from the test settings dictionary. If the key is not found, 
+        it returns a default value or a prefixed entry from the main settings dictionary.
         """
         settings_dict = self.connection.settings_dict
         val = settings_dict["TEST"].get(key, default)

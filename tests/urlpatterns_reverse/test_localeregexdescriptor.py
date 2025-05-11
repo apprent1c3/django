@@ -19,6 +19,11 @@ class LocaleRegexDescriptorTests(SimpleTestCase):
         translation.trans_real._translations = {}
 
     def test_translated_regex_compiled_per_language(self):
+        """
+        Tests that a compiled regex pattern is cached per language, ensuring that 
+        it is not re-compiled for the same language, and that the pattern is correctly 
+        translated for each language
+        """
         provider = RegexPattern(translation.gettext_lazy("^foo/$"))
         with translation.override("de"):
             de_compiled = provider.regex
@@ -35,6 +40,11 @@ class LocaleRegexDescriptorTests(SimpleTestCase):
         self.assertEqual(de_compiled, de_compiled_2)
 
     def test_nontranslated_regex_compiled_once(self):
+        """
+        Tests that a non-translated regex pattern is compiled only once, 
+        regardless of the current language setting, to prevent unnecessary 
+        compilation and potential performance issues.
+        """
         provider = RegexPattern("^foo/$")
         with translation.override("de"):
             de_compiled = provider.regex
@@ -47,7 +57,9 @@ class LocaleRegexDescriptorTests(SimpleTestCase):
         self.assertEqual(fr_compiled.pattern, "^foo/$")
 
     def test_regex_compile_error(self):
-        """Regex errors are re-raised as ImproperlyConfigured."""
+        """
+        Tests that compiling an invalid regular expression raises an ImproperlyConfigured error.
+        """
         provider = RegexPattern("*")
         msg = '"*" is not a valid regular expression: nothing to repeat'
         with self.assertRaisesMessage(ImproperlyConfigured, msg):

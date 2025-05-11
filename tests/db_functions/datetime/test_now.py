@@ -15,6 +15,12 @@ lorem_ipsum = """
 
 class NowTests(TestCase):
     def test_basic(self):
+        """
+        Tests the basic functionality of publishing and filtering articles by publication date.
+
+        Verifies that articles can be published, and that filtering by publication date works as expected.
+
+        """
         a1 = Article.objects.create(
             title="How to Django",
             text=lorem_ipsum,

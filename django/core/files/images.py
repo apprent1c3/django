@@ -25,6 +25,9 @@ class ImageFile(File):
         return self._get_image_dimensions()[1]
 
     def _get_image_dimensions(self):
+        """
+        Retrieve the dimensions of an image, caching the result for future use.
+        """
         if not hasattr(self, "_dimensions_cache"):
             close = self.closed
             self.open()
@@ -34,9 +37,7 @@ class ImageFile(File):
 
 def get_image_dimensions(file_or_path, close=False):
     """
-    Return the (width, height) of an image, given an open file or a path.  Set
-    'close' to True to close the file at the end if it is initially in an open
-    state.
+    Return the dimensions of an image, given either an open file object or a file path, with optional automatic file closure.
     """
     from PIL import ImageFile as PillowImageFile
 

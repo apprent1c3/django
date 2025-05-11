@@ -8,6 +8,12 @@ from . import FormFieldAssertionsMixin
 
 class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_choicefield_1(self):
+        """
+        Tests the functionality of a ChoiceField by validating various input scenarios.
+
+        Ensures the field correctly handles required input, valid choices, and invalid choices, 
+        raising informative validation errors as necessary.
+        """
         f = ChoiceField(choices=[("1", "One"), ("2", "Two")])
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -20,6 +26,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("3")
 
     def test_choicefield_2(self):
+        """
+        Tests the behavior of a ChoiceField with optional input, verifying that empty strings and None are cleaned to empty strings, valid choices are cleaned to their corresponding key, and invalid choices raise a ValidationError.
+        """
         f = ChoiceField(choices=[("1", "One"), ("2", "Two")], required=False)
         self.assertEqual("", f.clean(""))
         self.assertEqual("", f.clean(None))
@@ -30,6 +39,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("3")
 
     def test_choicefield_3(self):
+        """
+        Tests that the ChoiceField correctly validates and cleans input, enforcing that only predefined choices are accepted.
+        """
         f = ChoiceField(choices=[("J", "John"), ("P", "Paul")])
         self.assertEqual("J", f.clean("J"))
         msg = "'Select a valid choice. John is not one of the available choices.'"
@@ -37,6 +49,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("John")
 
     def test_choicefield_4(self):
+        """
+        Tests the behavior of the ChoiceField when dealing with nested and flat choices, ensuring it correctly handles both integer and string inputs and validates against invalid choices.
+        """
         f = ChoiceField(
             choices=[
                 ("Numbers", (("1", "One"), ("2", "Two"))),
@@ -73,6 +88,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual("J", f.clean("J"))
 
     def test_choicefield_callable_grouped_mapping(self):
+        """
+        Verifies the functionality of a ChoiceField with a callable that returns a grouped mapping of choices, ensuring the field correctly cleans and returns the input value.
+        """
         def choices():
             return {
                 "Numbers": {"1": "One", "2": "Two"},
@@ -111,6 +129,9 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 self.assertEqual(i, f.clean(i))
 
     def test_choicefield_callable_may_evaluate_to_different_values(self):
+        """
+        Tests that a ChoiceField with a callable choices parameter can evaluate to different values on each form instantiation.
+        """
         choices = []
 
         def choices_as_callable():
@@ -138,6 +159,10 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_choicefield_enumeration(self):
+        """
+        Verifies that a ChoiceField properly handles enumeration-based choices and validation. 
+        Ensures that the field's options match the provided choices and that it correctly raises a ValidationError for invalid input.
+        """
         class FirstNames(models.TextChoices):
             JOHN = "J", "John"
             PAUL = "P", "Paul"

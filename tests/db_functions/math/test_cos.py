@@ -16,6 +16,12 @@ class CosTests(TestCase):
         self.assertIsNone(obj.null_cos)
 
     def test_decimal(self):
+        """
+        Tests the calculation of cosine for decimal numbers in the DecimalModel.
+
+        Verifies that the result of the cosine function is a Decimal and that its value is accurate.
+
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_cos=Cos("n1"), n2_cos=Cos("n2")).first()
         self.assertIsInstance(obj.n1_cos, Decimal)
@@ -24,6 +30,9 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.n2_cos, Decimal(math.cos(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the calculation of cosine for float fields using the Cos database function, verifying the result type and mathematical accuracy.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_cos=Cos("f1"), f2_cos=Cos("f2")).first()
         self.assertIsInstance(obj.f1_cos, float)
@@ -32,6 +41,18 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.f2_cos, math.cos(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the Cos database function on integer fields by verifying the output matches the result of the math.cos function. 
+
+        Args:
+            None
+
+        Returns:
+            None 
+
+        Raises:
+            AssertionError: If the output of Cos does not match the math.cos function or the result is not a float.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_cos=Cos("small"),
@@ -46,6 +67,11 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.big_cos, math.cos(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the transformation of a DecimalField using the Cos lookup.
+
+        """
         with register_lookup(DecimalField, Cos):
             DecimalModel.objects.create(n1=Decimal("-8.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("3.14"), n2=Decimal("0"))

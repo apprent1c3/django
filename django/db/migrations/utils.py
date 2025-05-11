@@ -26,10 +26,9 @@ def get_migration_name_timestamp():
 
 def resolve_relation(model, app_label=None, model_name=None):
     """
-    Turn a model class or model reference string and return a model tuple.
+    Resolves a model relationship given a model class or model reference string.
 
-    app_label and model_name are used to resolve the scope of recursive and
-    unscoped model relationship.
+    The function takes into account recursive and unscoped relationships by utilizing the provided app_label and model_name to determine the scope. Returns a tuple containing the app label and model name.
     """
     if isinstance(model, str):
         if model == RECURSIVE_RELATIONSHIP_CONSTANT:
@@ -58,13 +57,11 @@ def field_references(
     reference_field=None,
 ):
     """
-    Return either False or a FieldReference if `field` references provided
-    context.
+    Determines whether a given field in a model references another model.
 
-    False positives can be returned if `reference_field_name` is provided
-    without `reference_field` because of the introspection limitation it
-    incurs. This should not be an issue when this function is used to determine
-    whether or not an optimization can take place.
+    This function checks if a `field` in a `model_tuple` has a relation to a `reference_model_tuple`. 
+    It returns a `FieldReference` object if a relation is found, or `False` otherwise.
+    Note that using `reference_field_name` without providing `reference_field` may lead to false positives due to introspection limitations.
     """
     remote_field = field.remote_field
     if not remote_field:
@@ -109,11 +106,9 @@ def field_references(
 
 def get_references(state, model_tuple, field_tuple=()):
     """
-    Generator of (model_state, name, field, reference) referencing
-    provided context.
+    Generates references to a specific model and field within the provided state context.
 
-    If field_tuple is provided only references to this particular field of
-    model_tuple will be generated.
+     Everywhere field_tuple is provided, it restricts the references to a given field of model_tuple.
     """
     for state_model_tuple, model_state in state.models.items():
         for name, field in model_state.fields.items():

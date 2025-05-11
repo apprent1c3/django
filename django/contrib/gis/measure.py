@@ -116,6 +116,14 @@ class MeasureBase:
             )
 
     def __iadd__(self, other):
+        """
+
+        Augments the current object by adding another object of the same class.
+
+        The addition operation is performed by combining the standard attributes of the two objects.
+        If an attempt is made to add an object of a different class, a TypeError is raised.
+
+        """
         if isinstance(other, self.__class__):
             self.standard += other.standard
             return self
@@ -137,6 +145,15 @@ class MeasureBase:
             )
 
     def __isub__(self, other):
+        """
+
+        Subtract another instance of the same class from this instance, modifying it in-place.
+
+        This operation is only supported between instances of the same class. The result is the modified instance itself. 
+
+        :raises TypeError: If the subtraction operand is not of the same class.
+
+        """
         if isinstance(other, self.__class__):
             self.standard -= other.standard
             return self
@@ -159,6 +176,13 @@ class MeasureBase:
             )
 
     def __imul__(self, other):
+        """
+        Multiplies the object's standard by a given numeric value and returns the modified object.
+
+        Raises:
+            TypeError: If the multiplication operand is not a number.
+
+        """
         if isinstance(other, NUMERIC_TYPES):
             self.standard *= float(other)
             return self
@@ -172,6 +196,15 @@ class MeasureBase:
         return self * other
 
     def __truediv__(self, other):
+        """
+        Divide the current object by another object of the same type or a numeric value.
+
+        The division operation can be performed with either another instance of the same class
+        or with a number. If dividing by another instance, returns the result of dividing their
+        standard values. If dividing by a number, returns a new instance with the standard
+        value divided by the given number. Division by non-numeric types or instances of
+        different classes is not allowed.
+        """
         if isinstance(other, self.__class__):
             return self.standard / other.standard
         if isinstance(other, NUMERIC_TYPES):
@@ -186,6 +219,15 @@ class MeasureBase:
             )
 
     def __itruediv__(self, other):
+        """
+        Divide the standard value of the object by a numeric value.
+
+        Raises:
+            TypeError: If the divisor is not a numeric type.
+
+        Returns:
+            The object itself, with the standard value updated.
+        """
         if isinstance(other, NUMERIC_TYPES):
             self.standard /= float(other)
             return self
@@ -199,8 +241,7 @@ class MeasureBase:
 
     def default_units(self, kwargs):
         """
-        Return the unit value and the default units specified
-        from the given keyword arguments dictionary.
+        Return the total value in the standard unit and the default unit from the given keyword arguments dictionary, resolving unit aliases and case insensitivity.
         """
         val = 0.0
         default_unit = self.STANDARD_UNIT
@@ -230,9 +271,8 @@ class MeasureBase:
     @classmethod
     def unit_attname(cls, unit_str):
         """
-        Retrieve the unit attribute name for the given unit string.
-        For example, if the given unit string is 'metre', return 'm'.
-        Raise an AttributeError if an attribute cannot be found.
+        Retrieve the unit attribute name for a given unit string, 
+        such as returning 'm' for 'metre', raising an AttributeError for unknown units.
         """
         lower = unit_str.lower()
         if unit_str in cls.UNITS:
@@ -325,6 +365,18 @@ class Distance(MeasureBase):
     LALIAS = {k.lower(): v for k, v in ALIAS.items()}
 
     def __mul__(self, other):
+        """
+
+        Multiply an area by a scalar value or another area.
+
+        Supports two multiplication modes:
+
+        * Area times a numeric value scales the area
+        * Area times another area of the same type returns their product as a new area
+
+        Raises TypeError if the multiplier is not a supported type.
+
+        """
         if isinstance(other, self.__class__):
             return Area(
                 default_unit=AREA_PREFIX + self._default_unit,

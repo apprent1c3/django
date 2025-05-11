@@ -25,9 +25,8 @@ class BaseHandler:
 
     def load_middleware(self, is_async=False):
         """
-        Populate middleware lists from settings.MIDDLEWARE.
-
-        Must be called after the environment is fixed (see __call__ in subclasses).
+        Populates middleware lists from settings.MIDDLEWARE, preparing the application for request and response processing.
+        Must be called after the environment is fixed. Optionally loads middleware for asynchronous requests if `is_async` is True.
         """
         self._view_middleware = []
         self._template_response_middleware = []
@@ -110,13 +109,9 @@ class BaseHandler:
         name=None,
     ):
         """
-        Adapt a method to be in the correct "mode":
-        - If is_async is False:
-          - Synchronous methods are left alone
-          - Asynchronous methods are wrapped with async_to_sync
-        - If is_async is True:
-          - Synchronous methods are wrapped with sync_to_async()
-          - Asynchronous methods are left alone
+        Adapts a given method to match the desired asynchronous or synchronous mode.
+
+        Automatically wraps or leaves methods as-is, based on their native execution type and the target mode specified by `is_async`. If `debug` is enabled, logs transformation details for the method.
         """
         if method_is_async is None:
             method_is_async = iscoroutinefunction(method)
@@ -134,7 +129,9 @@ class BaseHandler:
         return method
 
     def get_response(self, request):
-        """Return an HttpResponse object for the given HttpRequest."""
+        """
+        Returns an HttpResponse object for the given HttpRequest, handling the request through the middleware chain and logging any error responses.
+        """
         # Setup default url resolver for this thread
         set_urlconf(settings.ROOT_URLCONF)
         response = self._middleware_chain(request)
@@ -151,11 +148,14 @@ class BaseHandler:
 
     async def get_response_async(self, request):
         """
-        Asynchronous version of get_response.
 
-        Funneling everything, including WSGI, into a single async
-        get_response() is too slow. Avoid the context switch by using
-        a separate async response path.
+        Asynchronously processes an incoming request and returns a response.
+
+        This method provides a fast and efficient way to handle requests in asynchronous environments, 
+        bypassing the overhead of context switching that occurs when using the synchronous get_response method.
+
+        It applies the middleware chain to the request, logs responses with 400+ status codes, and ensures resources are properly closed.
+
         """
         # Setup default url resolver for this thread.
         set_urlconf(settings.ROOT_URLCONF)
@@ -173,9 +173,8 @@ class BaseHandler:
 
     def _get_response(self, request):
         """
-        Resolve and call the view, then apply view, exception, and
-        template_response middleware. This method is everything that happens
-        inside the request/response middleware.
+        Resolve a request by calling the associated view and applying relevant middleware, 
+        including view, exception, and template response middlewares, to generate a response.
         """
         response = None
         callback, callback_args, callback_kwargs = self.resolve_request(request)
@@ -227,9 +226,7 @@ class BaseHandler:
 
     async def _get_response_async(self, request):
         """
-        Resolve and call the view, then apply view, exception, and
-        template_response middleware. This method is everything that happens
-        inside the request/response middleware.
+        Resolve a request and generate a response by invoking the view and applying middleware, handling exceptions and rendering templates as necessary.
         """
         response = None
         callback, callback_args, callback_kwargs = self.resolve_request(request)
@@ -299,8 +296,8 @@ class BaseHandler:
 
     def resolve_request(self, request):
         """
-        Retrieve/set the urlconf for the request. Return the view resolved,
-        with its args and kwargs.
+        Retrieves and sets the URL configuration for a given request, returning 
+        the corresponding view function along with its arguments and keyword arguments.
         """
         # Work out the resolver.
         if hasattr(request, "urlconf"):
@@ -316,7 +313,10 @@ class BaseHandler:
 
     def check_response(self, response, callback, name=None):
         """
-        Raise an error if the view returned None or an uncalled coroutine.
+
+        Checks if a view's response is valid, raising an error if the view returns None or an uncalled coroutine.
+        The error message identifies the problematic view, providing guidance on potential corrections.
+
         """
         if not (response is None or asyncio.iscoroutine(response)):
             return
@@ -343,6 +343,9 @@ class BaseHandler:
     # Other utility methods.
 
     def make_view_atomic(self, view):
+        """
+        Wrapper function to make a given view atomic, ensuring database transactions are properly handled for each connection where ATOMIC_REQUESTS is enabled. Excludes views marked as non-atomic or asynchronous views to prevent potential runtime errors.
+        """
         non_atomic_requests = getattr(view, "_non_atomic_requests", set())
         for alias, settings_dict in connections.settings.items():
             if settings_dict["ATOMIC_REQUESTS"] and alias not in non_atomic_requests:
@@ -355,8 +358,7 @@ class BaseHandler:
 
     def process_exception_by_middleware(self, exception, request):
         """
-        Pass the exception to the exception middleware. If no middleware
-        return a response for this exception, return None.
+        Passes an exception to the registered exception middleware, returning the first response that handles the exception, or None if no middleware handles it.
         """
         for middleware_method in self._exception_middleware:
             response = middleware_method(request, exception)

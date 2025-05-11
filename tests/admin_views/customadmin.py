@@ -37,6 +37,11 @@ class Admin2(admin.AdminSite):
         return super().password_change(request, {"spam": "eggs"})
 
     def get_app_list(self, request, app_label=None):
+        """
+        Returns a list of applications and their models, sorted in reverse order by application and then model name. 
+
+        The app_label parameter can be used to filter the list to include only models from a specific application. The result is a list of dictionaries, where each dictionary represents an application and contains a list of its models.
+        """
         app_list = super().get_app_list(request, app_label=app_label)
         # Reverse order of apps and models.
         app_list = list(reversed(app_list))

@@ -35,10 +35,7 @@ async def async_get_view(request):
 
 def trace_view(request):
     """
-    A simple view that expects a TRACE request and echoes its status line.
-
-    TRACE requests should not have an entity; the view will return a 400 status
-    response if it is present.
+    Handles HTTP TRACE requests by echoing the request's status line and returning a response with the request's method, URI, and protocol version. Returns a 405 error for non-TRACE requests and a 400 error if the TRACE request includes an entity.
     """
     if request.method.upper() != "TRACE":
         return HttpResponseNotAllowed("TRACE")
@@ -61,6 +58,9 @@ def trace_view(request):
 
 
 def put_view(request):
+    """
+    Handles HTTP PUT and GET requests, rendering a template response with the request body when a PUT request is received.
+    """
     if request.method == "PUT":
         t = Template("Data received: {{ data }} is the body.", name="PUT Template")
         c = Context(
@@ -76,8 +76,8 @@ def put_view(request):
 
 
 def post_view(request):
-    """A view that expects a POST, and returns a different template depending
-    on whether any POST data is available
+    """
+    Handler for HTTP POST requests, rendering different templates based on the presence of POST data, and redirecting GET requests accordingly.
     """
     if request.method == "POST":
         if request.POST:
@@ -98,9 +98,7 @@ def post_view(request):
 
 def post_then_get_view(request):
     """
-    A view that expects a POST request, returns a redirect response
-    to itself providing only a ?success=true querystring,
-    the value of this querystring is then rendered upon GET.
+    A view that handles both POST and GET requests, redirecting POST requests to itself with a success indicator and rendering a template with the success status on GET requests.
     """
     if request.method == "POST":
         return HttpResponseRedirect("?success=true")
@@ -113,8 +111,7 @@ def post_then_get_view(request):
 
 def json_view(request):
     """
-    A view that expects a request with the header 'application/json' and JSON
-    data, which is deserialized and included in the context.
+    A view that handles JSON requests by deserializing the JSON data and rendering it within a template, providing a basic response to JSON-based HTTP requests.
     """
     if request.META.get("CONTENT_TYPE") != "application/json":
         return HttpResponse()
@@ -133,8 +130,13 @@ def view_with_header(request):
 
 
 def raw_post_view(request):
-    """A view which expects raw XML to be posted and returns content extracted
-    from the XML"""
+    """
+
+    Handles HTTP requests, parsing raw XML posted to the endpoint and extracting content.
+    When a POST request is made, it extracts the title and author from the XML and renders a template with this information.
+    For GET requests, it returns a simple message indicating the request type.
+
+    """
     if request.method == "POST":
         root = parseString(request.body)
         first_book = root.firstChild.firstChild
@@ -149,7 +151,9 @@ def raw_post_view(request):
 
 
 def redirect_view(request):
-    "A view that redirects all requests to the GET view"
+    """
+    Redirects all incoming requests to the GET view, preserving any query parameters from the original request.
+    """
     if request.GET:
         query = "?" + urlencode(request.GET, True)
     else:
@@ -188,7 +192,9 @@ def get_host_view(request):
 
 
 def view_with_secure(request):
-    "A view that indicates if the request was secure"
+    """
+    Indicates whether an incoming request was made over a secure connection, providing the security status and the server port used in the response.
+    """
     response = HttpResponse()
     response.test_was_secure_request = request.is_secure()
     response.test_server_port = request.META.get("SERVER_PORT", 80)
@@ -229,7 +235,9 @@ class TestForm(Form):
 
 
 def form_view(request):
-    "A view that tests a simple form"
+    """
+    Handles HTTP requests for a simple form, rendering the form for GET requests and validating form data for POST requests, returning a response indicating success or displaying error messages.
+    """
     if request.method == "POST":
         form = TestForm(request.POST)
         if form.is_valid():
@@ -249,7 +257,9 @@ def form_view(request):
 
 
 def form_view_with_template(request):
-    "A view that tests a simple form"
+    """
+    Handles HTTP requests for a simple form, rendering a template with the form instance and a status message based on the request method and form validation result.
+    """
     if request.method == "POST":
         form = TestForm(request.POST)
         if form.is_valid():
@@ -341,7 +351,9 @@ permission_protected_method_view = _view_manager.permission_protected_view
 
 
 def session_view(request):
-    "A view that modifies the session"
+    """
+    Renders a simple view that modifies the user's session by storing a reference to a tobacconist and returns an HTTP response with a templated message.
+    """
     request.session["tobacconist"] = "hovercraft"
 
     t = Template(
@@ -368,6 +380,12 @@ def mail_sending_view(request):
 
 
 def mass_mail_sending_view(request):
+    """
+    Sends multiple test emails to specified recipients.
+
+    This view is used to send a batch of emails, allowing for efficient communication with multiple users.
+    It returns a success message once the emails have been sent.
+    """
     m1 = mail.EmailMessage(
         "First Test message",
         "This is the first test email",

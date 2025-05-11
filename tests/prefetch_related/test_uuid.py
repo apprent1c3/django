@@ -5,6 +5,9 @@ from .models import Flea, House, Person, Pet, Room
 
 class UUIDPrefetchRelated(TestCase):
     def test_prefetch_related_from_uuid_model(self):
+        """
+        Tests the optimization of database query handling when using prefetch_related on the 'people' relation of the Pet model, ensuring that related objects are efficiently retrieved in a minimal number of queries.
+        """
         Pet.objects.create(name="Fifi").people.add(
             Person.objects.create(name="Ellen"),
             Person.objects.create(name="George"),
@@ -16,6 +19,9 @@ class UUIDPrefetchRelated(TestCase):
             self.assertEqual(2, len(pet.people.all()))
 
     def test_prefetch_related_to_uuid_model(self):
+        """
+        Tests that the `prefetch_related` method correctly fetches related objects for a model with a foreign key to a UUID-based model, reducing the number of database queries.
+        """
         Person.objects.create(name="Bella").pets.add(
             Pet.objects.create(name="Socks"),
             Pet.objects.create(name="Coffee"),
@@ -27,6 +33,13 @@ class UUIDPrefetchRelated(TestCase):
             self.assertEqual(2, len(person.pets.all()))
 
     def test_prefetch_related_from_uuid_model_to_uuid_model(self):
+        """
+
+        Tests that prefetching related objects works correctly when using a Many-To-Many relationship with UUID-based models.
+
+        Verifies that prefetched related objects can be accessed without generating additional database queries.
+
+        """
         fleas = [Flea.objects.create() for i in range(3)]
         Pet.objects.create(name="Fifi").fleas_hosted.add(*fleas)
         Pet.objects.create(name="Bobo").fleas_hosted.add(*fleas)
@@ -56,6 +69,9 @@ class UUIDPrefetchRelated(TestCase):
 class UUIDPrefetchRelatedLookups(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up initial test data, including a house, room, fleas, pet, and person, with associated relationships for testing purposes.
+        """
         house = House.objects.create(name="Redwood", address="Arcata")
         room = Room.objects.create(name="Racoon", house=house)
         fleas = [Flea.objects.create(current_room=room) for i in range(3)]

@@ -61,8 +61,7 @@ language_code_prefix_re = _lazy_re_compile(r"^/(\w+([@-]\w+){0,2})(/|$)")
 @receiver(setting_changed)
 def reset_cache(*, setting, **kwargs):
     """
-    Reset global state when LANGUAGES setting has been changed, as some
-    languages should no longer be accepted.
+    Reset the global cache when language-related settings are changed, ensuring the system reflects the updated language configuration.
     """
     if setting in ("LANGUAGES", "LANGUAGE_CODE"):
         check_for_language.cache_clear()
@@ -81,6 +80,13 @@ class TranslationCatalog:
         self._plurals = [trans.plural] if trans else [lambda n: int(n != 1)]
 
     def __getitem__(self, key):
+        """
+        Retrieves an item from any of the catalogs managed by this object, given a key.
+
+        :param key: The key to look up in the catalogs
+        :raises KeyError: If the key is not found in any of the catalogs
+        :return: The value associated with the key in the first catalog where it is found
+        """
         for cat in self._catalogs:
             try:
                 return cat[key]
@@ -104,6 +110,9 @@ class TranslationCatalog:
 
     def update(self, trans):
         # Merge if plural function is the same, else prepend.
+        """
+        Updates the translation catalogs by merging the provided translation with the existing ones based on the plural function match, or appends a new catalog if no match is found.
+        """
         for cat, plural in zip(self._catalogs, self._plurals):
             if trans.plural.__code__ == plural.__code__:
                 cat.update(trans._catalog)
@@ -113,6 +122,12 @@ class TranslationCatalog:
             self._plurals.insert(0, trans.plural)
 
     def get(self, key, default=None):
+        """
+        Retrieve a value from the catalogs by key, returning the first matching value.
+
+        If no matching value is found, returns the specified default value. This method allows
+        for a fallback to a default value if the key is not present in any of the catalogs.
+        """
         missing = object()
         for cat in self._catalogs:
             result = cat.get(key, missing)
@@ -121,6 +136,15 @@ class TranslationCatalog:
         return default
 
     def plural(self, msgid, num):
+        """
+
+        Return the plural form of a message based on the given number.
+
+        This function searches through the available catalogs for a translation
+        of the given msgid with the corresponding plural form for the given number.
+        If a match is found, the translated message is returned; otherwise, a KeyError is raised.
+
+        """
         for cat, plural in zip(self._catalogs, self._plurals):
             tmsg = cat.get((msgid, plural(num)))
             if tmsg is not None:
@@ -141,7 +165,16 @@ class DjangoTranslation(gettext_module.GNUTranslations):
     domain = "django"
 
     def __init__(self, language, domain=None, localedirs=None):
-        """Create a GNUTranslations() using many locale directories"""
+        """
+        Initializes a translation object for the specified language and domain.
+
+        Parameters:
+            language (str): The language code to translate to.
+            domain (str, optional): The translation domain. Defaults to None.
+            localedirs (list, optional): List of directories containing translations. Defaults to None.
+
+        This initializer sets up the translation object by loading translation catalogs from various sources, including installed applications and local directories, and merges them into a single catalog. It also handles fallbacks and raises an error if no translation files are found for the default language.
+        """
         gettext_module.GNUTranslations.__init__(self)
         if domain is not None:
             self.domain = domain
@@ -205,14 +238,20 @@ class DjangoTranslation(gettext_module.GNUTranslations):
         )
 
     def _init_translation_catalog(self):
-        """Create a base catalog using global django translations."""
+        """
+        Initializes a translation catalog by merging global Django translations into a base catalog.
+        """
         settingsfile = sys.modules[settings.__module__].__file__
         localedir = os.path.join(os.path.dirname(settingsfile), "locale")
         translation = self._new_gnu_trans(localedir)
         self.merge(translation)
 
     def _add_installed_apps_translations(self):
-        """Merge translations from each installed app."""
+        """
+
+        Merges translations from each installed app into the current translation catalog.
+
+        """
         try:
             app_configs = reversed(apps.get_app_configs())
         except AppRegistryNotReady:
@@ -234,7 +273,11 @@ class DjangoTranslation(gettext_module.GNUTranslations):
             self.merge(translation)
 
     def _add_fallback(self, localedirs=None):
-        """Set the GNUTranslations() fallback with the default language."""
+        """
+        Set a fallback translation for the current language to ensure translations 
+        are available when a specific translation is missing, defaulting to the 
+        project's LANGUAGE_CODE translation.
+        """
         # Don't set a fallback for the default language or any English variant
         # (as it's empty, so it'll ALWAYS fall back to the default language)
         if self.__language == settings.LANGUAGE_CODE or self.__language.startswith(
@@ -251,7 +294,9 @@ class DjangoTranslation(gettext_module.GNUTranslations):
         self.add_fallback(default_translation)
 
     def merge(self, other):
-        """Merge another translation into this catalog."""
+        """
+        Merges another translation catalog into this one, combining their translation data and updating this catalog's plural form and information. The merge process also preserves the fallback behavior from the other catalog.
+        """
         if not getattr(other, "_catalog", None):
             return  # NullTranslations() has no _catalog
         if self._catalog is None:
@@ -273,6 +318,15 @@ class DjangoTranslation(gettext_module.GNUTranslations):
         return self.__to_language
 
     def ngettext(self, msgid1, msgid2, n):
+        """
+        Return the pluralized translation for the given message based on the number n.
+
+        :param msgid1: The singular translation message
+        :param msgid2: The plural translation message
+        :param n: The number to determine the plural form
+        :rtype: str
+        :returns: The translated message in the correct plural form
+        """
         try:
             tmsg = self._catalog.plural(msgid1, n)
         except KeyError:
@@ -287,7 +341,7 @@ class DjangoTranslation(gettext_module.GNUTranslations):
 
 def translation(language):
     """
-    Return a translation object in the default 'django' domain.
+    Retrieves a translation object for the specified language in the default 'django' domain, creating a new one if it does not already exist.
     """
     global _translations
     if language not in _translations:
@@ -325,7 +379,9 @@ def deactivate_all():
 
 
 def get_language():
-    """Return the currently selected language."""
+    """
+    Returns the currently selected language, falling back to the default language if it cannot be determined.
+    """
     t = getattr(_active, "value", None)
     if t is not None:
         try:
@@ -338,10 +394,7 @@ def get_language():
 
 def get_language_bidi():
     """
-    Return selected language's BiDi layout.
-
-    * False = left-to-right layout
-    * True = right-to-left layout
+    Return the BiDi (bidirectional) layout for the currently selected language, indicating whether text should be displayed in a left-to-right or right-to-left layout.
     """
     lang = get_language()
     if lang is None:
@@ -353,9 +406,7 @@ def get_language_bidi():
 
 def catalog():
     """
-    Return the current active catalog for further processing.
-    This can be used if you need to modify the catalog or want to access the
-    whole message catalog instead of just translating one string.
+    Returns the currently active message catalog, allowing for modification or access to the entire catalog, rather than translating individual strings.
     """
     global _default
 
@@ -369,9 +420,7 @@ def catalog():
 
 def gettext(message):
     """
-    Translate the 'message' string. It uses the current thread to find the
-    translation object to use. If no current translation is activated, the
-    message will be run through the default translation object.
+    Translate a given string into the current language, falling back to the default language if no translation is active.
     """
     global _default
 
@@ -394,6 +443,14 @@ def gettext(message):
 
 
 def pgettext(context, message):
+    """
+    Get a translated message with a context, using the GNU gettext system.
+
+    :param context: the context for the translation
+    :param message: the message to translate
+    :returns: the translated message, or the original message if no translation is found
+    :rtype: str or SafeData
+    """
     msg_with_ctxt = "%s%s%s" % (context, CONTEXT_SEPARATOR, message)
     result = gettext(msg_with_ctxt)
     if CONTEXT_SEPARATOR in result:
@@ -415,6 +472,9 @@ def gettext_noop(message):
 
 
 def do_ntranslate(singular, plural, number, translation_function):
+    """
+    Translates a string from singular to plural form based on the given number, using the active translation or the default translation if none is active.
+    """
     global _default
 
     t = getattr(_active, "value", None)
@@ -434,6 +494,12 @@ def ngettext(singular, plural, number):
 
 
 def npgettext(context, singular, plural, number):
+    """
+    Translate a string with a given context, plural form, and number of items.
+
+    Returns the translated string using the context, singular, and plural forms.
+    If translation fails with the context, falls back to translation without context.
+    """
     msgs_with_ctxt = (
         "%s%s%s" % (context, CONTEXT_SEPARATOR, singular),
         "%s%s%s" % (context, CONTEXT_SEPARATOR, plural),
@@ -448,7 +514,7 @@ def npgettext(context, singular, plural, number):
 
 def all_locale_paths():
     """
-    Return a list of paths to user-provides languages files.
+    Returns a list of paths to locale directories, including the global locale path, paths specified in settings, and locale paths from individual applications.
     """
     globalpath = os.path.join(
         os.path.dirname(sys.modules[settings.__module__].__file__), "locale"
@@ -493,18 +559,19 @@ def get_languages():
 @functools.lru_cache(maxsize=1000)
 def get_supported_language_variant(lang_code, strict=False):
     """
-    Return the language code that's listed in supported languages, possibly
+    Return the language code that's listed in supported languages, possibly 
     selecting a more generic variant. Raise LookupError if nothing is found.
 
-    If `strict` is False (the default), look for a country-specific variant
+    If `strict` is False (the default), look for a country-specific variant 
     when neither the language code nor its generic variant is found.
 
-    The language code is truncated to a maximum length to avoid potential
+    The language code is truncated to a maximum length to avoid potential 
     denial of service attacks.
 
-    lru_cache should have a maxsize to prevent from memory exhaustion attacks,
-    as the provided language codes are taken from the HTTP request. See also
-    <https://www.djangoproject.com/weblog/2007/oct/26/security-fix/>.
+    :param lang_code: The language code to find a supported variant for
+    :param strict: Whether to require an exact match, defaults to False
+    :raises LookupError: If no supported variant is found
+    :rtype: str
     """
     if lang_code:
         # Truncate the language code to a maximum length to avoid potential
@@ -544,10 +611,8 @@ def get_supported_language_variant(lang_code, strict=False):
 
 def get_language_from_path(path, strict=False):
     """
-    Return the language code if there's a valid language code found in `path`.
-
-    If `strict` is False (the default), look for a country-specific variant
-    when neither the language code nor its generic variant is found.
+    Return the language code if a valid language code is found in the given path, 
+    with optional support for country-specific variants when the strict mode is disabled.
     """
     regex_match = language_code_prefix_re.match(path)
     if not regex_match:
@@ -561,13 +626,7 @@ def get_language_from_path(path, strict=False):
 
 def get_language_from_request(request, check_path=False):
     """
-    Analyze the request to find what language the user wants the system to
-    show. Only languages listed in settings.LANGUAGES are taken into account.
-    If the user requests a sublanguage where we have a main language, we send
-    out the main language.
-
-    If check_path is True, the URL path prefix will be checked for a language
-    code, otherwise this is skipped for backwards compatibility.
+    Determines the language to use for a given request based on various factors, including cookies, URL path prefix, and HTTP Accept-Language header. The function considers only languages listed in settings.LANGUAGES and returns the most suitable language variant, potentially falling back to the main language if a sublanguage is requested. It also respects backwards compatibility by optionally ignoring the URL path prefix for language detection.
     """
     if check_path:
         lang_code = get_language_from_path(request.path_info)
@@ -609,10 +668,7 @@ def get_language_from_request(request, check_path=False):
 @functools.lru_cache(maxsize=1000)
 def _parse_accept_lang_header(lang_string):
     """
-    Parse the lang_string, which is the body of an HTTP Accept-Language
-    header, and return a tuple of (lang, q-value), ordered by 'q' values.
-
-    Return an empty tuple if there are any format errors in lang_string.
+    Parse the body of an HTTP Accept-Language header and return a tuple of language codes with their corresponding quality values, ordered by quality value. Returns an empty tuple if the input string contains format errors.
     """
     result = []
     pieces = accept_language_re.split(lang_string.lower())
@@ -633,12 +689,7 @@ def _parse_accept_lang_header(lang_string):
 
 def parse_accept_lang_header(lang_string):
     """
-    Parse the value of the Accept-Language header up to a maximum length.
-
-    The value of the header is truncated to a maximum length to avoid potential
-    denial of service and memory exhaustion attacks. Excessive memory could be
-    used if the raw value is very large as it would be cached due to the use of
-    functools.lru_cache() to avoid repetitive parsing of common header values.
+    Parse the Accept-Language header, truncating it to a maximum length to prevent potential denial of service and memory exhaustion attacks, and then parse the resulting string to extract language information.
     """
     # If the header value doesn't exceed the maximum allowed length, parse it.
     if len(lang_string) <= LANGUAGE_CODE_MAX_LENGTH:

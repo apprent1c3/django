@@ -49,6 +49,15 @@ class MigrationLoader:
         ignore_no_migrations=False,
         replace_migrations=True,
     ):
+        """
+        Initializes the migration manager with a database connection and optional configuration parameters.
+
+        :param connection: The database connection to manage migrations for
+        :param load: Whether to load migration data immediately
+        :param ignore_no_migrations: Whether to ignore missing migration history
+        :param replace_migrations: Whether to replace existing migration data
+        :returns: None
+        """
         self.connection = connection
         self.disk_migrations = None
         self.applied_migrations = None
@@ -60,9 +69,12 @@ class MigrationLoader:
     @classmethod
     def migrations_module(cls, app_label):
         """
-        Return the path to the migrations module for the specified app_label
-        and a boolean indicating if the module is specified in
-        settings.MIGRATION_MODULE.
+
+        Fetches the path to the migrations module for a given application label.
+
+        Returns a tuple containing the module path and a boolean indicating whether the 
+        module is explicitly defined in the project's settings.
+
         """
         if app_label in settings.MIGRATION_MODULES:
             return settings.MIGRATION_MODULES[app_label], True
@@ -71,7 +83,9 @@ class MigrationLoader:
             return "%s.%s" % (app_package_name, MIGRATIONS_MODULE_NAME), False
 
     def load_disk(self):
-        """Load the migrations from all INSTALLED_APPS from disk."""
+        """
+        Loads migrations from all installed applications from disk, populating the disk_migrations dictionary and unmigrated/migrated apps sets accordingly.
+        """
         self.disk_migrations = {}
         self.unmigrated_apps = set()
         self.migrated_apps = set()
@@ -144,7 +158,18 @@ class MigrationLoader:
 
     def get_migration_by_prefix(self, app_label, name_prefix):
         """
-        Return the migration(s) which match the given app label and name_prefix.
+        Return the single migration matching the given application label and name prefix.
+
+            Args:
+                app_label (str): The application label to search for.
+                name_prefix (str): The prefix of the migration name to search for.
+
+            Returns:
+                The matching migration.
+
+            Raises:
+                AmbiguityError: If multiple migrations match the given prefix.
+                KeyError: If no migration matches the given prefix.
         """
         # Do the search
         results = []
@@ -167,6 +192,14 @@ class MigrationLoader:
             return self.disk_migrations[results[0]]
 
     def check_key(self, key, current_app):
+        """
+        Resolves a key into a valid migration node based on the current application and migration graph.
+
+            :param key: A tuple representing a dependency key
+            :param current_app: The name of the current application
+            :return: A valid migration node or None if the key is not applicable
+            :raises ValueError: If the key is invalid or references an unknown or unmigrated application
+        """
         if (key[1] != "__first__" and key[1] != "__latest__") or key in self.graph:
             return key
         # Special-case __first__, which means "the first migration" for
@@ -207,6 +240,9 @@ class MigrationLoader:
                 self.graph.add_dependency(migration, key, parent, skip_validation=True)
 
     def add_external_dependencies(self, key, migration):
+        """
+        Establishes external dependencies for a given migration by adding relationships to the dependency graph, accounting for existing and conflicting dependencies.
+        """
         for parent in migration.dependencies:
             # Skip internal dependencies
             if key[0] == parent[0]:
@@ -221,9 +257,7 @@ class MigrationLoader:
 
     def build_graph(self):
         """
-        Build a migration dependency graph using both the disk and database.
-        You'll need to rebuild the graph if you apply migrations. This isn't
-        usually a problem as generally migration stuff runs in a one-shot process.
+        Builds a migration dependency graph by combining disk and database information, then validates its consistency. This graph is used to track and manage migrations, and it must be rebuilt after applying new migrations.
         """
         # Load disk data
         self.load_disk()
@@ -306,8 +340,12 @@ class MigrationLoader:
 
     def check_consistent_history(self, connection):
         """
-        Raise InconsistentMigrationHistory if any applied migrations have
-        unapplied dependencies.
+        Check the migration history for inconsistencies.
+
+        Verify that all applied migrations have their dependencies applied, 
+        raising an exception if any inconsistent state is found. This ensures 
+        that the database migration history is valid and consistent with the 
+        expected migration graph.
         """
         recorder = MigrationRecorder(connection)
         applied = recorder.applied_migrations()
@@ -337,9 +375,8 @@ class MigrationLoader:
 
     def detect_conflicts(self):
         """
-        Look through the loaded graph and detect any conflicts - apps
-        with more than one leaf migration. Return a dict of the app labels
-        that conflict with the migration names that conflict.
+        Detects conflicts in the migration graph where an app has more than one leaf migration.
+        Returns a dictionary mapping conflicting app labels to their respective conflicting migration names.
         """
         seen_apps = {}
         conflicting_apps = set()
@@ -364,8 +401,10 @@ class MigrationLoader:
 
     def collect_sql(self, plan):
         """
-        Take a migration plan and return a list of collected SQL statements
-        that represent the best-efforts version of that plan.
+
+        Translate a migration plan into a list of SQL statements that implement the plan, 
+        capturing the necessary database schema changes.
+
         """
         statements = []
         state = None

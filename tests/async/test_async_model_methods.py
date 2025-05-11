@@ -25,6 +25,10 @@ class AsyncModelOperationTest(TestCase):
         self.assertEqual(self.s1.field, 20)
 
     async def test_arefresh_from_db_from_queryset(self):
+        """
+        Checks if an object can be refreshed from the database using a provided queryset, 
+        ensuring that the object exists in the query and its fields are updated correctly.
+        """
         await SimpleModel.objects.filter(pk=self.s1.pk).aupdate(field=20)
         with self.assertRaises(SimpleModel.DoesNotExist):
             await self.s1.arefresh_from_db(

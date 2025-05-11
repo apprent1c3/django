@@ -86,9 +86,11 @@ _json_script_escapes = {
 
 def json_script(value, element_id=None, encoder=None):
     """
-    Escape all the HTML/XML special characters with their unicode escapes, so
-    value is safe to be output anywhere except for inside a tag attribute. Wrap
-    the escaped JSON in a script tag.
+    Generates a JSON string from the provided value, escapes any HTML/XML special characters, 
+    and wraps the result in a script tag. This allows the JSON data to be safely included 
+    in HTML pages, except within tag attributes. The optional element_id parameter can be 
+    used to specify an id for the script tag, and a custom encoder can be provided for 
+    specialized JSON encoding needs.
     """
     from django.core.serializers.json import DjangoJSONEncoder
 
@@ -106,10 +108,9 @@ def json_script(value, element_id=None, encoder=None):
 
 def conditional_escape(text):
     """
-    Similar to escape(), except that it doesn't operate on pre-escaped strings.
 
-    This function relies on the __html__ convention used both by Django's
-    SafeData class and by third-party libraries like markupsafe.
+    Escapes special characters in the given text, unless it's already marked as safe using the __html__ convention.
+
     """
     if isinstance(text, Promise):
         text = str(text)
@@ -121,9 +122,7 @@ def conditional_escape(text):
 
 def format_html(format_string, *args, **kwargs):
     """
-    Similar to str.format, but pass all arguments through conditional_escape(),
-    and call mark_safe() on the result. This function should be used instead
-    of str.format or % interpolation to build up small HTML fragments.
+    Safely formats a string with HTML content, escaping any special characters in the arguments and marking the result as safe for use in HTML templates.
     """
     if not (args or kwargs):
         # RemovedInDjango60Warning: when the deprecation ends, replace with:
@@ -160,7 +159,16 @@ def format_html_join(sep, format_string, args_generator):
 
 @keep_lazy_text
 def linebreaks(value, autoescape=False):
-    """Convert newlines into <p> and <br>s."""
+    """
+
+    Converts newlines in a given text value into HTML paragraph and line break tags.
+
+    This function splits the text into paragraphs based on consecutive newlines and 
+    wraps each paragraph in <p> tags. It also replaces single newlines within a 
+    paragraph with <br> tags. The function can optionally escape any HTML 
+    special characters in the text to prevent cross-site scripting (XSS) attacks.
+
+    """
     value = normalize_newlines(value)
     paras = re.split("\n{2,}", str(value))
     if autoescape:
@@ -191,7 +199,7 @@ class MLStripper(HTMLParser):
 
 def _strip_once(value):
     """
-    Internal tag stripping utility used by strip_tags.
+    Internal tag stripping utility used to remove HTML tags from a given string value.
     """
     s = MLStripper()
     s.feed(value)
@@ -201,7 +209,9 @@ def _strip_once(value):
 
 @keep_lazy_text
 def strip_tags(value):
-    """Return the given HTML with all tags stripped."""
+    """
+    Remove all HTML tags from the given string, returning the plain text content.
+    """
     # Note: in typical case this loop executes _strip_once once. Loop condition
     # is redundant, but helps to reduce number of executions of _strip_once.
     value = str(value)
@@ -221,7 +231,9 @@ def strip_spaces_between_tags(value):
 
 
 def smart_urlquote(url):
-    """Quote a URL if it isn't already quoted."""
+    """
+    Quote a URL if it isn't already quoted, ensuring that the URL is properly encoded according to the RFC3986 standard, handling scheme, netloc, path, query, and fragment components correctly.
+    """
 
     def unquote_quote(segment):
         segment = unquote(segment)
@@ -324,6 +336,9 @@ class Urlizer:
         nofollow=False,
         autoescape=False,
     ):
+        """
+        Turns a word that resembles a URL or email address into a clickable HTML link, while allowing for custom settings such as trimming the link text, adding a \"nofollow\" attribute, and autoescaping the input for safety.
+        """
         if "." in word or "@" in word or ":" in word:
             # lead: Punctuation trimmed from the beginning of the word.
             # middle: State of the word.
@@ -386,8 +401,10 @@ class Urlizer:
 
     def trim_punctuation(self, word):
         """
-        Trim trailing and wrapping punctuation from `word`. Return the items of
-        the new state.
+        Remove leading, trailing, and wrapping punctuation from a given word.
+
+        Returns a tuple of three parts: the original lead characters, the word with 
+        punctuation removed, and the removed trailing characters.
         """
         # Strip all opening wrapping punctuation.
         middle = word.lstrip(self.wrapping_punctuation_openings)
@@ -442,7 +459,9 @@ class Urlizer:
 
     @staticmethod
     def is_email_simple(value):
-        """Return True if value looks like an email address."""
+        """
+        Determines if a given string appears to be a valid email address, checking for the presence of an '@' symbol and a domain with a top-level domain.
+        """
         # An @ must be in the middle of the value.
         if "@" not in value or value.startswith("@") or value.endswith("@"):
             return False
@@ -477,8 +496,9 @@ def avoid_wrapping(value):
 
 def html_safe(klass):
     """
-    A decorator that defines the __html__ method. This helps non-Django
-    templates to detect classes whose __str__ methods return SafeString.
+
+    Defines the __html__ method for a class to enable detection of SafeString returns from the __str__ method in non-Django templates.
+
     """
     if "__html__" in klass.__dict__:
         raise ValueError(

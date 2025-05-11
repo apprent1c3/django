@@ -32,6 +32,9 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Checks if a given string is a valid XML by attempting to parse it. Returns True if the string is valid XML, False otherwise.
+        """
         try:
             minidom.parseString(serial_str)
         except Exception:
@@ -41,6 +44,11 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        Extracts primary key values from an XML serialized string.
+
+        Parses the input string as XML, identifies 'object' elements, and returns a list of their 'pk' attributes.
+        """
         ret_list = []
         dom = minidom.parseString(serial_str)
         fields = dom.getElementsByTagName("object")
@@ -50,6 +58,13 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_field_values(serial_str, field_name):
+        """
+        Retrieves the values of a specified field from an XML string.
+
+        :param serial_str: XML string to parse
+        :param field_name: Name of the field to retrieve values for
+        :return: List of values for the specified field
+        """
         ret_list = []
         dom = minidom.parseString(serial_str)
         fields = dom.getElementsByTagName("field")
@@ -63,8 +78,11 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_control_char_failure(self):
         """
-        Serializing control characters with XML should fail as those characters
-        are not supported in the XML 1.0 standard (except HT, LF, CR).
+        Test that serializing article objects with control characters fails as expected.
+
+        This test verifies that a ValueError is raised when attempting to serialize an
+        article containing control characters not supported in the XML 1.0 standard, and
+        that supported control characters (HT, LF, CR) are successfully serialized.
         """
         self.a1.headline = "This contains \u0001 control \u0011 chars"
         msg = "Article.headline (pk:%s) contains unserializable characters" % self.a1.pk

@@ -23,6 +23,9 @@ from .models import (
 class SimpleTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating two instances of model A and associating them with multiple instances of models B and D.
+        """
         cls.a1 = A.objects.create()
         cls.a2 = A.objects.create()
         for x in range(20):
@@ -31,7 +34,11 @@ class SimpleTest(TestCase):
 
     def test_nonempty_update(self):
         """
-        Update changes the right number of rows for a nonempty queryset
+
+        Verifies that a non-empty queryset update modifies the correct number of rows.
+
+        Tests that the update operation changes the specified field for all objects in the queryset and that the number of updated rows is accurately reported.
+
         """
         num_updated = self.a1.b_set.update(y=100)
         self.assertEqual(num_updated, 20)
@@ -40,7 +47,7 @@ class SimpleTest(TestCase):
 
     def test_empty_update(self):
         """
-        Update changes the right number of rows for an empty queryset
+        Verifies that updating an empty queryset results in no rows being modified, ensuring the correct count of updated rows is returned and no unintended database changes occur.
         """
         num_updated = self.a2.b_set.update(y=100)
         self.assertEqual(num_updated, 0)
@@ -49,8 +56,7 @@ class SimpleTest(TestCase):
 
     def test_nonempty_update_with_inheritance(self):
         """
-        Update changes the right number of rows for an empty queryset
-        when the update affects only a base table
+        Tests that the update method correctly updates a non-empty queryset when updating a field that affects only the base table, and verifies that the correct number of rows are updated.
         """
         num_updated = self.a1.d_set.update(y=100)
         self.assertEqual(num_updated, 20)
@@ -59,8 +65,8 @@ class SimpleTest(TestCase):
 
     def test_empty_update_with_inheritance(self):
         """
-        Update changes the right number of rows for an empty queryset
-        when the update affects only a base table
+        Tests that an update operation correctly handles an empty queryset, 
+                        specifically when the update only affects the base table and no rows are modified.
         """
         num_updated = self.a2.d_set.update(y=100)
         self.assertEqual(num_updated, 0)
@@ -86,9 +92,7 @@ class AdvancedTests(TestCase):
 
     def test_update(self):
         """
-        Objects are updated by first filtering the candidates into a queryset
-        and then calling the update() method. It executes immediately and
-        returns nothing.
+        Tests the update functionality of DataPoint objects, verifying that filtered objects are correctly updated and returned quantities match expectations.
         """
         resp = DataPoint.objects.filter(value="apple").update(name="d1")
         self.assertEqual(resp, 1)
@@ -105,8 +109,7 @@ class AdvancedTests(TestCase):
 
     def test_update_fk(self):
         """
-        Foreign key fields can also be updated, although you can only update
-        the object referred to, not anything inside the related object.
+        Tests the ability to update foreign key fields in related objects, verifying that the update is successful and the correct object is referenced afterwards.
         """
         resp = RelatedPoint.objects.filter(name="r1").update(data=self.d0)
         self.assertEqual(resp, 1)
@@ -115,7 +118,7 @@ class AdvancedTests(TestCase):
 
     def test_update_multiple_fields(self):
         """
-        Multiple fields can be updated at once
+        Tests that updating multiple fields of a DataPoint object at once is successful, verifying the changes are correctly persisted in the database.
         """
         resp = DataPoint.objects.filter(value="apple").update(
             value="fruit", another_value="peach"
@@ -136,7 +139,7 @@ class AdvancedTests(TestCase):
 
     def test_update_slice_fail(self):
         """
-        We do not support update on already sliced query sets.
+        Tests that updating a sliced query set raises a TypeError, as this operation is not supported.
         """
         method = DataPoint.objects.all()[:2].update
         msg = "Cannot update a query once a slice has been taken."
@@ -145,7 +148,9 @@ class AdvancedTests(TestCase):
 
     def test_update_respects_to_field(self):
         """
-        Update of an FK field which specifies a to_field works.
+
+        Tests that updating a foreign key field with a specified 'to_field' correctly updates the related field.
+
         """
         a_foo = Foo.objects.create(target="aaa")
         b_foo = Foo.objects.create(target="bbb")
@@ -166,6 +171,11 @@ class AdvancedTests(TestCase):
             Bar.objects.update(m2m_foo="whatever")
 
     def test_update_transformed_field(self):
+        """
+
+        Tests the update functionality of a transformed field by applying the absolute value transformation to a set of integer values.
+
+        """
         A.objects.create(x=5)
         A.objects.create(x=-6)
         with register_lookup(IntegerField, Abs):
@@ -174,7 +184,11 @@ class AdvancedTests(TestCase):
 
     def test_update_annotated_queryset(self):
         """
-        Update of a queryset that's been annotated.
+
+        Tests the update functionality of a queryset that has been annotated with additional values.
+        Verifies the correct number of rows are updated in various scenarios, including 
+        annotation with field values and the restriction against using aggregate functions.
+
         """
         # Trivial annotated update
         qs = DataPoint.objects.annotate(alias=F("value"))
@@ -196,7 +210,11 @@ class AdvancedTests(TestCase):
 
     def test_update_annotated_multi_table_queryset(self):
         """
-        Update of a queryset that's been annotated and involves multiple tables.
+
+            Tests the functionality of updating a queryset that has been annotated and 
+            involves multiple tables, verifying the correctness of update operations on 
+            annotated fields across different scenarios.
+
         """
         # Trivial annotated update
         qs = DataPoint.objects.annotate(related_count=Count("relatedpoint"))
@@ -211,6 +229,9 @@ class AdvancedTests(TestCase):
             qs.update(name=F("max"))
 
     def test_update_with_joined_field_annotation(self):
+        """
+        Tests the restriction that joined field references cannot be used in update queries with annotations. Verifies that using such annotations results in a FieldError being raised.
+        """
         msg = "Joined field references are not permitted in this query"
         with register_lookup(CharField, Lower):
             for annotation in (
@@ -296,6 +317,13 @@ class MySQLUpdateOrderByTest(TestCase):
         UniqueNumber.objects.create(number=2)
 
     def test_order_by_update_on_unique_constraint(self):
+        """
+
+        Tests that updating a model with a unique constraint while ordering by that field works correctly.
+
+        Verifies that updating multiple instances ordered by the unique constraint field results in the expected number of instances being updated.
+
+        """
         tests = [
             ("-number", "id"),
             (F("number").desc(), "id"),
@@ -337,6 +365,9 @@ class MySQLUpdateOrderByTest(TestCase):
     def test_order_by_update_on_related_field(self):
         # Ordering by related fields is omitted because joined fields cannot be
         # used in the ORDER BY clause.
+        """
+        Tests that updating a queryset ordered by a related field does not include the order in the SQL query, while still applying the update correctly.
+        """
         data = DataPoint.objects.create(name="d0", value="apple")
         related = RelatedPoint.objects.create(name="r0", data=data)
         with self.assertNumQueries(1) as ctx:

@@ -24,6 +24,20 @@ def load_backend(path):
 
 
 def _get_backends(return_tuples=False):
+    """
+    Retrieve a list of authentication backends.
+
+    This function loads and returns all authentication backends defined in the 
+    AUTHENTICATION_BACKENDS setting. If return_tuples is True, it returns a list 
+    of tuples containing the backend instance and its path, otherwise it returns 
+    a list of backend instances. Raises an ImproperlyConfigured exception if no 
+    backends are defined.
+
+    :param bool return_tuples: Whether to return tuples of (backend, path) or just backends.
+    :raises ImproperlyConfigured: If no authentication backends are defined.
+    :return: List of authentication backends or tuples of (backend, path).
+
+    """
     backends = []
     for backend_path in settings.AUTHENTICATION_BACKENDS:
         backend = load_backend(backend_path)
@@ -43,10 +57,7 @@ def get_backends():
 @sensitive_variables("credentials")
 def _clean_credentials(credentials):
     """
-    Clean a dictionary of credentials of potentially sensitive info before
-    sending to less secure functions.
-
-    Not comprehensive - intended for user_login_failed signal
+    Cleans a dictionary of credentials by redacting sensitive information to prevent exposure in less secure environments.
     """
     SENSITIVE_CREDENTIALS = re.compile("api|token|key|secret|password|signature", re.I)
     CLEANSED_SUBSTITUTE = "********************"
@@ -65,7 +76,8 @@ def _get_user_session_key(request):
 @sensitive_variables("credentials")
 def authenticate(request=None, **credentials):
     """
-    If the given credentials are valid, return a User object.
+    Authenticates a user based on the provided credentials, returning a User object if the credentials are valid. 
+    It iterates over available authentication backends, attempting to authenticate with each until successful.
     """
     for backend, backend_path in _get_backends(return_tuples=True):
         backend_signature = inspect.signature(backend.authenticate)
@@ -101,9 +113,7 @@ async def aauthenticate(request=None, **credentials):
 
 def login(request, user, backend=None):
     """
-    Persist a user id and a backend in the request. This way a user doesn't
-    have to reauthenticate on every request. Note that data set during
-    the anonymous session is retained when the user logs in.
+    Persist a user's login information in the current session, ensuring they don't need to reauthenticate on every request, while retaining data from the anonymous session.
     """
     session_auth_hash = ""
     if user is None:
@@ -159,8 +169,9 @@ async def alogin(request, user, backend=None):
 
 def logout(request):
     """
-    Remove the authenticated user's ID from the request and flush their session
-    data.
+
+    Terminate the current user's session, removing their ID and flushing session data.
+
     """
     # Dispatch the signal before the user is logged out so the receivers have a
     # chance to find out *who* logged out.
@@ -182,7 +193,7 @@ async def alogout(request):
 
 def get_user_model():
     """
-    Return the User model that is active in this project.
+    Return the User model that is active in this project, handling potential configuration errors if the AUTH_USER_MODEL setting is not correctly defined.
     """
     try:
         return django_apps.get_model(settings.AUTH_USER_MODEL, require_ready=False)
@@ -199,8 +210,10 @@ def get_user_model():
 
 def get_user(request):
     """
+
     Return the user model instance associated with the given request session.
-    If no user is retrieved, return an instance of `AnonymousUser`.
+    If no user is retrieved, return an instance of AnonymousUser.
+
     """
     from .models import AnonymousUser
 

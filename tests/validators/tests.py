@@ -662,6 +662,13 @@ TEST_DATA.extend((URLValidator(), url, ValidationError) for url in INVALID_URLS)
 
 class TestValidators(SimpleTestCase):
     def test_validators(self):
+        """
+        Tests the functionality of various validation functions with predefined test data.
+
+        Checks if each validator correctly handles its input value and produces the expected output or raises the expected exception.
+
+        The test data includes a variety of input values and expected results, ensuring that the validators behave as intended in different scenarios.
+        """
         for validator, value, expected in TEST_DATA:
             name = (
                 validator.__name__
@@ -723,6 +730,9 @@ class TestValidatorEquality(TestCase):
     """
 
     def test_regex_equality(self):
+        """
+        Tests the equality of RegexValidator instances based on their patterns, error messages, and flags.
+        """
         self.assertEqual(
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
@@ -755,6 +765,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_regex_equality_nocache(self):
+        """
+        Checks if two instances of RegexValidator are considered equal when created with the same pattern, even after the regex cache has been purged.
+        """
         pattern = r"^(?:[a-z0-9.-]*)://"
         left = RegexValidator(pattern)
         re.purge()
@@ -790,6 +803,14 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_basic_equality(self):
+        """
+
+        Tests the equality of validator objects.
+
+        Checks that validators with the same parameters are considered equal, 
+        and that those with different parameters or types are not equal.
+
+        """
         self.assertEqual(
             MaxValueValidator(44),
             MaxValueValidator(44),
@@ -831,6 +852,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_file_extension_equality(self):
+        """
+        Tests the equality of FileExtensionValidator instances based on their extensions and optional parameters, ensuring case-insensitive comparison and expected differences when codes or messages vary.
+        """
         self.assertEqual(FileExtensionValidator(), FileExtensionValidator())
         self.assertEqual(
             FileExtensionValidator(["txt"]), FileExtensionValidator(["txt"])
@@ -883,6 +907,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_domain_name_equality(self):
+        """
+        Tests the equality of DomainNameValidator instances based on their attributes.
+        """
         self.assertEqual(
             DomainNameValidator(),
             DomainNameValidator(),

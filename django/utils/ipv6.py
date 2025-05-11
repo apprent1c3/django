@@ -8,20 +8,18 @@ def clean_ipv6_address(
     ip_str, unpack_ipv4=False, error_message=_("This is not a valid IPv6 address.")
 ):
     """
-    Clean an IPv6 address string.
+    Clean an IPv6 address string to a standardized format.
 
-    Raise ValidationError if the address is invalid.
+    This function validates the input IPv6 address and raises a ValidationError if it is invalid.
+    It then normalizes the address by replacing the longest sequence of zeros with '::', removing leading zeros, and converting all hexadecimal values to lowercase.
 
-    Replace the longest continuous zero-sequence with "::", remove leading
-    zeroes, and make sure all hextets are lowercase.
+    Parameters:
+        ip_str (str): The IPv6 address to be cleaned.
+        unpack_ipv4 (bool): If True, returns the plain IPv4 address if the input is an IPv4-mapped address (default is False).
+        error_message (str): The error message to be used in the ValidationError (default is 'This is not a valid IPv6 address.').
 
-    Args:
-        ip_str: A valid IPv6 address.
-        unpack_ipv4: if an IPv4-mapped address is found,
-        return the plain IPv4 address (default=False).
-        error_message: An error message used in the ValidationError.
-
-    Return a compressed IPv6 address or the same value.
+    Returns:
+        str: The cleaned IPv6 address or the plain IPv4 address if unpack_ipv4 is True.
     """
     try:
         addr = ipaddress.IPv6Address(int(ipaddress.IPv6Address(ip_str)))
@@ -40,7 +38,7 @@ def clean_ipv6_address(
 
 def is_valid_ipv6_address(ip_str):
     """
-    Return whether or not the `ip_str` string is a valid IPv6 address.
+    Returns whether a given string represents a valid IPv6 address.
     """
     try:
         ipaddress.IPv6Address(ip_str)

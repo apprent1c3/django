@@ -16,6 +16,11 @@ class AuthConfig(AppConfig):
     verbose_name = _("Authentication and Authorization")
 
     def ready(self):
+        """
+        Initializes and configures various components to ensure the application is ready for use.
+
+        This function connects signals to create permissions, updates the last login field, and registers checks for the user model, model permissions, and middleware.
+        """
         post_migrate.connect(
             create_permissions,
             dispatch_uid="django.contrib.auth.management.create_permissions",

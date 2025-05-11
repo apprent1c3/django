@@ -19,6 +19,11 @@ from .models import (
 class RawQueryTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        ..: 
+            Sets up test data for the application, creating authors, books, coffee instances, and reviewers, 
+            and establishing relationships between them, providing a foundation for testing and development.
+        """
         cls.a1 = Author.objects.create(
             first_name="Joe", last_name="Smith", dob=date(1950, 9, 20)
         )
@@ -88,7 +93,12 @@ class RawQueryTests(TestCase):
 
     def assertProcessed(self, model, results, orig, expected_annotations=()):
         """
-        Compare the results of a raw query against expected results
+
+            Validates that the processed results of a query match the expected original data.
+
+            This method checks that each result item has the same attributes and values as its 
+            corresponding original item, along with any additional expected annotations.
+
         """
         self.assertEqual(len(results), len(orig))
         for index, item in enumerate(results):
@@ -115,7 +125,12 @@ class RawQueryTests(TestCase):
 
     def assertAnnotations(self, results, expected_annotations):
         """
-        The passed raw query results contain the expected annotations
+
+        Verifies that the provided query results contain the expected annotations.
+
+        :arg results: The query results to be checked
+        :arg expected_annotations: A list of tuples, where each tuple contains an annotation name and its expected value
+
         """
         if expected_annotations:
             for index, result in enumerate(results):
@@ -142,8 +157,7 @@ class RawQueryTests(TestCase):
 
     def test_raw_query_lazy(self):
         """
-        Raw queries are lazy: they aren't actually executed until they're
-        iterated over.
+        Tests that raw database queries are executed lazily, meaning they are only run when their results are actually needed.
         """
         q = Author.objects.raw("SELECT * FROM raw_query_author")
         self.assertIsNone(q.query.cursor)
@@ -176,7 +190,9 @@ class RawQueryTests(TestCase):
         self.assertSuccessfulRawQuery(MixedCaseIDColumn, query, queryset)
 
     def test_order_handler(self):
-        """Raw query tolerates columns being returned in any order."""
+        """
+        Tests the raw query functionality to ensure it can handle columns being returned in any order, providing flexibility in query construction.
+        """
         selects = (
             ("dob, last_name, first_name, id"),
             ("last_name, dob, first_name, id"),
@@ -190,8 +206,7 @@ class RawQueryTests(TestCase):
 
     def test_translations(self):
         """
-        Test of raw query's optional ability to translate unexpected result
-        column names to specific model fields
+        Tests if a raw query can correctly translate column names in the result set to corresponding model field names when the originals do not match.
         """
         query = (
             "SELECT first_name AS first, last_name AS last, dob, id "
@@ -203,7 +218,7 @@ class RawQueryTests(TestCase):
 
     def test_params(self):
         """
-        Test passing optional query parameters
+        Verify that the raw query function handles optional query parameters correctly by executing a query with a parameterized first name and asserting the expected results.
         """
         query = "SELECT * FROM raw_query_author WHERE first_name = %s"
         author = Author.objects.all()[2]
@@ -228,7 +243,12 @@ class RawQueryTests(TestCase):
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_pyformat_params(self):
         """
-        Test passing optional query parameters
+
+            Test if passing parameters using the 'pyformat' style to raw SQL queries works correctly.
+
+            This test ensures that optional query parameters can be passed to raw database queries
+            using the '%(name)s' placeholder style, and that the results are properly processed.
+
         """
         query = "SELECT * FROM raw_query_author WHERE first_name = %(first)s"
         author = Author.objects.all()[2]
@@ -242,7 +262,7 @@ class RawQueryTests(TestCase):
 
     def test_query_representation(self):
         """
-        Test representation of raw query with parameters
+        Tests the string representation of a raw SQL query and its associated query set, ensuring that parameter values are correctly substituted and displayed.
         """
         query = "SELECT * FROM raw_query_author WHERE last_name = %(last)s"
         qset = Author.objects.raw(query, {"last": "foo"})
@@ -275,7 +295,9 @@ class RawQueryTests(TestCase):
         self.assertSuccessfulRawQuery(Reviewer, query, reviewers)
 
     def test_extra_conversions(self):
-        """Extra translations are ignored."""
+        """
+        Tests that extra translations are ignored when executing a raw query on the Author model.
+        """
         query = "SELECT * FROM raw_query_author"
         translations = {"something": "else"}
         authors = Author.objects.all()
@@ -316,6 +338,9 @@ class RawQueryTests(TestCase):
         self.assertSuccessfulRawQuery(Author, query, authors)
 
     def test_multiple_iterations(self):
+        """
+        Tests that multiple iterations over a raw query result set yield the same data and number of results, verifying the correctness of the raw query interface.
+        """
         query = "SELECT * FROM raw_query_author"
         normal_authors = Author.objects.all()
         raw_authors = Author.objects.raw(query)
@@ -336,6 +361,12 @@ class RawQueryTests(TestCase):
 
     def test_get_item(self):
         # Indexing on RawQuerySets
+        """
+        Tests the retrieval of items from a raw database query.
+
+        Verifies that specific items can be retrieved by index, slices of items can be obtained,
+        and that attempting to access items by an invalid key raises a TypeError.
+        """
         query = "SELECT * FROM raw_query_author ORDER BY id ASC"
         third_author = Author.objects.raw(query)[2]
         self.assertEqual(third_author.first_name, "Bob")

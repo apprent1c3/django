@@ -117,6 +117,16 @@ else:
     else:
 
         def lock(f, flags):
+            """
+            Acquires or releases an advisory lock on a file descriptor.
+
+            Args:
+                f (file object): The file object to lock or unlock.
+                flags (int): The operation to perform (e.g., lock, unlock, etc.), as defined by the fcntl module.
+
+            Returns:
+                bool: Whether the operation was successful (True) or a blocking error occurred (False).
+            """
             try:
                 fcntl.flock(_fd(f), flags)
                 return True

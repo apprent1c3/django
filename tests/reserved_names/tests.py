@@ -30,6 +30,12 @@ class ReservedNameTests(TestCase):
         )
 
     def test_simple(self):
+        """
+
+        Tests the creation of Thing objects with various field values, 
+        including date fields, and verifies that the 'when' field is correctly set.
+
+        """
         day1 = datetime.date(2005, 1, 1)
         t = Thing.objects.create(
             when="a",

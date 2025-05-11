@@ -40,6 +40,17 @@ class FilteredSelectMultiple(forms.SelectMultiple):
         super().__init__(attrs, choices)
 
     def get_context(self, name, value, attrs):
+        """
+
+        Modifies the context for rendering a select filter widget, adding custom CSS classes 
+        and data attributes for styling and JavaScript interaction.
+
+        :param name: The name of the field.
+        :param value: The value of the field.
+        :param attrs: Additional attributes for the widget.
+        :return: The modified context dictionary.
+
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["attrs"]["class"] = "selectfilter"
         if self.is_stacked:
@@ -111,8 +122,7 @@ class AdminFileWidget(forms.ClearableFileInput):
 
 def url_params_from_lookup_dict(lookups):
     """
-    Convert the type of lookups specified in a ForeignKey limit_choices_to
-    attribute to a dictionary of query parameters
+    Converts a lookup dictionary to a dictionary of query parameters, handling various data types and callable values, making it suitable for use in URL queries.
     """
     params = {}
     if lookups and hasattr(lookups, "items"):
@@ -144,6 +154,11 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+        Returns a dictionary of context variables used to render a field in the Django admin interface.
+        It extends the field context by adding related model lookup URL and customizing the widget CSS class.
+        If the related model is registered in the admin site, it also includes a link to the changelist view of the related model.
+        """
         context = super().get_context(name, value, attrs)
         rel_to = self.rel.model
         if self.admin_site.is_registered(rel_to):
@@ -191,6 +206,19 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         return params
 
     def label_and_url_for_value(self, value):
+        """
+        Returns a tuple containing a label and URL for a given value related to this model.
+
+        The label is a truncated string representation of the related object, and the URL
+        is a link to the change view for that object in the admin interface, if available.
+
+        Args:
+            value: The value for which to retrieve the related object.
+
+        Returns:
+            tuple: A tuple containing the label and URL.
+
+        """
         key = self.rel.get_related_field().name
         try:
             obj = self.rel.model._default_manager.using(self.db).get(**{key: value})
@@ -261,6 +289,23 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         can_delete_related=False,
         can_view_related=False,
     ):
+        """
+
+        Initialize the related object representation for the admin interface.
+
+        This constructor sets up the necessary attributes for displaying and interacting with
+        related objects in the admin interface, including permissions for adding, changing,
+        deleting, and viewing related objects.
+
+        :param widget: The widget used to represent the related object.
+        :param rel: The relationship between the current model and the related model.
+        :param admin_site: The admin site instance.
+        :param can_add_related: Whether related objects can be added. Defaults to None.
+        :param can_change_related: Whether related objects can be changed. Defaults to False.
+        :param can_delete_related: Whether related objects can be deleted. Defaults to False.
+        :param can_view_related: Whether related objects can be viewed. Defaults to False.
+
+        """
         self.needs_multipart_form = widget.needs_multipart_form
         self.attrs = widget.attrs
         self.widget = widget
@@ -283,6 +328,14 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         self.admin_site = admin_site
 
     def __deepcopy__(self, memo):
+        """
+        Custom implementation of the deepcopy protocol to create a deep copy of the object.
+
+         Copies the widget instance and attribute dictionary while preserving unique identities.
+
+         :param memo: A dictionary mapping id(object) to copy of object used to avoid infinite recursion.
+         :return: A new copy of the object with deep-copied widget and shared attributes
+        """
         obj = copy.copy(self)
         obj.widget = copy.deepcopy(self.widget, memo)
         obj.attrs = self.widget.attrs
@@ -313,6 +366,9 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         )
 
     def get_context(self, name, value, attrs):
+        """
+        Returns a dictionary containing the context for rendering a related model field in the Django admin interface, including the rendered widget, URLs for adding, changing, and deleting related objects, and flags indicating the availability of these actions.
+        """
         from django.contrib.admin.views.main import IS_POPUP_VAR, TO_FIELD_VAR
 
         rel_opts = self.rel.model._meta
@@ -384,6 +440,19 @@ class AdminURLFieldWidget(forms.URLInput):
         self.validator = validator_class()
 
     def get_context(self, name, value, attrs):
+        """
+
+        Returns the context for a URL widget, including validation status and localized labels.
+
+        The context includes the current and change labels, a formatted href attribute for the widget,
+        and a boolean indicating whether the provided URL is valid.
+
+        :param name: The name of the widget.
+        :param value: The current value of the widget.
+        :param attrs: Additional attributes for the widget.
+        :returns: A dictionary containing the widget context.
+
+        """
         try:
             self.validator(value if value else "")
             url_valid = True
@@ -472,6 +541,10 @@ SELECT2_TRANSLATIONS.update({"zh-hans": "zh-CN", "zh-hant": "zh-TW"})
 
 
 def get_select2_language():
+    """
+    Returns the select2 language code for the current language, 
+    falling back to a supported language variant if the exact language is not supported.
+    """
     lang_code = get_language()
     supported_code = SELECT2_TRANSLATIONS.get(lang_code)
     if supported_code is None and lang_code is not None:
@@ -495,6 +568,9 @@ class AutocompleteMixin:
     url_name = "%s:autocomplete"
 
     def __init__(self, field, admin_site, attrs=None, choices=(), using=None):
+        """
+        Initializes a form field for use in an admin interface, providing configuration for database interaction, display attributes, and choice options.
+        """
         self.field = field
         self.admin_site = admin_site
         self.db = using
@@ -507,11 +583,7 @@ class AutocompleteMixin:
 
     def build_attrs(self, base_attrs, extra_attrs=None):
         """
-        Set select2's AJAX attributes.
-
-        Attributes can be set using the html5 data attribute.
-        Nested attributes require a double dash as per
-        https://select2.org/configuration/data-attributes#nested-subkey-options
+        Sets the HTML attributes required for select2's AJAX functionality, including data attributes for caching, delay, request type, and URL, as well as metadata about the related model and field.
         """
         attrs = super().build_attrs(base_attrs, extra_attrs=extra_attrs)
         attrs.setdefault("class", "")
@@ -536,7 +608,15 @@ class AutocompleteMixin:
         return attrs
 
     def optgroups(self, name, value, attr=None):
-        """Return selected options based on the ModelChoiceIterator."""
+        """
+        Return the options for a select input field, based on the provided name, value, and optional attributes.
+
+        Handles the construction of option groups, including the creation of empty or default options, and the selection of options based on the provided value.
+
+        The function takes into account various field properties, such as whether the field is required or if multiple selections are allowed, to determine the correct options to display.
+
+        Returns a list of option groups, where each group contains a tuple of (group name, options, index).
+        """
         default = (None, [], 0)
         groups = [default]
         has_selected = False

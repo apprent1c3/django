@@ -20,8 +20,7 @@ from .base import BaseTests
 
 def set_cookie_data(storage, messages, invalid=False, encode_empty=False):
     """
-    Set ``request.COOKIES`` with the encoded data and remove the storage
-    backend's loaded data cache.
+    Sets the encoded cookie data in the request and optionally marks it as invalid, while also clearing the storage backend's loaded data cache. The encoding process can also handle empty data based on the provided settings.
     """
     encoded_data = storage._encode(messages, encode_empty=encode_empty)
     if invalid:
@@ -34,7 +33,13 @@ def set_cookie_data(storage, messages, invalid=False, encode_empty=False):
 
 def stored_cookie_messages_count(storage, response):
     """
-    Return an integer containing the number of messages stored.
+
+    Return the number of messages stored in a cookie.
+
+    The function retrieves the stored cookie from the given response, decodes its value, 
+    and returns the count of messages. If the cookie is empty, expired, or contains no messages, 
+    it returns 0.
+
     """
     # Get a list of cookies, excluding ones with a max-age of 0 (because
     # they have been marked for deletion).
@@ -77,8 +82,7 @@ class CookieTests(BaseTests, SimpleTestCase):
     @override_settings(SESSION_COOKIE_SAMESITE="Strict")
     def test_cookie_settings(self):
         """
-        CookieStorage honors SESSION_COOKIE_DOMAIN, SESSION_COOKIE_SECURE, and
-        SESSION_COOKIE_HTTPONLY (#15618, #20972).
+        Tests that CookieStorage correctly applies Django's session cookie settings, specifically SESSION_COOKIE_DOMAIN, SESSION_COOKIE_SECURE, SESSION_COOKIE_HTTPONLY, and SESSION_COOKIE_SAMESITE, when storing and updating messages.
         """
         # Test before the messages have been consumed
         storage = self.get_storage()
@@ -113,6 +117,9 @@ class CookieTests(BaseTests, SimpleTestCase):
         )
 
     def test_get_bad_cookie(self):
+        """
+        Tests that getting a cookie with invalid data results in an empty storage.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         # Set initial (invalid) data.
@@ -123,8 +130,7 @@ class CookieTests(BaseTests, SimpleTestCase):
 
     def test_max_cookie_length(self):
         """
-        If the data exceeds what is allowed in a cookie, older messages are
-        removed before saving (and returned by the ``update`` method).
+        Tests that messages exceeding the maximum allowed cookie length are properly handled, ensuring that older messages are removed when the cookie size limit is exceeded.
         """
         storage = self.get_storage()
         response = self.get_response()
@@ -153,6 +159,9 @@ class CookieTests(BaseTests, SimpleTestCase):
         self.assertEqual(unstored_messages[0].message, first_msg)
 
     def test_message_rfc6265(self):
+        """
+        Tests if the message encoding process correctly removes non-compliant characters as defined in RFC6265, ensuring the output does not contain illegal characters.
+        """
         non_compliant_chars = ["\\", ",", ";", '"']
         messages = ["\\te,st", ';m"e', "\u2019", '123"NOTRECEIVED"']
         storage = self.get_storage()
@@ -162,9 +171,7 @@ class CookieTests(BaseTests, SimpleTestCase):
 
     def test_json_encoder_decoder(self):
         """
-        A complex nested data structure containing Message
-        instances is properly encoded/decoded by the custom JSON
-        encoder/decoder classes.
+        Verifies the correct encoding and decoding of complex nested data structures containing Message instances using custom JSON encoder and decoder classes.
         """
         messages = [
             {

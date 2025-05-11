@@ -38,8 +38,12 @@ class Envelope:
 
     def __init__(self, *args):
         """
-        The initialization function may take an OGREnvelope structure, 4-element
-        tuple or list, or 4 individual arguments.
+        Initializes an envelope object from various input formats.
+
+        It accepts an OGREnvelope structure, a 4-element tuple or list, or four individual arguments,
+        representing the minimum and maximum X and Y coordinates. It validates the input and raises
+        exception if the input is invalid, such as incorrect number of arguments, incorrect type, or
+        invalid envelope bounds (minimum > maximum).
         """
 
         if len(args) == 1:
@@ -71,8 +75,7 @@ class Envelope:
 
     def __eq__(self, other):
         """
-        Return True if the envelopes are equivalent; can compare against
-        other Envelopes and 4-tuples.
+        Determines whether this envelope is equivalent to another, allowing comparison with both Envelope instances and 4-tuples representing minimum and maximum x and y coordinates.
         """
         if isinstance(other, Envelope):
             return (
@@ -96,7 +99,9 @@ class Envelope:
         return str(self.tuple)
 
     def _from_sequence(self, seq):
-        "Initialize the C OGR Envelope structure from the given sequence."
+        """
+        Initialize the envelope from a sequence of minimum and maximum x and y coordinates.
+        """
         self._envelope = OGREnvelope()
         self._envelope.MinX = seq[0]
         self._envelope.MinY = seq[1]
@@ -105,9 +110,7 @@ class Envelope:
 
     def expand_to_include(self, *args):
         """
-        Modify the envelope to expand to include the boundaries of
-        the passed-in 2-tuple (a point), 4-tuple (an extent) or
-        envelope.
+        Modify the envelope to expand and include the boundaries of a given point, extent, or envelope.
         """
         # We provide a number of different signatures for this method,
         # and the logic here is all about converting them into a

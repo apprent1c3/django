@@ -22,7 +22,17 @@ class OperationWriter:
         self.indentation = indentation
 
     def serialize(self):
+        """
+        Serialize the operation into a string representation, handling nested data structures and imports. 
+        This method takes into account the specific operation and its constructor arguments, correctly formatting the output with indentation and commas. 
+        It also keeps track of the necessary imports required for the serialized operation, returning the formatted string and the set of imports.
+        """
         def _write(_arg_name, _arg_value):
+            """
+            Outputs a formatted string representation of the provided argument name and value.
+            Handles serialization of complex data structures such as lists, tuples, and dictionaries.
+            Special formatting is applied when the argument is marked for serialization expansion.
+            """
             if _arg_name in self.operation.serialization_expand_args and isinstance(
                 _arg_value, (list, tuple, dict)
             ):
@@ -127,7 +137,9 @@ class MigrationWriter:
         self.needs_manual_porting = False
 
     def as_string(self):
-        """Return a string of the file contents."""
+        """
+        Return a string representation of a migration file, including its contents and metadata. This string can be used to generate a migration file.
+        """
         items = {
             "replaces_str": "",
             "initial_str": "",
@@ -210,6 +222,15 @@ class MigrationWriter:
 
     @property
     def basedir(self):
+        """
+        Returns the base directory for the migration, resolving it through the migrations module, app configuration, or the directory structure of the migrations package.
+
+        Raises:
+            ValueError: If the base directory cannot be determined or if migrations have been disabled for the app.
+
+        Returns:
+            str: The path to the base directory for the migration.
+        """
         migrations_package_name, _ = MigrationLoader.migrations_module(
             self.migration.app_label
         )

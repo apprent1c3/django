@@ -57,6 +57,9 @@ class Join:
         filtered_relation=None,
     ):
         # Join table
+        """
+        Initializes a join object, storing information essential for joining two tables in a database query, including the table names, aliases, join type, fields, and nullability.
+        """
         self.table_name = table_name
         self.parent_alias = parent_alias
         # Note: table_alias is not necessarily known at instantiation time.
@@ -87,9 +90,7 @@ class Join:
 
     def as_sql(self, compiler, connection):
         """
-        Generate the full
-           LEFT OUTER JOIN sometable ON sometable.somecol = othertable.othercol, params
-        clause for this join.
+        Generate the SQL clause for a LEFT OUTER JOIN operation, including the ON condition and any additional parameters. This clause is constructed based on the join fields, table aliases, and any extra restrictions defined for the join.
         """
         join_conditions = []
         params = []
@@ -152,6 +153,11 @@ class Join:
         return sql, params
 
     def relabeled_clone(self, change_map):
+        """
+        Creates a cloned instance of the relation with updated aliases based on the provided change map.
+
+        The clone retains the original relation's properties, but with the parent and table aliases replaced according to the change map. If a filtered relation is present, it is also cloned with updated aliases. The cloned relation is then returned as a new instance of the same class.
+        """
         new_parent_alias = change_map.get(self.parent_alias, self.parent_alias)
         new_table_alias = change_map.get(self.table_alias, self.table_alias)
         if self.filtered_relation is not None:

@@ -16,7 +16,16 @@ from django.db import models
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, date_of_birth, password=None, **fields):
         """
-        Creates and saves a User with the given email and password.
+
+        Creates and saves a new User instance with the provided email, date of birth, and optional password.
+
+        :param email: The email address of the user
+        :param date_of_birth: The user's date of birth
+        :param password: The user's password (optional)
+        :param fields: Additional fields to set on the user (optional)
+        :raises ValueError: If no email address is provided
+        :return: The newly created User instance
+
         """
         if not email:
             raise ValueError("Users must have an email address")
@@ -83,6 +92,11 @@ class RemoveGroupsAndPermissions:
     """
 
     def __enter__(self):
+        """
+
+        Enters the runtime context for modifying the many-to-many relationships of the PermissionsMixin and AbstractUser classes, specifically the 'groups' and 'user_permissions' relationships.
+
+        """
         self._old_au_local_m2m = AbstractUser._meta.local_many_to_many
         self._old_pm_local_m2m = PermissionsMixin._meta.local_many_to_many
         groups = models.ManyToManyField(Group, blank=True)

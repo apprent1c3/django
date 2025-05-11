@@ -31,9 +31,7 @@ SRIDCacheEntry = namedtuple(
 
 def get_srid_info(srid, connection):
     """
-    Return the units, unit name, and spheroid WKT associated with the
-    given SRID from the `spatial_ref_sys` (or equivalent) spatial database
-    table for the given database connection.  These results are cached.
+    Return spatial reference system information for a given SRID, including units, unit name, and spheroid, from the spatial database table for a specified database connection. The results are cached for efficiency.
     """
     from django.contrib.gis.gdal import SpatialReference
 
@@ -83,17 +81,9 @@ class BaseSpatialField(Field):
 
     def __init__(self, verbose_name=None, srid=4326, spatial_index=True, **kwargs):
         """
-        The initialization function for base spatial fields. Takes the following
-        as keyword arguments:
-
-        srid:
-         The spatial reference system identifier, an OGC standard.
-         Defaults to 4326 (WGS84).
-
-        spatial_index:
-         Indicates whether to create a spatial index.  Defaults to True.
-         Set this instead of 'db_index' for geographic fields since index
-         creation is different for geometry columns.
+        Initializes a base spatial field with a specified spatial reference system, 
+        optionally creating a spatial index. Provides a foundation for geographic field 
+        classes, handling spatial index creation and SRID configuration.
         """
 
         # Setting the index flag with the value of the `spatial_index` keyword.
@@ -110,6 +100,11 @@ class BaseSpatialField(Field):
         super().__init__(**kwargs)
 
     def deconstruct(self):
+        """
+        .. method:: deconstruct()
+
+           Deconstructs the object into its constituent parts, including the spatial reference system identifier (SRID) and spatial index configuration, for serializing or rebuilding the object elsewhere.
+        """
         name, path, args, kwargs = super().deconstruct()
         # Always include SRID for less fragility; include spatial index if it's
         # not the default value.
@@ -146,10 +141,7 @@ class BaseSpatialField(Field):
 
     def get_srid(self, obj):
         """
-        Return the default SRID for the given geometry or raster, taking into
-        account the SRID set for the field. For example, if the input geometry
-        or raster doesn't have an SRID, then the SRID of the field will be
-        returned.
+        Determines the Spatial Reference System Identifier (SRID) for a given geometry or raster object, using the object's SRID if set, otherwise defaulting to the SRID of the field.
         """
         srid = obj.srid  # SRID of given geometry.
         if srid is None or self.srid == -1 or (srid == -1 and self.srid != -1):
@@ -171,7 +163,8 @@ class BaseSpatialField(Field):
 
     def get_raster_prep_value(self, value, is_candidate):
         """
-        Return a GDALRaster if conversion is successful, otherwise return None.
+        Return a GDALRaster object if the provided value can be successfully converted, otherwise return None.
+        The function accepts a value and a flag indicating whether it is a candidate for conversion, attempting to create a GDALRaster from the value if necessary.
         """
         if isinstance(value, gdal.GDALRaster):
             return value
@@ -189,6 +182,14 @@ class BaseSpatialField(Field):
                 )
 
     def get_prep_value(self, value):
+        """
+        Prepares a value for spatial lookup by converting it into a GEOSGeometry object if possible.
+
+        The function takes an object of various types, attempts to convert it into a GEOSGeometry object,
+        and returns the resulting object with the correct SRID set. If the conversion fails, it raises a ValueError.
+
+        Supports conversion from bytes, strings, and objects with a __geo_interface__ attribute.
+        """
         obj = super().get_prep_value(value)
         if obj is None:
             return None
@@ -248,21 +249,7 @@ class GeometryField(BaseSpatialField):
         **kwargs,
     ):
         """
-        The initialization function for geometry fields. In addition to the
-        parameters from BaseSpatialField, it takes the following as keyword
-        arguments:
-
-        dim:
-         The number of dimensions for this geometry.  Defaults to 2.
-
-        extent:
-         Customize the extent, in a 4-tuple of WGS 84 coordinates, for the
-         geometry field entry in the `USER_SDO_GEOM_METADATA` table.  Defaults
-         to (-180.0, -90.0, 180.0, 90.0).
-
-        tolerance:
-         Define the tolerance, in meters, to use for the geometry field
-         entry in the `USER_SDO_GEOM_METADATA` table.  Defaults to 0.05.
+        Initializes a geometry field with customizable properties, including dimension, geographic coordinates, and tolerance, to store spatial data.
         """
         # Setting the dimension of the geometry field.
         self.dim = dim
@@ -278,6 +265,9 @@ class GeometryField(BaseSpatialField):
         super().__init__(verbose_name=verbose_name, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, including name, path, arguments, and keyword arguments, to support serialization or reconstruction. If the object's properties, such as dimension, geography, extent, or tolerance, differ from their default values, they are included in the keyword arguments.
+        """
         name, path, args, kwargs = super().deconstruct()
         # Include kwargs if they're not the default values.
         if self.dim != 2:
@@ -422,6 +412,9 @@ class RasterField(BaseSpatialField):
         setattr(cls, self.attname, SpatialProxy(gdal.GDALRaster, self))
 
     def get_transform(self, name):
+        """
+        Returns a transformation object for a raster band, where the band can be specified by its index or name. If the provided name is an integer, a transformation for the raster band at that index is returned. Otherwise, the transformation retrieval is delegated to the parent class.
+        """
         from django.contrib.gis.db.models.lookups import RasterBandTransform
 
         try:

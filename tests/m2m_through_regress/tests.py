@@ -10,6 +10,11 @@ from .models import Car, CarDriver, Driver, Group, Membership, Person, UserMembe
 class M2MThroughTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the application, creating sample persons, groups, users, and memberships.
+
+        """
         cls.bob = Person.objects.create(name="Bob")
         cls.jim = Person.objects.create(name="Jim")
 
@@ -70,7 +75,9 @@ class M2MThroughSerializationTestCase(TestCase):
         cls.bob_roll = Membership.objects.create(person=cls.bob, group=cls.roll)
 
     def test_serialization(self):
-        "m2m-through models aren't serialized as m2m fields. Refs #8134"
+        """
+        Tests the serialization of many-to-many through models using the dumpdata management command for both JSON and XML formats, ensuring they are correctly represented as individual model instances rather than many-to-many fields.
+        """
         pks = {
             "p_pk": self.bob.pk,
             "g_pk": self.roll.pk,
@@ -121,6 +128,11 @@ class M2MThroughSerializationTestCase(TestCase):
 class ToFieldThroughTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for class-level tests, creating a set of cars and drivers with predefined relationships.
+
+        """
         cls.car = Car.objects.create(make="Toyota")
         cls.driver = Driver.objects.create(name="Ryan Briscoe")
         CarDriver.objects.create(car=cls.car, driver=cls.driver)

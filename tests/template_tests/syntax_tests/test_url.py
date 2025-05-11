@@ -243,6 +243,9 @@ class UrlTagTests(SimpleTestCase):
 
     @setup({"url-namespace01": '{% url "app:named.client" 42 %}'})
     def test_url_namespace01(self):
+        """
+        Tests rendering of a URL template tag with a namespace, verifying it correctly generates the expected URL path.
+        """
         request = self.request_factory.get("/")
         request.resolver_match = resolve("/ns1/")
         template = self.engine.get_template("url-namespace01")
@@ -252,6 +255,9 @@ class UrlTagTests(SimpleTestCase):
 
     @setup({"url-namespace02": '{% url "app:named.client" 42 %}'})
     def test_url_namespace02(self):
+        """
+        Tests the rendering of a template containing a URL namespace, verifying that the correct URL is generated when the template is rendered with a matching resolver match.
+        """
         request = self.request_factory.get("/")
         request.resolver_match = resolve("/ns2/")
         template = self.engine.get_template("url-namespace02")
@@ -261,6 +267,14 @@ class UrlTagTests(SimpleTestCase):
 
     @setup({"url-namespace03": '{% url "app:named.client" 42 %}'})
     def test_url_namespace03(self):
+        """
+
+        Tests that a URL namespace is correctly resolved in a template.
+
+        Verifies that a template with a namespaced URL tag correctly generates the
+        expected URL path.
+
+        """
         request = self.request_factory.get("/")
         template = self.engine.get_template("url-namespace03")
         context = RequestContext(request)
@@ -269,6 +283,9 @@ class UrlTagTests(SimpleTestCase):
 
     @setup({"url-namespace-no-current-app": '{% url "app:named.client" 42 %}'})
     def test_url_namespace_no_current_app(self):
+        """
+        Tests URL resolution when there is no current app. Verifies that the correct namespace is used when the current app is not set.
+        """
         request = self.request_factory.get("/")
         request.resolver_match = resolve("/ns1/")
         request.current_app = None
@@ -279,6 +296,9 @@ class UrlTagTests(SimpleTestCase):
 
     @setup({"url-namespace-explicit-current-app": '{% url "app:named.client" 42 %}'})
     def test_url_namespace_explicit_current_app(self):
+        """
+        Tests the proper functioning of URL namespaces with an explicitly specified current application, verifying that the `{% url %}` template tag correctly resolves URLs within the current app's namespace.
+        """
         request = self.request_factory.get("/")
         request.resolver_match = resolve("/ns1/")
         request.current_app = "app"

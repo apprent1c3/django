@@ -21,6 +21,14 @@ from django.utils.version import PY312
 
 @contextmanager
 def change_cwd(directory):
+    """
+
+    Context manager to temporarily change the current working directory.
+
+    This function yields control to the caller, allowing execution within the specified directory.
+    Upon completion, the original working directory is restored.
+
+    """
     current_dir = os.path.abspath(os.path.dirname(__file__))
     new_dir = os.path.join(current_dir, directory)
     old_cwd = os.getcwd()
@@ -33,6 +41,14 @@ def change_cwd(directory):
 
 @contextmanager
 def change_loader_patterns(patterns):
+    """
+
+    Temporarily overrides the default test loader patterns with the specified ones.
+
+    This context manager is useful for dynamically controlling which tests are loaded
+    based on custom patterns. It restores the original patterns after the context is exited.
+
+    """
     original_patterns = DiscoverRunner.test_loader.testNamePatterns
     DiscoverRunner.test_loader.testNamePatterns = patterns
     try:
@@ -112,6 +128,11 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertFalse(runner.debug_mode)
 
     def test_add_arguments_shuffle(self):
+        """
+        '''Verifies the behavior of the --shuffle command line argument.
+
+        Tests that the shuffle argument is correctly parsed and assigned when provided with and without a seed value.'''
+        """
         parser = ArgumentParser()
         DiscoverRunner.add_arguments(parser)
         ns = parser.parse_args([])
@@ -122,6 +143,12 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(ns.shuffle, 5)
 
     def test_add_arguments_debug_mode(self):
+        """
+        Tests the addition of debug mode argument to the argument parser.
+
+        Verifies that the debug mode flag is initially set to False and can be enabled
+        using the --debug-mode command line option.
+        """
         parser = ArgumentParser()
         DiscoverRunner.add_arguments(parser)
 
@@ -137,6 +164,10 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIsNone(runner.shuffle_seed)
 
     def test_setup_shuffler_shuffle_none(self):
+        """
+        Tests the setup_shuffler method with shuffle set to None, 
+        verifying that a random shuffle seed is generated and logged.
+        """
         runner = DiscoverRunner(shuffle=None)
         self.assertIsNone(runner.shuffle)
         with mock.patch("random.randint", return_value=1):
@@ -146,6 +177,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(runner.shuffle_seed, 1)
 
     def test_setup_shuffler_shuffle_int(self):
+        """
+        Tests that the setup shuffler function correctly configures the shuffle seed when provided with a fixed seed value. Verifies that the shuffle seed is set as expected and that the correct message is printed to the console.
+        """
         runner = DiscoverRunner(shuffle=2)
         self.assertEqual(runner.shuffle, 2)
         with captured_stdout() as stdout:
@@ -221,6 +255,13 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 1)
 
     def test_name_patterns(self):
+        """
+
+        Test that the test discovery mechanism correctly identifies test methods based on provided name patterns.
+
+        This test verifies the functionality of the test name pattern matching, ensuring that the correct test methods are discovered and collected into a test suite.
+
+        """
         all_test_1 = [
             "DjangoCase1.test_1",
             "DjangoCase2.test_1",
@@ -255,6 +296,9 @@ class DiscoverRunnerTests(SimpleTestCase):
                 self.assertEqual(expected, self.get_test_methods_names(suite))
 
     def test_loader_patterns_not_mutated(self):
+        """
+        Tests that loader patterns are not mutated when building a test suite using the DiscoverRunner, ensuring that test loading is deterministic and reliable.
+        """
         runner = DiscoverRunner(test_name_patterns=["test_sample"], verbosity=0)
         tests = [
             ("test_runner_apps.sample.tests", 1),
@@ -272,6 +316,9 @@ class DiscoverRunnerTests(SimpleTestCase):
                     )
 
     def test_loader_patterns_not_mutated_when_test_label_is_file_path(self):
+        """
+        Verifies that test loader patterns remain unchanged when a test label is a file path, ensuring that the test discovery process does not alter the predefined patterns.
+        """
         runner = DiscoverRunner(test_name_patterns=["test_sample"], verbosity=0)
         with change_cwd("."), change_loader_patterns(["UnittestCase1"]):
             with self.assertRaises(RuntimeError):
@@ -343,6 +390,14 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 0)
 
     def test_testcase_ordering(self):
+        """
+        Verifies the ordering of test cases in a test suite.
+
+        Ensures that test cases are executed in a specific order, with Django test case
+        taking precedence over other test case types, and a specific zimple test case
+        following immediately after. The remaining test cases, including a doc test case,
+        are verified to be present in the suite, but their exact order is not enforced.
+        """
         with change_cwd(".."):
             suite = DiscoverRunner(verbosity=0).build_suite(
                 ["test_runner_apps/sample/"]
@@ -364,7 +419,7 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_duplicates_ignored(self):
         """
-        Tests shouldn't be discovered twice when discovering on overlapping paths.
+        Verifies that test discovery ignores duplicates when searching overlapping paths.
         """
         base_app = "forms_tests"
         sub_app = "forms_tests.field_tests"
@@ -376,8 +431,12 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_reverse(self):
         """
-        Reverse should reorder tests while maintaining the grouping specified
-        by ``DiscoverRunner.reorder_by``.
+
+            Verify that the test discovery process reorders tests correctly when in reverse mode.
+
+            This test case confirms that when tests are run in reverse order, the grouping of tests
+            specified by the test runner is maintained, while the order of tests within each group is reversed.
+
         """
         runner = DiscoverRunner(reverse=True, verbosity=0)
         suite = runner.build_suite(
@@ -429,6 +488,9 @@ class DiscoverRunnerTests(SimpleTestCase):
     def test_build_suite_shuffling(self):
         # These will result in unittest.loader._FailedTest instances rather
         # than TestCase objects, but they are sufficient for testing.
+        """
+        Tests the creation of a test suite with various options to ensure correct ordering and shuffling of tests.
+        """
         labels = ["label1", "label2", "label3", "label4"]
         cases = [
             ({}, ["label1", "label2", "label3", "label4"]),
@@ -458,6 +520,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(DiscoverRunner().test_loader, defaultTestLoader)
 
     def test_tags(self):
+        """
+        Tests the filtering of test cases by tags, verifying that tags 'core', 'fast', and 'slow' correctly select the expected number of test cases.
+        """
         runner = DiscoverRunner(tags=["core"], verbosity=0)
         self.assertEqual(
             runner.build_suite(["test_runner_apps.tagged.tests"]).countTestCases(), 1
@@ -472,6 +537,13 @@ class DiscoverRunnerTests(SimpleTestCase):
         )
 
     def test_exclude_tags(self):
+        """
+        Tests the exclusion of test cases based on tags.
+
+        Verifies that the DiscoverRunner correctly excludes test cases when provided 
+        with exclude_tags, and that it behaves as expected when used in combination 
+        with included tags.
+        """
         runner = DiscoverRunner(tags=["fast"], exclude_tags=["core"], verbosity=0)
         self.assertEqual(
             runner.build_suite(["test_runner_apps.tagged.tests"]).countTestCases(), 1
@@ -486,6 +558,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         )
 
     def test_tag_inheritance(self):
+        """
+        Tests the functionality of tag inheritance in the test runner, verifying that tests are correctly included or excluded based on their tags.
+        """
         def count_tests(**kwargs):
             kwargs.setdefault("verbosity", 0)
             suite = DiscoverRunner(**kwargs).build_suite(
@@ -501,6 +576,11 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count_tests(exclude_tags=["foo"]), 0)
 
     def test_tag_fail_to_load(self):
+        """
+        Tests that a test tagged with a syntax error raises a SyntaxError and is properly handled by the test runner.
+
+        Verifies that the test runner catches the syntax error, marks the test as failed, and includes it in the test suite with a \"_FailedTest\" identifier.
+        """
         with self.assertRaises(SyntaxError):
             import_module("test_runner_apps.tagged.tests_syntax_error")
         runner = DiscoverRunner(tags=["syntax_error"], verbosity=0)
@@ -552,8 +632,10 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_number_of_databases_parallel_test_suite(self):
         """
-        Number of databases doesn't exceed the number of TestCases with
-        parallel tests.
+
+        Verifies that the number of databases does not exceed the number of test cases 
+        when running tests in parallel.
+
         """
         runner = DiscoverRunner(parallel=8, verbosity=0)
         suite = runner.build_suite(["test_runner_apps.tagged"])
@@ -562,8 +644,7 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_number_of_databases_no_parallel_test_suite(self):
         """
-        Number of databases doesn't exceed the number of TestCases with
-        non-parallel tests.
+        Tests that the number of databases does not exceed the number of TestCases when running non-parallel tests, ensuring correct test suite configuration.
         """
         runner = DiscoverRunner(parallel=8, verbosity=0)
         suite = runner.build_suite(["test_runner_apps.simple.tests.DjangoCase1"])
@@ -571,6 +652,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIsInstance(suite, TestSuite)
 
     def test_buffer_mode_test_pass(self):
+        """
+        Verifies that test output is properly buffered when running tests in buffer mode, ensuring that successful tests do not write to stdout or stderr.
+        """
         runner = DiscoverRunner(buffer=True, verbosity=0)
         with captured_stdout() as stdout, captured_stderr() as stderr:
             suite = runner.build_suite(
@@ -584,6 +668,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertNotIn("Write to stdout.", stdout.getvalue())
 
     def test_buffer_mode_test_fail(self):
+        """
+        Tests that tests running in buffer mode correctly capture and store output written to stdout and stderr when a test fails.
+        """
         runner = DiscoverRunner(buffer=True, verbosity=0)
         with captured_stdout() as stdout, captured_stderr() as stderr:
             suite = runner.build_suite(
@@ -597,6 +684,23 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIn("Write to stdout.", stdout.getvalue())
 
     def run_suite_with_runner(self, runner_class, **kwargs):
+        """
+
+        Runs a test suite using a specified test runner class.
+
+        Parameters
+        ----------
+        runner_class : class
+            The test runner class to use for running the test suite.
+        **kwargs : dict
+            Additional keyword arguments to pass to the test runner.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the result of the test run and the captured output.
+
+        """
         class MyRunner(DiscoverRunner):
             def test_runner(self, *args, **kwargs):
                 return runner_class()
@@ -614,6 +718,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         return result, output
 
     def test_run_suite_logs_seed(self):
+        """
+        Tests that the test suite runner correctly handles and logs shuffle seeds when running suites.
+        """
         class TestRunner:
             def run(self, suite):
                 return "<fake-result>"
@@ -631,7 +738,7 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_run_suite_logs_seed_exception(self):
         """
-        run_suite() logs the seed when TestRunner.run() raises an exception.
+        Tests that the run_suite function logs the shuffle seed when a TestRunner exception occurs.
         """
 
         class TestRunner:
@@ -672,6 +779,9 @@ class DiscoverRunnerTests(SimpleTestCase):
             mocked_enable.assert_not_called()
 
     def test_timings_not_captured(self):
+        """
+        Verifies that timings are not captured when the DiscoverRunner is initialized with timing disabled.
+        """
         runner = DiscoverRunner(timing=False)
         with captured_stderr() as stderr:
             with runner.time_keeper.timed("test"):
@@ -681,6 +791,12 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertNotIn("test", stderr.getvalue())
 
     def test_timings_captured(self):
+        """
+        Tests that timing information is captured and printed correctly.
+
+        Verifies that the TimeKeeper instance is used to track and report timing data, 
+        and that the results are output to the console.
+        """
         runner = DiscoverRunner(timing=True)
         with captured_stderr() as stderr:
             with runner.time_keeper.timed("test"):
@@ -690,6 +806,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIn("test", stderr.getvalue())
 
     def test_log(self):
+        """
+        Tests the logging behavior of the DiscoverRunner class at various verbosity levels and log levels to ensure that log messages are correctly printed to the console.
+        """
         custom_low_level = 5
         custom_high_level = 45
         msg = "logging message"
@@ -727,6 +846,13 @@ class DiscoverRunnerTests(SimpleTestCase):
                     self.assertEqual(stdout.getvalue(), f"{msg}\n" if output else "")
 
     def test_log_logger(self):
+        """
+
+        Verifies the functionality of the logger in relation to different log levels.
+
+        This test checks that log messages are correctly formatted and logged at various levels, including custom levels.
+
+        """
         logger = logging.getLogger("test.logging")
         cases = [
             (None, "INFO:test.logging:log message"),
@@ -748,6 +874,11 @@ class DiscoverRunnerTests(SimpleTestCase):
                 self.assertEqual(cm.output, [expected])
 
     def test_suite_result_with_failure(self):
+        """
+        Verifies the correct reporting of test failures and errors by the test runner.
+
+        Tests that the runner accurately counts failed test cases, including expected and unexpected failures, as well as errors during test execution.
+        """
         cases = [
             (1, "FailureTestCase"),
             (1, "ErrorTestCase"),
@@ -769,6 +900,9 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     @unittest.skipUnless(PY312, "unittest --durations option requires Python 3.12")
     def test_durations(self):
+        """
+        Tests the integration of the unittest --durations option, verifying that the slowest test durations are properly reported when running a test suite with a specified duration threshold.
+        """
         with captured_stderr() as stderr, captured_stdout():
             runner = DiscoverRunner(durations=10)
             suite = runner.build_suite(["test_runner_apps.simple.tests.SimpleCase1"])
@@ -777,6 +911,11 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     @unittest.skipUnless(PY312, "unittest --durations option requires Python 3.12")
     def test_durations_debug_sql(self):
+        """
+        Tests the --durations option with debug SQL enabled in the test runner.
+
+        Verifies that the slowest test durations are reported to stderr when running tests with the durations option set and debug SQL enabled.
+        """
         with captured_stderr() as stderr, captured_stdout():
             runner = DiscoverRunner(durations=10, debug_sql=True)
             suite = runner.build_suite(["test_runner_apps.simple.SimpleCase1"])
@@ -795,6 +934,13 @@ class DiscoverRunnerGetDatabasesTests(SimpleTestCase):
         return databases, stdout.getvalue()
 
     def assertSkippedDatabases(self, test_labels, expected_databases):
+        """
+        Verify that the correct databases are skipped for a given set of test labels.
+
+        This function checks that the expected databases are present and that any skipped databases
+        are correctly identified in the output, with a corresponding message indicating the reason for skipping.
+
+        """
         databases, output = self.get_databases(test_labels)
         self.assertEqual(databases, expected_databases)
         skipped_databases = set(connections) - set(expected_databases)

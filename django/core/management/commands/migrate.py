@@ -21,6 +21,9 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments for synchronizing database migrations, including options to skip checks, specify an app label and migration name, choose a database, and control the migration process.
+        """
         parser.add_argument(
             "--skip-checks",
             action="store_true",
@@ -96,6 +99,19 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *args, **options):
+        """
+        Handles database migration operations, including applying, unapplying, and syncing migrations.
+
+        It takes various options such as database name, verbosity level, and interactive mode, 
+        and performs the following steps:
+
+        - Checks for consistency in migration history
+        - Detects conflicts in migrations
+        - Plans and applies migrations according to the specified targets or app labels
+        - Optionally prunes unnecessary migrations, runs syncdb, or checks for unapplied migrations
+        - Emits pre- and post-migration signals to allow for custom logic execution
+        - Applies the planned migrations, and handles fake or fake-initial migrations as specified.
+        """
         database = options["database"]
         if not options["skip_checks"]:
             self.check(databases=[database])
@@ -391,6 +407,12 @@ class Command(BaseCommand):
         )
 
     def migration_progress_callback(self, action, migration=None, fake=False):
+        """
+        .. method:: migration_progress_callback(action, migration=None, fake=False)
+            Reports the progress of database migrations, providing visual feedback on the console.
+
+            This method emits messages to the standard output for various migration actions, such as applying, unapplying, or rendering model states, with optional timing information.
+        """
         if self.verbosity >= 1:
             compute_time = self.verbosity > 1
             if action == "apply_start":
@@ -431,7 +453,9 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS(" DONE" + elapsed))
 
     def sync_apps(self, connection, app_labels):
-        """Run the old syncdb-style operation on a list of app_labels."""
+        """
+        Run the old syncdb-style operation on a list of application labels, creating tables for models that do not exist in the database.
+        """
         with connection.cursor() as cursor:
             tables = connection.introspection.table_names(cursor)
 
@@ -489,7 +513,11 @@ class Command(BaseCommand):
 
     @staticmethod
     def describe_operation(operation, backwards):
-        """Return a string that describes a migration operation for --plan."""
+        """
+        Return a human-readable description of a migration operation for planning purposes, 
+        including the operation and its intended action, optionally marking it as irreversible if 
+        the backward operation is not supported.
+        """
         prefix = ""
         is_error = False
         if hasattr(operation, "code"):

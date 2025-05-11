@@ -17,6 +17,9 @@ from .base import MultipleLocaleActivationTestCase, extended_locale_paths, here
 
 
 def setup(templates, *args, **kwargs):
+    """
+    Sets up translations for a function using either 'blocktrans' or 'blocktranslate' tags, and returns a decorator that applies the translation setup to the function.
+    """
     blocktranslate_setup = base_setup(templates, *args, **kwargs)
     blocktrans_setup = base_setup(
         {
@@ -34,7 +37,21 @@ def setup(templates, *args, **kwargs):
 
     def decorator(func):
         @wraps(func)
+        """
+
+        Decorator to wrap a function with tag setup functionality.
+
+        Enables automatic invocation of setup functions for specified tags before running the wrapped function.
+
+        """
         def inner(self, *args):
+            """
+            Decorates a function to apply setup functions based on provided tags.
+
+            Applies the setup functions corresponding to the provided tags to the decorated function,
+            either by partially applying the function with the tag name or by applying it directly,
+            depending on whether the function accepts a 'tag_name' parameter.
+            """
             signature = inspect.signature(func)
             for tag_name, setup_func in tags.items():
                 if "tag_name" in signature.parameters:
@@ -325,6 +342,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34(self):
+        """
+        Tests the rendering of a blocktranslate template tag with missing variable when i18n is enabled.
+        """
         output = self.engine.render_to_string("i18n34")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -340,6 +360,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34_2(self):
+        """
+        Tests the i18n engine's behavior when rendering a blocktranslate tag with a missing variable.
+        """
         output = self.engine.render_to_string("i18n34_2")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -355,6 +378,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34_3(self):
+        """
+        Tests the rendering of a template containing i18n blocktranslate tags with missing variables, verifying that the output is either an error message or an empty string, depending on the engine's string_if_invalid setting.
+        """
         output = self.engine.render_to_string("i18n34_3", {"anton": "\xce\xb1"})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -563,7 +589,9 @@ class TranslationBlockTranslateTagTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_template_tags_pgettext(self):
-        """{% blocktranslate %} takes message contexts into account (#14806)."""
+        """
+        Tests the ``{% blocktranslate %}`` template tag, ensuring that it correctly handles message contexts, pluralization, and variable interpolation, while also validating its syntax and error handling.
+        """
         trans_real._active = Local()
         trans_real._translations = {}
         with translation.override("de"):
@@ -718,8 +746,7 @@ class TranslationBlockTranslateTagTests(SimpleTestCase):
     @override_settings(LOCALE_PATHS=[os.path.join(here, "other", "locale")])
     def test_bad_placeholder_1(self):
         """
-        Error in translation file should not crash template rendering (#16516).
-        (%(person)s is translated as %(personne)s in fr.po).
+        Tests that template rendering does not crash when encountering an error in a translation file with a mismatched placeholder, such as when the placeholder in the original string does not match the placeholder in the translated string.
         """
         with translation.override("fr"):
             t = Template(
@@ -732,9 +759,7 @@ class TranslationBlockTranslateTagTests(SimpleTestCase):
     @override_settings(LOCALE_PATHS=[os.path.join(here, "other", "locale")])
     def test_bad_placeholder_2(self):
         """
-        Error in translation file should not crash template rendering (#18393).
-        (%(person) misses a 's' in fr.po, causing the string formatting to fail)
-        .
+        Tests that template rendering does not crash when there is an error in a translation file, specifically when a string formatting placeholder is incorrect.
         """
         with translation.override("fr"):
             t = Template(
@@ -819,6 +844,9 @@ class MiscTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_percent_in_translatable_block(self):
+        """
+        Tests that percent signs are correctly handled within translatable blocks in templates, including singular and plural cases, and verifies accurate translation rendering in different locales.
+        """
         t_sing = self.get_template(
             "{% load i18n %}{% blocktranslate %}The result was {{ percent }}%"
             "{% endblocktranslate %}"
@@ -844,8 +872,9 @@ class MiscTests(SimpleTestCase):
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_percent_formatting_in_blocktranslate(self):
         """
-        Python's %-formatting is properly escaped in blocktranslate, singular,
-        or plural.
+        Tests that Python's %-formatting is properly escaped in blocktranslate tags, 
+        covering both singular and plural cases, ensuring correct output for 
+        translated strings.
         """
         t_sing = self.get_template(
             "{% load i18n %}{% blocktranslate %}There are %(num_comments)s comments"

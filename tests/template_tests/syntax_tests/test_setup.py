@@ -6,7 +6,10 @@ from ..utils import setup
 class SetupTests(SimpleTestCase):
     def test_setup(self):
         """
-        Let's just make sure setup runs cases in the right order.
+
+        Tests that the setup method runs cases in the correct order, 
+        specifically verifying the expected values of string_if_invalid and debug attributes.
+
         """
         cases = []
 

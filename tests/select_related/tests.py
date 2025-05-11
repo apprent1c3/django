@@ -21,7 +21,16 @@ class SelectRelatedTests(TestCase):
     @classmethod
     def create_tree(cls, stringtree):
         """
-        Helper to create a complete tree.
+        Create a complete hierarchical tree from a given string representation.
+
+        The tree is constructed as a series of nested taxonomic levels, 
+        where each level corresponds to a specific model (Domain, Kingdom, etc.).
+
+        The input string should contain a space-separated list of names, 
+        one for each taxonomic level, in the correct order from top to bottom.
+
+        If a node with the given name does not exist in the database, 
+        it will be created automatically. The resulting tree is then persisted to the database.
         """
         names = stringtree.split()
         models = [Domain, Kingdom, Phylum, Klass, Order, Family, Genus, Species]
@@ -58,7 +67,7 @@ class SelectRelatedTests(TestCase):
 
     def test_access_fks_without_select_related(self):
         """
-        Normally, accessing FKs doesn't fill in related objects
+        Tests accessing foreign key relationships without using select_related, verifying that related objects are not populated, and checking the correctness of the domain name in a multi-level relationship chain.
         """
         with self.assertNumQueries(8):
             fly = Species.objects.get(name="melanogaster")
@@ -67,8 +76,7 @@ class SelectRelatedTests(TestCase):
 
     def test_access_fks_with_select_related(self):
         """
-        A select_related() call will fill in those related objects without any
-        extra queries
+        Tests the optimization of accessing foreign keys using select_related, ensuring that related objects are retrieved without additional database queries.
         """
         with self.assertNumQueries(1):
             person = Species.objects.select_related(
@@ -92,7 +100,10 @@ class SelectRelatedTests(TestCase):
             )
 
     def test_list_with_select_related(self):
-        """select_related() applies to entire lists, not just items."""
+        """
+        Tests that select_related() optimization is applied to entire querysets, 
+        not just individual objects, when retrieving related objects from a list.
+        """
         with self.assertNumQueries(1):
             world = Species.objects.select_related()
             families = [o.genus.family.name for o in world]
@@ -108,9 +119,7 @@ class SelectRelatedTests(TestCase):
 
     def test_list_with_depth(self):
         """
-        Passing a relationship field lookup specifier to select_related() will
-        stop the descent at a particular level. This can be used on lists as
-        well.
+        Tests that select_related() with a relationship field lookup specifier can limit query depth when used with lists of objects.
         """
         with self.assertNumQueries(5):
             world = Species.objects.select_related("genus__family")
@@ -129,11 +138,7 @@ class SelectRelatedTests(TestCase):
 
     def test_certain_fields(self):
         """
-        The optional fields passed to select_related() control which related
-        models we pull in. This allows for smaller queries.
-
-        In this case, we explicitly say to select the 'genus' and
-        'genus.family' models, leading to the same number of queries as before.
+        Tests that the select_related method correctly retrieves related models, specifically genus and genus family, in a single query.
         """
         with self.assertNumQueries(1):
             world = Species.objects.select_related("genus__family")
@@ -145,8 +150,7 @@ class SelectRelatedTests(TestCase):
 
     def test_more_certain_fields(self):
         """
-        In this case, we explicitly say to select the 'genus' and
-        'genus.family' models, leading to the same number of queries as before.
+        Tests that using select_related with specific model fields results in an optimal number of database queries when retrieving related objects.
         """
         with self.assertNumQueries(2):
             world = Species.objects.filter(genus__name="Amanita").select_related(
@@ -171,6 +175,10 @@ class SelectRelatedTests(TestCase):
         self.assertIs(queryset.query.select_related, False)
 
     def test_chaining(self):
+        """
+        Tests the efficiency of query chaining for HybridSpecies objects, 
+        verifying that related parent species are fetched in a single database query.
+        """
         parent_1, parent_2 = Species.objects.all()[:2]
         HybridSpecies.objects.create(
             name="hybrid", parent_1=parent_1, parent_2=parent_2
@@ -184,6 +192,12 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(obj.parent_2, parent_2)
 
     def test_reverse_relation_caching(self):
+        """
+        Tests the caching behavior of Django's select_related() for reverse relationships.
+
+        Verifies that the related object's fields are not cached when accessed initially,
+        and that a subsequent query to the related object's reverse relationship incurs a database query.
+        """
         species = (
             Species.objects.select_related("genus").filter(name="melanogaster").first()
         )
@@ -225,6 +239,9 @@ class SelectRelatedValidationTests(SimpleTestCase):
     )
 
     def test_non_relational_field(self):
+        """
+        Tests the behavior of select_related method when attempting to select non-relational fields, ensuring that it raises a FieldError with the expected error message.
+        """
         with self.assertRaisesMessage(
             FieldError, self.non_relational_error % ("name", "genus")
         ):
@@ -259,6 +276,9 @@ class SelectRelatedValidationTests(SimpleTestCase):
             list(Species.objects.select_related("child_1"))
 
     def test_invalid_field(self):
+        """
+        Test that attempting to select related invalid fields raises a FieldError with the expected error message, covering cases for both related and non-related fields across different models.
+        """
         with self.assertRaisesMessage(
             FieldError, self.invalid_error % ("invalid_field", "genus")
         ):

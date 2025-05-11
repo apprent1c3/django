@@ -27,6 +27,13 @@ class FlatpageCSRFTests(TestCase):
     def setUpTestData(cls):
         # don't use the manager because we want to ensure the site exists
         # with pk=1, regardless of whether or not it already exists.
+        """
+        Sets up test data for flat pages and sites.
+
+        This method creates a site and multiple flat pages with varying settings,
+        such as registration requirements and nested URLs, and associates them with the site.
+        It is used to initialize the test environment with a predefined set of test data.
+        """
         cls.site1 = Site(pk=1, domain="example.com", name="example.com")
         cls.site1.save()
         cls.fp1 = FlatPage.objects.create(
@@ -83,7 +90,9 @@ class FlatpageCSRFTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_view_authenticated_flatpage(self):
-        "A flatpage served through a view can require authentication"
+        """
+        Tests that a view serving a flatpage requires authentication, redirects to the login page when not authenticated, and allows access when authenticated.
+        """
         response = self.client.get("/flatpage_root/sekrit/")
         self.assertRedirects(response, "/accounts/login/?next=/flatpage_root/sekrit/")
         user = User.objects.create_user("testuser", "test@example.com", "s3krit")

@@ -110,7 +110,7 @@ class LoaderTests(SimpleTestCase):
 
     def test_loader_priority(self):
         """
-        #21460 -- The order of template loader works.
+        Verifies that Django's template loaders are called in the correct order, ensuring that templates are located and loaded as expected based on their priority.
         """
         loaders = [
             "django.template.loaders.filesystem.Loader",
@@ -122,7 +122,7 @@ class LoaderTests(SimpleTestCase):
 
     def test_cached_loader_priority(self):
         """
-        The order of template loader works. Refs #21460.
+        Tests the template loader priority to ensure the cached loader takes precedence over other loaders when retrieving templates.
         """
         loaders = [
             (

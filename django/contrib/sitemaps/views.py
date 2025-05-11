@@ -19,6 +19,10 @@ class SitemapIndexItem:
 
 def x_robots_tag(func):
     @wraps(func)
+    """
+    Decorator to add an X-Robots-Tag header to the HTTP response, 
+    preventing search engine indexing and archiving of the response content.
+    """
     def inner(request, *args, **kwargs):
         response = func(request, *args, **kwargs)
         response.headers["X-Robots-Tag"] = "noindex, noodp, noarchive"
@@ -29,8 +33,10 @@ def x_robots_tag(func):
 
 def _get_latest_lastmod(current_lastmod, new_lastmod):
     """
-    Returns the latest `lastmod` where `lastmod` can be either a date or a
-    datetime.
+    Returns the latest `lastmod` value from two possible dates or datetimes, 
+    ensuring the result is a timezone-aware datetime. If the current `lastmod` 
+    is `None`, the new `lastmod` is returned; otherwise, the most recent of 
+    the two is returned.
     """
     if not isinstance(new_lastmod, datetime.datetime):
         new_lastmod = datetime.datetime.combine(new_lastmod, datetime.time.min)
@@ -47,6 +53,17 @@ def index(
     content_type="application/xml",
     sitemap_url_name="django.contrib.sitemaps.views.sitemap",
 ):
+    """
+
+    Generates a sitemap index, providing links to individual sitemaps.
+
+    This view produces a sitemap index XML document, containing URLs of the sitemaps
+    available on the site, along with their last modification dates. The resulting
+    document is formatted according to the sitemap protocol specification.
+
+     :return: A TemplateResponse containing the sitemap index XML document.
+
+    """
     req_protocol = request.scheme
     req_site = get_current_site(request)
 
@@ -96,6 +113,21 @@ def sitemap(
     template_name="sitemap.xml",
     content_type="application/xml",
 ):
+    """
+
+    Generates a sitemap for a given set of sitemaps, handling pagination and last modification dates.
+
+    Parameters:
+        request (HttpRequest): The current HTTP request.
+        sitemaps (dict): A dictionary of sitemaps to include in the output.
+        section (str, optional): A specific section to include in the sitemap. Defaults to None.
+        template_name (str, optional): The template to use for rendering the sitemap. Defaults to 'sitemap.xml'.
+        content_type (str, optional): The content type of the sitemap. Defaults to 'application/xml'.
+
+    Returns:
+        TemplateResponse: The rendered sitemap with the included URLs and last modification dates.
+
+    """
     req_protocol = request.scheme
     req_site = get_current_site(request)
 

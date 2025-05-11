@@ -62,6 +62,15 @@ class TraversalUploadHandler(FileUploadHandler):
         self.upload_dir = UPLOAD_TO
 
     def file_complete(self, file_size):
+        """
+        Completes the file upload process by writing the uploaded file to disk.
+
+        This method finalizes the file upload by seeking to the beginning of the file,
+        setting its size, and then writing its contents to a file on disk at the specified upload directory.
+
+        :param int file_size: The size of the file being uploaded.
+        :return: The completed file object.
+        """
         self.file.seek(0)
         self.file.size = file_size
         with open(os.path.join(self.upload_dir, self.file_name), "wb") as fp:

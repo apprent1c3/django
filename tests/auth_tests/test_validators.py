@@ -34,6 +34,13 @@ from django.utils.html import conditional_escape
 )
 class PasswordValidationTest(SimpleTestCase):
     def test_get_default_password_validators(self):
+        """
+
+        Tests the function that retrieves the list of default password validators.
+
+        Verifies the expected number and types of validators, as well as the minimum length requirement of the MinimumLengthValidator.
+
+        """
         validators = get_default_password_validators()
         self.assertEqual(len(validators), 2)
         self.assertEqual(validators[0].__class__.__name__, "CommonPasswordValidator")
@@ -41,6 +48,11 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertEqual(validators[1].min_length, 12)
 
     def test_get_password_validators_custom(self):
+        """
+        Test the retrieval of password validators based on custom configuration. 
+
+        The function verifies that the get_password_validators function correctly interprets and returns the defined password validators, and also handles empty configurations as expected.
+        """
         validator_config = [
             {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"}
         ]
@@ -51,6 +63,22 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertEqual(get_password_validators([]), [])
 
     def test_validate_password(self):
+        """
+
+        Validate a password against a set of predefined rules.
+
+        This function checks if a given password meets certain criteria, such as minimum length and uniqueness.
+        If the password is valid, it returns None; otherwise, it raises a ValidationError with specific error messages.
+        Optional parameter password_validators allows for custom or disabled validation rules.
+
+        Args:
+            password (str): The password to be validated.
+            password_validators (list): List of validation rules to apply (default: default password validators).
+
+        Raises:
+            ValidationError: If the password fails to meet the validation criteria.
+
+        """
         self.assertIsNone(validate_password("sufficiently-long"))
         msg_too_short = (
             "This password is too short. It must contain at least 12 characters."
@@ -74,6 +102,9 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertIsNone(password_changed("password"))
 
     def test_password_changed_with_custom_validator(self):
+        """
+        Tests that a custom password validator receives the new password and user when a password change occurs.
+        """
         class Validator:
             def password_changed(self, password, user):
                 self.password = password
@@ -98,6 +129,9 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertIn("12 characters", help_text)
 
     def test_password_validators_help_text_html_escaping(self):
+        """
+        Tests that help text from password validators is properly HTML escaped
+        """
         class AmpersandValidator:
             def get_help_text(self):
                 return "Must contain &"
@@ -114,6 +148,9 @@ class PasswordValidationTest(SimpleTestCase):
 
 class MinimumLengthValidatorTest(SimpleTestCase):
     def test_validate(self):
+        """
+        Tests the validation of passwords based on a minimum length requirement, ensuring that passwords are at least a specified number of characters long, and that error messages are correctly handled for invalid passwords.
+        """
         expected_error = (
             "This password is too short. It must contain at least %d characters."
         )
@@ -138,6 +175,9 @@ class MinimumLengthValidatorTest(SimpleTestCase):
 
 class UserAttributeSimilarityValidatorTest(TestCase):
     def test_validate(self):
+        """
+        Tests the validation of passwords against similarity to user attributes, ensuring that passwords are not too similar to the username, email address, or other specified attributes.
+        """
         user = User.objects.create_user(
             username="testclient",
             password="password",
@@ -185,6 +225,12 @@ class UserAttributeSimilarityValidatorTest(TestCase):
 
     @isolate_apps("auth_tests")
     def test_validate_property(self):
+        """
+
+        Checks that the UserAttributeSimilarityValidator correctly validates a username
+        to prevent password similarity to the username.
+
+        """
         class TestUser(models.Model):
             pass
 
@@ -207,6 +253,14 @@ class UserAttributeSimilarityValidatorTest(TestCase):
 
 class CommonPasswordValidatorTest(SimpleTestCase):
     def test_validate(self):
+        """
+
+        Tests the validation functionality of the CommonPasswordValidator.
+
+        Verifies that the validator correctly identifies and rejects commonly used passwords,
+        while allowing safe and unique passwords to pass without raising an error.
+
+        """
         expected_error = "This password is too common."
         self.assertIsNone(CommonPasswordValidator().validate("a-safe-password"))
 
@@ -215,6 +269,11 @@ class CommonPasswordValidatorTest(SimpleTestCase):
         self.assertEqual(cm.exception.messages, [expected_error])
 
     def test_validate_custom_list(self):
+        """
+        Tests the validation of passwords against a custom list of common passwords.
+
+        Verifies that safe passwords pass validation and that passwords found in the custom list raise a ValidationError with the expected error message and code.
+        """
         path = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "common-passwords-custom.txt"
         )
@@ -241,6 +300,11 @@ class CommonPasswordValidatorTest(SimpleTestCase):
 
 class NumericPasswordValidatorTest(SimpleTestCase):
     def test_validate(self):
+        """
+        Tests the validation of passwords to ensure they are not entirely numeric.
+
+        Checks that a valid password passes validation, and that a password consisting only of numbers raises a ValidationError with the expected error message and code.
+        """
         expected_error = "This password is entirely numeric."
         self.assertIsNone(NumericPasswordValidator().validate("a-safe-password"))
 
@@ -258,6 +322,9 @@ class NumericPasswordValidatorTest(SimpleTestCase):
 
 class UsernameValidatorsTests(SimpleTestCase):
     def test_unicode_validator(self):
+        """
+        Tests the UnicodeUsernameValidator to ensure it correctly identifies valid and invalid usernames, handling various Unicode characters and edge cases, such as accents, non-ASCII letters, and invisible whitespace characters.
+        """
         valid_usernames = ["joe", "René", "ᴮᴵᴳᴮᴵᴿᴰ", "أحمد"]
         invalid_usernames = [
             "o'connell",
@@ -277,6 +344,14 @@ class UsernameValidatorsTests(SimpleTestCase):
                     v(invalid)
 
     def test_ascii_validator(self):
+        """
+        Tests the ASCII username validator function to ensure it correctly identifies valid and invalid usernames.
+
+        Valid usernames are those containing only ASCII characters and allowed special characters, without whitespace or newlines.
+        Invalid usernames are those containing non-ASCII characters, whitespace, newlines, or other disallowed special characters.
+
+        The test checks that valid usernames pass validation and that invalid usernames raise a ValidationError.
+        """
         valid_usernames = ["glenn", "GLEnN", "jean-marc"]
         invalid_usernames = [
             "o'connell",

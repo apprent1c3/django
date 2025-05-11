@@ -3,8 +3,15 @@ from django.contrib.gis.geos.geometry import GEOSGeometry, hex_regex, wkt_regex
 
 def fromfile(file_h):
     """
-    Given a string file name, returns a GEOSGeometry. The file may contain WKB,
-    WKT, or HEX.
+
+    Load a GEOSGeometry from a file.
+
+    The file can contain WKB, WKT, or HEX data. This function reads the file's contents
+    and returns a GEOSGeometry object, attempting to decode the data if necessary.
+
+    :param file_h: file name (as a string) or a file-like object
+    :return: a GEOSGeometry object
+
     """
     # If given a file name, get a real handle.
     if isinstance(file_h, str):

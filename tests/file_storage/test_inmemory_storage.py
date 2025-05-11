@@ -14,6 +14,11 @@ class MemoryStorageIOTests(unittest.TestCase):
         self.storage = InMemoryStorage()
 
     def test_write_string(self):
+        """
+
+        Tests writing and reading strings to the storage system, verifying that both text and binary data are handled correctly.
+
+        """
         with self.storage.open("file.txt", "w") as fd:
             fd.write("hello")
         with self.storage.open("file.txt", "r") as fd:
@@ -24,7 +29,9 @@ class MemoryStorageIOTests(unittest.TestCase):
             self.assertEqual(fd.read(), b"hello")
 
     def test_convert_str_to_bytes_and_back(self):
-        """InMemoryStorage handles conversion from str to bytes and back."""
+        """
+        Verifies that InMemoryStorage correctly converts string data to bytes and vice versa during file operations.
+        """
         with self.storage.open("file.txt", "w") as fd:
             fd.write("hello")
         with self.storage.open("file.txt", "rb") as fd:
@@ -64,8 +71,7 @@ class MemoryStorageIOTests(unittest.TestCase):
 
     def test_file_size(self):
         """
-        File size is equal to the size of bytes-encoded version of the saved
-        data.
+        Tests whether the file size reported by the storage system matches the size of its bytes-encoded contents.
         """
         self.storage.save("file.txt", ContentFile("test"))
         self.assertEqual(self.storage.size("file.txt"), 4)
@@ -78,6 +84,9 @@ class MemoryStorageIOTests(unittest.TestCase):
         self.assertEqual(self.storage.size("file.dat"), 2)
 
     def test_listdir(self):
+        """
+        Tests the listdir method of a storage system by verifying it correctly returns a list of files and directories in the root directory.
+        """
         self.assertEqual(self.storage.listdir(""), ([], []))
 
         self.storage.save("file_a.txt", ContentFile("test"))
@@ -101,7 +110,9 @@ class MemoryStorageIOTests(unittest.TestCase):
         self.assertTrue(self.storage.exists("dir/subdir/file.txt"))
 
     def test_delete(self):
-        """Deletion handles both files and directory trees."""
+        """
+        Tests the deletion functionality of the storage system, ensuring it correctly handles both individual files and entire directory trees.
+        """
         self.storage.save("dir/subdir/file.txt", ContentFile("test"))
         self.storage.save("dir/subdir/other_file.txt", ContentFile("test"))
         self.assertTrue(self.storage.exists("dir/subdir/file.txt"))
@@ -147,7 +158,7 @@ class MemoryStorageTimesTests(unittest.TestCase):
 
     def test_file_modified_time(self):
         """
-        File modified time should change after file changing
+        Verifies that the modified time of a file updates correctly after the file's content is changed.
         """
         self.storage.save("file.txt", ContentFile("test"))
         modified_time = self.storage.get_modified_time("file.txt")
@@ -161,7 +172,9 @@ class MemoryStorageTimesTests(unittest.TestCase):
         self.assertTrue(new_modified_time > modified_time)
 
     def test_file_accessed_time(self):
-        """File accessed time should change after consecutive opening."""
+        """
+        Tests that the accessed time of a file is updated after the file is opened, verifying that the storage system correctly tracks file access times.
+        """
         self.storage.save("file.txt", ContentFile("test"))
         accessed_time = self.storage.get_accessed_time("file.txt")
 
@@ -172,7 +185,9 @@ class MemoryStorageTimesTests(unittest.TestCase):
         self.assertGreater(new_accessed_time, accessed_time)
 
     def test_file_created_time(self):
-        """File creation time should not change after I/O operations."""
+        """
+        Tests that the creation time of a file remains unchanged after it has been opened, modified, and saved.
+        """
         self.storage.save("file.txt", ContentFile("test"))
         created_time = self.storage.get_created_time("file.txt")
 
@@ -190,8 +205,7 @@ class MemoryStorageTimesTests(unittest.TestCase):
 
     def test_directory_times_changing_after_file_creation(self):
         """
-        Directory modified and accessed time should change when a new file is
-        created inside.
+        Verifies that the modified and accessed times of a directory are updated when a new file is created within it, while ensuring the created time remains unchanged.
         """
         self.storage.save("dir/file1.txt", ContentFile("test"))
         created_time = self.storage.get_created_time("dir")
@@ -210,8 +224,7 @@ class MemoryStorageTimesTests(unittest.TestCase):
 
     def test_directory_times_changing_after_file_deletion(self):
         """
-        Directory modified and accessed time should change when a new file is
-        deleted inside.
+        Verifies that the modified and accessed times of a directory are updated after a file is deleted from it, while ensuring the creation time remains unchanged.
         """
         self.storage.save("dir/file.txt", ContentFile("test"))
         created_time = self.storage.get_created_time("dir")
@@ -231,6 +244,9 @@ class MemoryStorageTimesTests(unittest.TestCase):
 
 class InMemoryStorageTests(SimpleTestCase):
     def test_deconstruction(self):
+        """
+        Tests the deconstruction of InMemoryStorage instances, verifying that the path, arguments, and keyword arguments are correctly reconstructed.
+        """
         storage = InMemoryStorage()
         path, args, kwargs = storage.deconstruct()
         self.assertEqual(path, "django.core.files.storage.InMemoryStorage")
@@ -255,8 +271,7 @@ class InMemoryStorageTests(SimpleTestCase):
     )
     def test_setting_changed(self):
         """
-        Properties using settings values as defaults should be updated on
-        referenced settings change while specified values should be unchanged.
+        Tests that properties using settings values as defaults are updated when the referenced settings change, while explicitly specified values remain unchanged.
         """
         storage = InMemoryStorage(
             location="explicit_location",

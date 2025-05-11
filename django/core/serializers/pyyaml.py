@@ -67,7 +67,9 @@ class Serializer(PythonSerializer):
 
 
 def Deserializer(stream_or_string, **options):
-    """Deserialize a stream or string of YAML data."""
+    """
+    Deserializes a stream or string of YAML data into Python objects, providing a convenient way to convert YAML data into a usable format. The deserialization process can be customized with additional options.
+    """
     if isinstance(stream_or_string, bytes):
         stream_or_string = stream_or_string.decode()
     if isinstance(stream_or_string, str):

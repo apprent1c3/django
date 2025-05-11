@@ -36,6 +36,18 @@ class UploadedFile(File):
         charset=None,
         content_type_extra=None,
     ):
+        """
+        Initializes a file object with additional metadata.
+
+        :arg file: The file to be associated with this object.
+        :arg name: The name of the file.
+        :arg content_type: The MIME content type of the file.
+        :arg size: The size of the file in bytes.
+        :arg charset: The character encoding of the file.
+        :arg content_type_extra: Additional content type information.
+
+        This constructor extends the base class initialization with file-specific attributes, providing a more detailed representation of the file.
+        """
         super().__init__(file, name)
         self.size = size
         self.content_type = content_type
@@ -50,6 +62,9 @@ class UploadedFile(File):
 
     def _set_name(self, name):
         # Sanitize the file name so that it can't be dangerous.
+        """
+        Sets the name of the object, truncating and validating it as necessary to adhere to file system constraints.
+        """
         if name is not None:
             # Just use the basename of the file -- anything else is dangerous.
             name = os.path.basename(name)

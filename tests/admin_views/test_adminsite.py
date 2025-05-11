@@ -48,6 +48,9 @@ class SiteEachContextTest(TestCase):
         self.ctx = site.each_context(request)
 
     def test_each_context(self):
+        """
+        Checks the standard Django administration context variables to ensure they have the expected values.
+        """
         ctx = self.ctx
         self.assertEqual(ctx["site_header"], "Django administration")
         self.assertEqual(ctx["site_title"], "Django site admin")
@@ -55,6 +58,9 @@ class SiteEachContextTest(TestCase):
         self.assertIs(ctx["has_permission"], True)
 
     def test_custom_admin_titles(self):
+        """
+        Tests the customization of admin site titles and headers for a specific user
+        """
         request = self.request_factory.get(reverse("test_custom_adminsite:index"))
         request.user = self.u1
         ctx = custom_site.each_context(request)
@@ -69,6 +75,13 @@ class SiteEachContextTest(TestCase):
         self.assertEqual(site.each_context(request)["site_url"], "/my-script-name/")
 
     def test_available_apps(self):
+        """
+
+        Test that the list of available applications in the admin interface is correct.
+        Verifies the presence of the admin_views and auth applications, as well as their
+        models and URLs.
+
+        """
         ctx = self.ctx
         apps = ctx["available_apps"]
         # we have registered two models from two different apps
@@ -114,6 +127,13 @@ class SiteActionsTests(SimpleTestCase):
         self.assertEqual(self.site.get_action("test_action"), test_action)
 
     def test_disable_action(self):
+        """
+
+        Tests disabling of a site action.
+
+        Verifies that disabling an action removes it from the site's actions and raises a KeyError when attempting to access it afterwards.
+
+        """
         action_name = "delete_selected"
         self.assertEqual(self.site._actions[action_name], delete_selected)
         self.site.disable_action(action_name)
@@ -121,7 +141,9 @@ class SiteActionsTests(SimpleTestCase):
             self.site._actions[action_name]
 
     def test_get_action(self):
-        """AdminSite.get_action() returns an action even if it's disabled."""
+        """
+        Verifies that AdminSite.get_action() returns an action even when it is disabled.
+        """
         action_name = "delete_selected"
         self.assertEqual(self.site.get_action(action_name), delete_selected)
         self.site.disable_action(action_name)

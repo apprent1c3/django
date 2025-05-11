@@ -31,6 +31,9 @@ class SitesFrameworkTests(TestCase):
 
     def test_site_manager(self):
         # Make sure that get_current() does not return a deleted Site object.
+        """
+        Tests that the site manager correctly retrieves and deletes the current site.
+        """
         s = Site.objects.get_current()
         self.assertIsInstance(s, Site)
         s.delete()
@@ -40,6 +43,9 @@ class SitesFrameworkTests(TestCase):
     def test_site_cache(self):
         # After updating a Site object (e.g. via the admin), we shouldn't return a
         # bogus value from the SITE_CACHE.
+        """
+        #: Tests the site cache to ensure updates are reflected in the current site object.
+        """
         site = Site.objects.get_current()
         self.assertEqual("example.com", site.name)
         s2 = Site.objects.get(id=settings.SITE_ID)
@@ -59,6 +65,11 @@ class SitesFrameworkTests(TestCase):
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_get_current_site(self):
         # The correct Site object is returned
+        """
+        Tests the get_current_site function to ensure it returns the correct site 
+        based on the request, handles site deletion, and behaves correctly when the 
+        django.contrib.sites app is not installed.
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -82,6 +93,10 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com"])
     def test_get_current_site_no_site_id(self):
+        """
+        Tests the retrieval of the current site when SITE_ID is not set, 
+        ensuring the site is identified based on the request's server name.
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -94,7 +109,7 @@ class SitesFrameworkTests(TestCase):
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com"])
     def test_get_current_site_host_with_trailing_dot(self):
         """
-        The site is matched if the name in the request has a trailing dot.
+        Tests that a request with a host containing a trailing dot is correctly matched to a site.
         """
         request = HttpRequest()
         request.META = {
@@ -106,6 +121,9 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com", "example.net"])
     def test_get_current_site_no_site_id_and_handle_port_fallback(self):
+        """
+        Determines the current site based on the provided request, primarily using the HTTP_HOST header to select a site, with a fallback to a default site when no exact match is found and no SITE_ID is configured.
+        """
         request = HttpRequest()
         s1 = self.site
         s2 = Site.objects.create(domain="example.com:80", name="example.com:80")
@@ -143,6 +161,13 @@ class SitesFrameworkTests(TestCase):
     def test_domain_name_with_whitespaces(self):
         # Regression for #17320
         # Domain names are not allowed contain whitespace characters
+        """
+
+        Tests that a domain name cannot contain whitespace characters.
+
+        Ensures a ValidationError is raised when domain names with spaces, tabs, or newlines are used.
+
+        """
         site = Site(name="test name", domain="test test")
         with self.assertRaises(ValidationError):
             site.full_clean()
@@ -155,6 +180,17 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_clear_site_cache(self):
+        """
+        Clears the site cache for a given site instance.
+
+        This function removes the site instance from the site cache, ensuring that
+        any cached site information is updated or removed as needed.
+
+        Parameters:
+            instance (Site): The site instance to clear from the cache.
+            using (str): The database alias to use for clearing the cache.
+
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -176,6 +212,12 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example2.com"])
     def test_clear_site_cache_domain(self):
+        """
+        Tests the clear_site_cache function by verifying that site cache is cleared
+        when the cache is removed from the specified database and remains unchanged
+        when removed from a different database. Ensures cache is correctly updated
+        for domain-specific site instances.
+        """
         site = Site.objects.create(name="example2.com", domain="example2.com")
         request = HttpRequest()
         request.META = {
@@ -265,8 +307,7 @@ class CreateDefaultSiteTests(TestCase):
 
     def test_basic(self):
         """
-        #15346, #15573 - create_default_site() creates an example site only if
-        none exist.
+        Tests the create_default_site function to ensure it only creates an example site when no sites exist, and does not recreate it if a site is already present.
         """
         with captured_stdout() as stdout:
             create_default_site(self.app_config)
@@ -281,7 +322,11 @@ class CreateDefaultSiteTests(TestCase):
     @override_settings(DATABASE_ROUTERS=[JustOtherRouter()])
     def test_multi_db_with_router(self):
         """
-        #16353, #16828 - The default site creation should respect db routing.
+
+        Tests that the default site creation respects database routing when using multiple databases.
+
+        Verifies that the default site is created in the correct database based on the router configuration.
+
         """
         create_default_site(self.app_config, using="default", verbosity=0)
         create_default_site(self.app_config, using="other", verbosity=0)

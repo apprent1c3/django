@@ -7,10 +7,10 @@ from .models import A01, A02, B01, B02, C01, C02, Managed1, Unmanaged2
 class SimpleTests(TestCase):
     def test_simple(self):
         """
-        The main test here is that the all the models can be created without
-        any database errors. We can also do some more simple insertion and
-        lookup tests while we're here to show that the second of models do
-        refer to the tables from the first set.
+
+        Verifies that the model instances can be created and queried successfully,
+        ensuring database integrity and proper relationships between models.
+
         """
         # Insert some data into one set of models.
         a = A01.objects.create(f_a="foo", f_b=42)

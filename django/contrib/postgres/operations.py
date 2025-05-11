@@ -20,6 +20,14 @@ class CreateExtension(Operation):
         pass
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Applies the necessary database migrations for the given app label, ensuring compatibility with PostgreSQL.
+
+        Specifically, this method enables the required database extension if it does not already exist, refreshes the 
+        OID caches for hstore and citext data types, registers type handlers, and optionally registers geometry adapters.
+
+        """
         if schema_editor.connection.vendor != "postgresql" or not router.allow_migrate(
             schema_editor.connection.alias, app_label
         ):
@@ -42,6 +50,16 @@ class CreateExtension(Operation):
             )
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Reverses the database migration by dropping the database extension if it exists.
+
+        This method is used to undo the effects of a previous migration, effectively rolling back the changes made to the database schema.
+
+        :param app_label: The label of the application that is being migrated.
+        :param schema_editor: The schema editor instance that is performing the migration.
+        :param from_state: The current state of the application's models.
+        :param to_state: The target state of the application's models.
+        """
         if not router.allow_migrate(schema_editor.connection.alias, app_label):
             return
         if self.extension_exists(schema_editor, self.name):
@@ -153,6 +171,13 @@ class RemoveIndexConcurrently(NotInTransactionMixin, RemoveIndex):
         return "Concurrently remove index %s from %s" % (self.name, self.model_name)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Remove a database index as part of a migration.
+
+        Removes the specified index from the model table if migration is allowed.
+
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -161,6 +186,12 @@ class RemoveIndexConcurrently(NotInTransactionMixin, RemoveIndex):
             schema_editor.remove_index(model, index, concurrently=True)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Reverses the removal of a database index.
+
+        Reverts the operation by adding back the index that was previously removed,
+        utilizing the database schema editor to perform the operation concurrently.
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -180,6 +211,13 @@ class CollationOperation(Operation):
         pass
 
     def deconstruct(self):
+        """
+
+        Returns a deconstructed representation of the object, suitable for reconstruction.
+
+        This method breaks down the object into its constituent parts, returning a tuple containing the class name, an empty list of positional arguments, and a dictionary of keyword arguments.
+
+        """
         kwargs = {"name": self.name, "locale": self.locale}
         if self.provider and self.provider != "libc":
             kwargs["provider"] = self.provider
@@ -192,6 +230,14 @@ class CollationOperation(Operation):
         )
 
     def create_collation(self, schema_editor):
+        """
+
+        Create a database collation with specified locale and provider settings.
+
+        This method executes a SQL query to create a new collation in the database,
+        providing a custom locale and optionally a provider and deterministic setting.
+
+        """
         args = {"locale": schema_editor.quote_name(self.locale)}
         if self.provider != "libc":
             args["provider"] = schema_editor.quote_name(self.provider)
@@ -285,6 +331,19 @@ class AddConstraintNotValid(AddConstraint):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Apply a database constraint migration.
+
+        This method is responsible for creating the necessary SQL commands to add a constraint to a database table during a migration.
+        It checks if the model is allowed to migrate and then executes the constraint creation SQL statement if applicable.
+
+        :param app_label: The label of the application containing the model.
+        :param schema_editor: The schema editor instance to use for executing the SQL statement.
+        :param from_state: The previous state of the model.
+        :param to_state: The target state of the model.
+
+        """
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             constraint_sql = self.constraint.create_sql(model, schema_editor)

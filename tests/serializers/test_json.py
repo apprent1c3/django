@@ -47,6 +47,9 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Checks if a given serialized string is valid JSON, returning True if valid and False otherwise.
+        """
         try:
             json.loads(serial_str)
         except Exception:
@@ -69,6 +72,9 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
         ]
 
     def test_indentation_whitespace(self):
+        """
+        Tests that the JSON serializer correctly handles indentation and trailing whitespace, ensuring that lines with trailing commas do not have extra whitespace at the end.
+        """
         s = serializers.json.Serializer()
         json_data = s.serialize([Score(score=5.0), Score(score=6.0)], indent=2)
         for line in json_data.splitlines():
@@ -77,6 +83,9 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     @isolate_apps("serializers")
     def test_custom_encoder(self):
+        """
+        Checks serialization of Decimal model fields using a custom JSON encoder.
+        """
         class ScoreDecimal(models.Model):
             score = models.DecimalField()
 
@@ -118,8 +127,7 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_invalid_field(self):
         """
-        If there is an invalid field value, the error message should contain
-        the model associated with it.
+        Verifies that an informative error message is generated when a field contains an invalid value, specifically including the associated model in the error message.
         """
         test_string = """[{
             "pk": "1",
@@ -136,8 +144,7 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_foreign_keys(self):
         """
-        Invalid foreign keys with a natural key should throw a helpful error
-        message, such as what the failing key is.
+        Test that deserialization raises a helpful error message when a natural key for a foreign key is invalid, including the specific failing key.
         """
         test_string = """[{
             "pk": 1,
@@ -157,7 +164,7 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_non_natural(self):
         """
-        Invalid many-to-many keys should throw a helpful error message.
+        Tests that a helpful error message is raised when an invalid many-to-many key is provided during deserialization.
         """
         test_string = """[{
             "pk": 1,
@@ -187,8 +194,7 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_natural1(self):
         """
-        Invalid many-to-many keys should throw a helpful error message.
-        This tests the code path where one of a list of natural keys is invalid.
+        Tests that an informative error message is raised when deserializing a JSON string containing an invalid many-to-many natural key.
         """
         test_string = """[{
             "pk": 1,
@@ -226,9 +232,7 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_natural2(self):
         """
-        Invalid many-to-many keys should throw a helpful error message. This
-        tests the code path where a natural many-to-many key has only a single
-        value.
+        Tests that an informative error message is raised when a many-to-many field contains an invalid natural key value.
         """
         test_string = """[{
             "pk": 1,
@@ -261,7 +265,7 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     def test_helpful_error_message_for_many2many_not_iterable(self):
         """
-        Not iterable many-to-many field value throws a helpful error message.
+        Tests that a non-iterable value for a many-to-many field generates a clear error message during deserialization.
         """
         test_string = """[{
             "pk": 1,

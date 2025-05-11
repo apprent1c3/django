@@ -14,6 +14,14 @@ class PostGISIntrospection(DatabaseIntrospection):
     ]
 
     def get_field_type(self, data_type, description):
+        """
+
+        Determines the field type based on the provided data type and description.
+        If the field type is a PostGIS geometry or geography type, it initializes a lookup
+        dictionary for the PostGIS OID types if not already done and updates the data types
+        reverse lookup. Then it delegates to the parent class to determine the field type.
+
+        """
         if not self.postgis_oid_lookup:
             # Query PostgreSQL's pg_type table to determine the OID integers
             # for the PostGIS data types used in reverse lookup (the integers
@@ -34,10 +42,10 @@ class PostGISIntrospection(DatabaseIntrospection):
 
     def get_geometry_type(self, table_name, description):
         """
-        The geometry type OID used by PostGIS does not indicate the particular
-        type of field that a geometry column is (e.g., whether it's a
-        PointField or a PolygonField).  Thus, this routine queries the PostGIS
-        metadata tables to determine the geometry type.
+        Determines the geometry type of a PostGIS column by querying the PostGIS metadata tables, 
+        since the OID used by PostGIS does not provide this information. Returns a tuple containing 
+        the geometry type and any additional parameters associated with it, such as whether it is 
+        a geography field, its spatial reference system identifier (SRID), or its dimension.
         """
         with self.connection.cursor() as cursor:
             cursor.execute(

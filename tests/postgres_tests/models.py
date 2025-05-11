@@ -28,6 +28,9 @@ class TagField(models.SmallIntegerField):
         return Tag(int(value))
 
     def to_python(self, value):
+        """
+        Converts a value to a Tag object, leaving existing Tag instances unchanged and converting numeric values to Tag objects, while preserving None values.
+        """
         if isinstance(value, Tag):
             return value
         if value is None:

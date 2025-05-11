@@ -23,6 +23,15 @@ class DeclarativeFieldsMetaclass(MediaDefiningClass):
 
     def __new__(mcs, name, bases, attrs):
         # Collect fields from current class and remove them from attrs.
+        """
+        Creates a new class, collecting and processing field definitions from the class and its bases.
+
+        Automatically identifies and separates Field instances from other class attributes, 
+        and constructs a comprehensive mapping of fields, including those defined in parent classes.
+
+        Resulting class has `base_fields` and `declared_fields` attributes, both referencing the 
+        collected fields, with overrides from parent classes properly handled.
+        """
         attrs["declared_fields"] = {
             key: attrs.pop(key)
             for key, value in list(attrs.items())
@@ -82,6 +91,24 @@ class BaseForm(RenderableFormMixin):
         use_required_attribute=None,
         renderer=None,
     ):
+        """
+        Initialize a form instance with optional data and configuration.
+
+        :param data: Data to initialize the form with (defaults to None)
+        :param files: Files to initialize the form with (defaults to None)
+        :param auto_id: Auto ID prefix (defaults to 'id_%s')
+        :param prefix: Prefix for form fields (defaults to None)
+        :param initial: Initial values for form fields (defaults to None)
+        :param error_class: Error class for form validation (defaults to ErrorList)
+        :param label_suffix: Suffix for form field labels (defaults to ':')
+        :param empty_permitted: Allow empty forms (defaults to False)
+        :param field_order: Order of form fields (defaults to None)
+        :param use_required_attribute: Use required attribute for form fields (defaults to None)
+        :param renderer: Form renderer (defaults to None)
+
+        This method sets up the form instance with the provided data and configuration, 
+        including auto ID generation, error handling, and field ordering.
+        """
         self.is_bound = data is not None or files is not None
         self.data = MultiValueDict() if data is None else data
         self.files = MultiValueDict() if files is None else files
@@ -126,14 +153,7 @@ class BaseForm(RenderableFormMixin):
 
     def order_fields(self, field_order):
         """
-        Rearrange the fields according to field_order.
-
-        field_order is a list of field names specifying the order. Append fields
-        not included in the list in the default order for backward compatibility
-        with subclasses not overriding field_order. If field_order is None,
-        keep all fields in the order defined in the class. Ignore unknown
-        fields in field_order to allow disabling fields in form subclasses
-        without redefining ordering.
+        Rearrange the fields according to the specified order, allowing for backward compatibility and field disabling.
         """
         if field_order is None:
             return
@@ -147,6 +167,9 @@ class BaseForm(RenderableFormMixin):
         self.fields = fields
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, including its bound state, validity status, and a list of fields. The validity status is 'Unknown' if errors have not been checked, otherwise it indicates whether the object is bound and has no errors.
+        """
         if self._errors is None:
             is_valid = "Unknown"
         else:
@@ -169,7 +192,9 @@ class BaseForm(RenderableFormMixin):
             yield self[name]
 
     def __getitem__(self, name):
-        """Return a BoundField with the given name."""
+        """
+        Retrieves a BoundField instance associated with the given name, allowing access to form fields by their names. Raises a KeyError if the specified field does not exist.
+        """
         try:
             field = self.fields[name]
         except KeyError:
@@ -220,6 +245,10 @@ class BaseForm(RenderableFormMixin):
         return self.renderer.form_template_name
 
     def get_context(self):
+        """
+        Returns a dictionary containing the context for rendering a form, including the form instance, 
+        visible and hidden fields, and any form-level errors.
+        """
         fields = []
         hidden_fields = []
         top_errors = self.non_field_errors().copy()
@@ -254,21 +283,9 @@ class BaseForm(RenderableFormMixin):
 
     def add_error(self, field, error):
         """
-        Update the content of `self._errors`.
+        Associates error information with a form field or marks form-level errors.
 
-        The `field` argument is the name of the field to which the errors
-        should be added. If it's None, treat the errors as NON_FIELD_ERRORS.
-
-        The `error` argument can be a single error, a list of errors, or a
-        dictionary that maps field names to lists of errors. An "error" can be
-        either a simple string or an instance of ValidationError with its
-        message attribute set and a "list or dictionary" can be an actual
-        `list` or `dict` or an instance of ValidationError with its
-        `error_list` or `error_dict` attribute set.
-
-        If `error` is a dictionary, the `field` argument *must* be None and
-        errors will be added to the fields that correspond to the keys of the
-        dictionary.
+        The field name and corresponding error details are used to update the internal error tracking data structure. The function can handle various types of input for errors, including strings, ValidationError instances, and collections of these types. It also enforces consistency rules to prevent invalid error reporting configurations.
         """
         if not isinstance(error, ValidationError):
             # Normalize to ValidationError and let its constructor
@@ -311,7 +328,9 @@ class BaseForm(RenderableFormMixin):
 
     def full_clean(self):
         """
-        Clean all of self.data and populate self._errors and self.cleaned_data.
+
+        Perform a thorough validation of the entire form data, populating error messages and cleaned data dictionaries.
+
         """
         self._errors = ErrorDict()
         if not self.is_bound:  # Stop further processing.
@@ -327,6 +346,11 @@ class BaseForm(RenderableFormMixin):
         self._post_clean()
 
     def _clean_fields(self):
+        """
+        Cleans each field in the form, applying field-specific cleaning rules and validation, 
+        and stores the cleaned data in the :attr:`cleaned_data` attribute. 
+        Any validation errors that occur during cleaning are added to the form's errors.
+        """
         for name, bf in self._bound_items():
             field = bf.field
             try:
@@ -338,6 +362,14 @@ class BaseForm(RenderableFormMixin):
                 self.add_error(name, e)
 
     def _clean_form(self):
+        """
+        Cleans the form data, handling validation errors and storing the cleaned data if successful.\"\"\"
+
+        \"\"\"
+         :raises: ValidationError if validation fails
+         :note: If validation is successful, the cleaned data is stored in :attr:`cleaned_data`
+
+        """
         try:
             cleaned_data = self.clean()
         except ValidationError as e:
@@ -372,7 +404,10 @@ class BaseForm(RenderableFormMixin):
 
     @property
     def media(self):
-        """Return all media required to render the widgets on this form."""
+        """
+        Returns the aggregate media needed to render all widgets on this form, 
+        combining the media requirements of each field's widget.
+        """
         media = Media()
         for field in self.fields.values():
             media += field.widget.media
@@ -401,8 +436,7 @@ class BaseForm(RenderableFormMixin):
 
     def get_initial_for_field(self, field, field_name):
         """
-        Return initial data for field on form. Use initial data from the form
-        or the field, in that order. Evaluate callable values.
+        Returns the initial data for a given form field, preferring form initial data over field initial data. Any callable values are evaluated and datetime values are truncated if the field does not support microseconds.
         """
         value = self.initial.get(field_name, field.initial)
         if callable(value):

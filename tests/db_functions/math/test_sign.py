@@ -15,6 +15,9 @@ class SignTests(TestCase):
         self.assertIsNone(obj.null_sign)
 
     def test_decimal(self):
+        """
+        Checks the correctness of annotating decimal fields with their sign values. Verifies that the signs are calculated correctly and returned as decimal values.
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_sign=Sign("n1"), n2_sign=Sign("n2")
@@ -25,6 +28,9 @@ class SignTests(TestCase):
         self.assertEqual(obj.n2_sign, Decimal("1"))
 
     def test_float(self):
+        """
+        Tests the database annotation of float fields to determine their sign.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_sign=Sign("f1"), f2_sign=Sign("f2")
@@ -35,6 +41,9 @@ class SignTests(TestCase):
         self.assertEqual(obj.f2_sign, 1.0)
 
     def test_integer(self):
+        """
+        Tests the Sign database function by applying it to integer values of different signs and verifying the returned results are as expected.
+        """
         IntegerModel.objects.create(small=-20, normal=0, big=20)
         obj = IntegerModel.objects.annotate(
             small_sign=Sign("small"),
@@ -49,6 +58,9 @@ class SignTests(TestCase):
         self.assertEqual(obj.big_sign, 1)
 
     def test_transform(self):
+        """
+        Tests the transformation of decimal fields by checking the sign lookup functionality.
+        """
         with register_lookup(DecimalField, Sign):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-0.1"), n2=Decimal("0"))

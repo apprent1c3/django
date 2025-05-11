@@ -101,6 +101,14 @@ class ASGIStaticFilesHandler(StaticFilesHandlerMixin, ASGIHandler):
         return await self.application(scope, receive, send)
 
     async def get_response_async(self, request):
+        """
+
+        Async handler for processing HTTP responses.
+
+        Enhances the base response handler by appending a request closer and
+        converting synchronous streaming content to asynchronous if necessary.
+
+        """
         response = await super().get_response_async(request)
         response._resource_closers.append(request.close)
         # FileResponse is not async compatible.

@@ -24,7 +24,13 @@ class gdal_char_p(c_char_p):
 
 
 def bool_output(func, argtypes, errcheck=None):
-    """Generate a ctypes function that returns a boolean value."""
+    """
+
+    Modify a ctypes function to return a boolean value.
+
+    This function configures the input and output types of a ctypes function and optionally sets an error checking function. The modified function returns a boolean value (True or False).
+
+    """
     func.argtypes = argtypes
     func.restype = c_bool
     if errcheck:
@@ -33,7 +39,16 @@ def bool_output(func, argtypes, errcheck=None):
 
 
 def double_output(func, argtypes, errcheck=False, strarg=False, cpl=False):
-    "Generate a ctypes function that returns a double value."
+    """
+    Configures a ctypes function to return a double value and optionally adds error checking and string argument handling.
+
+    :param func: The ctypes function to be configured
+    :param argtypes: The argument types of the function
+    :param errcheck: Whether to enable error checking (default: False)
+    :param strarg: Whether to check for string argument errors (default: False)
+    :param cpl: A flag used in error checking (default: False)
+    :return: The configured ctypes function
+    """
     func.argtypes = argtypes
     func.restype = c_double
     if errcheck:
@@ -45,8 +60,10 @@ def double_output(func, argtypes, errcheck=False, strarg=False, cpl=False):
 
 def geom_output(func, argtypes, offset=None):
     """
-    Generate a function that returns a Geometry either by reference
-    or directly (if the return_geom keyword is set to True).
+
+    Generate a function wrapper with specified argument and return types, 
+    configured to handle geometry output either by reference or directly.
+
     """
     # Setting the argument types
     func.argtypes = argtypes
@@ -68,7 +85,9 @@ def geom_output(func, argtypes, offset=None):
 
 
 def int_output(func, argtypes, errcheck=None):
-    "Generate a ctypes function that returns an integer value."
+    """
+    Configures a ctypes function to return an integer value, specifying the argument types and optionally an error checking function.
+    """
     func.argtypes = argtypes
     func.restype = c_int
     if errcheck:
@@ -85,9 +104,7 @@ def int64_output(func, argtypes):
 
 def srs_output(func, argtypes):
     """
-    Generate a ctypes prototype for the given function with
-    the given C arguments that returns a pointer to an OGR
-    Spatial Reference System.
+    Generate a ctypes prototype for a function that returns a Spatial Reference System, configuring it to accept the specified C argument types and handle errors accordingly.
     """
     func.argtypes = argtypes
     func.restype = c_void_p
@@ -96,6 +113,17 @@ def srs_output(func, argtypes):
 
 
 def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
+    """
+    Configures a ctypes function to output a constant string, handling optional offset, decoding, and exception checking.
+
+    _PARAM func_: The ctypes function to configure.
+    _PARAM argtypes_: The argument types of the function.
+    _PARAM offset_: The offset at which the string is stored, defaults to None.
+    _PARAM decoding_: The decoding to apply to the result, defaults to None.
+    _PARAM cpl_: A flag to control exception checking, defaults to False.
+
+    _RETURNS_: The configured function.
+    """
     func.argtypes = argtypes
     if offset:
         func.restype = c_int
@@ -115,11 +143,7 @@ def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
 
 def string_output(func, argtypes, offset=-1, str_result=False, decoding=None):
     """
-    Generate a ctypes prototype for the given function with the
-    given argument types that returns a string from a GDAL pointer.
-    The `const` flag indicates whether the allocated pointer should
-    be freed via the GDAL library routine VSIFree -- but only applies
-    only when `str_result` is True.
+    Generates a ctypes prototype for a given function that returns a string from a GDAL pointer, handling memory management and string decoding as specified. The function configures the prototype's argument and return types, and sets up error checking for string results.
     """
     func.argtypes = argtypes
     if str_result:
@@ -144,8 +168,7 @@ def string_output(func, argtypes, offset=-1, str_result=False, decoding=None):
 
 def void_output(func, argtypes, errcheck=True, cpl=False):
     """
-    For functions that don't only return an error code that needs to
-    be examined.
+    Configures a function with specified argument types and error checking behavior, suitable for functions returning error codes that require examination. Allows for customization of error checking and CPL behavior.
     """
     if argtypes:
         func.argtypes = argtypes
@@ -161,7 +184,9 @@ def void_output(func, argtypes, errcheck=True, cpl=False):
 
 
 def voidptr_output(func, argtypes, errcheck=True):
-    "For functions that return c_void_p."
+    """
+    Configures a C function that returns a void pointer, setting its argument and return types, and optionally enabling error checking.
+    """
     func.argtypes = argtypes
     func.restype = c_void_p
     if errcheck:
@@ -170,7 +195,9 @@ def voidptr_output(func, argtypes, errcheck=True):
 
 
 def chararray_output(func, argtypes, errcheck=True):
-    """For functions that return a c_char_p array."""
+    """
+    Configures a ctypes function to return an array of char pointers, setting the function's argument and return types, and optionally enabling error checking to verify the returned pointer.
+    """
     func.argtypes = argtypes
     func.restype = POINTER(c_char_p)
     if errcheck:

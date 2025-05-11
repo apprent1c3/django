@@ -32,6 +32,9 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.include_with_dollar")
     def test_include_with_dollar(self):
+        """
+        Checks for a URL pattern warning when an include route ends with a dollar sign, ensuring proper URL configuration.
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -75,6 +78,11 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.beginning_with_slash")
     def test_beginning_with_slash(self):
+        """
+        Tests the URL configuration to ensure it does not begin with a slash, 
+        raising a warning if such patterns are found, and providing guidance for 
+        correct configuration of include() patterns.
+        """
         msg = (
             "Your URL pattern '%s' has a route beginning with a '/'. Remove "
             "this slash as it is unnecessary. If this pattern is targeted in "
@@ -98,6 +106,9 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.name_with_colon")
     def test_name_with_colon(self):
+        """
+        Tests that a warning is raised when a URL pattern name contains a colon.
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -131,6 +142,13 @@ class CheckUrlConfigTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="check_framework.urls.non_unique_namespaces")
     def test_check_non_unique_namespaces(self):
+        """
+
+        Tests enforcement of unique URL namespaces.
+
+        Verifies that checks correctly identify and report non-unique namespaces.
+
+        """
         result = check_url_namespaces_unique(None)
         self.assertEqual(len(result), 2)
         non_unique_namespaces = ["app-ns1", "app-1"]
@@ -209,6 +227,9 @@ class UpdatedToPathTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.path_compatibility.contains_re_named_group"
     )
     def test_contains_re_named_group(self):
+        """
+        Checks for named groups in URL patterns that contain a regular expression route, ensuring compatibility with Django's URL resolver.
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -220,6 +241,9 @@ class UpdatedToPathTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.path_compatibility.beginning_with_caret"
     )
     def test_beginning_with_caret(self):
+        """
+        Tests that URL patterns beginning with a caret (^) trigger a warning in the check_url_config function.
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -231,6 +255,9 @@ class UpdatedToPathTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.path_compatibility.ending_with_dollar"
     )
     def test_ending_with_dollar(self):
+        """
+        Tests Django URL configuration with routes ending in a dollar sign, verifying that a warning is raised with the expected error message and ID '2_0.W001'.
+        """
         result = check_url_config(None)
         self.assertEqual(len(result), 1)
         warning = result[0]
@@ -244,6 +271,12 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.bad_function_based_error_handlers",
     )
     def test_bad_function_based_handlers(self):
+        """
+        Tests that function-based error handlers are checked correctly for the correct number of arguments.
+
+        Verifies that the check_custom_error_handlers function identifies and reports
+        four function-based error handlers with incorrect argument counts in the URL configuration.
+        """
         result = check_custom_error_handlers(None)
         self.assertEqual(len(result), 4)
         for code, num_params, error in zip([400, 403, 404, 500], [2, 2, 2, 1], result):
@@ -265,6 +298,9 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.bad_class_based_error_handlers",
     )
     def test_bad_class_based_handlers(self):
+        """
+        Tests that the framework correctly identifies class-based error handlers with incorrect argument counts.
+        """
         result = check_custom_error_handlers(None)
         self.assertEqual(len(result), 4)
         for code, num_params, error in zip([400, 403, 404, 500], [2, 2, 2, 1], result):
@@ -288,6 +324,11 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.bad_error_handlers_invalid_path"
     )
     def test_bad_handlers_invalid_path(self):
+        """
+        Tests the check_custom_error_handlers function for error handling when encountering invalid custom error handler paths.
+
+        Checks for import errors on bad handler paths, including views that do not exist, parent modules that do not exist, modules that do not exist, and non-fully qualified paths, verifying correct error codes and hints are generated.
+        """
         result = check_custom_error_handlers(None)
         paths = [
             "django.views.bad_handler",

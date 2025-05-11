@@ -76,7 +76,9 @@ class ListMixinTest(unittest.TestCase):
         return [*range(-1 - self.limit, 0), *range(1, 1 + self.limit)]
 
     def test01_getslice(self):
-        "Slice retrieval"
+        """
+        Tests the slice retrieval functionality of lists, ensuring that slices of different types (start, stop, step) are correctly retrieved and compared.
+        """
         pl, ul = self.lists_of_len()
         for i in self.limits_plus(1):
             self.assertEqual(pl[i:], ul[i:], "slice [%d:]" % (i))
@@ -97,7 +99,11 @@ class ListMixinTest(unittest.TestCase):
             self.assertEqual(pl[::k], ul[::k], "slice [::%d]" % (k))
 
     def test02_setslice(self):
-        "Slice assignment"
+        """
+        Tests various slice assignment scenarios for a list, including 
+        starting and ending indices, step sizes, and edge cases, to ensure 
+        they behave as expected when modified through Python's slice syntax.
+        """
 
         def setfcn(x, i, j, k, L):
             x[i:j:k] = range(L)
@@ -157,7 +163,10 @@ class ListMixinTest(unittest.TestCase):
                 self.assertEqual(pl, ul[:], "set slice [::%d]" % (k))
 
     def test03_delslice(self):
-        "Delete slice"
+        """
+        Tests the deletion of slices from lists using various slice notation combinations, 
+        including start, stop, and step parameters, to ensure the behavior is as expected.
+        """
         for Len in range(self.limit):
             pl, ul = self.lists_of_len(Len)
             del pl[:]
@@ -203,7 +212,9 @@ class ListMixinTest(unittest.TestCase):
                 self.assertEqual(pl[:], ul[:], "del slice [::%d]" % (k))
 
     def test04_get_set_del_single(self):
-        "Get/set/delete single item"
+        """
+        Test the functionality of getting, setting, and deleting single items in a list, ensuring that the list behaves as expected under various index values.
+        """
         pl, ul = self.lists_of_len()
         for i in self.limits_plus(0):
             self.assertEqual(pl[i], ul[i], "get single item [%d]" % i)
@@ -221,7 +232,9 @@ class ListMixinTest(unittest.TestCase):
             self.assertEqual(pl[:], ul[:], "del single item [%d]" % i)
 
     def test05_out_of_range_exceptions(self):
-        "Out of range exceptions"
+        """
+        Tests that out of range index errors are correctly raised when attempting to set, get, or delete items from a list at invalid indices.
+        """
 
         def setfcn(x, i):
             x[i] = 20
@@ -242,7 +255,14 @@ class ListMixinTest(unittest.TestCase):
                 delfcn(ul, i)
 
     def test06_list_methods(self):
-        "List methods"
+        """
+        Compares the functionality of list methods between two lists.
+
+        Tests the equivalence of various list operations, including append, extend, 
+        reverse, insert, pop, index, count, and remove, between two lists. 
+        Ensures that the lists remain equal after each operation and that they 
+        raise the expected exceptions when called with invalid indices or values.
+        """
         pl, ul = self.lists_of_len()
         pl.append(40)
         ul.append(40)
@@ -306,7 +326,9 @@ class ListMixinTest(unittest.TestCase):
             removefcn(ul, 40)
 
     def test07_allowed_types(self):
-        "Type-restricted list"
+        """
+        Verifies that a list enforces type restrictions when assigning values.
+        """
         pl, ul = self.lists_of_len()
         ul._allowed = int
         ul[1] = 50
@@ -321,7 +343,13 @@ class ListMixinTest(unittest.TestCase):
             setfcn(ul, slice(0, 3, 2), ("hello", "goodbye"))
 
     def test08_min_length(self):
-        "Length limits"
+        """
+        Tests the minimum length constraint of a list.
+
+        Verifies that attempting to delete or set elements below the minimum length threshold raises a ValueError, 
+        and that appending elements beyond the minimum length up to the maximum length is allowed, 
+        but attempting to append beyond the maximum length threshold raises a ValueError.
+        """
         pl, ul = self.lists_of_len(5)
         ul._minlength = 3
 
@@ -345,7 +373,9 @@ class ListMixinTest(unittest.TestCase):
             ul.append(10)
 
     def test09_iterable_check(self):
-        "Error on assigning non-iterable to slice"
+        """
+        Verifies that attempting to assign a non-iterable value to a slice raises a TypeError, ensuring that slices can only be assigned iterable values.
+        """
         pl, ul = self.lists_of_len(self.limit + 1)
 
         def setfcn(x, i, v):
@@ -355,7 +385,9 @@ class ListMixinTest(unittest.TestCase):
             setfcn(ul, slice(0, 3, 2), 2)
 
     def test10_checkindex(self):
-        "Index check"
+        """
+        Tests that the _checkindex method correctly handles index values within and outside the valid range, ensuring negative indices are adjusted and out-of-bounds indices raise an IndexError.
+        """
         pl, ul = self.lists_of_len()
         for i in self.limits_plus(0):
             if i < 0:
@@ -370,7 +402,9 @@ class ListMixinTest(unittest.TestCase):
                 ul._checkindex(i)
 
     def test_11_sorting(self):
-        "Sorting"
+        """
+        Tests the sorting functionality of lists, covering default sort, sort with a custom key function, and reverse sorting to ensure consistency across different sorting scenarios.
+        """
         pl, ul = self.lists_of_len()
         pl.insert(0, pl.pop())
         ul.insert(0, ul.pop())
@@ -393,7 +427,9 @@ class ListMixinTest(unittest.TestCase):
         self.assertEqual(pl[:], ul[:], "sort w/ key")
 
     def test_12_arithmetic(self):
-        "Arithmetic"
+        """
+        Tests the arithmetic and comparison operations of two list-like objects, including addition, multiplication, and inequality checks, to ensure they behave as expected.
+        """
         pl, ul = self.lists_of_len()
         al = list(range(10, 14))
         self.assertEqual(list(pl + al), list(ul + al), "add")

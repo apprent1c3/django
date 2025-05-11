@@ -114,10 +114,7 @@ CONTRIB_TESTS_TO_APPS = {
 
 def get_test_modules(gis_enabled):
     """
-    Scan the tests directory and yield the names of all test modules.
-
-    The yielded names have either one dotted part like "test_runner" or, in
-    the case of GIS tests, two dotted parts like "gis_tests.gdal_tests".
+    Scans the tests directory and yields the names of all test modules, considering the GIS status.
     """
     discovery_dirs = [""]
     if gis_enabled:
@@ -145,7 +142,9 @@ def get_test_modules(gis_enabled):
 
 
 def get_label_module(label):
-    """Return the top-level module part for a test label."""
+    """
+    Return the top-level module name for a given test label, derived from its path relative to the test directory.
+    """
     path = Path(label)
     if len(path.parts) == 1:
         # Interpret the label as a dotted module name.
@@ -161,6 +160,22 @@ def get_label_module(label):
 
 
 def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=None):
+    """
+    Generates a filtered list of test modules based on the specified conditions.
+
+    .Selection is determined by:
+        - A starting point (`start_at` or `start_after`)
+        - Optional labels that must be present in the test modules
+        - Whether a GIS database backend is enabled
+
+    .It yields test modules that match the specified criteria, skipping modules that do not meet the requirements or require a GIS database backend when it is disabled.
+
+    :arg start_at: The module to start at (inclusive)
+    :arg start_after: The module to start after (exclusive)
+    :arg gis_enabled: Whether a GIS database backend is enabled
+    :arg test_labels: Optional labels that must be present in the test modules (default: empty list)
+
+    """
     if test_labels is None:
         test_labels = []
     # Reduce each test label to just the top-level module part.
@@ -199,6 +214,24 @@ def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=No
 
 
 def setup_collect_tests(start_at, start_after, test_labels=None):
+    """
+
+    Configures the Django application for test collection.
+
+    This function sets up the necessary Django settings for collecting tests, 
+    then identifies the test modules to be executed based on the specified start points 
+    and filters.
+
+    It returns a tuple containing a list of test modules and a dictionary representing 
+    the original state of the Django settings, which can be used to restore the settings 
+    after the test collection process.
+
+    :param start_at: The starting point for test collection.
+    :param start_after: The point after which to start collecting tests.
+    :param test_labels: Labels to filter the tests (optional).
+    :returns: A tuple containing the list of test modules and the original Django settings.
+
+    """
     state = {
         "INSTALLED_APPS": settings.INSTALLED_APPS,
         "ROOT_URLCONF": getattr(settings, "ROOT_URLCONF", ""),
@@ -280,6 +313,12 @@ def get_installed():
 # This function should be called only after calling django.setup(),
 # since it calls connection.features.gis_enabled.
 def get_apps_to_install(test_modules):
+    """
+    Generates a list of Django applications to install based on the provided test modules.
+
+    The function considers test modules that are mapped to specific applications and includes the contributing applications in the output.
+    Additionally, if the database connection has GIS capabilities enabled, it includes the 'django.contrib.gis' application in the list.
+    """
     for test_module in test_modules:
         if test_module in CONTRIB_TESTS_TO_APPS:
             yield from CONTRIB_TESTS_TO_APPS[test_module]
@@ -292,6 +331,15 @@ def get_apps_to_install(test_modules):
 
 
 def setup_run_tests(verbosity, start_at, start_after, test_labels=None):
+    """
+    Sets up the environment to run tests, collecting and installing required applications.
+
+    :param verbosity: The level of verbosity for the setup process
+    :param start_at: The starting point for test collection
+    :param start_after: The position after which to start test collection
+    :param test_labels: Optional list of test labels, defaults to collected test modules if not provided
+    :return: A tuple containing the test labels and the state of the test setup
+    """
     test_modules, state = setup_collect_tests(
         start_at, start_after, test_labels=test_labels
     )
@@ -342,6 +390,18 @@ class ActionSelenium(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """
+        Validates and sets the list of Selenium browsers for testing.
+
+            Ensures the selenium module is available and imports the specified webdrivers.
+            Converts the input string of comma-separated browser names into a list and
+            assigns it to the namespace.
+
+            Raises:
+                ImproperlyConfigured: if the selenium module cannot be imported.
+                argparse.ArgumentError: if an invalid browser specification is provided.
+
+        """
         try:
             import selenium  # NOQA
         except ImportError as e:
@@ -377,6 +437,30 @@ def django_tests(
     shuffle,
     durations=None,
 ):
+    """
+    Runs Django tests with specified options and settings.
+
+    :param verbosity: The level of verbosity to use when running tests.
+    :param interactive: Whether to run tests in interactive mode.
+    :param failfast: Whether to stop running tests after the first failure.
+    :param keepdb: Whether to preserve the test database after running tests.
+    :param reverse: Whether to run tests in reverse order.
+    :param test_labels: The labels of the tests to run.
+    :param debug_sql: Whether to print SQL queries during testing.
+    :param parallel: The number of processes to use when running tests in parallel.
+    :param tags: The tags to apply to the tests.
+    :param exclude_tags: The tags to exclude from the tests.
+    :param test_name_patterns: The patterns to use when matching test names.
+    :param start_at: The index at which to start running tests.
+    :param start_after: The name of the test after which to start running tests.
+    :param pdb: Whether to use the Python debugger when running tests.
+    :param buffer: Whether to buffer output when running tests.
+    :param timing: Whether to display test timings.
+    :param shuffle: Whether to shuffle the order of tests.
+    :param durations: The durations of the tests (optional).
+    :returns: The number of test failures.
+
+    """
     if parallel in {0, "auto"}:
         max_parallel = get_max_test_processes()
     else:
@@ -435,6 +519,13 @@ def collect_test_modules(start_at, start_after):
 
 
 def get_subprocess_args(options):
+    """
+    Constructs a list of subprocess arguments based on provided options.
+
+    Returns a list of arguments suitable for use with the Python subprocess module,
+    enabling execution of the current script with specified settings, verbosity,
+    and test filtering options.
+    """
     subprocess_args = [sys.executable, __file__, "--settings=%s" % options.settings]
     if options.failfast:
         subprocess_args.append("--failfast")
@@ -455,6 +546,20 @@ def get_subprocess_args(options):
 
 
 def bisect_tests(bisection_label, options, test_labels, start_at, start_after):
+    """
+
+    Perform a binary search on a set of tests to identify the source of failure.
+
+    This function, also known as a bisection, repeatedly divides the test set in half 
+    and runs each half to determine which one causes the failure. It continues this 
+    process until it finds a single test that causes the failure or until it 
+    determines that there are multiple sources of failure.
+
+    The function takes a bisection label and options to customize its behavior, 
+    as well as a list of test labels to start with, and optionally a starting point 
+    and a label to start after.
+
+    """
     if not test_labels:
         test_labels = collect_test_modules(start_at, start_after)
 
@@ -504,6 +609,13 @@ def bisect_tests(bisection_label, options, test_labels, start_at, start_after):
 
 
 def paired_tests(paired_test, options, test_labels, start_at, start_after):
+    """
+    Perform paired execution testing to identify problematic test pairs.
+
+    This function takes a paired test and a list of test labels, then runs each test in the list with the paired test to check for compatibility issues.
+    If a problem pair is found, the function stops and reports the issue; otherwise, it confirms that no problem pairs were detected.
+    The test labels can be provided explicitly or generated automatically based on the specified start and start-after parameters.
+    """
     if not test_labels:
         test_labels = collect_test_modules(start_at, start_after)
 

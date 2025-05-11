@@ -100,9 +100,12 @@ class MigrationGraph:
 
     def add_dependency(self, migration, child, parent, skip_validation=False):
         """
-        This may create dummy nodes if they don't yet exist. If
-        `skip_validation=True`, validate_consistency() should be called
-        afterward.
+
+        Establishes a dependency between two nodes in a migration graph.
+
+        Adds nodes to the graph if they do not already exist. If validation is skipped,
+        :meth:`validate_consistency` should be called afterwards to ensure graph integrity.
+
         """
         if child not in self.nodes:
             error_message = (
@@ -123,9 +126,7 @@ class MigrationGraph:
 
     def remove_replaced_nodes(self, replacement, replaced):
         """
-        Remove each of the `replaced` nodes (when they exist). Any
-        dependencies that were referencing them are changed to reference the
-        `replacement` node instead.
+        Remove nodes that have been replaced and update their dependencies to reference the replacement node instead.
         """
         # Cast list of replaced keys to set to speed up lookup later.
         replaced = set(replaced)
@@ -158,10 +159,7 @@ class MigrationGraph:
 
     def remove_replacement_node(self, replacement, replaced):
         """
-        The inverse operation to `remove_replaced_nodes`. Almost. Remove the
-        replacement node `replacement` and remap its child nodes to `replaced`
-        - the list of nodes it would have replaced. Don't remap its parent
-        nodes as they are expected to be correct already.
+        Removes a replacement node from the graph, remapping its child nodes to the list of nodes it replaced, effectively undoing a replacement operation.
         """
         self.nodes.pop(replacement, None)
         try:
@@ -218,7 +216,13 @@ class MigrationGraph:
         return self.iterative_dfs(self.node_map[target], forwards=False)
 
     def iterative_dfs(self, start, forwards=True):
-        """Iterative depth-first search for finding dependencies."""
+        """
+        Performs an iterative depth-first search to find dependencies.
+
+            :param start: The starting node for the search.
+            :param forwards: Direction of the search. If True, searches parent nodes. If False, searches child nodes.
+            :return: A list of node keys in the order they were visited.
+        """
         visited = []
         visited_set = set()
         stack = [(start, False)]
@@ -239,8 +243,8 @@ class MigrationGraph:
 
     def root_nodes(self, app=None):
         """
-        Return all root nodes - that is, nodes with no dependencies inside
-        their app. These are the starting point for an app.
+        Return all root nodes - that is, nodes with no dependencies inside their app. 
+        These are the starting point for an app and can be filtered by a specific app if provided.
         """
         roots = set()
         for node in self.nodes:
@@ -252,11 +256,7 @@ class MigrationGraph:
 
     def leaf_nodes(self, app=None):
         """
-        Return all leaf nodes - that is, nodes with no dependents in their app.
-        These are the "most current" version of an app's schema.
-        Having more than one per app is technically an error, but one that
-        gets handled further up, in the interactive command - it's usually the
-        result of a VCS merge and needs some user input.
+        Return all leaf nodes in the schema, i.e., nodes with no dependents in their app, which represent the \"most current\" version of an app's schema. Optionally, filter by a specific app.
         """
         leaves = set()
         for node in self.nodes:
@@ -269,6 +269,9 @@ class MigrationGraph:
     def ensure_not_cyclic(self):
         # Algo from GvR:
         # https://neopythonic.blogspot.com/2009/01/detecting-cycles-in-directed-graph.html
+        """
+        Checks the directed graph for cyclic dependencies by traversing all nodes. If a cycle is detected, raises a CircularDependencyError, indicating that a segment of the graph cannot be resolved due to a circular reference.
+        """
         todo = set(self.nodes)
         while todo:
             node = todo.pop()
@@ -304,6 +307,10 @@ class MigrationGraph:
         )
 
     def _generate_plan(self, nodes, at_end):
+        """
+        Generates a migration plan based on the given nodes and an optional flag to include migrations at the end. 
+        The plan consists of unique forward migrations for each node that meet the specified conditions.
+        """
         plan = []
         for node in nodes:
             for migration in self.forwards_plan(node):
@@ -313,9 +320,12 @@ class MigrationGraph:
 
     def make_state(self, nodes=None, at_end=True, real_apps=None):
         """
-        Given a migration node or nodes, return a complete ProjectState for it.
-        If at_end is False, return the state before the migration has run.
-        If nodes is not provided, return the overall most current project state.
+
+            Generates a complete ProjectState based on the provided migration nodes.
+
+            Returns the state before the migration has run if at_end is False.
+            If no nodes are provided, returns the current project state.
+
         """
         if nodes is None:
             nodes = list(self.leaf_nodes())

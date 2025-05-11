@@ -13,6 +13,10 @@ class UpperBilateral(Upper):
 
 class FunctionTests(TestCase):
     def test_nested_function_ordering(self):
+        """
+        Tests the ordering of authors by the length of their alias or name, 
+        checking both ascending and descending order for correct results.
+        """
         Author.objects.create(name="John Smith")
         Author.objects.create(name="Rhonda Simpson", alias="ronny")
 
@@ -37,6 +41,9 @@ class FunctionTests(TestCase):
         )
 
     def test_func_transform_bilateral(self):
+        """
+        Tests the transformation of query lookups on CharField using UpperBilateral, ensuring case-insensitive matching.
+        """
         with register_lookup(CharField, UpperBilateral):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")
@@ -50,6 +57,9 @@ class FunctionTests(TestCase):
             )
 
     def test_func_transform_bilateral_multivalue(self):
+        """
+        Tests the transformation of bilateral lookups with multivalue fields in a Django model, ensuring that filtering by uppercase equivalent works as expected.
+        """
         with register_lookup(CharField, UpperBilateral):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")

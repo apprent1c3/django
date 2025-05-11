@@ -3,9 +3,9 @@ from collections.abc import Iterable
 
 def make_hashable(value):
     """
-    Attempt to make value hashable or raise a TypeError if it fails.
+    Attempt to make a given value hashable or raise a TypeError if it fails.
 
-    The returned value should generate the same hash for equal values.
+    The returned value is guaranteed to generate the same hash for equal input values, enabling its use in hash-based data structures such as sets and dictionaries. This function handles nested structures, including dictionaries and iterable collections, by recursively converting their contents to a hashable form.
     """
     if isinstance(value, dict):
         return tuple(

@@ -19,6 +19,9 @@ class SeparateDatabaseAndState(Operation):
         self.state_operations = state_operations or []
 
     def deconstruct(self):
+        """
+        Deconstructs the object into a tuple containing its class name and keyword arguments for reinitialization, including database and state operations if they are defined.
+        """
         kwargs = {}
         if self.database_operations:
             kwargs["database_operations"] = self.database_operations
@@ -32,6 +35,16 @@ class SeparateDatabaseAndState(Operation):
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         # We calculate state separately in here since our state functions aren't useful
+        """
+        Applies a series of database operations to transition from one database state to another.
+
+        This method iterates through a set of database operations, applying each one to move the database schema forward from the initial state to the final state.
+
+        :param app_label: The label of the application being migrated
+        :param schema_editor: The schema editor to use for applying database operations
+        :param from_state: The initial state of the database schema
+        :param to_state: The target state of the database schema
+        """
         for database_operation in self.database_operations:
             to_state = from_state.clone()
             database_operation.state_forwards(app_label, to_state)
@@ -42,6 +55,18 @@ class SeparateDatabaseAndState(Operation):
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         # We calculate state separately in here since our state functions aren't useful
+        """
+        Reverses the database operations applied by this object.
+
+        This method applies each database operation in reverse, effectively undoing the changes
+        made by the corresponding forward operation. It takes into account the dependencies
+        between operations and applies them in the correct order to maintain a consistent state.
+
+        :param app_label: The label of the application that this operation belongs to
+        :param schema_editor: The schema editor to use for database operations
+        :param from_state: The state to apply the operation from
+        :param to_state: The state to apply the operation to
+        """
         to_states = {}
         for dbop in self.database_operations:
             to_states[dbop] = to_state
@@ -75,6 +100,19 @@ class RunSQL(Operation):
     def __init__(
         self, sql, reverse_sql=None, state_operations=None, hints=None, elidable=False
     ):
+        """
+
+        Initializes a database migration operation.
+
+        :param sql: The SQL statement to execute for this migration.
+        :param reverse_sql: The SQL statement to execute for reversing this migration, defaults to None.
+        :param state_operations: A list of state operations associated with this migration, defaults to an empty list.
+        :param hints: A dictionary of hints for this migration, defaults to an empty dictionary.
+        :param elidable: A boolean indicating whether this migration can be elided, defaults to False.
+
+        This is a constructor method, responsible for setting up the migration object with the provided parameters.
+
+        """
         self.sql = sql
         self.reverse_sql = reverse_sql
         self.state_operations = state_operations or []
@@ -82,6 +120,9 @@ class RunSQL(Operation):
         self.elidable = elidable
 
     def deconstruct(self):
+        """
+        Deconstructs the object into a format usable for serialization or reconstruction, returning a tuple containing the class name, positional arguments (always empty), and keyword arguments representing the object's state.
+        """
         kwargs = {
             "sql": self.sql,
         }
@@ -119,6 +160,12 @@ class RunSQL(Operation):
         return "Raw SQL operation"
 
     def _run_sql(self, schema_editor, sqls):
+        """
+        Executes one or more SQL statements using the provided schema editor.
+
+        :param schema_editor: The schema editor to use for execution
+        :param sqls: A single SQL statement, a list of SQL statements, or a list of 2-tuples containing SQL statements and their parameters
+        """
         if isinstance(sqls, (list, tuple)):
             for sql in sqls:
                 params = None
@@ -146,6 +193,9 @@ class RunPython(Operation):
     def __init__(
         self, code, reverse_code=None, atomic=None, hints=None, elidable=False
     ):
+        """
+        Initializes a RunPython object, which encapsulates a Python function to be executed, along with optional reverse function, atomicity, hints, and elidability settings.
+        """
         self.atomic = atomic
         # Forwards code
         if not callable(code):
@@ -162,6 +212,13 @@ class RunPython(Operation):
         self.elidable = elidable
 
     def deconstruct(self):
+        """
+
+        Deconstructs the object into a tuple containing its class name, positional arguments and keyword arguments.
+
+        Returns a tuple of (class_name, positional_args, keyword_args) that can be used to recreate the object.
+
+        """
         kwargs = {
             "code": self.code,
         }

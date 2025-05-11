@@ -27,6 +27,12 @@ class RoundTests(TestCase):
         self.assertIsNone(obj.null_round)
 
     def test_decimal(self):
+        """
+        Tests the rounding behavior of DecimalModel instances.
+
+        Verifies that the Round database function correctly rounds decimal values to the nearest integer.
+
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_round=Round("n1"), n2_round=Round("n2")
@@ -37,6 +43,9 @@ class RoundTests(TestCase):
         self.assertAlmostEqual(obj.n2_round, obj.n2, places=0)
 
     def test_decimal_with_precision(self):
+        """
+        Tests the rounding of Decimal fields in DecimalModel to a specified precision, ensuring the resulting values are of type Decimal and match the expected rounded values.
+        """
         DecimalModel.objects.create(n1=Decimal("-5.75"), n2=Pi())
         obj = DecimalModel.objects.annotate(
             n1_round=Round("n1", 1),
@@ -54,6 +63,9 @@ class RoundTests(TestCase):
         self.assertEqual(obj.n1_round, 370)
 
     def test_float(self):
+        """
+        Tests the rounding of float fields in the FloatModel using the Round database function, verifying that the results are floats and match the original values when rounded to the nearest integer.
+        """
         FloatModel.objects.create(f1=-27.55, f2=0.55)
         obj = FloatModel.objects.annotate(
             f1_round=Round("f1"), f2_round=Round("f2")
@@ -64,6 +76,11 @@ class RoundTests(TestCase):
         self.assertAlmostEqual(obj.f2_round, obj.f2, places=0)
 
     def test_float_with_precision(self):
+        """
+        Tests floating point precision by creating a FloatModel instance, 
+        annotating its fields with rounded values, and verifying the types and 
+        accuracy of the result.
+        """
         FloatModel.objects.create(f1=-5.75, f2=Pi())
         obj = FloatModel.objects.annotate(
             f1_round=Round("f1", 1),
@@ -81,6 +98,9 @@ class RoundTests(TestCase):
         self.assertEqual(obj.f1_round, 370)
 
     def test_integer(self):
+        """
+        Tests the rounding functionality for integer fields, verifying the types and values of the rounded results.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_round=Round("small"),
@@ -95,6 +115,9 @@ class RoundTests(TestCase):
         self.assertAlmostEqual(obj.big_round, obj.big, places=0)
 
     def test_integer_with_precision(self):
+        """
+        Tests the rounding of integer fields to a specified precision, verifying that the result is an integer and matches the expected value within the given precision.
+        """
         IntegerModel.objects.create(small=-5, normal=3, big=-100)
         obj = IntegerModel.objects.annotate(
             small_round=Round("small", 1),
@@ -115,6 +138,11 @@ class RoundTests(TestCase):
         self.assertEqual(obj.normal_round, 370)
 
     def test_transform(self):
+        """
+        Tests the transformation of DecimalField values using the Round lookup function.
+
+        Verifies that DecimalField values are correctly rounded and filtered in database queries.
+        """
         with register_lookup(DecimalField, Round):
             DecimalModel.objects.create(n1=Decimal("2.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-1.0"), n2=Decimal("0"))

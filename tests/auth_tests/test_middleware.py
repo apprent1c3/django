@@ -32,6 +32,14 @@ class TestAuthenticationMiddleware(TestCase):
 
     def test_changed_password_invalidates_session(self):
         # After password change, user should be anonymous
+        """
+
+        Checks if changing a user's password invalidates their session.
+
+        This test case ensures that after a user's password is updated, their current session becomes invalid,
+        requiring them to log in again with their new credentials to regain access.
+
+        """
         self.user.set_password("new_password")
         self.user.save()
         self.middleware(self.request)
@@ -51,6 +59,13 @@ class TestAuthenticationMiddleware(TestCase):
             self.middleware(HttpRequest())
 
     async def test_auser(self):
+        """
+
+        Verifies the functionality of retrieving an authenticated user from a request.
+
+        Checks that the user is correctly retrieved and that subsequent calls return the same user instance.
+
+        """
         self.middleware(self.request)
         auser = await self.request.auser()
         self.assertEqual(auser, self.user)
@@ -113,6 +128,9 @@ class TestLoginRequiredMiddleware(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_paths_with_logged_in_user(self):
+        """
+        Checks if various views are accessible with a logged-in user, verifying all responses return a successful status code.
+        """
         paths = [
             "public_view",
             "public_function_view",
@@ -127,6 +145,9 @@ class TestLoginRequiredMiddleware(TestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_get_login_url_from_view_func(self):
+        """
+        Tests that the get_login_url method of the middleware returns the custom login URL specified by the view function when available.
+        """
         def view_func(request):
             return HttpResponse()
 
@@ -151,6 +172,13 @@ class TestLoginRequiredMiddleware(TestCase):
         )
 
     def test_get_redirect_field_name_from_view_func(self):
+        """
+        Tests that the get_redirect_field_name method retrieves the redirect field name from a view function.
+
+         The method is expected to return the redirect field name attribute set on the view function.
+
+         :return: None
+        """
         def view_func(request):
             return HttpResponse()
 
@@ -167,6 +195,11 @@ class TestLoginRequiredMiddleware(TestCase):
         LOGIN_URL="/settings_login/",
     )
     def test_login_url_resolve_logic(self):
+        """
+
+        Tests the login URL resolution logic for different views, ensuring that unauthenticated requests are correctly redirected to the login page with the original path as a redirect parameter.
+
+        """
         paths = ["login_required_cbv_view", "login_required_decorator_view"]
         for path in paths:
             response = self.client.get(f"/{path}/")

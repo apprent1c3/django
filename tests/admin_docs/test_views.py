@@ -23,6 +23,9 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.client.force_login(self.superuser)
 
     def test_index(self):
+        """
+        Tests the index page of the admin documentation, verifying that it contains the expected content when accessed by an authenticated user, and redirects to the login page with the correct next URL when accessed by an unauthenticated user.
+        """
         response = self.client.get(reverse("django-admindocs-docroot"))
         self.assertContains(response, "<h1>Documentation</h1>", html=True)
         self.assertContains(
@@ -51,6 +54,11 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.assertContains(response, '<h3 id="built_in-first">first</h3>', html=True)
 
     def test_view_index(self):
+        """
+        Tests that the admin docs index view provides the expected output, 
+        including links to views and their corresponding documentation, 
+        and correctly handles view names and namespaces.
+        """
         response = self.client.get(reverse("django-admindocs-views-index"))
         self.assertContains(
             response,
@@ -145,6 +153,9 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.assertContains(response, "view_for_loader_test.html</code></li>")
 
     def test_missing_docutils(self):
+        """
+        Tests that the admin documentation system correctly handles the absence of the docutils library, displaying an error message to the user.
+        """
         utils.docutils_is_available = False
         try:
             response = self.client.get(reverse("django-admindocs-docroot"))
@@ -168,8 +179,10 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
     @override_settings(SITE_ID=None)  # will restore SITE_ID after the test
     def test_no_sites_framework(self):
         """
-        Without the sites framework, should not access SITE_ID or Site
-        objects. Deleting settings is fine here as UserSettingsHolder is used.
+        Tests admin documentation view when the sites framework is not installed.
+
+        Verifies that the view does not attempt to access SITE_ID or Site objects,
+        and that deleting these settings does not cause any issues.
         """
         Site.objects.all().delete()
         del settings.SITE_ID
@@ -178,8 +191,7 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
 
     def test_callable_urlconf(self):
         """
-        Index view should correctly resolve view patterns when ROOT_URLCONF is
-        not a string.
+        Checks if the index view resolves view patterns correctly when the ROOT_URLCONF setting is not a string, ensuring compatibility with dynamic URL configurations.
         """
 
         def urlpatterns():
@@ -199,6 +211,9 @@ class AdminDocViewDefaultEngineOnly(TestDataMixin, AdminDocsTestCase):
         self.client.force_login(self.superuser)
 
     def test_template_detail_path_traversal(self):
+        """
+        Tests the template detail view's path traversal protection, ensuring it correctly handles and rejects malicious requests attempting to access sensitive files.
+        """
         cases = ["/etc/passwd", "../passwd"]
         for fpath in cases:
             with self.subTest(path=fpath):
@@ -262,9 +277,7 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
 
     def test_method_excludes(self):
         """
-        Methods that begin with strings defined in
-        ``django.contrib.admindocs.views.MODEL_METHODS_EXCLUDE``
-        shouldn't be displayed in the admin docs.
+        Tests that methods whose names start with specific excluded prefixes are not displayed in admin documentation.
         """
         self.assertContains(self.response, "<td>get_full_name</td>")
         self.assertNotContains(self.response, "<td>_get_full_name</td>")
@@ -275,7 +288,7 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
 
     def test_methods_with_arguments(self):
         """
-        Methods that take arguments should also displayed.
+        Tests if methods that take arguments are correctly displayed in the response. Verifies the presence of specific methods with arguments in the output.
         """
         self.assertContains(self.response, "<h3>Methods with arguments</h3>")
         self.assertContains(self.response, "<td>rename_company</td>")
@@ -327,7 +340,7 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
 
     def test_descriptions_render_correctly(self):
         """
-        The ``description`` field should render correctly for each field type.
+        The ``test_descriptions_render_correctly`` method verifies that the ``description`` field is rendered correctly for different field types in the documentation. It checks the presence of expected HTML elements and content in the response.
         """
         # help text in fields
         self.assertContains(
@@ -407,6 +420,9 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertEqual(len(fields), 2)
 
     def test_model_docstring_renders_correctly(self):
+        """
+        Tests that the model documentation renders correctly, including summary, notes, body, and model fields, in the response content.
+        """
         summary = (
             '<h2 class="subhead"><p>Stores information about a person, related to '
             '<a class="reference external" href="/admindocs/models/myapp.company/">'

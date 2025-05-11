@@ -93,6 +93,16 @@ class ModelBase(type):
     """Metaclass for all models."""
 
     def __new__(cls, name, bases, attrs, **kwargs):
+        """
+
+        Custom model metaclass that dynamically constructs model classes.
+
+        This metaclass is responsible for setting up a model class, including creating
+        its Meta options, adding fields, setting up inheritance relationships, and
+        ensuring the model's structure is valid. It handles abstract base classes,
+        proxy models, and standard concrete model classes.
+
+        """
         super_new = super().__new__
 
         # Also ensure initialization is only performed for subclasses of Model
@@ -373,7 +383,9 @@ class ModelBase(type):
             setattr(cls, name, value)
 
     def _prepare(cls):
-        """Create some methods once self._meta has been populated."""
+        """
+        Finalize the preparation of a model class by creating methods and initializing attributes once the model's metadata has been populated.
+        """
         opts = cls._meta
         opts._prepare(cls)
 
@@ -459,6 +471,21 @@ class ModelState:
 class Model(AltersData, metaclass=ModelBase):
     def __init__(self, *args, **kwargs):
         # Alias some things as locals to avoid repeat global lookups
+        """
+        Initializes a new instance of the class.
+
+        This method is responsible for setting up the internal state of the instance, 
+        including assigning values to its fields and handling any necessary validation. 
+        It also sends pre and post initialization signals to allow for custom logic to be executed 
+        before and after the instance is fully initialized. 
+
+        If the class is an abstract model, this method will raise a TypeError. 
+        It also checks that the number of positional arguments does not exceed the number of fields, 
+        and that there are no duplicate field assignments. 
+
+        Keyword arguments are used to set field values, and any unexpected keyword arguments will 
+        raise a TypeError.
+        """
         cls = self.__class__
         opts = self._meta
         _setattr = setattr
@@ -573,6 +600,15 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def from_db(cls, db, field_names, values):
+        """
+
+        Create an instance of the class from database data.
+
+        This class method constructs an object from database values, matching the provided field names.
+        It ensures that the instance is populated with the correct values, using `DEFERRED` for unmapped fields.
+        The resulting object is flagged as not being newly added to the database.
+
+        """
         if len(values) != len(cls._meta.concrete_fields):
             values_iter = iter(values)
             values = [
@@ -591,6 +627,11 @@ class Model(AltersData, metaclass=ModelBase):
         return "%s object (%s)" % (self.__class__.__name__, self.pk)
 
     def __eq__(self, other):
+        """
+        Checks if the current model instance is equal to another instance.
+        Returns True if both instances represent the same model and have the same primary key, or if they are the same instance and have no primary key.
+        Otherwise returns False or NotImplemented if the other object is not a Model instance.
+        """
         if not isinstance(other, Model):
             return NotImplemented
         if self._meta.concrete_model != other._meta.concrete_model:
@@ -612,7 +653,10 @@ class Model(AltersData, metaclass=ModelBase):
         return model_unpickle, (class_id,), data
 
     def __getstate__(self):
-        """Hook to allow choosing the attributes to pickle."""
+        """
+        Custom implementation of the __getstate__ method to control object serialization, 
+        ensuring only required attributes are pickled while managing memory view and state dependencies.
+        """
         state = self.__dict__.copy()
         state["_state"] = copy.copy(state["_state"])
         state["_state"].fields_cache = state["_state"].fields_cache.copy()
@@ -629,6 +673,9 @@ class Model(AltersData, metaclass=ModelBase):
         return state
 
     def __setstate__(self, state):
+        """
+        Sets the state of the object from a pickled state, checking the Django version and handling memoryview attributes, and updates the object's internal state accordingly, emitting warnings if the Django version does not match or is not specified.
+        """
         pickled_version = state.get(DJANGO_VERSION_PICKLE_KEY)
         if pickled_version:
             if pickled_version != django.__version__:
@@ -674,18 +721,7 @@ class Model(AltersData, metaclass=ModelBase):
 
     def refresh_from_db(self, using=None, fields=None, from_queryset=None):
         """
-        Reload field values from the database.
-
-        By default, the reloading happens from the database this instance was
-        loaded from, or by the read router if this instance wasn't loaded from
-        any database. The using parameter will override the default.
-
-        Fields can be used to specify which fields to reload. The fields
-        should be an iterable of field attnames. If fields is None, then
-        all non-deferred fields are reloaded.
-
-        When accessing deferred fields of an instance, the deferred loading
-        of the field will call this method.
+        Reload field values from the database, allowing for selective field specification and override of the default database connection.
         """
         if fields is None:
             self._prefetched_objects_cache = {}
@@ -761,14 +797,7 @@ class Model(AltersData, metaclass=ModelBase):
 
     def serializable_value(self, field_name):
         """
-        Return the value of the field name for this instance. If the field is
-        a foreign key, return the id value instead of the object. If there's
-        no Field object with this name on the model, return the model
-        attribute's value.
-
-        Used to serialize a field's value (in the serializer, or form output,
-        for example). Normally, you would just access the attribute directly
-        and not use this method.
+        Returns the serializable value of the specified field for this instance, handling foreign keys by returning their ID values instead of objects, and falling back to the attribute's value if the field does not exist in the model.
         """
         try:
             field = self._meta.get_field(field_name)
@@ -778,6 +807,20 @@ class Model(AltersData, metaclass=ModelBase):
 
     # RemovedInDjango60Warning: When the deprecation ends, remove completely.
     def _parse_save_params(self, *args, method_name, **kwargs):
+        """
+        Parse and validate keyword arguments passed to a model's save method.
+
+        The function processes arguments and checks for potential errors, such as 
+        passing positional arguments (which are deprecated) or providing multiple 
+        values for the same argument. It returns a list of parsed parameters.
+
+        The parameters that can be provided include: force_insert, force_update, 
+        using, and update_fields. 
+
+        :raises TypeError: if too many positional arguments are provided or if 
+        multiple values are given for the same argument 
+        :warns RemovedInDjango60Warning: if positional arguments are passed
+        """
         defaults = {
             "force_insert": False,
             "force_update": False,
@@ -800,6 +843,10 @@ class Model(AltersData, metaclass=ModelBase):
             )
 
         def get_param(param_name, param_value, arg_index):
+            """
+            Retrieves a parameter value from either the function arguments or default value, 
+            ensuring that the parameter is not assigned multiple values.
+            """
             if arg_index < len(args):
                 if param_value is not defaults[param_name]:
                     # Recreate the proper TypeError message from Python.
@@ -826,12 +873,28 @@ class Model(AltersData, metaclass=ModelBase):
         update_fields=None,
     ):
         """
-        Save the current instance. Override this in a subclass if you want to
-        control the saving process.
+        Save the current instance to the database.
 
         The 'force_insert' and 'force_update' parameters can be used to insist
-        that the "save" must be an SQL insert or update (or equivalent for
+        that the \"save\" must be an SQL insert or update (or equivalent for
         non-SQL backends), respectively. Normally, they should not be set.
+
+        Parameters
+        ----------
+        force_insert : bool
+            Force the save to be an insert.
+        force_update : bool
+            Force the save to be an update.
+        using : str
+            Database to use for the save operation.
+        update_fields : list
+            List of fields to update.
+
+        Note
+        ----
+        This method can be overridden in a subclass to control the saving process.
+        If 'force_insert' and 'force_update' are both True, or if 'update_fields'
+        contains fields that do not exist in the model, a ValueError will be raised.
         """
         # RemovedInDjango60Warning.
         if args:
@@ -930,6 +993,14 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _validate_force_insert(cls, force_insert):
+        """
+        Validates the force_insert parameter to ensure it contains a valid boolean or tuple of ModelBase subclasses that are a base of the current class.
+
+            :param force_insert: A boolean or tuple of model subclasses to validate.
+            :return: A validated tuple of model subclasses, or an empty tuple if force_insert is False.
+            :raises TypeError: If force_insert is not a boolean or tuple, or if any tuple members are not ModelBase subclasses of the current class.
+
+        """
         if force_insert is False:
             return ()
         if force_insert is True:
@@ -957,13 +1028,11 @@ class Model(AltersData, metaclass=ModelBase):
         update_fields=None,
     ):
         """
-        Handle the parts of saving which should be done only once per save,
-        yet need to be done in raw saves, too. This includes some sanity
-        checks and signal sending.
 
-        The 'raw' argument is telling save_base not to save any parent
-        models and not to do any changes to the values before save. This
-        is used by fixture loading.
+        Handles the core saving logic for a model instance, performing sanity checks and signal sending as needed.
+
+        This method provides options for customizing the save process, including bypassing parent model saving and value modifications.
+
         """
         using = using or router.db_for_write(self.__class__, instance=self)
         assert not (force_insert and (force_update or update_fields))
@@ -1023,7 +1092,9 @@ class Model(AltersData, metaclass=ModelBase):
     def _save_parents(
         self, cls, using, update_fields, force_insert, updated_parents=None
     ):
-        """Save all the parents of cls using values from self."""
+        """
+        Save the parent models of a given class instance, using values from the instance itself, to ensure data consistency across the model hierarchy. The function recursively saves all parent models as necessary, handling both insertion and update operations.
+        """
         meta = cls._meta
         inserted = False
         if updated_parents is None:
@@ -1077,8 +1148,16 @@ class Model(AltersData, metaclass=ModelBase):
         update_fields=None,
     ):
         """
-        Do the heavy-lifting involved in saving. Update or insert the data
-        for a single table.
+
+        Saves the instance to the database, handling both insert and update operations.
+
+        This method performs the core functionality of saving the instance, determining
+        whether to insert or update based on the presence of a primary key value. It
+        also supports optional parameters for forcing insert or update, specifying
+        which fields to update, and using a specific database connection.
+
+        Returns True if an update operation was performed, False otherwise.
+
         """
         meta = cls._meta
         non_pks_non_generated = [
@@ -1167,8 +1246,11 @@ class Model(AltersData, metaclass=ModelBase):
 
     def _do_update(self, base_qs, using, pk_val, values, update_fields, forced_update):
         """
-        Try to update the model. Return True if the model was updated (if an
-        update query was done and a matching row was found in the DB).
+
+        Attempts to update a model instance with the provided values.
+
+        Returns True if the model was successfully updated, indicating a matching row was found in the database.
+
         """
         filtered = base_qs.filter(pk=pk_val)
         if not values:
@@ -1211,6 +1293,12 @@ class Model(AltersData, metaclass=ModelBase):
         # a ForeignKey, GenericForeignKey or OneToOneField on this model. If
         # the field is nullable, allowing the save would result in silent data
         # loss.
+        """
+
+        Prepares related fields for a save operation, ensuring that unsaved related objects do not cause data loss.
+        Checks for unsaved related objects and raises an exception if found, and updates field values as necessary.
+
+        """
         for field in self._meta.concrete_fields:
             if fields and field not in fields:
                 continue
@@ -1261,6 +1349,14 @@ class Model(AltersData, metaclass=ModelBase):
                     )
 
     def delete(self, using=None, keep_parents=False):
+        """
+        Deletes the instance from the database.
+
+        The deletion process can optionally be directed to a specific database, and 
+        the `keep_parents` parameter can be used to control the deletion behavior 
+        for parents in multi-table inheritance scenarios. Raises a `ValueError` if 
+        the instance has not been saved to the database.
+        """
         if self.pk is None:
             raise ValueError(
                 "%s object can't be deleted because its %s attribute is set "
@@ -1290,6 +1386,16 @@ class Model(AltersData, metaclass=ModelBase):
         )
 
     def _get_next_or_previous_by_FIELD(self, field, is_next, **kwargs):
+        """
+        Retrieves the next or previous object in the sequence of objects ordered by the given field.
+
+        :param field: The field to order by
+        :param is_next: Whether to retrieve the next or previous object
+        :param kwargs: Additional filter criteria
+
+        :raises ValueError: If the current object is unsaved
+        :raises DoesNotExist: If no matching object exists
+        """
         if not self.pk:
             raise ValueError("get_next/get_previous cannot be used on unsaved objects.")
         op = "gt" if is_next else "lt"
@@ -1311,6 +1417,15 @@ class Model(AltersData, metaclass=ModelBase):
             )
 
     def _get_next_or_previous_in_order(self, is_next):
+        """
+        Retrieves the next or previous item in a sorted order with respect to the current object.
+
+        Params:
+            is_next (bool): Direction of retrieval, True for next, False for previous.
+
+        Returns:
+            The retrieved object or None if not found, cached for subsequent calls with the same direction.
+        """
         cachename = "__%s_order_cache" % is_next
         if not hasattr(self, cachename):
             op = "gt" if is_next else "lt"
@@ -1334,6 +1449,11 @@ class Model(AltersData, metaclass=ModelBase):
         return getattr(self, cachename)
 
     def _get_field_value_map(self, meta, exclude=None):
+        """
+        Returns a mapping of field names to their corresponding values, 
+        excluding fields specified in the 'exclude' parameter and generated fields.
+        If a primary key is not excluded, it is included in the map under the 'pk' key.
+        """
         if exclude is None:
             exclude = set()
         meta = meta or self._meta
@@ -1364,8 +1484,18 @@ class Model(AltersData, metaclass=ModelBase):
 
     def validate_unique(self, exclude=None):
         """
-        Check unique constraints on the model and raise ValidationError if any
-        failed.
+        Validate that the model instance's attributes satisfy unique constraints.
+
+        Raises a ValidationError if any of the constraints are not met. The validation
+        can be customized to exclude certain fields by passing them in the `exclude`
+        parameter.
+
+        Args:
+            exclude: Optional fields to exclude from the uniqueness check.
+
+        Raises:
+            ValidationError: If any of the unique constraints are not met.
+
         """
         unique_checks, date_checks = self._get_unique_checks(exclude=exclude)
 
@@ -1380,11 +1510,10 @@ class Model(AltersData, metaclass=ModelBase):
 
     def _get_unique_checks(self, exclude=None, include_meta_constraints=False):
         """
-        Return a list of checks to perform. Since validate_unique() could be
-        called from a ModelForm, some fields may have been excluded; we can't
-        perform a unique check on a model that is missing fields involved
-        in that check. Fields that did not validate should also be excluded,
-        but they need to be passed in via the exclude argument.
+        Return a list of uniqueness checks to be performed on a model instance, 
+        exempting fields that have been excluded or did not validate. 
+        Checks are derived from the model's unique fields, unique together constraints, 
+        and total unique constraints, and can be filtered and extended based on the provided arguments.
         """
         if exclude is None:
             exclude = set()
@@ -1442,6 +1571,9 @@ class Model(AltersData, metaclass=ModelBase):
         return unique_checks, date_checks
 
     def _perform_unique_checks(self, unique_checks):
+        """
+        Checks for unique constraints on a model instance and returns a dictionary of errors if any constraints are violated. The function takes a list of unique checks to perform, where each check is a tuple of a model class and a list of field names that must be unique together.
+        """
         errors = {}
 
         for model_class, unique_check in unique_checks:
@@ -1491,6 +1623,9 @@ class Model(AltersData, metaclass=ModelBase):
         return errors
 
     def _perform_date_checks(self, date_checks):
+        """
+        Checks dates for uniqueness based on the provided date checks configuration, returning a dictionary of error messages if any duplicates are found.
+        """
         errors = {}
         for model_class, lookup_type, field, unique_for in date_checks:
             lookup_kwargs = {}
@@ -1539,6 +1674,18 @@ class Model(AltersData, metaclass=ModelBase):
         )
 
     def unique_error_message(self, model_class, unique_check):
+        """
+        Generate a unique error message for a model instance.
+
+        This function is used to construct a validation error message when a model instance
+        violates a unique constraint or a unique together constraint. It provides a message
+        indicating which fields are already taken by an existing instance, helping users
+        avoid duplicate entries.
+
+        :param model_class: The model class being validated.
+        :param unique_check: A list of field names that are checked for uniqueness.
+        :returns: A ValidationError instance with a meaningful error message. 
+        """
         opts = model_class._meta
 
         params = {
@@ -1571,6 +1718,10 @@ class Model(AltersData, metaclass=ModelBase):
             )
 
     def get_constraints(self):
+        """
+        Retrieves a list of constraints defined for the current class and its parents.
+        The constraints are returned as a list of tuples, each containing a class and its corresponding constraints.
+        """
         constraints = [(self.__class__, self._meta.constraints)]
         for parent_class in self._meta.all_parents:
             if parent_class._meta.constraints:
@@ -1578,6 +1729,17 @@ class Model(AltersData, metaclass=ModelBase):
         return constraints
 
     def validate_constraints(self, exclude=None):
+        """
+        Validates the constraints of the current instance against the defined constraints for its model class.
+
+        Args:
+            exclude: An optional list of fields to exclude from validation.
+
+        Raises:
+            ValidationError: If any of the constraints fail validation, a ValidationError is raised containing the error messages for each failed constraint.
+
+        This method ensures that the data in the instance adheres to the defined rules and constraints, such as uniqueness or field-specific validation, before it can be written to the database.
+        """
         constraints = self.get_constraints()
         using = router.db_for_write(self.__class__, instance=self)
 
@@ -1599,9 +1761,7 @@ class Model(AltersData, metaclass=ModelBase):
 
     def full_clean(self, exclude=None, validate_unique=True, validate_constraints=True):
         """
-        Call clean_fields(), clean(), validate_unique(), and
-        validate_constraints() on the model. Raise a ValidationError for any
-        errors that occur.
+        Performs a comprehensive validation and cleaning of the model instance, checking fields, uniqueness, and constraints. It raises a ValidationError if any errors occur during the process. The validation scope can be customized by excluding specific fields.
         """
         errors = {}
         if exclude is None:
@@ -1646,8 +1806,11 @@ class Model(AltersData, metaclass=ModelBase):
 
     def clean_fields(self, exclude=None):
         """
-        Clean all fields and raise a ValidationError containing a dict
-        of all validation errors if any occur.
+        Validate and sanitize the object's fields, raising a ValidationError if any errors occur.
+
+            :param exclude: Optional set of field names to exclude from cleaning.
+            :raises ValidationError: If any field validation fails, with a dictionary of error details.
+
         """
         if exclude is None:
             exclude = set()
@@ -1674,6 +1837,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def check(cls, **kwargs):
+        """
+        Checks the model for potential errors and inconsistencies, returning a list of issues found. This includes checks for swappable models, fields, managers, indexes, constraints, and other model-related settings, as well as potential name clashes and configuration issues.
+        """
         errors = [
             *cls._check_swappable(),
             *cls._check_model(),
@@ -1743,6 +1909,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_db_table_comment(cls, databases):
+        """
+        Checks the specified databases to ensure they support comments on tables when a db_table_comment is defined for the model, returning a list of errors if any databases do not support this feature.
+        """
         if not cls._meta.db_table_comment:
             return []
         errors = []
@@ -1766,7 +1935,13 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_swappable(cls):
-        """Check if the swapped model exists."""
+        """
+
+        Verify if a swapped model is properly defined and installed.
+
+        Returns a list of errors if the swapped model does not exist or is not correctly configured.
+
+        """
         errors = []
         if cls._meta.swapped:
             try:
@@ -1793,6 +1968,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_model(cls):
+        """
+        Checks a model for validity, specifically ensuring that proxy models do not contain local fields.
+        """
         errors = []
         if cls._meta.proxy:
             if cls._meta.local_fields or cls._meta.local_many_to_many:
@@ -1806,7 +1984,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_managers(cls, **kwargs):
-        """Perform all manager checks."""
+        """
+        Performs a series of checks across all managers defined for the class, collecting any encountered errors.
+        """
         errors = []
         for manager in cls._meta.managers:
             errors.extend(manager.check(**kwargs))
@@ -1814,7 +1994,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_fields(cls, **kwargs):
-        """Perform all field checks."""
+        """
+        Performs comprehensive checks on all fields, including local fields and many-to-many relationships, and returns a list of errors encountered during the validation process.
+        """
         errors = []
         for field in cls._meta.local_fields:
             errors.extend(field.check(**kwargs))
@@ -1824,7 +2006,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_m2m_through_same_relationship(cls):
-        """Check if no relationship model is used by more than one m2m field."""
+        """
+        Checks for duplicate many-to-many relationships through the same intermediate model, preventing ambiguous relationships in the model. Returns a list of errors if duplicate relationships are found.
+        """
 
         errors = []
         seen_intermediary_signatures = []
@@ -1860,7 +2044,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_id_field(cls):
-        """Check if `id` field is a primary key."""
+        """
+        Checks if a non-primary key field named 'id' exists in the model, which is not allowed if the primary key is also named 'id'. Returns a list of errors if this condition is met, otherwise an empty list.
+        """
         fields = [
             f for f in cls._meta.local_fields if f.name == "id" and f != cls._meta.pk
         ]
@@ -1879,7 +2065,14 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_field_name_clashes(cls):
-        """Forbid field shadowing in multi-table inheritance."""
+        """
+        Checks for field name clashes in a model's inheritance hierarchy.
+
+        Detects and reports when a field name is reused in a model's parents or parent links,
+        which can cause ambiguous field references in multi-table inheritance scenarios.
+
+        Returns a list of errors if any clashes are found, or an empty list otherwise.
+        """
         errors = []
         used_fields = {}  # name or attname -> field
 
@@ -1950,6 +2143,9 @@ class Model(AltersData, metaclass=ModelBase):
     @classmethod
     def _check_column_name_clashes(cls):
         # Store a list of column names which have already been used by other fields.
+        """
+        Checks for duplicate column names in the model's local fields and returns a list of errors for any duplicates found, providing hints for resolution.
+        """
         used_column_names = []
         errors = []
 
@@ -1974,6 +2170,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_model_name_db_lookup_clashes(cls):
+        """
+        Checks for potential database lookup clashes in the model name by verifying that it does not start or end with an underscore or contain double underscores, which are reserved for query lookup syntax.
+        """
         errors = []
         model_name = cls.__name__
         if model_name.startswith("_") or model_name.endswith("_"):
@@ -1998,6 +2197,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_property_name_related_field_accessor_clashes(cls):
+        """
+        Checks for potential naming conflicts between model properties and related field accessors, returning a list of errors if any clashes are found.
+        """
         errors = []
         property_names = cls._meta._property_names
         related_field_accessors = (
@@ -2033,7 +2235,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_unique_together(cls):
-        """Check the value of "unique_together" option."""
+        """
+        Checks that the 'unique_together' option is correctly defined on the model, ensuring it is a list or tuple of valid field names and reporting any errors.
+        """
         if not isinstance(cls._meta.unique_together, (tuple, list)):
             return [
                 checks.Error(
@@ -2063,7 +2267,9 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_indexes(cls, databases):
-        """Check fields, names, and conditions of indexes."""
+        """
+        Check fields, names, and conditions of indexes on the model, validate them against database capabilities, and return a list of errors and warnings encountered during the validation process.
+        """
         errors = []
         references = set()
         for index in cls._meta.indexes:
@@ -2154,6 +2360,17 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_local_fields(cls, fields, option):
+        """
+        ..: 
+            Checks if given field names refer to valid local fields in the model.
+
+            Args:
+                fields (list): List of field names to check.
+                option (str): Name of the option being checked, used in error messages.
+
+            Returns:
+                list: List of :class:`~django.core.checks.Error` objects if any field names are invalid.
+        """
         from django.db import models
 
         # In order to avoid hitting the relation tree prematurely, we use our
@@ -2210,8 +2427,7 @@ class Model(AltersData, metaclass=ModelBase):
     @classmethod
     def _check_ordering(cls):
         """
-        Check "ordering" option -- is it a list of strings and do all fields
-        exist?
+        Validate the 'ordering' option for a model, ensuring it is a list of valid field names or reference to related fields, and checking for any potential conflicts with 'order_with_respect_to' option.
         """
         if cls._meta._ordering_clash:
             return [
@@ -2319,8 +2535,7 @@ class Model(AltersData, metaclass=ModelBase):
     @classmethod
     def _check_long_column_names(cls, databases):
         """
-        Check that any auto-generated column names are shorter than the limits
-        for each database in which the model will be created.
+        Checks that auto-generated column names in a model are within the length limits for each database, ensuring compatibility and preventing potential errors by identifying fields that exceed the maximum allowed length.
         """
         if not databases:
             return []
@@ -2398,6 +2613,12 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _get_expr_references(cls, expr):
+        """
+        Recursively extracts references from a given expression.
+
+        Yields tuples containing the lookup path for each reference found in the expression.
+        Supports expressions containing Q objects, F expressions, and expressions with nested source expressions.
+        """
         if isinstance(expr, Q):
             for child in expr.children:
                 if isinstance(child, tuple):
@@ -2414,6 +2635,10 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_constraints(cls, databases):
+        """
+        .. classmethod:: _check_constraints(databases)
+            Verifies model constraints across multiple databases, returning a list of errors encountered during the validation process.
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, cls):
@@ -2466,7 +2691,14 @@ def make_foreign_order_accessors(model, related_model):
 
 
 def model_unpickle(model_id):
-    """Used to unpickle Model subclasses with deferred fields."""
+    """
+
+    Unpickle a Model subclass with deferred fields.
+
+    This function retrieves a model instance given its identifier, which can be a model instance or a tuple identifying the model.
+    It then creates a new, unpickled instance of the model, bypassing the usual instantiation process to avoid issues with deferred fields.
+
+    """
     if isinstance(model_id, tuple):
         model = apps.get_model(*model_id)
     else:

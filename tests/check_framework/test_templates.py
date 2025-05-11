@@ -72,6 +72,9 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
         self.assertEqual(self._check_engines(_engines), errors)
 
     def test_string_if_invalid_first_is_string(self):
+        """
+        Verifies the engine error handling when 'string_if_invalid' option is set to a string value for the first engine.
+        """
         TEMPLATES = deepcopy(self.TEMPLATES_STRING_IF_INVALID)
         TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = "test"
         with self.settings(TEMPLATES=TEMPLATES):
@@ -80,6 +83,9 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
             self.assertEqual(self._check_engines(_engines), errors)
 
     def test_string_if_invalid_both_are_strings(self):
+        """
+        Tests that the 'string_if_invalid' template setting functions correctly when the same string value is set for multiple engines.
+        """
         TEMPLATES = deepcopy(self.TEMPLATES_STRING_IF_INVALID)
         TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = "test"
         TEMPLATES[1]["OPTIONS"]["string_if_invalid"] = "test"
@@ -87,6 +93,9 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
             self.assertEqual(self._check_engines(engines.all()), [])
 
     def test_string_if_invalid_not_specified(self):
+        """
+        Tests the behavior of template engines when the 'string_if_invalid' option is not specified, ensuring they raise the expected error.
+        """
         TEMPLATES = deepcopy(self.TEMPLATES_STRING_IF_INVALID)
         del TEMPLATES[1]["OPTIONS"]["string_if_invalid"]
         with self.settings(TEMPLATES=TEMPLATES):
@@ -172,6 +181,9 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
         INSTALLED_APPS=["check_framework.template_test_apps.same_tags_app_1"]
     )
     def test_template_tags_with_same_library_name_and_module_name(self):
+        """
+        Tests the handling of template tags with the same library name and module name, verifying that the correct errors are raised when attempting to load conflicting templatetags modules from different applications.
+        """
         modules = (
             "'check_framework.template_test_apps.different_tags_app.templatetags"
             ".different_tags', 'check_framework.template_test_apps.same_tags_app_1"

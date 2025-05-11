@@ -50,8 +50,7 @@ class GetOrCreateTests(TestCase):
 
     def test_get_or_create_redundant_instance(self):
         """
-        If we execute the exact same statement twice, the second time,
-        it won't create a Person.
+        Checks if the get_or_create method prevents redundant instances of a Person from being created when called with identical parameters.
         """
         Person.objects.get_or_create(
             first_name="George",
@@ -89,6 +88,10 @@ class GetOrCreateTests(TestCase):
         self.assertEqual(t.name, "Annie")
 
     def test_get_or_create_on_related_manager(self):
+        """
+        Tests the functionality of the get_or_create method on related managers, 
+        ensuring it correctly retrieves or creates objects and handles duplicate entries.
+        """
         p = Publisher.objects.create(name="Acme Publishing")
         # Create a book through the publisher.
         book, created = p.books.get_or_create(name="The Book of Ed & Fred")
@@ -153,8 +156,7 @@ class GetOrCreateTests(TestCase):
 
     def test_defaults_exact(self):
         """
-        If you have a field named defaults and want to use it as an exact
-        lookup, you need to use 'defaults__exact'.
+        Tests the exact lookup of the 'defaults' field using 'defaults__exact' in get_or_create method, ensuring correct object creation and retrieval when matching exact defaults value.
         """
         obj, created = Person.objects.get_or_create(
             first_name="George",
@@ -201,7 +203,9 @@ class GetOrCreateTests(TestCase):
         )
 
     def test_defaults_not_evaluated_unless_needed(self):
-        """`defaults` aren't evaluated if the instance isn't created."""
+        """
+        Tests that default values are not evaluated unless the object needs to be created, preventing unnecessary computations and potential errors.
+        """
 
         def raise_exception():
             raise AssertionError
@@ -229,8 +233,7 @@ class GetOrCreateTestsWithManualPKs(TestCase):
 
     def test_savepoint_rollback(self):
         """
-        The database connection is still usable after a DatabaseError in
-        get_or_create() (#20463).
+        Tests if a database connection remains usable after a DatabaseError occurs during the get_or_create operation, ensuring subsequent database operations are successful.
         """
         Tag.objects.create(text="foo")
         with self.assertRaises(DatabaseError):
@@ -253,9 +256,8 @@ class GetOrCreateTransactionTests(TransactionTestCase):
 
     def test_get_or_create_integrityerror(self):
         """
-        Regression test for #15117. Requires a TransactionTestCase on
-        databases that delay integrity checks until the end of transactions,
-        otherwise the exception is never raised.
+        Tests that get_or_create correctly raises an IntegrityError when necessary, 
+        covering a regression case for delayed integrity checks on certain databases.
         """
         try:
             Profile.objects.get_or_create(person=Person(id=1))
@@ -267,6 +269,9 @@ class GetOrCreateTransactionTests(TransactionTestCase):
 
 class GetOrCreateThroughManyToMany(TestCase):
     def test_get_get_or_create(self):
+        """
+        Tests the behavior of the get_or_create method on a many-to-many relationship, specifically when the object to be retrieved or created already exists.
+        """
         tag = Tag.objects.create(text="foo")
         a_thing = Thing.objects.create(name="a")
         a_thing.tags.add(tag)
@@ -276,6 +281,9 @@ class GetOrCreateThroughManyToMany(TestCase):
         self.assertEqual(obj.pk, tag.pk)
 
     def test_create_get_or_create(self):
+        """
+        Tests the successful creation of a new tag or retrieval of an existing one for a Thing instance, verifying the tag's attributes and its association with the Thing.
+        """
         a_thing = Thing.objects.create(name="a")
         obj, created = a_thing.tags.get_or_create(text="foo")
 
@@ -292,6 +300,9 @@ class GetOrCreateThroughManyToMany(TestCase):
 
 class UpdateOrCreateTests(TestCase):
     def test_update(self):
+        """
+        Tests the update functionality of the Person model, verifying that an existing person's information is updated correctly and a new record is not created when the model's update_or_create method is called with matching criteria.
+        """
         Person.objects.create(
             first_name="John", last_name="Lennon", birthday=date(1940, 10, 9)
         )
@@ -306,6 +317,13 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(p.birthday, date(1940, 10, 10))
 
     def test_create(self):
+        """
+
+        Tests the creation of a new Person object using the update_or_create method.
+
+        Verifies that a new person is created and that their first name, last name, and birthday are correctly set.
+
+        """
         p, created = Person.objects.update_or_create(
             first_name="John",
             last_name="Lennon",
@@ -317,6 +335,9 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(p.birthday, date(1940, 10, 10))
 
     def test_create_twice(self):
+        """
+        Tests the behavior of the `update_or_create` method when called twice with the same parameters, verifying that the object is created correctly the first time and updated correctly the second time.
+        """
         p, created = Person.objects.update_or_create(
             first_name="John",
             last_name="Lennon",
@@ -346,8 +367,7 @@ class UpdateOrCreateTests(TestCase):
 
     def test_manual_primary_key_test(self):
         """
-        If you specify an existing primary key, but different other fields,
-        then you will get an error and data will not be updated.
+        Tests that specifying an existing primary key with different fields in an update_or_create operation raises an IntegrityError and does not update the existing data.
         """
         ManualPrimaryKeyTest.objects.create(id=1, data="Original")
         with self.assertRaises(IntegrityError):
@@ -369,10 +389,7 @@ class UpdateOrCreateTests(TestCase):
 
     def test_error_contains_full_traceback(self):
         """
-        update_or_create should raise IntegrityErrors with the full traceback.
-        This is tested by checking that a known method call is in the traceback.
-        We cannot use assertRaises/assertRaises here because we need to inspect
-        the actual traceback. Refs #16340.
+        Tests that the update_or_create method raises an IntegrityError containing the full traceback when a database integrity constraint is violated.
         """
         try:
             ManualPrimaryKeyTest.objects.update_or_create(id=1, data="Different")
@@ -382,8 +399,7 @@ class UpdateOrCreateTests(TestCase):
 
     def test_create_with_related_manager(self):
         """
-        Should be able to use update_or_create from the related manager to
-        create a book. Refs #23611.
+        Tests the ability to create a book instance using the update_or_create method of a related manager, ensuring correct creation and population of the book's attributes.
         """
         p = Publisher.objects.create(name="Acme Publishing")
         book, created = p.books.update_or_create(name="The Book of Ed & Fred")
@@ -398,8 +414,7 @@ class UpdateOrCreateTests(TestCase):
 
     def test_update_with_related_manager(self):
         """
-        Should be able to use update_or_create from the related manager to
-        update a book. Refs #23611.
+        Tests updating a book instance using the update_or_create method from a related manager, ensuring the book's details are correctly updated without creating a new instance.
         """
         p = Publisher.objects.create(name="Acme Publishing")
         book = Book.objects.create(name="The Book of Ed & Fred", publisher=p)
@@ -420,8 +435,7 @@ class UpdateOrCreateTests(TestCase):
 
     def test_create_with_many(self):
         """
-        Should be able to use update_or_create from the m2m related manager to
-        create a book. Refs #23611.
+        Tests the ability to create a book using the update_or_create method from a many-to-many related manager, verifying book creation and default values assignment.
         """
         p = Publisher.objects.create(name="Acme Publishing")
         author = Author.objects.create(name="Ted")
@@ -441,8 +455,10 @@ class UpdateOrCreateTests(TestCase):
 
     def test_update_with_many(self):
         """
-        Should be able to use update_or_create from the m2m related manager to
-        update a book. Refs #23611.
+
+        Tests the update functionality of the many-to-many related manager, specifically 
+        the update_or_create method, to ensure it can update an existing book instance.
+
         """
         p = Publisher.objects.create(name="Acme Publishing")
         author = Author.objects.create(name="Ted")
@@ -467,8 +483,7 @@ class UpdateOrCreateTests(TestCase):
 
     def test_defaults_exact(self):
         """
-        If you have a field named defaults and want to use it as an exact
-        lookup, you need to use 'defaults__exact'.
+        Tests that the 'defaults__exact' lookup type correctly matches objects based on the 'defaults' field, ensuring that exact matches are found and updates are applied correctly.
         """
         obj, created = Person.objects.update_or_create(
             first_name="George",
@@ -495,8 +510,7 @@ class UpdateOrCreateTests(TestCase):
 
     def test_create_defaults_exact(self):
         """
-        If you have a field named create_defaults and want to use it as an
-        exact lookup, you need to use 'create_defaults__exact'.
+        Verifies that the 'create_defaults__exact' lookup type correctly updates or creates objects based on the 'create_defaults' field, ensuring that only exact matches are retrieved.
         """
         obj, created = Person.objects.update_or_create(
             first_name="George",
@@ -554,7 +568,9 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(obj.last_name, "NotHarrison")
 
     def test_defaults_not_evaluated_unless_needed(self):
-        """`defaults` aren't evaluated if the instance isn't created."""
+        """
+        Verifies that default values are only evaluated when an instance is actually created, to prevent unnecessary computations or potential errors, ensuring lazy evaluation is properly utilized for database operations.
+        """
         Person.objects.create(
             first_name="John", last_name="Lennon", birthday=date(1940, 10, 9)
         )
@@ -578,6 +594,9 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(journalist.name, "John")
 
     def test_update_only_defaults_and_pre_save_fields_when_local_fields(self):
+        """
+        Tests that update_or_create only updates default and pre-save fields for existing instances when local fields are specified, without modifying other fields.
+        """
         publisher = Publisher.objects.create(name="Acme Publishing")
         book = Book.objects.create(publisher=publisher, name="The Book of Ed & Fred")
 
@@ -606,8 +625,7 @@ class UpdateOrCreateTests(TestCase):
 class UpdateOrCreateTestsWithManualPKs(TestCase):
     def test_create_with_duplicate_primary_key(self):
         """
-        If an existing primary key is specified with different values for other
-        fields, then IntegrityError is raised and data isn't updated.
+        Tests that attempting to create a new object with a duplicate primary key, but different field values, raises an IntegrityError and does not update the existing object.
         """
         ManualPrimaryKeyTest.objects.create(id=1, data="Original")
         with self.assertRaises(IntegrityError):
@@ -622,11 +640,9 @@ class UpdateOrCreateTransactionTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_transactions")
     def test_updates_in_transaction(self):
         """
-        Objects are selected and updated in a transaction to avoid race
-        conditions. This test forces update_or_create() to hold the lock
-        in another thread for a relatively long time so that it can update
-        while it holds the lock. The updated field isn't a field in 'defaults',
-        so update_or_create() shouldn't have an effect on it.
+        Tests that update_or_create() holds a lock on a database object while updating it, 
+        preventing race conditions, and verifies that an update to an unrelated field 
+        can occur while the lock is held without affecting the update operation.
         """
         lock_status = {"has_grabbed_lock": False}
 
@@ -644,6 +660,9 @@ class UpdateOrCreateTransactionTests(TransactionTestCase):
 
         def lock_wait():
             # timeout after ~0.5 seconds
+            """
+            Waits for a lock to be grabbed, checking up to 20 times with a short delay between checks, returning True if the lock is grabbed and False otherwise.
+            """
             for i in range(20):
                 time.sleep(0.025)
                 if lock_status["has_grabbed_lock"]:
@@ -678,14 +697,8 @@ class UpdateOrCreateTransactionTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_transactions")
     def test_creation_in_transaction(self):
         """
-        Objects are selected and updated in a transaction to avoid race
-        conditions. This test checks the behavior of update_or_create() when
-        the object doesn't already exist, but another thread creates the
-        object before update_or_create() does and then attempts to update the
-        object, also before update_or_create(). It forces update_or_create() to
-        hold the lock in another thread for a relatively long time so that it
-        can update while it holds the lock. The updated field isn't a field in
-        'defaults', so update_or_create() shouldn't have an effect on it.
+        Tests the behavior of update_or_create() when creating an object within a transaction, 
+        ensuring that the method correctly handles concurrent object creation and updates.
         """
         lock_status = {"lock_count": 0}
 
@@ -705,6 +718,14 @@ class UpdateOrCreateTransactionTests(TransactionTestCase):
 
         def lock_wait(expected_lock_count):
             # timeout after ~0.5 seconds
+            """
+            ..: 
+                Waits for the database to reach the expected lock count, polling every 25ms up to a maximum of 0.5 seconds.
+
+                :param expected_lock_count: The expected number of locks.
+                :return: True if the expected lock count is reached, otherwise the test is skipped.
+                :raises: None, but may skip the current test if the timeout is exceeded.
+            """
             for i in range(20):
                 time.sleep(0.025)
                 if lock_status["lock_count"] == expected_lock_count:

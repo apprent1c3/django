@@ -30,17 +30,7 @@ class BashCompletionTests(unittest.TestCase):
 
     def _user_input(self, input_str):
         """
-        Set the environment and the list of command line arguments.
-
-        This sets the bash variables $COMP_WORDS and $COMP_CWORD. The former is
-        an array consisting of the individual words in the current command
-        line, the latter is the index of the current cursor position, so in
-        case a word is completed and the cursor is placed after a whitespace,
-        $COMP_CWORD must be incremented by 1:
-
-          * 'django-admin start' -> COMP_CWORD=1
-          * 'django-admin startproject' -> COMP_CWORD=1
-          * 'django-admin startproject ' -> COMP_CWORD=2
+        Set bash environment variables $COMP_WORDS and $COMP_CWORD based on the provided input string, simulating a user's command line input for completion purposes.
         """
         os.environ["COMP_WORDS"] = input_str
         idx = len(input_str.split(" ")) - 1  # Index of the last word
@@ -49,6 +39,13 @@ class BashCompletionTests(unittest.TestCase):
         sys.argv = input_str.split()
 
     def _run_autocomplete(self):
+        """
+
+        Runs the autocomplete functionality and returns the results.
+
+        Returns a list of autocomplete suggestions.
+
+        """
         util = ManagementUtility(argv=sys.argv)
         with captured_stdout() as stdout:
             try:
@@ -82,7 +79,9 @@ class BashCompletionTests(unittest.TestCase):
         self.assertEqual(output, ["sqlflush sqlmigrate sqlsequencereset"])
 
     def test_completed_subcommand(self):
-        "Show option flags in case a subcommand is completed"
+        """
+        Tests that the autocomplete function returns option flags when a subcommand is completed, ensuring that users are presented with relevant flags after typing a subcommand.
+        """
         self._user_input("django-admin startproject ")  # Trailing whitespace
         output = self._run_autocomplete()
         for item in output:
@@ -95,7 +94,9 @@ class BashCompletionTests(unittest.TestCase):
         self.assertEqual(output, [""])
 
     def test_app_completion(self):
-        "Application names will be autocompleted for an AppCommand"
+        """
+        Checks that application names are properly autocompleted for an AppCommand, verifying that only matching application labels are suggested.
+        """
         self._user_input("django-admin sqlmigrate a")
         output = self._run_autocomplete()
         a_labels = sorted(

@@ -25,6 +25,9 @@ COMPLEX_OVERRIDE_SETTINGS = {"DATABASES"}
 
 @receiver(setting_changed)
 def clear_cache_handlers(*, setting, **kwargs):
+    """
+    Clears cache handlers when the 'CACHES' setting is changed, ensuring that the cache is properly reconfigured with the new settings.
+    """
     if setting == "CACHES":
         from django.core.cache import caches, close_caches
 
@@ -35,6 +38,9 @@ def clear_cache_handlers(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def update_installed_apps(*, setting, **kwargs):
+    """
+    Listens for changes to Django project settings and updates relevant caches when the INSTALLED_APPS setting is modified, ensuring that the application remains aware of installed applications and their associated templates and translations.
+    """
     if setting == "INSTALLED_APPS":
         # Rebuild any AppDirectoriesFinder instance.
         from django.contrib.staticfiles.finders import get_finder
@@ -56,6 +62,9 @@ def update_installed_apps(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def update_connections_time_zone(*, setting, **kwargs):
+    """
+    Updates database connections and timezone settings when the TIME_ZONE or USE_TZ settings are changed, ensuring consistent timezone configuration across the application.
+    """
     if setting == "TIME_ZONE":
         # Reset process time zone
         if hasattr(time, "tzset"):
@@ -90,6 +99,14 @@ def clear_routers_cache(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def reset_template_engines(*, setting, **kwargs):
+    """
+
+    Reset Django template engines when certain settings are changed.
+
+    This function listens for changes to specific settings ('TEMPLATES', 'DEBUG', 'INSTALLED_APPS') and 
+    resets the Django template engines to ensure they are reinitialized with the new settings.
+
+    """
     if setting in {
         "TEMPLATES",
         "DEBUG",
@@ -113,6 +130,15 @@ def reset_template_engines(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def storages_changed(*, setting, **kwargs):
+    """
+
+    Reset storages when relevant Django settings change.
+
+    This function listens for changes to settings that affect storage configurations,
+    such as 'STORAGES', 'STATIC_ROOT', and 'STATIC_URL'. When a change is detected,
+    it resets the storage backends and storages to ensure that the new settings take effect.
+
+    """
     from django.contrib.staticfiles.storage import staticfiles_storage
     from django.core.files.storage import default_storage, storages
 
@@ -142,6 +168,16 @@ def clear_serializers_cache(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def language_changed(*, setting, **kwargs):
+    """
+
+    Handles changes to language-related Django settings.
+
+    When the LANGUAGE_CODE, LANGUAGES, or LOCALE_PATHS settings are changed,
+    this function resets Django's translation machinery to ensure the new settings
+    take effect. This includes clearing the translation cache and resetting the
+    default and active translations.
+
+    """
     if setting in {"LANGUAGES", "LANGUAGE_CODE", "LOCALE_PATHS"}:
         from django.utils.translation import trans_real
 
@@ -222,6 +258,12 @@ def auth_password_validators_changed(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def user_model_swapped(*, setting, **kwargs):
+    """
+    Handles changes to the AUTH_USER_MODEL setting by updating referenced user models in various Django modules.
+
+    Triggers a cache reset and updates the UserModel reference in authentication backends, forms, views, and other components to reflect the new user model.
+
+    """
     if setting == "AUTH_USER_MODEL":
         apps.clear_cache()
         try:

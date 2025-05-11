@@ -16,6 +16,9 @@ from . import jinja2_tests
 
 class FormsI18nTests(SimpleTestCase):
     def test_lazy_labels(self):
+        """
+        Tests that form labels are correctly translated when using gettext_lazy for label definitions.
+        """
         class SomeForm(Form):
             username = CharField(max_length=10, label=gettext_lazy("username"))
 
@@ -45,6 +48,10 @@ class FormsI18nTests(SimpleTestCase):
             )
 
     def test_non_ascii_label(self):
+        """
+        Tests that form field labels are generated correctly with non-ASCII characters, 
+         verifying the correctness of the HTML output for both label and legend tags.
+        """
         class SomeForm(Form):
             field_1 = CharField(max_length=10, label=gettext_lazy("field_1"))
             field_2 = CharField(
@@ -70,6 +77,9 @@ class FormsI18nTests(SimpleTestCase):
         )
 
     def test_non_ascii_choices(self):
+        """
+        Tests that ChoiceField with non-ASCII choices and label renders correctly in different languages.
+        """
         class SomeForm(Form):
             somechoice = ChoiceField(
                 choices=(("\xc5", "En tied\xe4"), ("\xf8", "Mies"), ("\xdf", "Nainen")),

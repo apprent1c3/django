@@ -13,6 +13,16 @@ from django.utils.translation import get_language
 
 
 def add_domain(domain, url, secure=False):
+    """
+
+    Add a domain to a given URL, handling cases where the URL is relative or protocol-agnostic.
+
+    :param domain: The domain to add to the URL.
+    :param url: The URL to modify.
+    :param secure: Whether to use the HTTPS protocol (default is False).
+    :returns: The URL with the domain added and protocol specified.
+
+    """
     protocol = "https" if secure else "http"
     if url.startswith("//"):
         # Support network-path reference (see #16753) - RSS requires a protocol
@@ -33,6 +43,15 @@ class Feed:
     language = None
 
     def __call__(self, request, *args, **kwargs):
+        """
+        Handle a request for a feed by retrieving the associated object, generating the feed, and returning an HTTP response with the feed content.
+
+        Raises:
+            Http404: If the feed object does not exist.
+
+        Returns:
+            HttpResponse: The feed content with the appropriate content type and headers.
+        """
         try:
             obj = self.get_object(request, *args, **kwargs)
         except ObjectDoesNotExist:
@@ -65,6 +84,11 @@ class Feed:
             )
 
     def item_enclosures(self, item):
+        """
+        Returns a list of enclosures for a given item, if the item has an enclosure URL set.
+
+        The enclosure list contains an :class:`feedgenerator.Enclosure` object with the URL, length, and MIME type of the enclosure, or an empty list if no enclosure URL is found.
+        """
         enc_url = self._get_dynamic_attr("item_enclosure_url", item)
         if enc_url:
             enc = feedgenerator.Enclosure(
@@ -76,6 +100,17 @@ class Feed:
         return []
 
     def _get_dynamic_attr(self, attname, obj, default=None):
+        """
+        Return a dynamic attribute of the object.
+
+        This method retrieves an attribute from the object and is capable of handling callable attributes.
+        If the attribute is callable, it will be invoked with the provided object if it expects a single argument, otherwise it will be invoked without arguments.
+
+        If the attribute does not exist, a default value will be returned if provided, otherwise None will be returned.
+
+        The function also performs checks to ensure that feed methods decorated with `@staticmethod` or other decorators are properly configured and will raise an exception if they are not.
+
+        """
         try:
             attr = getattr(self, attname)
         except AttributeError:
@@ -134,8 +169,10 @@ class Feed:
 
     def get_feed(self, obj, request):
         """
-        Return a feedgenerator.DefaultFeed object, fully populated, for
-        this feed. Raise FeedDoesNotExist for invalid parameters.
+        Return a fully populated feed object for the specified request and object, 
+        raising an exception for invalid parameters.
+        The feed includes metadata such as title, link, and author, as well as 
+        individual feed items with details like title, description, and publication date.
         """
         current_site = get_current_site(request)
 

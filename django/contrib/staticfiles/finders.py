@@ -19,6 +19,12 @@ searched_locations = []
 
 # RemovedInDjango61Warning: When the deprecation ends, remove completely.
 def _check_deprecated_find_param(class_name="", find_all=False, **kwargs):
+    """
+    Checks for deprecated usage of the 'all' argument in find() methods.
+
+    Warns when 'all' is used, suggesting 'find_all' instead, and returns the effective find_all value.
+    Raises an error if 'find_all' is already specified or if any other unexpected keyword arguments are provided.
+    """
     method_name = "find" if not class_name else f"{class_name}.find"
     if "all" in kwargs:
         legacy_all = kwargs.pop("all")
@@ -91,6 +97,12 @@ class FileSystemFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # List of locations with static files
+        """
+        Initializes the static file storage system, populating locations and storages based on settings.
+
+        :param app_names: Optional list of application names to consider for static file storage.
+
+        """
         self.locations = []
         # Maps dir paths to an appropriate storage instance
         self.storages = {}
@@ -108,6 +120,13 @@ class FileSystemFinder(BaseFinder):
         super().__init__(*args, **kwargs)
 
     def check(self, **kwargs):
+        """
+        Checks the configuration of static file directories for potential errors.
+
+        This function verifies the STATICFILES_DIRS setting to ensure it is properly formatted and does not conflict with the STATIC_ROOT setting. It also checks for the existence of directories specified in STATICFILES_DIRS.
+
+        Returns a list of errors and warnings encountered during the validation process.
+        """
         errors = []
         if not isinstance(settings.STATICFILES_DIRS, (list, tuple)):
             errors.append(
@@ -154,6 +173,11 @@ class FileSystemFinder(BaseFinder):
     def find(self, path, find_all=False, **kwargs):
         """
         Look for files in the extra locations as defined in STATICFILES_DIRS.
+
+        :param path: Path to the file being searched for
+        :param find_all: If True, returns all matching files; otherwise, returns the first match
+        :param **kwargs: Additional deprecated parameters, still accepted for backwards compatibility
+        :return: Path(s) to the matching file(s) if found, or an empty list if not found
         """
         # RemovedInDjango61Warning.
         if kwargs:
@@ -171,8 +195,7 @@ class FileSystemFinder(BaseFinder):
 
     def find_location(self, root, path, prefix=None):
         """
-        Find a requested static file in a location and return the found
-        absolute path (or ``None`` if no match).
+        Find a requested static file in a location and return its absolute path, or None if not found. The search can be constrained by a prefix, which is removed from the path if a match is found.
         """
         if prefix:
             prefix = "%s%s" % (prefix, os.sep)
@@ -185,7 +208,12 @@ class FileSystemFinder(BaseFinder):
 
     def list(self, ignore_patterns):
         """
-        List all files in all locations.
+
+        List all files in all locations, filtering out files that match the specified ignore patterns.
+
+        :arg ignore_patterns: A list of patterns to exclude from the results
+        :yield: Tuples containing the file path and its corresponding storage object
+
         """
         for prefix, root in self.locations:
             # Skip nonexistent directories.
@@ -206,6 +234,15 @@ class AppDirectoriesFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # The list of apps that are handled
+        """
+
+        Initialize the object, optionally filtering app configurations by name.
+
+        This constructor sets up the internal state by iterating over available app configurations,
+        creating storage instances for each, and storing them in a dictionary for later access.
+        The `app_names` parameter allows specifying a subset of apps to consider.
+
+        """
         self.apps = []
         # Mapping of app names to storage instances
         self.storages = {}
@@ -225,7 +262,7 @@ class AppDirectoriesFinder(BaseFinder):
 
     def list(self, ignore_patterns):
         """
-        List all files in all app storages.
+        List all files in all app storages, excluding those that match the specified ignore patterns, and yield their paths along with their respective storage locations.
         """
         for storage in self.storages.values():
             if storage.exists(""):  # check if storage location exists
@@ -236,7 +273,12 @@ class AppDirectoriesFinder(BaseFinder):
     # def find(self, path, find_all=False):
     def find(self, path, find_all=False, **kwargs):
         """
-        Look for files in the app directories.
+        Look for files in application directories based on the provided path.
+
+        :param path: The path to search for.
+        :param find_all: If True, returns all matching files; otherwise returns the first match.
+        :param **kwargs: Additional keyword arguments (unsupported, for backwards compatibility).
+        :return: A list of matching files if find_all is True, otherwise a single match or None if not found.
         """
         # RemovedInDjango61Warning.
         if kwargs:
@@ -255,7 +297,11 @@ class AppDirectoriesFinder(BaseFinder):
 
     def find_in_app(self, app, path):
         """
-        Find a requested static file in an app's static locations.
+        Find a requested static file within an application's static locations.
+
+            :param app: The application to search for the file
+            :param path: The path of the static file to find
+            :return: The full path to the static file if found, otherwise None
         """
         storage = self.storages.get(app)
         # Only try to find a file if the source dir actually exists.
@@ -274,6 +320,9 @@ class BaseStorageFinder(BaseFinder):
     storage = None
 
     def __init__(self, storage=None, *args, **kwargs):
+        """
+        Initializes the static files finder instance with the given storage class, ensuring it is properly configured and set up for use.
+        """
         if storage is not None:
             self.storage = storage
         if self.storage is None:
@@ -291,7 +340,26 @@ class BaseStorageFinder(BaseFinder):
     # def find(self, path, find_all=False):
     def find(self, path, find_all=False, **kwargs):
         """
-        Look for files in the default file storage, if it's local.
+
+        Look for files in the default local file storage.
+
+        SEARCHBehaviour can be controlled by the find_all parameter. If set, 
+        returns a list of all matches, otherwise a single match or an empty list.
+
+        Parameters
+        ----------
+        path : str
+            Path to the file to look for
+        find_all : bool
+            Whether to return all matches (default: False)
+        kwargs
+            Additional, deprecated, keyword arguments
+
+        Returns
+        -------
+        str or list
+            The matching file path(s) if found, otherwise an empty list
+
         """
         # RemovedInDjango61Warning.
         if kwargs:
@@ -340,10 +408,9 @@ class DefaultStorageFinder(BaseStorageFinder):
 # def find(path, find_all=False):
 def find(path, find_all=False, **kwargs):
     """
-    Find a static file with the given path using all enabled finders.
+    Locate a static file by its path, utilizing all available finders.
 
-    If ``find_all`` is ``False`` (default), return the first matching
-    absolute path (or ``None`` if no match). Otherwise return a list.
+    The search can be configured to return either the first matching file path or all matching paths. If no matches are found, it returns None (or an empty list, depending on the find_all parameter).
     """
     # RemovedInDjango61Warning.
     if kwargs:
@@ -371,8 +438,7 @@ def get_finders():
 @functools.cache
 def get_finder(import_path):
     """
-    Import the staticfiles finder class described by import_path, where
-    import_path is the full Python path to the class.
+    Imports and instantiates a static files finder class based on the provided import path, ensuring it is a subclass of BaseFinder.
     """
     Finder = import_string(import_path)
     if not issubclass(Finder, BaseFinder):

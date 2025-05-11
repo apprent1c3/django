@@ -13,7 +13,9 @@ class RelatedGeoModelTest(TestCase):
     fixtures = ["initial"]
 
     def test02_select_related(self):
-        "Testing `select_related` on geographic models (see #7126)."
+        """
+        Tests the 'select_related' method on geographic models, ensuring its functionality and performance with related objects like locations.
+        """
         qs1 = City.objects.order_by("id")
         qs2 = City.objects.order_by("id").select_related()
         qs3 = City.objects.order_by("id").select_related("location")
@@ -35,7 +37,12 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_extent_aggr")
     def test_related_extent_aggregate(self):
-        "Testing the `Extent` aggregate on related geographic models."
+        """
+
+        Test the Extent aggregate function on related geographic models, 
+        verifying it correctly calculates the extent of locations in cities.
+
+        """
         # This combines the Extent and Union aggregates into one query
         aggs = City.objects.aggregate(Extent("location__point"))
 
@@ -72,7 +79,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_union_aggr")
     def test_related_union_aggregate(self):
-        "Testing the `Union` aggregate on related geographic models."
+        """
+        Tests the `Union` aggregate function on related geographic models, specifically calculating the union of points from city locations.
+        """
         # This combines the Extent and Union aggregates into one query
         aggs = City.objects.aggregate(Union("location__point"))
 
@@ -112,7 +121,10 @@ class RelatedGeoModelTest(TestCase):
         list(DirectoryEntry.objects.select_related())
 
     def test06_f_expressions(self):
-        "Testing F() expressions on GeometryFields."
+        """
+        Tests F() expressions on GeometryFields by creating parcels with different locations and borders, 
+        then filtering the parcels using within, contains, and equality F() expressions to verify correct behavior.
+        """
         # Constructing a dummy parcel border and getting the City instance for
         # assigning the FK.
         b1 = GEOSGeometry(
@@ -179,7 +191,13 @@ class RelatedGeoModelTest(TestCase):
                 list(qs)
 
     def test07_values(self):
-        "Testing values() and values_list()."
+        """
+
+        Verifies the correctness of values() and values_list() methods for Location objects.
+
+        This test ensures that the geometry values returned by these methods are instances of GEOSGeometry and match the expected point values.
+
+        """
         gqs = Location.objects.all()
         gvqs = Location.objects.values()
         gvlqs = Location.objects.values_list()
@@ -201,14 +219,18 @@ class RelatedGeoModelTest(TestCase):
         list(Event.objects.values_list("when"))
 
     def test08_defer_only(self):
-        "Testing defer() and only() on Geographic models."
+        """
+        Verifies that Geographic models behave correctly when using defer() and only() methods, ensuring that deferred fields are still accessible after being deferred.
+        """
         qs = Location.objects.all().order_by("pk")
         def_qs = Location.objects.defer("point").order_by("pk")
         for loc, def_loc in zip(qs, def_qs):
             self.assertEqual(loc.point, def_loc.point)
 
     def test09_pk_relations(self):
-        "Ensuring correct primary key column is selected across relations. See #10757."
+        """
+        Tests that primary key relationships are correctly established across model relations, specifically verifying that the expected city and location IDs are returned from a query.
+        """
         # The expected ID values -- notice the last two location IDs
         # are out of order.  Dallas and Houston have location IDs that differ
         # from their PKs -- this is done to ensure that the related location
@@ -221,7 +243,11 @@ class RelatedGeoModelTest(TestCase):
             self.assertEqual(val_dict["location__id"], l_id)
 
     def test10_combine(self):
-        "Testing the combination of two QuerySets (#10807)."
+        """
+        Tests the combination of two QuerySets by creating buffer zones around two cities, 
+        querying cities within those zones, combining the query results, and asserting that 
+        both original cities are included in the combined query results.
+        """
         buf1 = City.objects.get(name="Aurora").location.point.buffer(0.1)
         buf2 = City.objects.get(name="Kecksburg").location.point.buffer(0.1)
         qs1 = City.objects.filter(location__point__within=buf1)
@@ -245,7 +271,9 @@ class RelatedGeoModelTest(TestCase):
         self.assertEqual(2, loc.num_cities)
 
     def test12b_count(self):
-        "Testing `Count` aggregate on non geo-fields."
+        """
+        Tests the Count aggregate function on non-geographic fields, verifying its correctness by annotating and filtering querysets.
+        """
         # Should only be one author (Trevor Paglen) returned by this query, and
         # the annotation should have 3 for the number of books, see #11087.
         # Also testing with a values(), see #11489.
@@ -262,7 +290,13 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("allows_group_by_lob")
     def test13c_count(self):
-        "Testing `Count` aggregate with `.values()`.  See #15305."
+        """
+
+        Tests the use of the Count aggregate function with values() on a Django queryset.
+        Verifies that the correct count is returned and that the query result includes
+        a properly typed geometry object.
+
+        """
         qs = (
             Location.objects.filter(id=5)
             .annotate(num_cities=Count("city"))
@@ -282,7 +316,7 @@ class RelatedGeoModelTest(TestCase):
     @skipUnlessDBFeature("supports_collect_aggr")
     def test_collect(self):
         """
-        Testing the `Collect` aggregate.
+        Tests the Collect aggregate function to verify it correctly groups geographic locations.
         """
         # Reference query:
         # SELECT AsText(ST_Collect("relatedapp_location"."point"))
@@ -307,6 +341,13 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_collect_aggr")
     def test_collect_filter(self):
+        """
+        Tests the functionality of the Collect aggregation function with filters in a query.
+
+        Verifies that Collect correctly aggregates points for parcels with names matching certain criteria,
+        and returns None when no matches are found. Ensures the results are correctly filtered
+        by the provided conditions, including the absence of specific strings and presence of others.
+        """
         qs = City.objects.annotate(
             parcel_center=Collect(
                 "parcel__center1",
@@ -337,6 +378,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("has_Centroid_function", "supports_collect_aggr")
     def test_centroid_collect_filter(self):
+        """
+        Tests the usage of the Centroid function in conjunction with the Collect aggregate function and a filter, verifying that it correctly calculates the centroid of a collection of points excluding certain elements.
+        """
         qs = City.objects.annotate(
             parcel_centroid=Centroid(
                 Collect(
@@ -375,6 +419,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_extent_aggr")
     def test_extent_filter(self):
+        """
+        Tests the filtering capabilities of the Extent annotation on a geographic query. Verifies that the Extent aggregation correctly includes or excludes geographic data based on the provided filter.
+        """
         qs = City.objects.annotate(
             parcel_border=Extent(
                 "parcel__border1",
@@ -393,6 +440,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_union_aggr")
     def test_union_filter(self):
+        """
+        Tests the usage of the Union aggregation function with filters in a Django ORM query, ensuring correct behavior for multiple parcels, no parcels, and a single parcel.
+        """
         qs = City.objects.annotate(
             parcel_point_union=Union(
                 "parcel__center2",

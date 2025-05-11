@@ -42,9 +42,7 @@ def default_key_func(key, key_prefix, version):
 
 def get_key_func(key_func):
     """
-    Function to decide which key function to use.
-
-    Default to ``default_key_func``.
+    Returns a key function to be used, either the provided one or a default if none is supplied or invalid. The provided key function may be a callable or a string to be imported.
     """
     if key_func is not None:
         if callable(key_func):
@@ -58,6 +56,20 @@ class BaseCache:
     _missing_key = object()
 
     def __init__(self, params):
+        """
+        Initializes the object with configuration parameters.
+
+        Sets default values for timeout, maximum entries, cull frequency, key prefix, and version.
+        Validates and normalizes input values to ensure consistent object state.
+
+        Configuration parameters:
+            - timeout: default timeout value
+            - max_entries: maximum number of entries
+            - cull_frequency: frequency of culling
+            - key_prefix: prefix for keys
+            - version: version number
+            - key_function: function used to generate keys
+        """
         timeout = params.get("timeout", params.get("TIMEOUT", 300))
         if timeout is not None:
             try:
@@ -85,8 +97,15 @@ class BaseCache:
 
     def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
         """
-        Return the timeout value usable by this backend based upon the provided
-        timeout.
+
+        Return the timeout value usable by this backend based upon the provided timeout.
+
+        The function converts the provided timeout into a backend-compatible format,
+        returning an absolute time value (in seconds since the epoch) unless the timeout
+        is None, in which case None is returned. If the timeout is 0, it is converted to
+        -1, indicating no timeout. If the default timeout is specified, it uses the
+        backend's default timeout value.
+
         """
         if timeout == DEFAULT_TIMEOUT:
             timeout = self.default_timeout
@@ -192,11 +211,7 @@ class BaseCache:
 
     def get_many(self, keys, version=None):
         """
-        Fetch a bunch of keys from the cache. For certain backends (memcached,
-        pgsql) this can be *much* faster when fetching multiple values.
-
-        Return a dict mapping each key in keys to its value. If the given
-        key is missing, it will be missing from the response dict.
+        Fetch multiple keys from the cache, returning a dictionary with keys mapped to their respective values. This method can significantly improve performance for certain backends when retrieving multiple values.
         """
         d = {}
         for k in keys:
@@ -206,7 +221,19 @@ class BaseCache:
         return d
 
     async def aget_many(self, keys, version=None):
-        """See get_many()."""
+        """
+        Asynchronously retrieves multiple values from storage by their keys.
+
+        Args:
+            keys: List of keys to retrieve values for.
+            version (optional): Version of the values to retrieve. Defaults to None.
+
+        Returns:
+            A dictionary containing the retrieved values, keyed by their original key.
+
+        Note:
+            If a key is not found, it will not be included in the returned dictionary.
+        """
         d = {}
         for k in keys:
             val = await self.aget(k, self._missing_key, version=version)
@@ -216,12 +243,7 @@ class BaseCache:
 
     def get_or_set(self, key, default, timeout=DEFAULT_TIMEOUT, version=None):
         """
-        Fetch a given key from the cache. If the key does not exist,
-        add the key and set it to the default value. The default value can
-        also be any callable. If timeout is given, use that timeout for the
-        key; otherwise use the default cache timeout.
-
-        Return the value of the key stored or retrieved.
+        Fetch a given key from the cache, setting it to a default value if it does not exist. The default value can be a fixed value or a callable that returns a value. Returns the stored or retrieved value.
         """
         val = self.get(key, self._missing_key, version=version)
         if val is self._missing_key:
@@ -234,7 +256,11 @@ class BaseCache:
         return val
 
     async def aget_or_set(self, key, default, timeout=DEFAULT_TIMEOUT, version=None):
-        """See get_or_set()."""
+        """
+        Fetches a value from the cache by key, or sets it to a default value if it does not exist. 
+        The default value can be a static value or a callable that returns the value when invoked.
+        Optionally, a version and timeout can be specified for cache consistency and expiration control.
+        """
         val = await self.aget(key, self._missing_key, version=version)
         if val is self._missing_key:
             if callable(default):
@@ -261,8 +287,13 @@ class BaseCache:
 
     def incr(self, key, delta=1, version=None):
         """
-        Add delta to value in the cache. If the key does not exist, raise a
-        ValueError exception.
+        Increment the value associated with the given key in the cache by a specified delta.
+
+            :param key: The key to increment
+            :param delta: The amount to increment by (default: 1)
+            :param version: The version of the key (optional)
+            :raises ValueError: If the key does not exist in the cache
+            :return: The new value after incrementation
         """
         value = self.get(key, self._missing_key, version=version)
         if value is self._missing_key:
@@ -272,7 +303,9 @@ class BaseCache:
         return new_value
 
     async def aincr(self, key, delta=1, version=None):
-        """See incr()."""
+        """
+        Increments the value associated with the given key by a specified delta, atomically updating the stored value and returning the new value. If the key does not exist, raises a ValueError.
+        """
         value = await self.aget(key, self._missing_key, version=version)
         if value is self._missing_key:
             raise ValueError("Key '%s' not found" % key)
@@ -344,8 +377,13 @@ class BaseCache:
 
     def incr_version(self, key, delta=1, version=None):
         """
-        Add delta to the cache version for the supplied key. Return the new
-        version.
+        Increments the cache version for the given key by a specified delta, updating the cache accordingly.
+
+        :param key: The key for which the version should be incremented
+        :param delta: The amount by which to increment the version (default is 1)
+        :param version: The version to use (if not specified, the current version is used)
+        :returns: The new version after incrementing
+        :raises ValueError: If the key does not exist in the cache
         """
         if version is None:
             version = self.version
@@ -359,7 +397,17 @@ class BaseCache:
         return version + delta
 
     async def aincr_version(self, key, delta=1, version=None):
-        """See incr_version()."""
+        """
+        Atomically increments the version of a key by a specified delta.
+
+        This function fetches the current version of the key, increments the version by the specified delta, 
+        stores the updated value, and removes the old version. If the key does not exist, a ValueError is raised.
+
+        :param key: The key to increment the version for
+        :param delta: The amount to increment the version by (default is 1)
+        :param version: The version to use for the operation (default is the current version)
+        :return: The new version of the key
+        """
         if version is None:
             version = self.version
 

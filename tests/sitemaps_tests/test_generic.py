@@ -10,6 +10,9 @@ from .models import TestModel
 @override_settings(ABSOLUTE_URL_OVERRIDES={})
 class GenericViewsSitemapTests(SitemapTestsBase):
     def test_generic_sitemap_attributes(self):
+        """
+        Tests that a GenericSitemap instance properly sets and exposes its attributes, including queryset and metadata like date field, priority, changefreq, and protocol.”
+        """
         datetime_value = datetime.now()
         queryset = TestModel.objects.all()
         generic_sitemap = GenericSitemap(
@@ -33,7 +36,9 @@ class GenericViewsSitemapTests(SitemapTestsBase):
         self.assertCountEqual(generic_sitemap.queryset, queryset)
 
     def test_generic_sitemap(self):
-        "A minimal generic sitemap can be rendered"
+        """
+        Verifies that a basic generic sitemap can be successfully rendered by checking the XML content returned by the server against an expected output generated from existing TestModel instances.
+        """
         response = self.client.get("/generic/sitemap.xml")
         expected = ""
         for pk in TestModel.objects.values_list("id", flat=True):
@@ -48,6 +53,9 @@ class GenericViewsSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(response.content.decode(), expected_content)
 
     def test_generic_sitemap_lastmod(self):
+        """
+        Tests that the generic sitemap correctly sets the last modification date (lastmod) for its entries and includes it in the sitemap XML output, as well as in the HTTP Last-Modified response header.
+        """
         test_model = TestModel.objects.first()
         TestModel.objects.update(lastmod=datetime(2013, 3, 13, 10, 0, 0))
         response = self.client.get("/generic-lastmod/sitemap.xml")

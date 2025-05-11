@@ -59,6 +59,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return sql.quote(value, self.connection.connection)
 
     def _field_indexes_sql(self, model, field):
+        """
+        Returns a list of SQL index statements for the given model and field, including any necessary LIKE index statements.
+        """
         output = super()._field_indexes_sql(model, field)
         like_index_statement = self._create_like_index_sql(model, field)
         if like_index_statement is not None:
@@ -82,8 +85,14 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def _create_like_index_sql(self, model, field):
         """
-        Return the statement to create an index with varchar operator pattern
-        when the column type is 'varchar' or 'text', otherwise return None.
+
+        Creates an SQL statement for a like index if the specified field requires an index and its database type is 'varchar' or 'text'.
+
+        The index is created with the 'varchar_pattern_ops' or 'text_pattern_ops' operator class, 
+        which allows for efficient LIKE queries with wildcard characters at the end of the pattern.
+
+        Returns None if the field does not require an index or its database type does not support like indexes.
+
         """
         db_type = field.db_type(connection=self.connection)
         if db_type is not None and (field.db_index or field.unique):
@@ -120,6 +129,21 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return None
 
     def _using_sql(self, new_field, old_field):
+        """
+        Returns a USING clause for a SQL ALTER TABLE statement if the field type or its base data type has changed, otherwise an empty string.\"\"\"
+
+         Parameters
+         ----------
+         new_field : field instance
+             The new field to compare with.
+         old_field : field instance
+             The old field to compare with.
+
+         Returns
+         -------
+         str
+             A USING clause for a SQL ALTER TABLE statement, or an empty string if no change is needed.
+        """
         using_sql = " USING %(column)s::%(type)s"
         new_internal_type = new_field.get_internal_type()
         old_internal_type = old_field.get_internal_type()
@@ -134,6 +158,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return ""
 
     def _get_sequence_name(self, table, column):
+        """
+        Retrieves the sequence name associated with a specific column in a table, returning None if no matching sequence is found.
+        """
         with self.connection.cursor() as cursor:
             for sequence in self.connection.introspection.get_sequences(cursor, table):
                 if sequence["column"] == column:
@@ -145,6 +172,13 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     ):
         # Drop indexes on varchar/text/citext columns that are changing to a
         # different type.
+        """
+        Alters the type of a column in a database table.
+
+         Handles changes to auto fields, dropping or adding sequence and identity constraints as necessary.
+
+         Returns the SQL statement and additional actions required to perform the alteration.
+        """
         old_db_params = old_field.db_parameters(connection=self.connection)
         old_type = old_db_params["type"]
         if (old_field.db_index or old_field.unique) and (
@@ -266,6 +300,24 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         new_db_params,
         strict=False,
     ):
+        """
+
+        Alters a field in a model by calling the superclass's alter field method and 
+        additionally handling db index and uniqueness constraints. If the new field 
+        is indexed or unique and the old field was not, a new index is created. 
+        If the old field was unique and the new field is not, the corresponding 
+        index is removed.
+
+        :param model: The model containing the field to be altered
+        :param old_field: The original field
+        :param new_field: The new field
+        :param old_type: The type of the original field
+        :param new_type: The type of the new field
+        :param old_db_params: The database parameters of the original field
+        :param new_db_params: The database parameters of the new field
+        :param strict: Whether to strictly enforce the alteration (default: False)
+
+        """
         super()._alter_field(
             model,
             old_field,

@@ -62,6 +62,11 @@ class DateInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Verifies that a form fieldset is not used by default when rendering a form field.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

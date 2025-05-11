@@ -26,6 +26,16 @@ class Library:
         self.tags = {}
 
     def tag(self, name=None, compile_function=None):
+        """
+        Resource for managing and registering tags.
+
+        Allows for setting, getting, or decorating a tag on the library, with 
+        optional name and compile function specification.
+
+        Returns the tag function if no arguments are provided, or a decorator if 
+        only a name is provided, otherwise registers the compile function under 
+        the given name and returns it.
+        """
         if name is None and compile_function is None:
             # @register.tag()
             return self.tag_function
@@ -55,11 +65,7 @@ class Library:
 
     def filter(self, name=None, filter_func=None, **flags):
         """
-        Register a callable as a template filter. Example:
-
-        @register.filter
-        def lower(value):
-            return value.lower()
+        Registers a callable as a template filter, allowing for flexible processing of template data. The filter can be registered under a custom name, with optional flags to control its behavior.
         """
         if name is None and filter_func is None:
             # @register.filter()
@@ -101,14 +107,19 @@ class Library:
 
     def simple_tag(self, func=None, takes_context=None, name=None):
         """
-        Register a callable as a compiled template tag. Example:
-
-        @register.simple_tag
-        def hello(*args, **kwargs):
-            return 'world'
+        Registers a callable as a compiled template tag, allowing it to be used within a template. This facilitates the execution of custom logic during template rendering. The tag can take context and arguments, and can optionally assign its output to a variable.
         """
 
         def dec(func):
+            """
+            Decorator to compile a function into a template tag, enabling it to be used within a templating engine.
+
+            Enables the decorated function to parse input arguments and keyword arguments from a template tag syntax, 
+            and returns a node that can be used to render the function's output within the template.
+
+            The compiled function is then registered as a template tag, making it accessible for use within templates.
+
+            """
             (
                 params,
                 varargs,
@@ -122,6 +133,16 @@ class Library:
 
             @wraps(func)
             def compile_func(parser, token):
+                """
+                Compile a function into a node for use in a templating engine.
+
+                This function takes a parser and a token, extracts the function arguments, and 
+                returns a SimpleNode object that can be used to execute the function in a template. 
+
+                :param parser: The parser to use for compiling the function
+                :param token: The token containing the function call
+                :return: A SimpleNode object representing the compiled function
+                """
                 bits = token.split_contents()[1:]
                 target_var = None
                 if len(bits) >= 2 and bits[-2] == "as":
@@ -155,15 +176,27 @@ class Library:
 
     def inclusion_tag(self, filename, func=None, takes_context=None, name=None):
         """
-        Register a callable as an inclusion tag:
 
-        @register.inclusion_tag('results.html')
-        def show_results(poll):
-            choices = poll.choice_set.all()
-            return {'choices': choices}
+            A decorator to register a callable as an inclusion tag, making it available 
+            for use in templates. This allows the creation of reusable, self-contained 
+            template fragments.
+
+            :param filename: The name of the template this tag should render.
+            :param func: The function to decorate (optional, default is None).
+            :param takes_context: Whether the function takes the template context as an argument (optional, default is None).
+            :param name: The name under which the tag should be registered (optional, default is the name of the function).
+
         """
 
         def dec(func):
+            """
+            Decorator to compile a function into a template tag.
+
+            This decorator enables a function to be used as a template tag in a templating engine. It extracts the function's parameters, parses the tag's arguments, and returns a node that can be used to render the function in a template.
+
+            :param func: The function to decorate into a template tag
+            :returns: The decorated function
+            """
             (
                 params,
                 varargs,
@@ -218,6 +251,13 @@ class TagHelperNode(Node):
         self.kwargs = kwargs
 
     def get_resolved_arguments(self, context):
+        """
+        Returns the resolved arguments and keyword arguments for the current instance within a given context.
+
+        The resolution process involves evaluating each argument and keyword argument against the provided context, making the results available for further processing. If the instance is configured to take context, it is prepended to the list of resolved arguments. 
+
+        :returns: A tuple containing a list of resolved arguments and a dictionary of resolved keyword arguments.
+        """
         resolved_args = [var.resolve(context) for var in self.args]
         if self.takes_context:
             resolved_args = [context] + resolved_args
@@ -233,6 +273,12 @@ class SimpleNode(TagHelperNode):
         self.target_var = target_var
 
     def render(self, context):
+        """
+        Renders the function with resolved arguments and keyword arguments from the given context.
+
+        Resolves the arguments and keyword arguments, calls the function and stores the result in the context if a target variable is specified.
+        Otherwise, it returns the result, conditionally escaping it if autoescape is enabled in the context.
+        """
         resolved_args, resolved_kwargs = self.get_resolved_arguments(context)
         output = self.func(*resolved_args, **resolved_kwargs)
         if self.target_var is not None:
@@ -250,9 +296,9 @@ class InclusionNode(TagHelperNode):
 
     def render(self, context):
         """
-        Render the specified template and context. Cache the template object
-        in render_context to avoid reparsing and loading when used in a for
-        loop.
+        Renders a template with the given context, reusing the template object when 
+        possible to avoid redundant parsing and loading, and including any required 
+        CSRF token in the rendered output.
         """
         resolved_args, resolved_kwargs = self.get_resolved_arguments(context)
         _dict = self.func(*resolved_args, **resolved_kwargs)
@@ -293,9 +339,7 @@ def parse_bits(
     name,
 ):
     """
-    Parse bits for template tag helpers simple_tag and inclusion_tag, in
-    particular by detecting syntax errors and by extracting positional and
-    keyword arguments.
+    Parse bits for template tag helpers, detecting syntax errors and extracting positional and keyword arguments, ensuring correct argument handling for functions decorated with takes_context=True.
     """
     if takes_context:
         if params and params[0] == "context":
@@ -370,7 +414,18 @@ def parse_bits(
 
 def import_library(name):
     """
+
     Load a Library object from a template tag module.
+
+    Args:
+        name (str): Name of the template tag module to load.
+
+    Returns:
+        Library object: The loaded Library object.
+
+    Raises:
+        InvalidTemplateLibrary: If the specified template library is invalid or cannot be loaded.
+
     """
     try:
         module = import_module(name)

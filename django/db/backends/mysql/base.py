@@ -71,6 +71,12 @@ class CursorWrapper:
         self.cursor = cursor
 
     def execute(self, query, args=None):
+        """
+        Executes a SQL query on the database, passing in optional arguments.
+
+        Raises an IntegrityError if the query violates database constraints, 
+        otherwise propagates any operational errors encountered during execution.
+        """
         try:
             # args is None means no string interpolation
             return self.cursor.execute(query, args)
@@ -82,6 +88,19 @@ class CursorWrapper:
             raise
 
     def executemany(self, query, args):
+        """
+        Execute a SQL query multiple times with different arguments.
+
+        This method executes a single SQL query multiple times with different parameters.
+        It handles operational errors, specifically integrity errors, by re-raising them
+        with a more specific exception type.
+
+        :param query: The SQL query to execute.
+        :param args: A sequence of argument sequences to use in the query.
+        :raises IntegrityError: If an integrity error occurs during query execution.
+        :return: The result of the executemany operation.
+
+        """
         try:
             return self.cursor.executemany(query, args)
         except Database.OperationalError as e:
@@ -213,6 +232,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self.mysql_version
 
     def get_connection_params(self):
+        """
+        Retrieves a dictionary of connection parameters for a database connection.
+        The parameters are based on the settings defined in the instance's settings dictionary,
+        including authentication credentials, host, port, and options such as isolation level and client flags.
+        Returns a dictionary of keyword arguments suitable for establishing a database connection.
+        """
         kwargs = {
             "conv": django_conversions,
             "charset": "utf8",
@@ -263,6 +288,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return connection
 
     def init_connection_state(self):
+        """
+        Initializes the connection state, setting SQL auto-is-null and transaction isolation level as needed to configure the database session according to the current feature settings and isolation level.
+        """
         super().init_connection_state()
         assignments = []
         if self.features.is_sql_auto_is_null_enabled:
@@ -309,7 +337,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     def enable_constraint_checking(self):
         """
-        Re-enable foreign key checks after they have been disabled.
+        Re-enable foreign key checks after they have been disabled, restoring database consistency and preventing invalid data relationships.
         """
         # Override needs_rollback in case constraint_checks_disabled is
         # nested inside transaction.atomic.
@@ -322,11 +350,16 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     def check_constraints(self, table_names=None):
         """
-        Check each table name in `table_names` for rows with invalid foreign
-        key references. This method is intended to be used in conjunction with
-        `disable_constraint_checking()` and `enable_constraint_checking()`, to
-        determine if rows with invalid references were entered while constraint
-        checks were off.
+        Check for rows with invalid foreign key references in the specified tables.
+
+        Checks each table for rows where the foreign key references do not match any
+        primary key value in the referenced table, indicating data inconsistencies.
+        If no tables are specified, all tables in the database are checked.
+
+        This method is typically used after constraint checking has been temporarily
+        disabled, to ensure that no invalid data was entered during that period.
+
+        Raises an IntegrityError if any invalid foreign key references are found.
         """
         with self.cursor() as cursor:
             if table_names is None:
@@ -377,6 +410,13 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                         )
 
     def is_usable(self):
+        """
+
+        Checks if the database connection is usable by attempting a ping.
+
+        :return: True if the connection is active, False otherwise.
+
+        """
         try:
             self.connection.ping()
         except Database.Error:

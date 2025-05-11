@@ -54,6 +54,15 @@ class DataSource(GDALBase):
 
     def __init__(self, ds_input, ds_driver=False, write=False, encoding="utf-8"):
         # The write flag.
+        """
+        Initialize a dataset object with a data source file or a native GDAL dataset handle.
+
+        The dataset object provides an interface to interact with various data sources, 
+        such as shapefiles or GeoTIFFs, in a unified way. This constructor method 
+        takes care of registering necessary drivers and opening the data source 
+        with the specified access mode, either read-only or read-write, 
+        depending on the write flag.
+        """
         self._write = capi.GDAL_OF_UPDATE if write else capi.GDAL_OF_READONLY
         # See also https://gdal.org/development/rfc/rfc23_ogr_unicode.html
         self.encoding = encoding
@@ -90,7 +99,14 @@ class DataSource(GDALBase):
             raise GDALException('Invalid data source file "%s"' % ds_input)
 
     def __getitem__(self, index):
-        "Allows use of the index [] operator to get a layer at the index."
+        """
+        Retrieves a layer from the data source by its index or name.
+
+            Index can be either an integer representing the layer's position,
+            or a string representing the layer's name. Returns a Layer object.
+            Raises an IndexError if the index or name is invalid, or a TypeError
+            if an unsupported index type is used.
+        """
         if isinstance(index, str):
             try:
                 layer = capi.get_layer_by_name(self.ptr, force_bytes(index))

@@ -42,6 +42,13 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+
+        Configure a parser to accept command-line arguments for generating a Django model.
+
+        The supported arguments allow customizing the model creation process, such as specifying the data source, model name, and various options for handling field definitions, geometry, and SRID.
+
+        """
         parser.add_argument("data_source", help="Path to the data source.")
         parser.add_argument("model_name", help="Name of the model to create.")
         parser.add_argument(
@@ -109,6 +116,22 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        Handle GeoDjango's OGR inspect functionality, generating output based on the provided data source and model name.
+
+        The function utilizes the GDAL library to create a data source object from the provided data source, 
+        then uses OGR inspect to generate output. If a mapping is requested, a LayerMapping dictionary is 
+        also generated for the specified model.
+
+        The function takes in a variable number of arguments and keyword-only options, including 
+        data_source, model_name, and others used to customize the OGR inspection and mapping process.
+
+        Returns a string containing the generated output, including the OGR inspect results and 
+        LayerMapping dictionary if requested.
+
+        Raises a CommandError if an exception occurs while creating the data source object.
+
+        """
         data_source, model_name = options.pop("data_source"), options.pop("model_name")
 
         # Getting the OGR DataSource from the string parameter.

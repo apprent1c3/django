@@ -53,6 +53,16 @@ class TestDebugSQL(unittest.TestCase):
                 raise Exception
 
     def _test_output(self, verbosity):
+        """
+        Runs a suite of tests with specified verbosity, capturing their output.
+
+        This method executes a set of tests, including passing, failing, and erroring tests,
+        and returns their output as a string. The verbosity level controls the amount of
+        detail in the test output.
+
+        :param int verbosity: The level of detail in the test output.
+        :return: The output of the test run as a string.
+        """
         runner = DiscoverRunner(debug_sql=True, verbosity=0)
         suite = runner.test_suite()
         suite.addTest(self.FailingTest())
@@ -74,6 +84,14 @@ class TestDebugSQL(unittest.TestCase):
         return stream.getvalue()
 
     def test_output_normal(self):
+        """
+
+        Verifies the output of a test under normal conditions.
+
+        This method checks that the expected outputs are present in the test results and 
+        that the verbose expected outputs are not included.
+
+        """
         full_output = self._test_output(1)
         for output in self.expected_outputs:
             self.assertIn(output, full_output)
@@ -81,6 +99,9 @@ class TestDebugSQL(unittest.TestCase):
             self.assertNotIn(output, full_output)
 
     def test_output_verbose(self):
+        """
+        Verifies that the test output contains all expected and verbose output messages.
+        """
         full_output = self._test_output(2)
         for output in self.expected_outputs:
             self.assertIn(output, full_output)
@@ -134,6 +155,9 @@ class TestDebugSQL(unittest.TestCase):
     ]
 
     def test_setupclass_exception(self):
+        """
+        Tests that an exception raised during setUpClass is properly reported and logged.
+        """
         runner = DiscoverRunner(debug_sql=True, verbosity=0)
         suite = runner.test_suite()
         suite.addTest(self.ErrorSetUpTestDataTest())

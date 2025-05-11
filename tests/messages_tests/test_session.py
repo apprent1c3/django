@@ -54,8 +54,7 @@ class SessionTests(BaseTests, TestCase):
 
     def test_safedata(self):
         """
-        A message containing SafeData keeps its safe status when retrieved from
-        the message storage.
+        Tests that a message stored in the message storage retains its safe HTML status when retrieved.
         """
         storage = self.get_storage()
         message = Message(constants.DEBUG, mark_safe("<b>Hello Django!</b>"))

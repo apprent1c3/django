@@ -31,6 +31,17 @@ class BaseConstraint:
         self, *args, name=None, violation_error_code=None, violation_error_message=None
     ):
         # RemovedInDjango60Warning.
+        """
+        Initializes a validation object.
+
+        This constructor sets up the object's name, violation error code, and violation error message.
+        It accepts a variable number of positional arguments (deprecated) and keyword-only arguments for name, violation error code, and message.
+
+        The name is required and can be provided as a positional argument or a keyword argument.
+        If the name is not provided, the constructor raises a TypeError.
+        Optional parameters for violation error code and message can be provided as keyword arguments.
+        If the violation error message is not provided, a default message is used.
+        """
         if name is None and not args:
             raise TypeError(
                 f"{self.__class__.__name__}.__init__() missing 1 required keyword-only "
@@ -78,6 +89,13 @@ class BaseConstraint:
         return []
 
     def _check_references(self, model, references):
+        """
+        Checks the given model's \"constraints\" references for potential errors.
+
+        Validates that referenced fields exist and are properly defined, 
+        ensuring they are relations that can be used in constraints.
+        Returns a list of error messages for any invalid references.
+        """
         errors = []
         fields = set()
         for field_name, *lookups in references:
@@ -116,6 +134,9 @@ class BaseConstraint:
         return errors
 
     def deconstruct(self):
+        """
+        Deconstructs the constraint into a tuple containing the path to the constraint class, an empty tuple, and a dictionary of keyword arguments to recreate the constraint. The keyword arguments include the constraint name and any custom error messages or codes. This is used to serialize and deserialize the constraint, for example when creating database migrations.
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.constraints", "django.db.models")
         kwargs = {"name": self.name}
@@ -147,6 +168,16 @@ class CheckConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+        Initialize a check constraint with a given condition and optional error handling parameters.
+
+        :param name: The name of the constraint.
+        :param condition: A Q instance or boolean expression defining the constraint.
+        :param violation_error_code: The error code to use when the constraint is violated.
+        :param violation_error_message: The error message to use when the constraint is violated.
+        :raises TypeError: If the condition is not a Q instance or boolean expression.
+        :note: The `check` parameter is deprecated in favor of `condition`.
+        """
         if check is not None:
             warnings.warn(
                 "CheckConstraint.check is deprecated in favor of `.condition`.",
@@ -184,6 +215,9 @@ class CheckConstraint(BaseConstraint):
     check = property(_get_check, _set_check)
 
     def _check(self, model, connection):
+        """
+        Checks a model for potential issues related to a check constraint, including support for table check constraints and validity of the constraint condition, and returns a list of errors or warnings found.
+        """
         errors = []
         if not (
             connection.features.supports_table_check_constraints
@@ -223,6 +257,9 @@ class CheckConstraint(BaseConstraint):
         return errors
 
     def _get_check_sql(self, model, schema_editor):
+        """
+        Generates the SQL query string for the given model condition, properly formatted and parameterized for execution with the provided schema editor connection.
+        """
         query = Query(model=model, alias_cols=False)
         where = query.build_where(self.condition)
         compiler = query.get_compiler(connection=schema_editor.connection)
@@ -241,6 +278,15 @@ class CheckConstraint(BaseConstraint):
         return schema_editor._delete_check_sql(model, self.name)
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+        Validates a model instance against a specified condition.
+
+        :raises ValidationError: if the condition is not met for the instance.
+        :param model: the model class to use for validation
+        :param instance: the instance to validate
+        :param exclude: fields to exclude from validation (optional)
+        :param using: the database alias to use for validation (optional)
+        """
         against = instance._get_field_value_map(meta=model._meta, exclude=exclude)
         try:
             if not Q(self.condition).check(against, using=using):
@@ -307,6 +353,41 @@ class UniqueConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+        Initializes a UniqueConstraint instance, defining a database constraint that ensures the uniqueness of a set of columns or expressions.
+
+        Parameters
+        ----------
+        *expressions : str or Expression
+            The expressions to enforce uniqueness on. Mutually exclusive with fields.
+        fields : str
+            The fields to enforce uniqueness on. Mutually exclusive with expressions.
+        name : str
+            A unique name for the constraint.
+        condition : Q
+            The conditional expression under which the constraint applies.
+        deferrable : Deferrable
+            Defines whether the constraint is deferrable.
+        include : list or tuple
+            The secondary fields to include in the index.
+        opclasses : list or tuple
+            The operator classes to use for each field.
+        nulls_distinct : bool
+            Whether to treat NULL values as distinct.
+        violation_error_code : str
+            The error code to raise when the constraint is violated.
+        violation_error_message : str
+            The error message to raise when the constraint is violated.
+
+        Raises
+        ------
+        ValueError
+            If name is not provided, if neither expressions nor fields are provided, or if expressions and fields are both provided.
+        ValueError
+            If condition is used with deferrable, include, opclasses, or expressions.
+        TypeError
+            If the type of any argument is incorrect.
+        """
         if not name:
             raise ValueError("A unique constraint must be named.")
         if not expressions and not fields:
@@ -369,6 +450,9 @@ class UniqueConstraint(BaseConstraint):
         return bool(self.expressions)
 
     def _check(self, model, connection):
+        """
+        Checks a unique model constraint for validity and compatibility with the given database connection, returning any warnings or errors that are encountered.
+        """
         errors = model._check_local_fields({*self.fields, *self.include}, "constraints")
         required_db_features = model._meta.required_db_features
         if self.condition is not None and not (
@@ -467,6 +551,14 @@ class UniqueConstraint(BaseConstraint):
         return errors
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+        Returns the SQL representation of the condition for the given model.
+
+        Generates the SQL string based on the condition specified, or returns None if no condition is defined.
+
+        :returns: The SQL string representing the condition, or None if no condition is specified.
+        :rtype: str or None
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)
@@ -476,6 +568,15 @@ class UniqueConstraint(BaseConstraint):
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
     def _get_index_expressions(self, model, schema_editor):
+        """
+
+        Retrieves a list of index expressions for the given model, 
+        taking into account the specified schema editor and stored expressions.
+
+        Returns a resolved ExpressionList of index expressions if expressions exist, 
+        otherwise returns None.
+
+        """
         if not self.expressions:
             return None
         index_expressions = []
@@ -488,6 +589,9 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def constraint_sql(self, model, schema_editor):
+        """
+        Generates the SQL command to create a unique constraint on a model, incorporating specified fields, conditions, and index expressions.
+        """
         fields = [model._meta.get_field(field_name) for field_name in self.fields]
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
@@ -507,6 +611,15 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def create_sql(self, model, schema_editor):
+        """
+
+        Creates SQL statement for a unique constraint on a model.
+
+        This method generates the necessary SQL to create a unique constraint on a model's fields,
+        including any additional specified fields to include, a condition to apply the constraint,
+        and other options such as deferrability and operator classes.
+
+        """
         fields = [model._meta.get_field(field_name) for field_name in self.fields]
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
@@ -587,6 +700,9 @@ class UniqueConstraint(BaseConstraint):
         return super().__eq__(other)
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into a tuple that can be used for serialization or reconstruction, including the path, expressions, and any applicable keyword arguments such as fields, condition, and indexing options.
+        """
         path, args, kwargs = super().deconstruct()
         if self.fields:
             kwargs["fields"] = self.fields
@@ -603,6 +719,13 @@ class UniqueConstraint(BaseConstraint):
         return path, self.expressions, kwargs
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+        Validate an instance against a model to ensure uniqueness of certain fields or custom expressions.
+
+        This function takes a model, an instance, and optional parameters to exclude certain fields or use a specific database alias. 
+        It checks if the instance already exists in the database according to the specified uniqueness criteria, 
+        and raises a ValidationError if a duplicate is found or a condition is violated.
+        """
         queryset = model._default_manager.using(using)
         if self.fields:
             lookup_kwargs = {}

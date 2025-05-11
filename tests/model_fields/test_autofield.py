@@ -31,6 +31,9 @@ class AutoFieldInheritanceTests(SimpleTestCase):
                 self.assertIsInstance(field(), models.AutoField)
 
     def test_issubclass_of_autofield(self):
+        """
+        Verifies that custom and built-in auto field classes are subclasses of `AutoField`.
+        """
         class MyBigAutoField(models.BigAutoField):
             pass
 

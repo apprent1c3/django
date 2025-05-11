@@ -11,6 +11,11 @@ from . import FormFieldAssertionsMixin
 
 class DurationFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_durationfield_clean(self):
+        """
+
+        Tests the clean method of the DurationField, ensuring it correctly parses various duration formats into timedelta objects and raises validation errors for invalid input.
+
+        """
         f = DurationField()
         self.assertEqual(datetime.timedelta(seconds=30), f.clean("30"))
         self.assertEqual(datetime.timedelta(minutes=15, seconds=30), f.clean("15:30"))
@@ -41,6 +46,9 @@ class DurationFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.clean(""))
 
     def test_overflow(self):
+        """
+        Tests that the DurationField raises a ValidationError when given a duration that exceeds the valid range of days, ensuring that the field correctly handles overflow cases.
+        """
         msg = "The number of days must be between {min_days} and {max_days}.".format(
             min_days=datetime.timedelta.min.days,
             max_days=datetime.timedelta.max.days,
@@ -71,6 +79,9 @@ class DurationFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(datetime.timedelta(0, 10800), f.clean(10800))
 
     def test_durationfield_prepare_value(self):
+        """
+        Prepares a duration value for display, converting timedelta objects to a string representation and passing other values through unchanged.
+        """
         field = DurationField()
         td = datetime.timedelta(minutes=15, seconds=30)
         self.assertEqual(field.prepare_value(td), duration_string(td))

@@ -47,8 +47,7 @@ from .models import (
 class DateQuotingTest(TestCase):
     def test_django_date_trunc(self):
         """
-        Test the custom ``django_date_trunc method``, in particular against
-        fields which clash with strings passed to it (e.g. 'year') (#12818).
+        Tests the django_date_trunc method by verifying it correctly truncates dates to the specified interval, even when field names conflict with date parts.
         """
         updated = datetime.datetime(2010, 2, 20)
         SchoolClass.objects.create(year=2009, last_updated=updated)
@@ -57,8 +56,7 @@ class DateQuotingTest(TestCase):
 
     def test_django_date_extract(self):
         """
-        Test the custom ``django_date_extract method``, in particular against fields
-        which clash with strings passed to it (e.g. 'day') (#12818).
+        Tests the custom django_date_extract method to ensure it correctly extracts date components from Django model fields, particularly in cases where the field names clash with the date components being extracted.
         """
         updated = datetime.datetime(2010, 2, 20)
         SchoolClass.objects.create(year=2009, last_updated=updated)
@@ -83,7 +81,9 @@ class LastExecutedQueryTest(TestCase):
         self.assertIn(Reporter._meta.db_table, sql)
 
     def test_query_encoding(self):
-        """last_executed_query() returns a string."""
+        """
+        Tests that the last executed query is returned as a string, covering cases where the query contains non-ASCII characters and parameters.
+        """
         data = RawData.objects.filter(raw_data=b"\x00\x46  \xFE").extra(
             select={"föö": 1}
         )
@@ -113,6 +113,13 @@ class LastExecutedQueryTest(TestCase):
 
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_last_executed_query_dict(self):
+        """
+        Tests the last executed query functionality when using a dict as query parameters.
+
+        Verifies that the last executed query is correctly reconstructed when parameterized
+        queries are used with pyformat style, ensuring that parameters are properly replaced
+        with their actual values.
+        """
         square_opts = Square._meta
         sql = "INSERT INTO %s (%s, %s) VALUES (%%(root)s, %%(square)s)" % (
             connection.introspection.identifier_converter(square_opts.db_table),
@@ -129,6 +136,9 @@ class LastExecutedQueryTest(TestCase):
 
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_last_executed_query_dict_overlap_keys(self):
+        """
+        Tests that the last executed query can be correctly reconstructed when the parameter dictionary contains overlapping keys, ensuring the accurate retrieval of the SQL query executed by the database.
+        """
         square_opts = Square._meta
         sql = "INSERT INTO %s (%s, %s) VALUES (%%(root)s, %%(root2)s)" % (
             connection.introspection.identifier_converter(square_opts.db_table),
@@ -144,6 +154,9 @@ class LastExecutedQueryTest(TestCase):
             )
 
     def test_last_executed_query_with_duplicate_params(self):
+        """
+        Tests that the last executed query is correctly retrieved when the query has duplicate parameter values.
+        """
         square_opts = Square._meta
         table = connection.introspection.identifier_converter(square_opts.db_table)
         id_column = connection.ops.quote_name(square_opts.get_field("id").column)
@@ -164,8 +177,7 @@ class LastExecutedQueryTest(TestCase):
 class ParameterHandlingTest(TestCase):
     def test_bad_parameter_count(self):
         """
-        An executemany call with too many/not enough parameters will raise an
-        exception.
+        Tests that executemany raises an exception when the number of parameters passed does not match the query's parameter count.
         """
         with connection.cursor() as cursor:
             query = "INSERT INTO %s (%s, %s) VALUES (%%s, %%s)" % (
@@ -206,8 +218,7 @@ class LongNameTest(TransactionTestCase):
 
     def test_sequence_name_length_limits_flush(self):
         """
-        Sequence resetting as part of a flush with model with long name and
-        long pk name doesn't error (#8901).
+        Tests the database sequence reset during flush operations on a model with a long name and a many-to-many field with a long primary key name, ensuring that the operation completes without errors.
         """
         # A full flush is expensive to the full test, so we dig into the
         # internals to generate the likely offending SQL and run it manually
@@ -227,7 +238,9 @@ class LongNameTest(TransactionTestCase):
 
 class SequenceResetTest(TestCase):
     def test_generic_relation(self):
-        "Sequence names are correct when resetting generic relations (Ref #13941)"
+        """
+        Tests that sequence names are correctly reset when creating a new object after resetting a generic relation, ensuring the primary key is assigned a correct value.
+        """
         # Create an object with a manually specified PK
         Post.objects.create(id=10, name="1st post", text="hello world")
 
@@ -254,6 +267,11 @@ class ConnectionCreatedSignalTest(TransactionTestCase):
     # and so it cannot be re-opened during testing.
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_signal(self):
+        """
+        Tests the signal emitted when a database connection is created, 
+        verifying that the signal receiver correctly receives the connection instance 
+        and that the signal is properly disconnected.
+        """
         data = {}
 
         def receiver(sender, connection, **kwargs):
@@ -303,6 +321,18 @@ class BackendTestCase(TransactionTestCase):
         self.create_squares(args, "format", True)
 
     def create_squares(self, args, paramstyle, multiple):
+        """
+        ```python
+        def create_squares(self, args, paramstyle, multiple):
+            \"\"\"
+            Inserts data into the 'squares' table using the provided parameters.
+
+            :param args: Data to be inserted into the table.
+            :param paramstyle: The parameter style to use for the query (e.g. 'format' or 'pyformat').
+            :param multiple: Whether to perform a single or multiple row insertion.
+            \"\"\"
+        ```
+        """
         opts = Square._meta
         tbl = connection.introspection.identifier_converter(opts.db_table)
         f1 = connection.ops.quote_name(opts.get_field("root").column)
@@ -325,6 +355,10 @@ class BackendTestCase(TransactionTestCase):
 
     def test_cursor_executemany(self):
         # Test cursor.executemany #4896
+        """
+        Tests the execution of multiple SQL statements using the executemany method, 
+        creating squares with provided arguments and verifying the data integrity of the resulting objects.
+        """
         args = [(i, i**2) for i in range(-5, 6)]
         self.create_squares_with_executemany(args)
         self.assertEqual(Square.objects.count(), 11)
@@ -340,6 +374,9 @@ class BackendTestCase(TransactionTestCase):
 
     def test_cursor_executemany_with_iterator(self):
         # Test executemany accepts iterators #10320
+        """
+        Tests the execution of a database query using executemany with an iterator as input, verifying the correct insertion of records into the database under both normal and debug settings.
+        """
         args = ((i, i**2) for i in range(-3, 2))
         self.create_squares_with_executemany(args)
         self.assertEqual(Square.objects.count(), 5)
@@ -360,6 +397,12 @@ class BackendTestCase(TransactionTestCase):
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_cursor_executemany_with_pyformat(self):
         # Support pyformat style passing of parameters #10070
+        """
+        Tests the execution of multiple queries using the 'pyformat' parameter style.
+
+        Verifies that a list of arguments can be passed to the cursor's executemany method 
+        and that the resulting objects are correctly stored in the database.
+        """
         args = [{"root": i, "square": i**2} for i in range(-5, 6)]
         self.create_squares(args, "pyformat", multiple=True)
         self.assertEqual(Square.objects.count(), 11)
@@ -369,6 +412,11 @@ class BackendTestCase(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_cursor_executemany_with_pyformat_iterator(self):
+        """
+
+        Tests the execution of multiple queries with a cursor using a Python format string iterator.
+
+        """
         args = ({"root": i, "square": i**2} for i in range(-3, 2))
         self.create_squares(args, "pyformat", multiple=True)
         self.assertEqual(Square.objects.count(), 5)
@@ -381,6 +429,11 @@ class BackendTestCase(TransactionTestCase):
 
     def test_unicode_fetches(self):
         # fetchone, fetchmany, fetchall return strings as Unicode objects.
+        """
+        Tests the correct retrieval of data when using Unicode strings, 
+        verifying that the database query fetches the expected results 
+        in the correct order.
+        """
         qn = connection.ops.quote_name
         Person(first_name="John", last_name="Doe").save()
         Person(first_name="Jane", last_name="Doe").save()
@@ -408,6 +461,9 @@ class BackendTestCase(TransactionTestCase):
             )
 
     def test_unicode_password(self):
+        """
+        Test database connection with a Unicode password, verifying it doesn't raise unexpected errors.
+        """
         old_password = connection.settings_dict["PASSWORD"]
         connection.settings_dict["PASSWORD"] = "françois"
         try:
@@ -440,7 +496,9 @@ class BackendTestCase(TransactionTestCase):
         self.assertIn(connection.features.can_introspect_foreign_keys, (True, False))
 
     def test_duplicate_table_error(self):
-        """Creating an existing table returns a DatabaseError"""
+        """
+        Tests that attempting to create a table that already exists in the database raises a DatabaseError, ensuring proper error handling for duplicate table creation.
+        """
         query = "CREATE TABLE %s (id INTEGER);" % Article._meta.db_table
         with connection.cursor() as cursor:
             with self.assertRaises(DatabaseError):
@@ -448,7 +506,7 @@ class BackendTestCase(TransactionTestCase):
 
     def test_cursor_contextmanager(self):
         """
-        Cursors can be used as a context manager
+        Tests that a database cursor can be used as a context manager, ensuring it is properly closed and cannot be used after the context is exited.
         """
         with connection.cursor() as cursor:
             self.assertIsInstance(cursor, CursorWrapper)
@@ -475,7 +533,7 @@ class BackendTestCase(TransactionTestCase):
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_is_usable_after_database_disconnects(self):
         """
-        is_usable() doesn't crash when the database disconnects (#21553).
+        Tests that the database connection's is_usable() method behaves correctly after the database disconnects, ensuring it does not crash and returns the expected state.
         """
         # Open a connection to the database.
         with connection.cursor():
@@ -496,7 +554,7 @@ class BackendTestCase(TransactionTestCase):
     @override_settings(DEBUG=True)
     def test_queries(self):
         """
-        Test the documented API of connection.queries.
+        Tests the documented API of connection.queries, ensuring it correctly records and stores query information, including SQL statements and execution times.
         """
         sql = "SELECT 1" + connection.features.bare_select_suffix
         with connection.cursor() as cursor:
@@ -529,7 +587,7 @@ class BackendTestCase(TransactionTestCase):
     @override_settings(DEBUG=True)
     def test_queries_limit(self):
         """
-        The backend doesn't store an unlimited number of queries (#12581).
+        Tests that the query logging limit is enforced, ensuring only a specified number of recent queries are stored.
         """
         old_queries_limit = BaseDatabaseWrapper.queries_limit
         BaseDatabaseWrapper.queries_limit = 3
@@ -567,6 +625,9 @@ class BackendTestCase(TransactionTestCase):
     @mock.patch("django.db.backends.utils.logger")
     @override_settings(DEBUG=True)
     def test_queries_logger(self, mocked_logger):
+        """
+        Checks that the queries logger correctly logs SQL queries with their duration and other relevant details, ensuring that the logger output contains the expected information, including the SQL query, parameters, and database alias.
+        """
         sql = "SELECT 1" + connection.features.bare_select_suffix
         with connection.cursor() as cursor:
             cursor.execute(sql)
@@ -604,8 +665,7 @@ class FkConstraintsTests(TransactionTestCase):
 
     def test_integrity_checks_on_creation(self):
         """
-        Try to create a model instance that violates a FK constraint. If it
-        fails it should fail with IntegrityError.
+        Tests whether the database backend enforces foreign key constraints by attempting to create model instances that violate these constraints, verifying that an IntegrityError is raised as expected.
         """
         a1 = Article(
             headline="This is a test",
@@ -631,8 +691,7 @@ class FkConstraintsTests(TransactionTestCase):
 
     def test_integrity_checks_on_update(self):
         """
-        Try to update a model instance introducing a FK constraint violation.
-        If it fails it should fail with IntegrityError.
+        Verifies that updating a model instance with a foreign key constraint violation raises an IntegrityError, testing the integrity checks on database updates.
         """
         # Create an Article.
         Article.objects.create(
@@ -667,8 +726,7 @@ class FkConstraintsTests(TransactionTestCase):
 
     def test_disable_constraint_checks_manually(self):
         """
-        When constraint checks are disabled, should be able to write bad data
-        without IntegrityErrors.
+        Tests that disabling constraint checks manually allows writing invalid data without raising IntegrityErrors, ensuring data can be saved even when constraints are temporarily bypassed.
         """
         with transaction.atomic():
             # Create an Article.
@@ -690,8 +748,7 @@ class FkConstraintsTests(TransactionTestCase):
 
     def test_disable_constraint_checks_context_manager(self):
         """
-        When constraint checks are disabled (using context manager), should be
-        able to write bad data without IntegrityErrors.
+        Tests that disabling constraint checks using a context manager allows writing data that would otherwise trigger IntegrityErrors, ensuring data consistency is temporarily relaxed.
         """
         with transaction.atomic():
             # Create an Article.
@@ -712,7 +769,7 @@ class FkConstraintsTests(TransactionTestCase):
 
     def test_check_constraints(self):
         """
-        Constraint checks should raise an IntegrityError when bad data is in the DB.
+        Verifies that constraint checks raise an IntegrityError when invalid data is present in the database, ensuring data consistency and integrity.
         """
         with transaction.atomic():
             # Create an Article.
@@ -735,6 +792,10 @@ class FkConstraintsTests(TransactionTestCase):
             transaction.set_rollback(True)
 
     def test_check_constraints_sql_keywords(self):
+        """
+        Tests that Django's database integrity checks are skipped when saving an object 
+        with an invalid foreign key constraint after constraint checks have been disabled.
+        """
         with transaction.atomic():
             obj = SQLKeywordsModel.objects.create(reporter=self.r)
             obj.refresh_from_db()
@@ -755,8 +816,10 @@ class ThreadTests(TransactionTestCase):
 
     def test_default_connection_thread_local(self):
         """
-        The default connection (i.e. django.db.connection) is different for
-        each thread (#17258).
+
+        Tests that the default database connection is thread-local, ensuring that
+        each thread uses a separate connection to prevent conflicts.
+
         """
         # Map connections by id because connections with identical aliases
         # have the same hash.
@@ -768,6 +831,11 @@ class ThreadTests(TransactionTestCase):
         def runner():
             # Passing django.db.connection between threads doesn't work while
             # connections[DEFAULT_DB_ALIAS] does.
+            """
+            ..:Runner for managing database connections.
+
+            Ensures thread-safe database access by incrementing thread sharing and stores the connection for later use.
+            """
             from django.db import connections
 
             connection = connections[DEFAULT_DB_ALIAS]
@@ -799,7 +867,7 @@ class ThreadTests(TransactionTestCase):
 
     def test_connections_thread_local(self):
         """
-        The connections are different for each thread (#17258).
+        Tests that database connections are properly isolated for each thread, ensuring that multiple threads do not interfere with each other's connections.
         """
         # Map connections by id because connections with identical aliases
         # have the same hash.
@@ -837,12 +905,29 @@ class ThreadTests(TransactionTestCase):
 
     def test_pass_connection_between_threads(self):
         """
-        A connection can be passed from one thread to the other (#17258).
+
+        Tests that a database connection can be safely shared between threads.
+
+        Verifies that a connection can be passed from one thread to another and used to execute a database query.
+        The test checks for successful execution when thread-sharing is enabled and failures when it is not.
+
         """
         Person.objects.create(first_name="John", last_name="Doe")
 
         def do_thread():
+            """
+
+            Executes a database query in a separate thread to test database connection isolation.
+
+            The function spawns a new thread that attempts to retrieve a Person object from the database,
+            emulating a concurrent query scenario. Any exceptions that occur during this query are stored
+            in the exceptions list. This allows for testing of thread safety in database connections.
+
+            """
             def runner(main_thread_connection):
+                """
+                Sets the default database connection for the duration of the execution, then attempts to retrieve a Person object from the database, catching any exceptions that occur during this process.
+                """
                 from django.db import connections
 
                 connections["default"] = main_thread_connection
@@ -874,13 +959,17 @@ class ThreadTests(TransactionTestCase):
 
     def test_closing_non_shared_connections(self):
         """
-        A connection that is not explicitly shareable cannot be closed by
-        another thread (#17258).
+        Test that a non-shareable database connection cannot be closed by another thread, and verify thread-safe connection sharing by increasing thread sharing count.
         """
         # First, without explicitly enabling the connection for sharing.
         exceptions = set()
 
         def runner1():
+            """
+            Closes the default database connection in a separate thread.
+
+            Ensures the connection is properly terminated, catching any database errors that may occur during the closure process.
+            """
             def runner2(other_thread_connection):
                 try:
                     other_thread_connection.close()
@@ -901,6 +990,14 @@ class ThreadTests(TransactionTestCase):
         exceptions = set()
 
         def runner1():
+            """
+
+            Runs a thread to safely close a database connection, handling any exceptions that may occur.
+
+            This function ensures that thread sharing is properly incremented and decremented around the thread execution,
+            and collects any database exceptions that occur during connection closure.
+
+            """
             def runner2(other_thread_connection):
                 try:
                     other_thread_connection.close()
@@ -923,6 +1020,13 @@ class ThreadTests(TransactionTestCase):
         self.assertEqual(len(exceptions), 0)
 
     def test_thread_sharing_count(self):
+        """
+        .. method:: test_thread_sharing_count
+
+            Tests the increment and decrement functionality of the thread sharing count.
+            Verifies that the allowed thread sharing flag is updated correctly and
+            that attempting to decrement the count below zero raises a RuntimeError.
+        """
         self.assertIs(connection.allow_thread_sharing, False)
         connection.inc_thread_sharing()
         self.assertIs(connection.allow_thread_sharing, True)
@@ -952,6 +1056,9 @@ class MySQLPKZeroTests(TestCase):
 
 class DBConstraintTestCase(TestCase):
     def test_can_reference_existent(self):
+        """
+        Checks that an ObjectReference can correctly reference an existing object and that the reference can be retrieved.
+        """
         obj = Object.objects.create()
         ref = ObjectReference.objects.create(obj=obj)
         self.assertEqual(ref.obj, obj)
@@ -960,6 +1067,9 @@ class DBConstraintTestCase(TestCase):
         self.assertEqual(ref.obj, obj)
 
     def test_can_reference_non_existent(self):
+        """
+        Checks that an ObjectReference can be created and retrieved even if the referenced Object does not exist, and that attempting to access the non-existent Object raises a DoesNotExist exception.
+        """
         self.assertFalse(Object.objects.filter(id=12345).exists())
         ref = ObjectReference.objects.create(obj_id=12345)
         ref_new = ObjectReference.objects.get(obj_id=12345)
@@ -969,6 +1079,12 @@ class DBConstraintTestCase(TestCase):
             ref.obj
 
     def test_many_to_many(self):
+        """
+
+        Tests the many-to-many relationship between objects, ensuring that creating a related object, 
+        counting related objects, and manually creating intermediary model instances behave as expected.
+
+        """
         obj = Object.objects.create()
         obj.related_objects.create()
         self.assertEqual(Object.objects.count(), 2)

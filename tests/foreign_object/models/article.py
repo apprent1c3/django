@@ -9,6 +9,9 @@ class ArticleTranslationDescriptor(ForwardManyToOneDescriptor):
     """
 
     def __set__(self, instance, value):
+        """
+        Sets the value of a field on an instance, caching it locally and, if the field is a foreign key, also caching the reverse relationship on the related instance.
+        """
         if instance is None:
             raise AttributeError("%s must be accessed via instance" % self.field.name)
         self.field.set_cached_value(instance, value)

@@ -16,6 +16,9 @@ lorem_ipsum = """
 
 class ConcatTests(TestCase):
     def test_basic(self):
+        """
+        Tests the basic functionality of author name annotations, specifically concatenating alias and goes_by fields, and verifies the correct ordering of authors by name.
+        """
         Author.objects.create(name="Jayden")
         Author.objects.create(name="John Smith", alias="smithj", goes_by="John")
         Author.objects.create(name="Margaret", goes_by="Maggie")
@@ -39,6 +42,9 @@ class ConcatTests(TestCase):
             Author.objects.annotate(joined=Concat("alias"))
 
     def test_many(self):
+        """
+        Tests the database query that concatenates an author's name and \"goes by\" alias, verifying the correct ordering and formatting of the resulting strings.
+        """
         Author.objects.create(name="Jayden")
         Author.objects.create(name="John Smith", alias="smithj", goes_by="John")
         Author.objects.create(name="Margaret", goes_by="Maggie")
@@ -58,6 +64,9 @@ class ConcatTests(TestCase):
         )
 
     def test_mixed_char_text(self):
+        """
+        Tests the correct concatenation and uppercasing of mixed character text in article titles and text fields.
+        """
         Article.objects.create(
             title="The Title", text=lorem_ipsum, written=timezone.now()
         )
@@ -94,6 +103,9 @@ class ConcatTests(TestCase):
         self.assertEqual(str(qs.query), str(qs.all().query))
 
     def test_concat_non_str(self):
+        """
+        Tests Django's Concat aggregation function with non-string fields, ensuring correct output and efficient database query behavior.
+        """
         Author.objects.create(name="The Name", age=42)
         with self.assertNumQueries(1) as ctx:
             author = Author.objects.annotate(

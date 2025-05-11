@@ -53,6 +53,9 @@ class Migration:
     atomic = True
 
     def __init__(self, name, app_label):
+        """
+        Initializes a new instance with the given name and app label, and sets up internal state by copying class-level operations, dependencies, and runtime constraints.
+        """
         self.name = name
         self.app_label = app_label
         # Copy dependencies & other attrs as we might mutate them at runtime
@@ -79,9 +82,7 @@ class Migration:
 
     def mutate_state(self, project_state, preserve=True):
         """
-        Take a ProjectState and return a new one with the migration's
-        operations applied to it. Preserve the original object state by
-        default and return a mutated state from a copy.
+        Apply a set of migration operations to a project state, returning a new state with the changes applied, while optionally preserving the original state.
         """
         new_state = project_state
         if preserve:
@@ -93,12 +94,13 @@ class Migration:
 
     def apply(self, project_state, schema_editor, collect_sql=False):
         """
-        Take a project_state representing all migrations prior to this one
-        and a schema_editor for a live database and apply the migration
-        in a forwards order.
+        Applies the migration in a forwards order to the given project state and schema editor.
 
-        Return the resulting project state for efficient reuse by following
-        Migrations.
+        :param project_state: The state of the project prior to this migration
+        :param schema_editor: The schema editor for the live database
+        :param collect_sql: Whether to collect SQL statements for the operations, defaults to False
+
+        :returns: The resulting project state for efficient reuse by following migrations
         """
         for operation in self.operations:
             # If this operation cannot be represented as SQL, place a comment
@@ -138,16 +140,16 @@ class Migration:
 
     def unapply(self, project_state, schema_editor, collect_sql=False):
         """
-        Take a project_state representing all migrations prior to this one
-        and a schema_editor for a live database and apply the migration
-        in a reverse order.
 
-        The backwards migration process consists of two phases:
+        Reverses the migration by applying operations in reverse order.
 
-        1. The intermediate states from right before the first until right
-           after the last operation inside this migration are preserved.
-        2. The operations are applied in reverse order using the states
-           recorded in step 1.
+        Takes a project state and schema editor, and intelligently applies the 
+        migration in reverse to undo changes.
+
+        :param project_state: The current project state
+        :param schema_editor: The schema editor for the live database
+        :param collect_sql: Whether to collect SQL statements or not
+
         """
         # Construct all the intermediate states we need for a reverse migration
         to_run = []
@@ -199,9 +201,7 @@ class Migration:
 
     def suggest_name(self):
         """
-        Suggest a name for the operations this migration might represent. Names
-        are not guaranteed to be unique, but put some effort into the fallback
-        name to avoid VCS conflicts if possible.
+        Suggests a name for the operations in this migration, attempting to create a descriptive and unique name to minimize potential version control system conflicts.
         """
         if self.initial:
             return "initial"

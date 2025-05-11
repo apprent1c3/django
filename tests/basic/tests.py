@@ -38,6 +38,9 @@ from .models import (
 
 class ModelInstanceCreationTests(TestCase):
     def test_object_is_not_written_to_database_until_save_was_called(self):
+        """
+        Verifies that an object is not persisted to the database until the save method is explicitly called.
+        """
         a = Article(
             id=None,
             headline="Parrot programs in Python",
@@ -53,8 +56,7 @@ class ModelInstanceCreationTests(TestCase):
 
     def test_can_initialize_model_instance_using_positional_arguments(self):
         """
-        You can initialize a model instance using positional arguments,
-        which should match the field order as defined in the model.
+        Verifies that a model instance can be initialized with positional arguments matching the field order defined in the model.
         """
         a = Article(None, "Second article", datetime(2005, 7, 29))
         a.save()
@@ -73,6 +75,9 @@ class ModelInstanceCreationTests(TestCase):
         self.assertEqual(a.pub_date, datetime(2005, 7, 30, 0, 0))
 
     def test_autofields_generate_different_values_for_each_instance(self):
+        """
+        Verifies that auto fields generate distinct values for each instance, ensuring uniqueness across multiple object creations.
+        """
         a1 = Article.objects.create(
             headline="First", pub_date=datetime(2005, 7, 30, 0, 0)
         )
@@ -93,6 +98,9 @@ class ModelInstanceCreationTests(TestCase):
         self.assertEqual(a.headline, "Fourth article")
 
     def test_positional_and_keyword_args_for_the_same_field(self):
+        """
+        Tests that initializing an Article object with both positional and keyword arguments for the same field raises a TypeError with a descriptive error message.
+        """
         msg = "Article() got both positional and keyword arguments for field '%s'."
         with self.assertRaisesMessage(TypeError, msg % "headline"):
             Article(None, "Fifth article", headline="Other headline.")
@@ -102,6 +110,13 @@ class ModelInstanceCreationTests(TestCase):
             Article(None, "Seventh article", datetime(2021, 3, 1), pub_date=None)
 
     def test_cannot_create_instance_with_invalid_kwargs(self):
+        """
+
+        Tests that creating an Article instance with invalid keyword arguments raises a TypeError.
+
+        Verifies that the error message correctly reports the unexpected keyword arguments.
+
+        """
         msg = "Article() got unexpected keyword arguments: 'foo'"
         with self.assertRaisesMessage(TypeError, msg):
             Article(
@@ -122,8 +137,7 @@ class ModelInstanceCreationTests(TestCase):
 
     def test_can_leave_off_value_for_autofield_and_it_gets_value_on_save(self):
         """
-        You can leave off the value for an AutoField when creating an
-        object, because it'll get filled in automatically when you save().
+        Tests whether an AutoField can be omitted when creating an object and still receive a value upon saving. Verifies that the object is saved successfully and the AutoField is populated automatically.
         """
         a = Article(headline="Article 5", pub_date=datetime(2005, 7, 31))
         a.save()
@@ -136,7 +150,9 @@ class ModelInstanceCreationTests(TestCase):
         self.assertEqual(a.headline, "Default headline")
 
     def test_for_datetimefields_saves_as_much_precision_as_was_given(self):
-        """as much precision in *seconds*"""
+        """
+        Tests if DateTimeField saves date/time values with the same level of precision as provided, including seconds and microseconds.
+        """
         a1 = Article(
             headline="Article 7",
             pub_date=datetime(2005, 7, 31, 12, 30),
@@ -157,6 +173,10 @@ class ModelInstanceCreationTests(TestCase):
         )
 
     def test_saving_an_object_again_does_not_create_a_new_object(self):
+        """
+        Verifies that saving an existing object multiple times does not create a new object, 
+        instead updating the existing one, and ensures the object's identifier remains constant.
+        """
         a = Article(headline="original", pub_date=datetime(2014, 5, 16))
         a.save()
         current_id = a.id
@@ -169,6 +189,12 @@ class ModelInstanceCreationTests(TestCase):
         self.assertEqual(a.id, current_id)
 
     def test_querysets_checking_for_membership(self):
+        """
+        Tests checking membership of objects in querysets.
+
+        Verifies that an object is correctly represented in the ORM querysets after being saved, 
+        by checking its presence in the all() queryset and verifying its existence by id.
+        """
         headlines = ["Parrot programs in Python", "Second article", "Third article"]
         some_pub_date = datetime(2014, 5, 16, 12, 1)
         for headline in headlines:
@@ -204,6 +230,9 @@ class ModelInstanceCreationTests(TestCase):
             ChildPrimaryKeyWithDefault().save()
 
     def test_save_deprecation(self):
+        """
+        Tests that a deprecation warning is raised when passing positional arguments to the save method, which will be removed in Django 6.0.
+        """
         a = Article(headline="original", pub_date=datetime(2014, 5, 16))
         msg = "Passing positional arguments to save() is deprecated"
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):
@@ -211,6 +240,9 @@ class ModelInstanceCreationTests(TestCase):
             self.assertEqual(Article.objects.count(), 1)
 
     def test_save_deprecation_positional_arguments_used(self):
+        """
+        Checks that a deprecation warning is raised when positional arguments are used with the save method, ensuring they are correctly translated into keyword arguments.
+        """
         a = Article()
         fields = ["headline"]
         with (
@@ -240,6 +272,9 @@ class ModelInstanceCreationTests(TestCase):
             a.save(False, False, None, None, None)
 
     def test_save_conflicting_positional_and_named_arguments(self):
+        """
+        Tests that saving a model raises a TypeError when passing conflicting positional and keyword arguments to the save method.
+        """
         a = Article()
         cases = [
             ("force_insert", True, [42]),
@@ -257,6 +292,9 @@ class ModelInstanceCreationTests(TestCase):
                     a.save(*args, **{param_name: param_value})
 
     async def test_asave_deprecation(self):
+        """
+        Tests the deprecation of passing positional arguments to the asave method, ensuring a warning is raised when used incorrectly.
+        """
         a = Article(headline="original", pub_date=datetime(2014, 5, 16))
         msg = "Passing positional arguments to asave() is deprecated"
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):
@@ -264,6 +302,13 @@ class ModelInstanceCreationTests(TestCase):
             self.assertEqual(await Article.objects.acount(), 1)
 
     async def test_asave_deprecation_positional_arguments_used(self):
+        """
+        Tests deprecation warning for positional arguments in asave method.
+
+        Verifies that a RemovedInDjango60Warning is raised when using positional arguments
+        instead of keyword arguments in the asave method and checks the correct call
+        to the save_base method.
+        """
         a = Article()
         fields = ["headline"]
         with (
@@ -293,6 +338,11 @@ class ModelInstanceCreationTests(TestCase):
             await a.asave(False, False, None, None, None)
 
     async def test_asave_conflicting_positional_and_named_arguments(self):
+        """
+        Test that Model.asave() raises a TypeError when given conflicting positional and named arguments.
+
+        Verifies that the function correctly identifies and reports cases where a single argument is provided both positionally and by keyword, triggering a RemovedInDjango60Warning and a TypeError with a meaningful error message.
+        """
         a = Article()
         cases = [
             ("force_insert", True, [42]),
@@ -311,6 +361,14 @@ class ModelInstanceCreationTests(TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_save_positional_arguments(self):
+        """
+
+        Tests the behavior of saving a model instance with positional arguments.
+
+        Checks that only specified fields are updated when using the save method,
+        leaving other fields unchanged.
+
+        """
         a = Article.objects.create(headline="original", pub_date=datetime(2014, 5, 16))
         a.headline = "changed"
 
@@ -325,6 +383,10 @@ class ModelInstanceCreationTests(TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     async def test_asave_positional_arguments(self):
+        """
+        Tests the usage of asave method with positional arguments, specifically the ability to 
+        update specific fields of a model instance and refresh it from the database asynchronously.
+        """
         a = await Article.objects.acreate(
             headline="original", pub_date=datetime(2014, 5, 16)
         )
@@ -353,6 +415,12 @@ class ModelTest(TestCase):
         self.assertTrue(hasattr(Article, "objects"))
 
     def test_queryset_delete_removes_all_items_in_that_queryset(self):
+        """
+        Tests that the delete method removes all items in a queryset.
+
+        Verifies that a queryset delete operation correctly removes all matching objects
+        from the database, and that the remaining objects are as expected.
+        """
         headlines = ["An article", "Article One", "Amazing article", "Boring article"]
         some_pub_date = datetime(2014, 5, 16, 12, 1)
         for headline in headlines:
@@ -366,6 +434,13 @@ class ModelTest(TestCase):
         self.assertEqual(Article.objects.get().headline, "Boring article")
 
     def test_not_equal_and_equal_operators_behave_as_expected_on_instances(self):
+        """
+
+        Tests that the equality and inequality operators behave correctly for Article instances.
+
+        Verifies that instances with different ids are considered not equal, and instances with the same id are considered equal, even when retrieved from the database separately.
+
+        """
         some_pub_date = datetime(2014, 5, 16, 12, 1)
         a1 = Article.objects.create(headline="First", pub_date=some_pub_date)
         a2 = Article.objects.create(headline="Second", pub_date=some_pub_date)
@@ -437,6 +512,11 @@ class ModelTest(TestCase):
         # Model instances have a hash function, so they can be used in sets
         # or as dictionary keys. Two models compare as equal if their primary
         # keys are equal.
+        """
+
+        Verifies that the hash function for Article objects works correctly by checking if an object retrieved from the database is present in a set of Article objects.
+
+        """
         a10 = Article.objects.create(
             headline="Article 10",
             pub_date=datetime(2005, 7, 31, 12, 30, 45),
@@ -504,8 +584,7 @@ class ModelTest(TestCase):
 
     def test_create_relation_with_gettext_lazy(self):
         """
-        gettext_lazy objects work when saving model instances
-        through various methods. Refs #10498.
+        Tests the creation of model instances with gettext_lazy objects to ensure they are properly saved and updated through various methods, including bulk operations and direct instance updates.
         """
         notlazy = "test"
         lazy = gettext_lazy(notlazy)
@@ -527,6 +606,9 @@ class ModelTest(TestCase):
         self.assertEqual(article.headline, notlazy)
 
     def test_emptyqs(self):
+        """
+        Tests the behavior of the EmptyQuerySet class, ensuring it cannot be instantiated directly and verifying its correct identification in various contexts.
+        """
         msg = "EmptyQuerySet can't be instantiated"
         with self.assertRaisesMessage(TypeError, msg):
             EmptyQuerySet()
@@ -535,6 +617,9 @@ class ModelTest(TestCase):
 
     def test_emptyqs_values(self):
         # test for #15959
+        """
+        Tests that EmptyQuerySet is correctly used for values_list queries on an empty queryset, ensuring no database queries are executed and the resulting queryset has the correct type and length.
+        """
         Article.objects.create(headline="foo", pub_date=datetime.now())
         with self.assertNumQueries(0):
             qs = Article.objects.none().values_list("pk")
@@ -543,6 +628,9 @@ class ModelTest(TestCase):
 
     def test_emptyqs_customqs(self):
         # A hacky test for custom QuerySet subclass - refs #17271
+        """
+        Tests that an empty QuerySet instance with a custom QuerySet class behaves correctly, specifically when using the none() method, and verifies it correctly transitions to an EmptyQuerySet instance while preserving the custom class's methods.
+        """
         Article.objects.create(headline="foo", pub_date=datetime.now())
 
         class CustomQuerySet(models.QuerySet):
@@ -559,6 +647,9 @@ class ModelTest(TestCase):
 
     def test_emptyqs_values_order(self):
         # Tests for ticket #17712
+        """
+        Tests that QuerySets with no values do not generate database queries when ordered or filtered.
+        """
         Article.objects.create(headline="foo", pub_date=datetime.now())
         with self.assertNumQueries(0):
             self.assertEqual(
@@ -589,6 +680,9 @@ class ModelTest(TestCase):
             SelfRef.objects.get(selfref=sr)
 
     def test_eq(self):
+        """
+        Tests the equality behavior of the Article class, verifying that instances with the same id are considered equal, and instances with different ids or of different types are considered unequal.
+        """
         self.assertEqual(Article(id=1), Article(id=1))
         self.assertNotEqual(Article(id=1), object())
         self.assertNotEqual(object(), Article(id=1))
@@ -607,6 +701,9 @@ class ModelTest(TestCase):
             hash(Article())
 
     def test_missing_hash_not_inherited(self):
+        """
+        Tests that an object without a custom hash implementation raises a TypeError when attempting to compute its hash, even if it inherits the equality comparison method from a parent class.
+        """
         class NoHash(models.Model):
             def __eq__(self, other):
                 return super.__eq__(other)
@@ -615,6 +712,9 @@ class ModelTest(TestCase):
             hash(NoHash(id=1))
 
     def test_specified_parent_hash_inherited(self):
+        """
+        Verifies that a model's hash value correctly inherits from its parent class when not explicitly defined, ensuring consistency in object identification and comparison.
+        """
         class ParentHash(models.Model):
             def __eq__(self, other):
                 return super.__eq__(other)
@@ -625,6 +725,13 @@ class ModelTest(TestCase):
 
     def test_delete_and_access_field(self):
         # Accessing a field after it's deleted from a model reloads its value.
+        """
+
+        Tests the behavior of an Article object when a field is deleted and then accessed.
+        Verifies that the field reverts to its original value after deletion and that
+        the number of database queries remains as expected.
+
+        """
         pub_date = datetime.now()
         article = Article.objects.create(headline="foo", pub_date=pub_date)
         new_pub_date = article.pub_date + timedelta(days=10)
@@ -637,6 +744,11 @@ class ModelTest(TestCase):
         self.assertEqual(article.pub_date, new_pub_date)
 
     def test_multiple_objects_max_num_fetched(self):
+        """
+
+        Tests that attempting to retrieve a single object using get() raises a MultipleObjectsReturned exception when more than one object matches the query.
+
+        """
         max_results = MAX_GET_RESULTS - 1
         Article.objects.bulk_create(
             Article(headline="Area %s" % i, pub_date=datetime(2005, 7, 28))
@@ -682,6 +794,9 @@ class ModelLookupTest(TestCase):
 
     def test_rich_lookup(self):
         # Django provides a rich database lookup API.
+        """
+        Tests lookup functionality for Article model, covering exact, startswith, and date-based lookups.
+        """
         self.assertEqual(Article.objects.get(id__exact=self.a.id), self.a)
         self.assertEqual(Article.objects.get(headline__startswith="Swallow"), self.a)
         self.assertEqual(Article.objects.get(pub_date__year=2005), self.a)
@@ -698,6 +813,9 @@ class ModelLookupTest(TestCase):
 
     def test_equal_lookup(self):
         # The "__exact" lookup type can be omitted, as a shortcut.
+        """
+        Tests the lookup functionality of the Article model, ensuring that objects can be retrieved by various fields and filters.
+        """
         self.assertEqual(Article.objects.get(id=self.a.id), self.a)
         self.assertEqual(
             Article.objects.get(headline="Swallow programs in Python"), self.a
@@ -728,6 +846,10 @@ class ModelLookupTest(TestCase):
     def test_does_not_exist(self):
         # Django raises an Article.DoesNotExist exception for get() if the
         # parameters don't match any object.
+        """
+        Tests that an ObjectDoesNotExist exception is raised when trying to retrieve 
+        an Article that does not exist in the database, under various query conditions.
+        """
         with self.assertRaisesMessage(
             ObjectDoesNotExist, "Article matching query does not exist."
         ):
@@ -749,6 +871,15 @@ class ModelLookupTest(TestCase):
         # Lookup by a primary key is the most common case, so Django
         # provides a shortcut for primary-key exact lookups.
         # The following is identical to articles.get(id=a.id).
+        """
+
+        Tests the lookup of articles by their primary key.
+
+        Verifies that retrieving an article by its primary key returns the correct object,
+        and that filtering by primary key returns a sequence containing the correct object.
+        Additionally, checks that two separate lookups by primary key return the same object instance.
+
+        """
         self.assertEqual(Article.objects.get(pk=self.a.id), self.a)
 
         # pk can be used as a shortcut for the primary key name in any query.
@@ -761,6 +892,9 @@ class ModelLookupTest(TestCase):
 
     def test_too_many(self):
         # Create a very similar object
+        """
+        Tests that attempting to retrieve a single Article using the get() method raises a MultipleObjectsReturned exception when multiple Articles match the specified criteria.
+        """
         a = Article(
             id=None,
             headline="Swallow bites Python",
@@ -791,13 +925,20 @@ class ConcurrentSaveTests(TransactionTestCase):
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_concurrent_delete_with_save(self):
         """
-        Test fetching, deleting and finally saving an object - we should get
-        an insert in this case.
+
+            Tests concurrent deletion and saving of an object to ensure data integrity.
+
+            Verifies that deletion of an object in one thread does not prevent its subsequent 
+            saving in another thread, resulting in the object being inserted instead of deleted.
+
         """
         a = Article.objects.create(headline="foo", pub_date=datetime.now())
         exceptions = []
 
         def deleter():
+            """
+            Deletes an Article instance from the database and catches any exceptions that occur during the deletion process, ensuring the database connection is closed afterwards.
+            """
             try:
                 # Do not delete a directly - doing so alters its state.
                 Article.objects.filter(pk=a.pk).delete()
@@ -908,6 +1049,17 @@ class ManagerTest(SimpleTestCase):
 
 class SelectOnSaveTests(TestCase):
     def test_select_on_save(self):
+        """
+
+        Tests the efficiency of database queries when using the `select_on_save` feature.
+
+        Verifies that a single query is executed when saving a model instance without 
+        `select_on_save`, whereas saving an instance with `select_on_save` results in 
+        two queries (one for the update and one for the subsequent select). Additionally, 
+        it checks that passing `force_update=True` reduces the number of queries to one 
+        and raises an error if no rows were affected by the forced update.
+
+        """
         a1 = Article.objects.create(pub_date=datetime.now())
         with self.assertNumQueries(1):
             a1.save()
@@ -925,8 +1077,11 @@ class SelectOnSaveTests(TestCase):
 
     def test_select_on_save_lying_update(self):
         """
-        select_on_save works correctly if the database doesn't return correct
-        information about matched rows from UPDATE.
+
+         Tests the functionality of select_on_save when the database returns incorrect 
+         information about matched rows from an UPDATE operation, verifying that it 
+         behaves correctly and raises the expected errors in different scenarios.
+
         """
         # Change the manager to not return "row matched" for update().
         # We are going to change the Article's _base_manager class
@@ -971,6 +1126,13 @@ class SelectOnSaveTests(TestCase):
 
 class ModelRefreshTests(TestCase):
     def test_refresh(self):
+        """
+        Tests the refresh_from_db method of an Article instance.
+
+        Verifies that the method correctly updates the instance's attributes 
+        from the database, either for all fields or a specific selection of fields, 
+        while keeping track of the number of database queries executed.
+        """
         a = Article.objects.create(pub_date=datetime.now())
         Article.objects.create(pub_date=datetime.now())
         Article.objects.filter(pk=a.pk).update(headline="new headline")
@@ -1005,6 +1167,11 @@ class ModelRefreshTests(TestCase):
             s.refresh_from_db(fields=["foo__bar"])
 
     def test_refresh_fk(self):
+        """
+        Tests that refresh_from_db updates a model instance's foreign key reference 
+        with changes made by other instances, and that it only performs a single database 
+        query, even when the instance has a previously accessed related object.
+        """
         s1 = SelfRef.objects.create()
         s2 = SelfRef.objects.create()
         s3 = SelfRef.objects.create(selfref=s1)
@@ -1022,6 +1189,9 @@ class ModelRefreshTests(TestCase):
             self.assertEqual(s3_copy.selfref, s2)
 
     def test_refresh_null_fk(self):
+        """
+        Tests that a null foreign key is correctly refreshed from the database to its original non-null value, ensuring data consistency after an update.
+        """
         s1 = SelfRef.objects.create()
         s2 = SelfRef.objects.create(selfref=s1)
         s2.selfref = None
@@ -1029,6 +1199,9 @@ class ModelRefreshTests(TestCase):
         self.assertEqual(s2.selfref, s1)
 
     def test_refresh_unsaved(self):
+        """
+        Tests the refresh_from_db method on an Article object, ensuring it can retreive its current database state with a single query and verify that its attributes are correctly updated.
+        """
         pub_date = datetime.now()
         a = Article.objects.create(pub_date=pub_date)
         a2 = Article(id=a.pk)
@@ -1038,6 +1211,9 @@ class ModelRefreshTests(TestCase):
         self.assertEqual(a2._state.db, "default")
 
     def test_refresh_fk_on_delete_set_null(self):
+        """
+        Tests that the foreign key field correctly sets its value to null when the referenced object is deleted.
+        """
         a = Article.objects.create(
             headline="Parrot programs in Python",
             pub_date=datetime(2005, 7, 28),
@@ -1054,7 +1230,9 @@ class ModelRefreshTests(TestCase):
             a.refresh_from_db(fields=[])
 
     def test_refresh_clears_reverse_related(self):
-        """refresh_from_db() clear cached reverse relations."""
+        """
+        Tests that the refresh_from_db method clears cached reverse relations, ensuring that calling refresh_from_db correctly updates the object's attributes to reflect any changes made to related objects in the database.
+        """
         article = Article.objects.create(
             headline="Parrot programs in Python",
             pub_date=datetime(2005, 7, 28),
@@ -1065,6 +1243,12 @@ class ModelRefreshTests(TestCase):
         self.assertTrue(hasattr(article, "featured"))
 
     def test_refresh_clears_reverse_related_explicit_fields(self):
+        """
+
+        Tests that refreshing an Article instance from the database with explicit fields 
+        clears and correctly populates reverse related fields, specifically the 'featured' attribute.
+
+        """
         article = Article.objects.create(headline="Test", pub_date=datetime(2024, 2, 4))
         self.assertFalse(hasattr(article, "featured"))
         FeaturedArticle.objects.create(article_id=article.pk)
@@ -1072,6 +1256,9 @@ class ModelRefreshTests(TestCase):
         self.assertTrue(hasattr(article, "featured"))
 
     def test_refresh_clears_one_to_one_field(self):
+        """
+        Tests whether refreshing a featured article instance correctly updates its associated one-to-one field after the related article has been modified.
+        """
         article = Article.objects.create(
             headline="Parrot programs in Python",
             pub_date=datetime(2005, 7, 28),
@@ -1084,6 +1271,14 @@ class ModelRefreshTests(TestCase):
         self.assertEqual(featured.article.headline, "Parrot programs in Python 2.0")
 
     def test_prefetched_cache_cleared(self):
+        """
+
+        Tests whether the prefetch cache is properly cleared when objects are updated or refreshed from the database.
+
+        Verifies that prefetching related objects persists even after the objects are updated to remove their relationships,
+        but is cleared when the objects are refreshed from the database, either entirely or selectively.
+
+        """
         a = Article.objects.create(pub_date=datetime(2005, 7, 28))
         s = SelfRef.objects.create(article=a, article_cited=a)
         # refresh_from_db() without fields=[...]
@@ -1119,6 +1314,14 @@ class ModelRefreshTests(TestCase):
 
     @skipUnlessDBFeature("has_select_for_update")
     def test_refresh_for_update(self):
+        """
+
+        Tests that refresh_from_db uses SELECT FOR UPDATE when the database supports it.
+
+        Verifies that a database query with FOR UPDATE clause is executed when refreshing
+        an object from the database using select_for_update.
+
+        """
         a = Article.objects.create(pub_date=datetime.now())
         for_update_sql = connection.ops.for_update_sql()
 
@@ -1129,6 +1332,11 @@ class ModelRefreshTests(TestCase):
         )
 
     def test_refresh_with_related(self):
+        """
+        Tests that the refresh_from_db method of a FeaturedArticle instance correctly 
+        updates its attributes, including related objects, from the database, with and 
+        without using select_related to reduce database queries.
+        """
         a = Article.objects.create(pub_date=datetime.now())
         fa = FeaturedArticle.objects.create(article=a)
 
@@ -1141,6 +1349,14 @@ class ModelRefreshTests(TestCase):
             self.assertEqual(fa.article.pub_date, a.pub_date)
 
     def test_refresh_overwrites_queryset_using(self):
+        """
+
+        Tests that refresh_from_db overwrites the queryset's database when using a different database connection.
+
+        Verifies that attempting to refresh an object from a non-existent database raises a ConnectionDoesNotExist exception,
+        and that specifying the database connection using the 'using' parameter allows the refresh to succeed.
+
+        """
         a = Article.objects.create(pub_date=datetime.now())
 
         from_queryset = Article.objects.using("nonexistent")
@@ -1149,6 +1365,11 @@ class ModelRefreshTests(TestCase):
         a.refresh_from_db(using="default", from_queryset=from_queryset)
 
     def test_refresh_overwrites_queryset_fields(self):
+        """
+
+        Tests that the refresh_from_db method correctly overwrites queryset fields when updating specific fields.
+
+        """
         a = Article.objects.create(pub_date=datetime.now())
         headline = "headline"
         Article.objects.filter(pk=a.pk).update(headline=headline)

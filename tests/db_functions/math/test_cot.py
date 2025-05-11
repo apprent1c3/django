@@ -16,6 +16,12 @@ class CotTests(TestCase):
         self.assertIsNone(obj.null_cot)
 
     def test_decimal(self):
+        """
+        Tests the calculation of the cotangent function on Decimal values in the database.
+
+        Verifies that the Cot function correctly handles Decimal inputs and returns Decimal outputs,
+        and that the calculated result matches the expected value of 1/tan(n).
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_cot=Cot("n1"), n2_cot=Cot("n2")).first()
         self.assertIsInstance(obj.n1_cot, Decimal)
@@ -24,6 +30,9 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.n2_cot, Decimal(1 / math.tan(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the cotangent calculation for float fields in the FloatModel using the Cot database function. Verifies that the result is a float and matches the mathematical definition of cotangent (1/tan).
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_cot=Cot("f1"), f2_cot=Cot("f2")).first()
         self.assertIsInstance(obj.f1_cot, float)
@@ -32,6 +41,13 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.f2_cot, 1 / math.tan(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the Cot (cotangent) database function for integer values.
+
+        Verifies that annotating a model with Cot expressions results in floating-point
+        values and that these values accurately represent the cotangent of the original
+        integer values.
+        """
         IntegerModel.objects.create(small=-5, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_cot=Cot("small"),
@@ -46,6 +62,9 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.big_cot, 1 / math.tan(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of decimal fields using the cot lookup.
+        """
         with register_lookup(DecimalField, Cot):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

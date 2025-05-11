@@ -29,6 +29,9 @@ class FieldOperation(Operation):
         )
 
     def references_model(self, name, app_label):
+        """
+        Checks if the current model references the specified model through a foreign key field. Returns True if the models are the same or if the field references the specified model, otherwise returns False.
+        """
         name_lower = name.lower()
         if name_lower == self.model_name_lower:
             return True
@@ -43,6 +46,11 @@ class FieldOperation(Operation):
         return False
 
     def references_field(self, model_name, name, app_label):
+        """
+        Determines if a given field references another model's field.
+
+        Checks if the provided model name and field name match the current instance's model and name, or if the field is referenced by a related field. If no match is found, it uses the `field_references` function to verify if the field references the target field.
+        """
         model_name_lower = model_name.lower()
         # Check if this operation locally references the field.
         if model_name_lower == self.model_name_lower:
@@ -101,6 +109,16 @@ class AddField(FieldOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Apply this migration operation to the database schema.
+
+         Updates the database schema to reflect changes made to the specified model field.
+
+         :param app_label: The label of the application this migration operation belongs to
+         :param schema_editor: The schema editor instance to apply changes to
+         :param from_state: The current state of the application
+         :param to_state: The desired state of the application
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)
@@ -129,6 +147,17 @@ class AddField(FieldOperation):
         return "%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        Reduces a field operation into a list of new operations.
+
+        This method simplifies operations such as field alterations, removals, and renames,
+        returning a new set of operations that can be applied to achieve the same result.
+
+        :param operation: The field operation to reduce.
+        :param app_label: The label of the application this operation belongs to.
+        :return: A list of reduced operations.
+
+        """
         if isinstance(operation, FieldOperation) and self.is_same_field_operation(
             operation
         ):
@@ -231,6 +260,12 @@ class AlterField(FieldOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Alters a database field based on a model's state change during a database migration.
+
+        Applies changes to the field's default value if preserving defaults is not desired, 
+        and uses the schema editor to update the field in the database.
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)
@@ -253,6 +288,13 @@ class AlterField(FieldOperation):
         return "alter_%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        Reduce a database operation by merging it with existing operations on the same field.
+
+        Supports merging of AlterField, RemoveField, and RenameField operations to minimize the number of database operations required.
+
+        Returns a list of reduced operations that should be applied to the database instead of the original operation.
+        """
         if isinstance(
             operation, (AlterField, RemoveField)
         ) and self.is_same_field_operation(operation):
