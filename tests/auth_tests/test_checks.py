@@ -23,7 +23,9 @@ from .models import CustomUserNonUniqueUsername
 class UserModelChecksTests(SimpleTestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserNonListRequiredFields")
     def test_required_fields_is_list(self):
-        """REQUIRED_FIELDS should be a list."""
+        """
+        Tests that the REQUIRED_FIELDS attribute in a custom user model is a list or tuple, as required by Django's authentication system, by verifying an error is raised when it is not.
+        """
 
         class CustomUserNonListRequiredFields(AbstractBaseUser):
             username = models.CharField(max_length=30, unique=True)
@@ -46,7 +48,9 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserBadRequiredFields")
     def test_username_not_in_required_fields(self):
-        """USERNAME_FIELD should not appear in REQUIRED_FIELDS."""
+        """
+        Tests that the USERNAME_FIELD is not incorrectly included in REQUIRED_FIELDS for a custom user model, ensuring adherence to authentication model best practices.
+        """
 
         class CustomUserBadRequiredFields(AbstractBaseUser):
             username = models.CharField(max_length=30, unique=True)
@@ -75,8 +79,8 @@ class UserModelChecksTests(SimpleTestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserNonUniqueUsername")
     def test_username_non_unique(self):
         """
-        A non-unique USERNAME_FIELD raises an error only if the default
-        authentication backend is used. Otherwise, a warning is raised.
+        Tests the behavior of the authentication system when the USERNAME_FIELD is not unique. 
+        Verifies that an error is raised when using the default authentication backend, and a warning is raised when using a custom backend.
         """
         errors = checks.run_checks()
         self.assertEqual(
@@ -110,6 +114,11 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserPartiallyUnique")
     def test_username_partially_unique(self):
+        """
+        Tests that the uniqueness of the USERNAME_FIELD is enforced when running Django's system checks. 
+        Verifies that an Error is raised when the USERNAME_FIELD is not unique and no custom authentication backend is provided, 
+        and a Warning is raised instead when a custom authentication backend is used.
+        """
         class CustomUserPartiallyUnique(AbstractBaseUser):
             username = models.CharField(max_length=30)
             USERNAME_FIELD = "username"
@@ -155,6 +164,9 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserUniqueConstraint")
     def test_username_unique_with_model_constraint(self):
+        """
+        Tests that a custom user model with a unique username constraint passes validation checks when registered as the AUTH_USER_MODEL and used with a custom authentication backend.
+        """
         class CustomUserUniqueConstraint(AbstractBaseUser):
             username = models.CharField(max_length=30)
             USERNAME_FIELD = "username"
@@ -172,7 +184,7 @@ class UserModelChecksTests(SimpleTestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.BadUser")
     def test_is_anonymous_authenticated_methods(self):
         """
-        <User Model>.is_anonymous/is_authenticated must not be methods.
+        Tests that the ``is_anonymous`` and ``is_authenticated`` attributes of a User model are not methods, as this could pose a security risk by allowing anonymous users to be treated as authenticated.
         """
 
         class BadUser(AbstractBaseUser):
@@ -211,6 +223,13 @@ class UserModelChecksTests(SimpleTestCase):
 @override_system_checks([check_models_permissions])
 class ModelsPermissionsChecksTests(SimpleTestCase):
     def test_clashing_default_permissions(self):
+        """
+
+        Verifies that a custom permission in a model does not clash with a built-in permission.
+
+        Checks if defining a permission with a codename that already exists in Django's built-in permissions results in an error.
+
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [("change_checked", "Can edit permission (duplicate)")]
@@ -229,6 +248,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_non_clashing_custom_permissions(self):
+        """
+        Tests that custom permissions defined on a model do not clash with existing permissions.
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [
@@ -240,6 +262,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_clashing_custom_permissions(self):
+        """
+        Tests that custom permissions with the same codename raise an error when checking model permissions.
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [
@@ -265,6 +290,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_verbose_name_max_length(self):
+        """
+        Tests that the verbose_name of a model does not exceed the maximum length for permission names.
+        """
         class Checked(models.Model):
             class Meta:
                 verbose_name = (
@@ -303,6 +331,13 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_custom_permission_name_max_length(self):
+        """
+
+        Checks that a custom permission name does not exceed the maximum allowed length of 255 characters.
+
+        Tests that creating a model with a custom permission name that is too long results in a validation error.
+
+        """
         custom_permission_name = (
             "some ridiculously long verbose name that is out of control" * 5
         )
@@ -327,6 +362,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_custom_permission_codename_max_length(self):
+        """
+        Tests that a custom permission codename exceeds the maximum allowed length of 100 characters, triggering a validation error.
+        """
         custom_permission_codename = "x" * 101
 
         class Checked(models.Model):
@@ -349,6 +387,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_empty_default_permissions(self):
+        """
+        Verifies that an app with no default permissions defined does not trigger any warnings or errors during model checks.
+        """
         class Checked(models.Model):
             class Meta:
                 default_permissions = ()

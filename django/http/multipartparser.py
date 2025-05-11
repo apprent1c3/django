@@ -57,17 +57,16 @@ class MultiPartParser:
 
     def __init__(self, META, input_data, upload_handlers, encoding=None):
         """
-        Initialize the MultiPartParser object.
 
-        :META:
-            The standard ``META`` dictionary in Django request objects.
-        :input_data:
-            The raw post data, as a file-like object.
-        :upload_handlers:
-            A list of UploadHandler instances that perform operations on the
-            uploaded data.
-        :encoding:
-            The encoding with which to treat the incoming data.
+            Initialize the MultiPartParser object.
+
+            Initializes a parser for HTTP multipart requests, ensuring the content type is valid and setting up the necessary parameters for parsing the request data.
+
+            :param META: The standard META dictionary in Django request objects.
+            :param input_data: The raw post data, as a file-like object.
+            :param upload_handlers: A list of UploadHandler instances that perform operations on the uploaded data.
+            :param str encoding: The encoding with which to treat the incoming data (default is obtained from settings.DEFAULT_CHARSET).
+
         """
         # Content-Type should contain multipart and the boundary information.
         content_type = META.get("CONTENT_TYPE", "")
@@ -121,6 +120,12 @@ class MultiPartParser:
         # resources would be kept alive. This is only needed for errors because
         # the Request object closes all uploaded files at the end of the
         # request.
+        """
+
+        Attempts to parse the object's contents, handling any exceptions that occur.
+        If an exception is raised, any open file objects associated with the parser are closed before re-raising the exception.
+
+        """
         try:
             return self._parse()
         except Exception:
@@ -132,10 +137,13 @@ class MultiPartParser:
 
     def _parse(self):
         """
-        Parse the POST data and break it into a FILES MultiValueDict and a POST
-        MultiValueDict.
+        Parse the POST data and break it into a FILES MultiValueDict and a POST MultiValueDict.
 
-        Return a tuple containing the POST and FILES dictionary, respectively.
+        Returns:
+            tuple: A tuple containing the POST dictionary and the FILES dictionary, respectively.
+
+        Note:
+            This method handles large file uploads, checks for various limits such as the maximum number of fields, files, and memory size, and raises exceptions when these limits are exceeded.
         """
         from django.http import QueryDict
 
@@ -366,7 +374,7 @@ class MultiPartParser:
 
     def handle_file_complete(self, old_field_name, counters):
         """
-        Handle all the signaling that takes place when a file is complete.
+        Handle signaling when a file upload is complete, invoking handlers and storing the completed file object.
         """
         for i, handler in enumerate(self._upload_handlers):
             file_obj = handler.file_complete(counters[i])
@@ -380,16 +388,7 @@ class MultiPartParser:
 
     def sanitize_file_name(self, file_name):
         """
-        Sanitize the filename of an upload.
-
-        Remove all possible path separators, even though that might remove more
-        than actually required by the target system. Filenames that could
-        potentially cause problems (current/parent dir) are also discarded.
-
-        It should be noted that this function could still return a "filepath"
-        like "C:some_file.txt" which is handled later on by the storage layer.
-        So while this function does sanitize filenames to some extent, the
-        resulting filename should still be considered as untrusted user input.
+        Sanitize the filename of an upload by removing path separators and potentially problematic filenames, returning a cleaned filename or None if the filename is invalid.
         """
         file_name = html.unescape(file_name)
         file_name = file_name.rsplit("/")[-1]
@@ -424,10 +423,7 @@ class LazyStream:
 
     def __init__(self, producer, length=None):
         """
-        Every LazyStream must have a producer when instantiated.
-
-        A producer is an iterable that returns a string each time it
-        is called.
+        Initializes a LazyStream instance, requiring a producer that generates strings, and optionally sets an expected length for the stream.
         """
         self._producer = producer
         self._empty = False
@@ -441,7 +437,27 @@ class LazyStream:
         return self.position
 
     def read(self, size=None):
+        """
+
+        Reads data from the source, yielding up to a specified size.
+
+        If size is not provided, all remaining data is read. The function handles
+        iteration over the source, buffering any excess data that is not needed,
+        to ensure it can be retrieved in subsequent reads.
+
+        :param size: The maximum number of bytes to read (optional)
+        :return: The read data as a bytes object
+
+        """
         def parts():
+            """
+            Produces a sequence of chunks from a data stream, 
+            limiting the total output to a specified size, or the remaining size if not specified.
+
+            Yields:
+                bytes: Chunks of the data stream.
+
+            """
             remaining = self._remaining if size is None else size
             # do the whole thing in one shot if no limit was provided.
             if remaining is None:
@@ -468,10 +484,7 @@ class LazyStream:
 
     def __next__(self):
         """
-        Used when the exact number of bytes to read is unimportant.
-
-        Return whatever chunk is conveniently returned from the iterator.
-        Useful to avoid unnecessary bookkeeping if performance is an issue.
+        Advance to the next chunk of data from the iterator, returning a conveniently-sized chunk without considering exact byte count, prioritizing performance over precision
         """
         if self._leftover:
             output = self._leftover
@@ -496,10 +509,7 @@ class LazyStream:
 
     def unget(self, bytes):
         """
-        Place bytes back onto the front of the lazy stream.
-
-        Future calls to read() will return those bytes first. The
-        stream position and thus tell() will be rewound.
+        Places bytes back onto the front of the stream, making them available for future reads and rewinding the stream position.
         """
         if not bytes:
             return
@@ -509,11 +519,7 @@ class LazyStream:
 
     def _update_unget_history(self, num_bytes):
         """
-        Update the unget history as a sanity check to see if we've pushed
-        back the same number of bytes in one chunk. If we keep ungetting the
-        same number of bytes many times (here, 50), we're mostly likely in an
-        infinite loop of some sort. This is usually caused by a
-        maliciously-malformed MIME request.
+        Update the unget history to detect potential infinite loops caused by maliciously malformed MIME requests.
         """
         self._unget_history = [num_bytes] + self._unget_history[:49]
         number_equal = len(
@@ -543,6 +549,11 @@ class ChunkIter:
         self.chunk_size = chunk_size
 
     def __next__(self):
+        """
+        Retrieves the next chunk of data from the input stream.
+
+        Returns the next chunk of data if available, otherwise raises a StopIteration exception when the stream is exhausted.
+        """
         try:
             data = self.flo.read(self.chunk_size)
         except InputStreamExhausted:
@@ -588,6 +599,13 @@ class BoundaryIter:
     """
 
     def __init__(self, stream, boundary):
+        """
+        Initializes a parser object with a given input stream and boundary.
+
+        The boundary is used to determine the end of the data. This constructor reads
+        and checks the stream for initialization, raising an exception if the stream
+        is empty. It prepares the parser for subsequent data processing operations.
+        """
         self._stream = stream
         self._boundary = boundary
         self._done = False
@@ -606,6 +624,12 @@ class BoundaryIter:
         return self
 
     def __next__(self):
+        """
+
+        Returns the next chunk of data from the stream, respecting the rollback boundary.
+        If no more data is available, raises a StopIteration exception.
+
+        """
         if self._done:
             raise StopIteration()
 
@@ -648,12 +672,9 @@ class BoundaryIter:
 
     def _find_boundary(self, data):
         """
-        Find a multipart boundary in data.
+        Find a multipart boundary in the provided data.
 
-        Should no boundary exist in the data, return None. Otherwise, return
-        a tuple containing the indices of the following:
-         * the end of current encapsulation
-         * the start of the next encapsulation
+        Returns a tuple containing the indices of the end of the current encapsulation and the start of the next encapsulation if a boundary exists, otherwise returns None.
         """
         index = data.find(self._boundary)
         if index < 0:
@@ -672,7 +693,9 @@ class BoundaryIter:
 
 
 def exhaust(stream_or_iterable):
-    """Exhaust an iterator or stream."""
+    """
+    Consume all items from an iterator or a stream, exhausting it to its end. This is useful when the iterator must be fully consumed for side effects or release of resources, such as closing file handles or freeing locks, but the items themselves are not needed.
+    """
     try:
         iterator = iter(stream_or_iterable)
     except TypeError:
@@ -682,7 +705,7 @@ def exhaust(stream_or_iterable):
 
 def parse_boundary_stream(stream, max_header_size):
     """
-    Parse one and exactly one stream that encapsulates a boundary.
+    Parse a single stream that encapsulates a boundary, extracting headers and determining the stream type (raw, field, or file). The function reads the stream in chunks until it finds the end of the headers, then parses the headers to determine the stream type and extract any relevant parameters.
     """
 
     # Look for the end of headers and if not found extend the search to double

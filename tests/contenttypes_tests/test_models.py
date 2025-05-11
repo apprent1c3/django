@@ -16,9 +16,7 @@ class ContentTypesTests(TestCase):
 
     def test_lookup_cache(self):
         """
-        The content type cache (see ContentTypeManager) works correctly.
-        Lookups for a particular content type -- by model, ID, or natural key
-        -- should hit the database only on the first lookup.
+        Tests the ContentType cache to ensure it works correctly, verifying that lookups via model, ID, or natural key only hit the database on the first lookup and subsequent lookups use the cached result.
         """
         # At this point, a lookup for a ContentType should hit the DB
         with self.assertNumQueries(1):
@@ -101,6 +99,12 @@ class ContentTypesTests(TestCase):
 
     @isolate_apps("contenttypes_tests")
     def test_get_for_models_migrations_create_model(self):
+        """
+
+        Tests that ContentType.objects.get_for_models() returns the correct content types
+        for models when migrations have created the models.
+
+        """
         state = ProjectState.from_apps(apps.get_app_config("contenttypes"))
 
         class Foo(models.Model):
@@ -120,6 +124,9 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_models_full_cache(self):
         # Full cache
+        """
+        Tests that the get_for_models method of ContentType's manager correctly retrieves content types for multiple models, and that it uses caching to avoid repeated database queries.
+        """
         ContentType.objects.get_for_model(ContentType)
         ContentType.objects.get_for_model(FooWithUrl)
         with self.assertNumQueries(0):
@@ -135,8 +142,7 @@ class ContentTypesTests(TestCase):
     @isolate_apps("contenttypes_tests")
     def test_get_for_model_create_contenttype(self):
         """
-        ContentTypeManager.get_for_model() creates the corresponding content
-        type if it doesn't exist in the database.
+        Tests the creation of a content type using ContentTypeManager.get_for_model() if it does not already exist in the database for a given model.
         """
 
         class ModelCreatedOnTheFly(models.Model):
@@ -149,8 +155,9 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_concrete_model(self):
         """
-        Make sure the `for_concrete_model` kwarg correctly works
-        with concrete, proxy and deferred models
+        Tests the functionality of getting a ContentType object for a model, 
+         verifying that the `for_concrete_model` keyword argument correctly 
+         handles concrete, proxy, and deferred models.
         """
         concrete_model_ct = ContentType.objects.get_for_model(ConcreteModel)
         self.assertEqual(
@@ -192,8 +199,7 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_concrete_models(self):
         """
-        Make sure the `for_concrete_models` kwarg correctly works
-        with concrete, proxy and deferred models.
+        Verifies that the `for_concrete_models` argument functions correctly with various model types, including concrete, proxy, and deferred models, ensuring accurate content type retrieval.
         """
         concrete_model_ct = ContentType.objects.get_for_model(ConcreteModel)
 
@@ -248,6 +254,11 @@ class ContentTypesTests(TestCase):
         )
 
     def test_cache_not_shared_between_managers(self):
+        """
+        Tests whether the cache used by ContentType managers is isolated to each manager instance, 
+        preventing cache sharing between managers. Verifies that each manager fetches data 
+        independently and caches it for subsequent lookups.
+        """
         with self.assertNumQueries(1):
             ContentType.objects.get_for_model(ContentType)
         with self.assertNumQueries(0):
@@ -261,9 +272,10 @@ class ContentTypesTests(TestCase):
 
     def test_missing_model(self):
         """
-        Displaying content types in admin (or anywhere) doesn't break on
-        leftover content type records in the DB for which no model is defined
-        anymore.
+
+        Tests that the system handles leftover content type records in the database for which no model is defined.
+        Verifies that the functionality does not break when displaying content types, even if a corresponding model is missing.
+
         """
         ct = ContentType.objects.create(
             app_label="contenttypes",
@@ -278,9 +290,7 @@ class ContentTypesTests(TestCase):
 
     def test_missing_model_with_existing_model_name(self):
         """
-        Displaying content types in admin (or anywhere) doesn't break on
-        leftover content type records in the DB for which no model is defined
-        anymore, even if a model with the same name exists in another app.
+        Verifies that retrieving content types does not break when a model with the same name exists in another app, but the original model is no longer defined.
         """
         # Create a stale ContentType that matches the name of an existing
         # model.
@@ -359,6 +369,10 @@ class GenericPrefetchTests(TestCase):
             GenericPrefetch("question")
 
     def test_values_queryset(self):
+        """
+        Tests that prefetch querysets do not use values() or values_list() methods, 
+        raising a ValueError with a corresponding error message.
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             GenericPrefetch("question", [Author.objects.values("pk")])

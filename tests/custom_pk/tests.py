@@ -23,7 +23,7 @@ class BasicCustomPKTests(TestCase):
 
     def test_querysets(self):
         """
-        Both pk and custom attribute_name can be used in filter and friends
+        Checks that Django querysets can be filtered using both primary keys (pk) and custom attribute names, ensuring consistent and expected results for various query operations, including filter and lookup types.
         """
         self.assertSequenceEqual(Employee.objects.filter(pk=123), [self.dan])
         self.assertSequenceEqual(Employee.objects.filter(employee_code=123), [self.dan])
@@ -62,7 +62,11 @@ class BasicCustomPKTests(TestCase):
 
     def test_querysets_relational(self):
         """
-        Queries across tables, involving primary key
+
+        Tests database queries across tables using relational fields, including primary keys and foreign keys.
+
+        Verifies that querysets are correctly filtered based on related objects' attributes.
+
         """
         self.assertSequenceEqual(
             Employee.objects.filter(business__name="Sears"),
@@ -98,7 +102,7 @@ class BasicCustomPKTests(TestCase):
 
     def test_get(self):
         """
-        Get can accept pk or the real attribute name
+        Tests the get method of the Employee model, verifying it can retrieve objects by primary key or attribute name, and raises an exception for non-existent objects.
         """
         self.assertEqual(Employee.objects.get(pk=123), self.dan)
         self.assertEqual(Employee.objects.get(pk=456), self.fran)
@@ -111,8 +115,10 @@ class BasicCustomPKTests(TestCase):
 
     def test_pk_attributes(self):
         """
-        pk and attribute name are available on the model
-        No default id attribute is added
+
+        Tests that a model's primary key and attribute names are correctly available,
+        and that no default 'id' attribute is added if it's not explicitly defined.
+
         """
         # pk can be used as a substitute for the primary key.
         # The primary key can be accessed via the pk property on the model.
@@ -142,7 +148,7 @@ class BasicCustomPKTests(TestCase):
 
     def test_save(self):
         """
-        custom pks do not affect save
+        Tests that saving an object with a custom primary key does not affect the save operation, ensuring data integrity and consistency.
         """
         fran = Employee.objects.get(pk=456)
         fran.last_name = "Jones"
@@ -157,7 +163,7 @@ class BasicCustomPKTests(TestCase):
 class CustomPKTests(TestCase):
     def test_custom_pk_create(self):
         """
-        New objects can be created both with pk and the custom name
+        Tests the creation of new objects with custom primary keys, verifying that they can be successfully created using both the custom primary key and a system-generated one.
         """
         Employee.objects.create(employee_code=1234, first_name="Foo", last_name="Bar")
         Employee.objects.create(pk=1235, first_name="Foo", last_name="Baz")
@@ -187,6 +193,9 @@ class CustomPKTests(TestCase):
 
     def test_custom_field_pk(self):
         # Regression for #10785 -- Custom fields can be used for primary keys.
+        """
+        Verifies that custom foreign key fields are correctly linked between models Bar and Foo, ensuring consistent retrieval of associated objects.
+        """
         new_bar = Bar.objects.create()
         new_foo = Foo.objects.create(bar=new_bar)
 

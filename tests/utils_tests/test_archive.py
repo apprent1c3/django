@@ -31,6 +31,9 @@ class TestArchive(unittest.TestCase):
         self.addCleanup(os.chdir, old_cwd)
 
     def test_extract_function(self):
+        """
+        Tests the extract functionality of an archive by extracting test archive files and verifying the extracted files' existence.
+        """
         with os.scandir(self.testdir) as entries:
             for entry in entries:
                 with self.subTest(entry.name), tempfile.TemporaryDirectory() as tmpdir:
@@ -54,7 +57,9 @@ class TestArchive(unittest.TestCase):
         sys.platform == "win32", "Python on Windows has a limited os.chmod()."
     )
     def test_extract_file_permissions(self):
-        """archive.extract() preserves file permissions."""
+        """
+        Verifies that file system permissions are preserved when extracting files using the archive.extract() function.
+        """
         mask = stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO
         umask = os.umask(0)
         os.umask(umask)  # Restore the original umask.
@@ -79,6 +84,9 @@ class TestArchive(unittest.TestCase):
 
 class TestArchiveInvalid(SimpleTestCase):
     def test_extract_function_traversal(self):
+        """
+        Tests the extract function's path traversal protection by attempting to extract archives with malicious paths.
+        """
         archives_dir = os.path.join(os.path.dirname(__file__), "traversal_archives")
         tests = [
             ("traversal.tar", ".."),

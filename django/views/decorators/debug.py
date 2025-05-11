@@ -10,26 +10,7 @@ coroutine_functions_to_sensitive_variables = {}
 
 def sensitive_variables(*variables):
     """
-    Indicate which variables used in the decorated function are sensitive so
-    that those variables can later be treated in a special way, for example
-    by hiding them when logging unhandled exceptions.
-
-    Accept two forms:
-
-    * with specified variable names:
-
-        @sensitive_variables('user', 'password', 'credit_card')
-        def my_function(user):
-            password = user.pass_word
-            credit_card = user.credit_card_number
-            ...
-
-    * without any specified variable names, in which case consider all
-      variables are sensitive:
-
-        @sensitive_variables()
-        def my_function()
-            ...
+    Indicate which variables used in the decorated function are sensitive so they can be treated specially, such as hiding them when logging unhandled exceptions. Can be used with or without specifying variable names; if no names are provided, all variables are considered sensitive.
     """
     if len(variables) == 1 and callable(variables[0]):
         raise TypeError(
@@ -38,6 +19,12 @@ def sensitive_variables(*variables):
         )
 
     def decorator(func):
+        """
+        Marks a function as having sensitive variables that should be protected, 
+        enabling secure handling of sensitive data within the function. 
+        The decorator supports both synchronous and asynchronous functions, 
+        but requires asynchronous functions to be defined in a Python file.
+        """
         if iscoroutinefunction(func):
             sensitive_variables_wrapper = func
 
@@ -68,6 +55,17 @@ def sensitive_variables(*variables):
 
             @wraps(func)
             def sensitive_variables_wrapper(*func_args, **func_kwargs):
+                """
+
+                Shortcut wrapper function to select variables to be treated as sensitive.
+
+                Marks specified variables as sensitive, before invoking the wrapped function.
+                If no variables are specified, all variables are considered sensitive by default.
+
+                This wrapper simplifies the process of handling sensitive data within a function,
+                making it easier to protect potentially sensitive information from being logged or exposed.
+
+                """
                 if variables:
                     sensitive_variables_wrapper.sensitive_variables = variables
                 else:
@@ -81,26 +79,7 @@ def sensitive_variables(*variables):
 
 def sensitive_post_parameters(*parameters):
     """
-    Indicate which POST parameters used in the decorated view are sensitive,
-    so that those parameters can later be treated in a special way, for example
-    by hiding them when logging unhandled exceptions.
-
-    Accept two forms:
-
-    * with specified parameters:
-
-        @sensitive_post_parameters('password', 'credit_card')
-        def my_view(request):
-            pw = request.POST['password']
-            cc = request.POST['credit_card']
-            ...
-
-    * without any specified parameters, in which case consider all
-      variables are sensitive:
-
-        @sensitive_post_parameters()
-        def my_view(request)
-            ...
+    Indicate which POST parameters used in the decorated view are sensitive, so they can be handled specially, such as being excluded from error logs. Can be used with or without specifying parameters, defaulting to treating all variables as sensitive if none are provided.
     """
     if len(parameters) == 1 and callable(parameters[0]):
         raise TypeError(
@@ -110,10 +89,29 @@ def sensitive_post_parameters(*parameters):
         )
 
     def decorator(view):
+        """
+
+        Decorator to mark view functions or methods as handling sensitive POST parameters.
+
+        It ensures that a view receives an HttpRequest object and sets the 
+        'sensitive_post_parameters' attribute on the request to either a list of 
+        specified parameters or '__ALL__' if no parameters are specified.
+
+        """
         if iscoroutinefunction(view):
 
             @wraps(view)
             async def sensitive_post_parameters_wrapper(request, *args, **kwargs):
+                """
+                Wrapper to mark HTTP POST parameters as sensitive to prevent logging.
+
+                Sets the 'sensitive_post_parameters' attribute on the request object to the specified parameters or '__ALL__' if no parameters are provided. 
+
+                This wrapper ensures that sensitive information passed in the request body is not logged, 
+                thus protecting it from being stored in plain text logs.
+
+                :raises TypeError: If the request object is not an instance of HttpRequest
+                """
                 if not isinstance(request, HttpRequest):
                     raise TypeError(
                         "sensitive_post_parameters didn't receive an HttpRequest "
@@ -130,6 +128,17 @@ def sensitive_post_parameters(*parameters):
 
             @wraps(view)
             def sensitive_post_parameters_wrapper(request, *args, **kwargs):
+                """
+                Wrapper to mark sensitive POST parameters in an HttpRequest.
+
+                This function modifies the request object to include sensitive POST parameters,
+                either by specifying them explicitly or marking all parameters as sensitive.
+                It is designed to be used as a decorator for views, ensuring that sensitive
+                data is properly handled and logged.
+
+                :param request: The HttpRequest object being processed.
+                :raises TypeError: If the request object is not an instance of HttpRequest.
+                """
                 if not isinstance(request, HttpRequest):
                     raise TypeError(
                         "sensitive_post_parameters didn't receive an HttpRequest "

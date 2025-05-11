@@ -16,6 +16,16 @@ class BaseSessionManager(models.Manager):
         return session_store_class().encode(session_dict)
 
     def save(self, session_key, session_dict, expire_date):
+        """
+
+        Saves or deletes a session based on the provided session dictionary.
+
+        :param session_key: Unique identifier for the session.
+        :param session_dict: Dictionary containing session data.
+        :param expire_date: Date after which the session will expire.
+        :return: The saved or deleted session model instance.
+
+        """
         s = self.model(session_key, self.encode(session_dict), expire_date)
         if session_dict:
             s.save()

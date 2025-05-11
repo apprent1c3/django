@@ -41,6 +41,9 @@ class FileTests(unittest.TestCase):
         self.assertIs(type(repr(f)), str)
 
     def test_context_manager(self):
+        """
+        Tests that the File class behaves correctly as a context manager, ensuring the file is properly closed after exiting the with block.
+        """
         orig_file = tempfile.TemporaryFile()
         base_file = File(orig_file)
         with base_file as f:
@@ -56,6 +59,9 @@ class FileTests(unittest.TestCase):
             self.assertEqual(f.read(), b"content")
 
     def test_open_reopens_closed_file_and_returns_context_manager(self):
+        """
+        Verifies that the open method of a File object can successfully reopen a closed file and returns a context manager for it.
+        """
         temporary_file = tempfile.NamedTemporaryFile(delete=False)
         file = File(temporary_file)
         try:
@@ -68,10 +74,7 @@ class FileTests(unittest.TestCase):
 
     def test_namedtemporaryfile_closes(self):
         """
-        The symbol django.core.files.NamedTemporaryFile is assigned as
-        a different class on different operating systems. In
-        any case, the result should minimally mock some of the API of
-        tempfile.NamedTemporaryFile from the Python standard library.
+        Verifies that a NamedTemporaryFile instance correctly tracks its closed state, ensuring it can be properly closed and its closure status accurately reflected.
         """
         tempfile = NamedTemporaryFile()
         self.assertTrue(hasattr(tempfile, "closed"))
@@ -152,6 +155,9 @@ class FileTests(unittest.TestCase):
         self.assertFalse(test_file.readable())
 
     def test_writable(self):
+        """
+        Tests whether a File object correctly reports its writability, both when opened for writing and when opened for reading.
+        """
         with (
             tempfile.TemporaryFile() as temp,
             File(temp, name="something.txt") as test_file,
@@ -173,6 +179,9 @@ class FileTests(unittest.TestCase):
         self.assertFalse(test_file.seekable())
 
     def test_io_wrapper(self):
+        """
+        Tests the functionality of a TextIOWrapper object, verifying its ability to read and write text data to an underlying file while handling encoding and newlines correctly.
+        """
         content = "vive l'été\n"
         with (
             tempfile.TemporaryFile() as temp,
@@ -190,6 +199,9 @@ class FileTests(unittest.TestCase):
             self.assertEqual(test_file.read(), (content * 2).encode())
 
     def test_exclusive_lock(self):
+        """
+        Tests that exclusive locks are properly acquired and released, verifying that attempting to acquire an exclusive lock on a file already locked exclusively results in failure, and that attempting to acquire a shared lock on the same file also results in failure.
+        """
         file_path = Path(__file__).parent / "test.png"
         with open(file_path) as f1, open(file_path) as f2:
             self.assertIs(locks.lock(f1, locks.LOCK_EX), True)
@@ -198,6 +210,9 @@ class FileTests(unittest.TestCase):
             self.assertIs(locks.unlock(f1), True)
 
     def test_shared_lock(self):
+        """
+        Tests acquiring and releasing a shared lock on a file, verifying that multiple shared locks can be held simultaneously and that locks are successfully released.
+        """
         file_path = Path(__file__).parent / "test.png"
         with open(file_path) as f1, open(file_path) as f2:
             self.assertIs(locks.lock(f1, locks.LOCK_SH), True)
@@ -206,6 +221,11 @@ class FileTests(unittest.TestCase):
             self.assertIs(locks.unlock(f2), True)
 
     def test_open_supports_full_signature(self):
+        """
+
+        Verifies that the open method supports passing a custom opener function and uses it correctly.
+
+        """
         called = False
 
         def opener(path, flags):
@@ -254,6 +274,9 @@ class ContentFileTestCase(unittest.TestCase):
         self.assertIsInstance(ContentFile("español").read(), str)
 
     def test_open_resets_file_to_start_and_returns_context_manager(self):
+        """
+        Tests that opening a file resets its position to the start and returns a context manager, ensuring multiple reads yield the same content.
+        """
         file = ContentFile(b"content")
         with file.open() as f:
             self.assertEqual(f.read(), b"content")
@@ -261,7 +284,9 @@ class ContentFileTestCase(unittest.TestCase):
             self.assertEqual(f.read(), b"content")
 
     def test_size_changing_after_writing(self):
-        """ContentFile.size changes after a write()."""
+        """
+        Checks that the size of a ContentFile object accurately reflects changes after writing data to it.
+        """
         f = ContentFile("")
         self.assertEqual(f.size, 0)
         f.write("Test ")
@@ -302,7 +327,7 @@ class DimensionClosingBug(unittest.TestCase):
     @unittest.skipUnless(Image, "Pillow not installed")
     def test_not_closing_of_files(self):
         """
-        Open files passed into get_image_dimensions() should stay opened.
+        Tests that files passed to get_image_dimensions() remain open after use, ensuring file handles are not prematurely closed.
         """
         empty_io = BytesIO()
         try:
@@ -313,7 +338,10 @@ class DimensionClosingBug(unittest.TestCase):
     @unittest.skipUnless(Image, "Pillow not installed")
     def test_closing_of_filenames(self):
         """
-        get_image_dimensions() called with a filename should closed the file.
+
+            Verifies that the get_image_dimensions function properly closes file handles
+            after opening them to retrieve image dimensions from a file.
+
         """
         # We need to inject a modified open() builtin into the images module
         # that checks if the file was closed properly if the function is
@@ -356,7 +384,7 @@ class InconsistentGetImageDimensionsBug(unittest.TestCase):
     @unittest.skipUnless(Image, "Pillow not installed")
     def test_multiple_calls(self):
         """
-        Multiple calls of get_image_dimensions() should return the same size.
+        Tests that the get_image_dimensions function returns consistent results across multiple calls.
         """
         img_path = os.path.join(os.path.dirname(__file__), "test.png")
         with open(img_path, "rb") as fh:
@@ -370,9 +398,7 @@ class InconsistentGetImageDimensionsBug(unittest.TestCase):
     @unittest.skipUnless(Image, "Pillow not installed")
     def test_bug_19457(self):
         """
-        Regression test for #19457
-        get_image_dimensions() fails on some PNGs, while Image.size is working
-        good on them.
+        Tests the resolution of issue #19457 where get_image_dimensions fails to retrieve dimensions for certain PNG images, while Pillow's Image.size method succeeds.
         """
         img_path = os.path.join(os.path.dirname(__file__), "magic.png")
         size = images.get_image_dimensions(img_path)
@@ -384,11 +410,7 @@ class InconsistentGetImageDimensionsBug(unittest.TestCase):
 class GetImageDimensionsTests(unittest.TestCase):
     def test_invalid_image(self):
         """
-        get_image_dimensions() should return (None, None) for the dimensions of
-        invalid images (#24441).
-
-        brokenimg.png is not a valid image and it has been generated by:
-        $ echo "123" > brokenimg.png
+        Tests that get_image_dimensions function correctly handles invalid images by returning (None, None) as the dimensions.
         """
         img_path = os.path.join(os.path.dirname(__file__), "brokenimg.png")
         with open(img_path, "rb") as fh:
@@ -397,11 +419,8 @@ class GetImageDimensionsTests(unittest.TestCase):
 
     def test_valid_image(self):
         """
-        get_image_dimensions() should catch struct.error while feeding the PIL
-        Image parser (#24544).
-
-        Emulates the Parser feed error. Since the error is raised on every feed
-        attempt, the resulting image size should be invalid: (None, None).
+        Tests that get_image_dimensions handles structs errors from PIL Image parser,
+        ensuring invalid image size (None, None) is returned when an error occurs.
         """
         img_path = os.path.join(os.path.dirname(__file__), "test.png")
         with mock.patch("PIL.ImageFile.Parser.feed", side_effect=struct.error):
@@ -423,6 +442,9 @@ class GetImageDimensionsTests(unittest.TestCase):
 
 class FileMoveSafeTests(unittest.TestCase):
     def test_file_move_overwrite(self):
+        """
+        Tests that the file_move_safe function correctly handles file movement when the destination file already exists, with and without the allow_overwrite option.
+        """
         handle_a, self.file_a = tempfile.mkstemp()
         handle_b, self.file_b = tempfile.mkstemp()
 
@@ -442,11 +464,7 @@ class FileMoveSafeTests(unittest.TestCase):
 
     def test_file_move_permissionerror(self):
         """
-        file_move_safe() ignores PermissionError thrown by copystat() and
-        copymode().
-        For example, PermissionError can be raised when the destination
-        filesystem is CIFS, or when relabel is disabled by SELinux across
-        filesystems.
+        Tests that the file_move_safe function correctly handles PermissionError exceptions thrown by copystat and copymode operations, ensuring that the function can safely move files even when permission errors occur, such as when moving files across filesystems with permission restrictions.
         """
         permission_error = PermissionError(errno.EPERM, "msg")
         os_error = OSError("msg")

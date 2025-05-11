@@ -21,7 +21,7 @@ class Feature(GDALBase):
 
     def __init__(self, feat, layer):
         """
-        Initialize Feature from a pointer and its Layer object.
+        Initialize a Feature object from a pointer and its associated Layer object, raising an exception if the provided pointer is invalid.
         """
         if not feat:
             raise GDALException("Cannot create OGR Feature, invalid pointer given.")
@@ -30,10 +30,7 @@ class Feature(GDALBase):
 
     def __getitem__(self, index):
         """
-        Get the Field object at the specified index, which may be either
-        an integer or the Field's string label.  Note that the Field object
-        is not the field's _value_ -- use the `get` method instead to
-        retrieve the value (e.g. an integer) instead of a Field instance.
+        Retrieve a Field object at the specified index. The index can be either an integer position or a string label corresponding to the Field. Returns a Field instance, not the field's value.
         """
         if isinstance(index, str):
             i = self.index(index)
@@ -113,7 +110,9 @@ class Feature(GDALBase):
         return self[field_name].value
 
     def index(self, field_name):
-        "Return the index of the given field name."
+        """
+        Retrieves the index of a specific field name, raising an error if the field name is not valid.
+        """
         i = capi.get_field_index(self.ptr, force_bytes(field_name))
         if i < 0:
             raise IndexError("Invalid OFT field name given: %s." % field_name)

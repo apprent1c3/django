@@ -13,12 +13,9 @@ class Point(GEOSGeometry):
 
     def __init__(self, x=None, y=None, z=None, srid=None):
         """
-        The Point object may be initialized with either a tuple, or individual
-        parameters.
-
-        For example:
-        >>> p = Point((5, 23))  # 2D point, passed in as a tuple
-        >>> p = Point(5, 23, 8)  # 3D point, passed in with individual parameters
+        Initializes a Point object, which can represent a 2D or 3D point in space. 
+        It can be created from either a tuple of coordinates or from individual x, y, and optional z parameters. 
+        An optional spatial reference system identifier (srid) can also be specified.
         """
         if x is None:
             coords = []
@@ -58,7 +55,14 @@ class Point(GEOSGeometry):
     @classmethod
     def _create_point(cls, ndim, coords):
         """
-        Create a coordinate sequence, set X, Y, [Z], and create point
+
+        Create a point with the specified dimension and coordinates.
+
+        :param int ndim: The number of dimensions for the point (2 or 3).
+        :param iterable coords: The coordinates of the point.
+        :return: A newly created point object.
+        :raises TypeError: If the number of dimensions is not 2 or 3.
+
         """
         if not ndim:
             return capi.create_point(None)
@@ -76,6 +80,9 @@ class Point(GEOSGeometry):
         return capi.create_point(cs)
 
     def _set_list(self, length, items):
+        """
+        Sets the geometry to a new list of items, replacing the existing geometry.
+        """
         ptr = self._create_point(length, items)
         if ptr:
             srid = self.srid
@@ -97,7 +104,9 @@ class Point(GEOSGeometry):
             yield self[i]
 
     def __len__(self):
-        "Return the number of dimensions for this Point (either 0, 2 or 3)."
+        """
+        Return the number of dimensions for this Point (either 0, 2 or 3).
+        """
         if self.empty:
             return 0
         if self.hasz:
@@ -106,6 +115,9 @@ class Point(GEOSGeometry):
             return 2
 
     def _get_single_external(self, index):
+        """
+        Returns a single external value (x, y, or z) based on the provided index.
+        """
         if index == 0:
             return self.x
         elif index == 1:

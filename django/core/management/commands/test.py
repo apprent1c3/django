@@ -24,6 +24,9 @@ class Command(BaseCommand):
         super().run_from_argv(argv)
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments to the test management parser. These arguments allow users to specify the tests to run, control interactive input, and select a custom test runner. Additional arguments may be added by the test runner class if it implements the 'add_arguments' method.
+        """
         parser.add_argument(
             "args",
             metavar="test_label",
@@ -52,6 +55,18 @@ class Command(BaseCommand):
             test_runner_class.add_arguments(parser)
 
     def handle(self, *test_labels, **options):
+        """
+
+        Run tests with the specified labels and options.
+
+        This function is the main entry point for test execution, handling test discovery, 
+        execution, and reporting. It supports various options for customizing the test run, 
+        such as the test runner, timing, and parallel execution.
+
+        :param test_labels: variable number of test labels to run
+        :param options: keyword arguments for customizing the test run
+
+        """
         TestRunner = get_runner(settings, options["testrunner"])
 
         time_keeper = TimeKeeper() if options.get("timing", False) else NullTimeKeeper()

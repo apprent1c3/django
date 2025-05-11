@@ -13,7 +13,9 @@ class DistanceTest(SimpleTestCase):
     "Testing the Distance object"
 
     def test_init(self):
-        "Testing initialization from valid units"
+        """
+        Tests the initialization of the Distance class with different units to ensure correct conversion to base units.
+        """
         d = Distance(m=100)
         self.assertEqual(d.m, 100)
 
@@ -54,7 +56,9 @@ class DistanceTest(SimpleTestCase):
         self.assertFalse(hasattr(d, "banana"))
 
     def test_addition(self):
-        "Test addition & subtraction"
+        """
+        Tests the addition and subtraction operations of the D class, verifying that they produce the expected results and raise TypeErrors when attempting to operate with incompatible types.
+        """
         d1 = D(m=100)
         d2 = D(m=200)
 
@@ -81,7 +85,10 @@ class DistanceTest(SimpleTestCase):
             d1 -= 1
 
     def test_multiplication(self):
-        "Test multiplication & division"
+        """
+        Tests the multiplication and division operations of the Distance class, 
+        including scalar multiplication, division by scalar, and division by another Distance object.
+        """
         d1 = D(m=100)
 
         d3 = d1 * 2
@@ -109,7 +116,10 @@ class DistanceTest(SimpleTestCase):
             d1 /= D(m=1)
 
     def test_unit_conversions(self):
-        "Testing default units during maths"
+        """
+        Tests that unit conversions work as expected during mathematical operations, 
+        ensuring the result has the correct default unit when combining distances with different units.
+        """
         d1 = D(m=100)
         d2 = D(km=1)
 
@@ -123,7 +133,15 @@ class DistanceTest(SimpleTestCase):
         self.assertEqual(d6._default_unit, "m")
 
     def test_comparisons(self):
-        "Testing comparisons"
+        """
+
+        Verifies the correctness of comparison operations between distance objects.
+
+        This test ensures that distances are properly compared in terms of their magnitude,
+        covering cases such as equality, greater than, and less than, as well as testing
+        for falsy distances.
+
+        """
         d1 = D(m=100)
         d2 = D(km=1)
         d3 = D(km=0)
@@ -134,7 +152,9 @@ class DistanceTest(SimpleTestCase):
         self.assertFalse(d3)
 
     def test_units_str(self):
-        "Testing conversion to strings"
+        """
+        Tests the conversion of distance objects to string representations, verifying both human-readable string format and formal representation.
+        """
         d1 = D(m=100)
         d2 = D(km=3.5)
 
@@ -148,7 +168,9 @@ class DistanceTest(SimpleTestCase):
         self.assertEqual(d.furlong, 1)
 
     def test_unit_att_name(self):
-        "Testing the `unit_attname` class method"
+        """
+        Verifies the correctness of unit attribute names returned by the unit_attname class method for a variety of units.
+        """
         unit_tuple = [
             ("Yard", "yd"),
             ("Nautical Mile", "nm"),
@@ -163,6 +185,9 @@ class DistanceTest(SimpleTestCase):
                 self.assertEqual(att, D.unit_attname(nm))
 
     def test_unit_att_name_invalid(self):
+        """
+        Tests that an AttributeError is raised with a specific message when an invalid unit name is passed to the unit_attname method of classes D and A.
+        """
         msg = "Unknown unit type: invalid-unit-name"
         with self.assertRaisesMessage(AttributeError, msg):
             D.unit_attname("invalid-unit-name")
@@ -170,6 +195,9 @@ class DistanceTest(SimpleTestCase):
             A.unit_attname("invalid-unit-name")
 
     def test_hash(self):
+        """
+        Tests the hash function of the D class to ensure that objects with equivalent values have the same hash, and objects with different values have different hashes.
+        """
         d1 = D(m=99)
         d2 = D(m=100)
         d3 = D(km=0.1)
@@ -182,7 +210,9 @@ class AreaTest(unittest.TestCase):
     "Testing the Area object"
 
     def test_init(self):
-        "Testing initialization from valid units"
+        """
+        Verifies the correct initialization of the Area class from various valid units, ensuring that conversions are accurately performed.
+        """
         a = Area(sq_m=100)
         self.assertEqual(a.sq_m, 100)
 
@@ -209,7 +239,9 @@ class AreaTest(unittest.TestCase):
         self.assertFalse(hasattr(a, "banana"))
 
     def test_addition(self):
-        "Test addition & subtraction"
+        """
+        Tests the implementation of addition and subtraction operations for objects of class A, ensuring correct results and handling of invalid operands.
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_m=200)
 
@@ -236,7 +268,9 @@ class AreaTest(unittest.TestCase):
             a1 -= 1
 
     def test_multiplication(self):
-        "Test multiplication & division"
+        """
+        Verifies the correctness of multiplication and division operations on instances of class A, including scalar multiplication, commutativity, and in-place modification, while also checking for invalid operand types.
+        """
         a1 = A(sq_m=100)
 
         a3 = a1 * 2
@@ -264,7 +298,9 @@ class AreaTest(unittest.TestCase):
             a1 /= A(sq_m=1)
 
     def test_unit_conversions(self):
-        "Testing default units during maths"
+        """
+        Tests the conversion of units during mathematical operations in the A class, ensuring that the default unit is correctly preserved when performing addition and multiplication.
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_km=1)
 
@@ -278,7 +314,9 @@ class AreaTest(unittest.TestCase):
         self.assertEqual(a6._default_unit, "sq_m")
 
     def test_comparisons(self):
-        "Testing comparisons"
+        """
+        Tests the comparison functionality of the A class, ensuring that instances can be correctly ordered and compared based on their areas.
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_km=1)
         a3 = A(sq_km=0)
@@ -289,7 +327,9 @@ class AreaTest(unittest.TestCase):
         self.assertFalse(a3)
 
     def test_units_str(self):
-        "Testing conversion to strings"
+        """
+        Tests the conversion of area objects to string representations, verifying both string and repr formats are correctly generated for different unit types.
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_km=3.5)
 
@@ -306,6 +346,9 @@ class AreaTest(unittest.TestCase):
         self.assertEqual(A.unit_attname("Hectare"), "ha")
 
     def test_hash(self):
+        """
+        Tests the hash functionality of class A, ensuring equal instances have the same hash and unequal instances have different hashes, based on their area properties.
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_m=1000000)
         a3 = A(sq_km=1)

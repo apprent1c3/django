@@ -18,17 +18,7 @@ from django.contrib.gis.gdal.field import (
 
 def mapping(data_source, geom_name="geom", layer_key=0, multi_geom=False):
     """
-    Given a DataSource, generate a dictionary that may be used
-    for invoking the LayerMapping utility.
-
-    Keyword Arguments:
-     `geom_name` => The name of the geometry field to use for the model.
-
-     `layer_key` => The key for specifying which layer in the DataSource to use;
-       defaults to 0 (the first layer).  May be an integer index or a string
-       identifier for the layer.
-
-     `multi_geom` => Boolean (default: False) - specify as multigeometry.
+    Creates a dictionary for layer mapping based on a given data source, allowing for customization of the geometry field and handling of multigeometries.
     """
     if isinstance(data_source, str):
         # Instantiating the DataSource from the string.
@@ -141,8 +131,10 @@ def _ogrinspect(
     null=False,
 ):
     """
-    Helper routine for `ogrinspect` that generates GeoDjango models corresponding
-    to the given data source.  See the `ogrinspect` docstring for more details.
+    Generates a GeoDjango model corresponding to the given data source.
+    The model is created based on the fields and geometry type of the data source.
+    Options are provided to customize the generated model, including support for multiple geometry types, decimal fields, and null or blank fields.
+    The function yields the generated model as a sequence of strings, allowing for easy creation of a Django model module.
     """
     # Getting the DataSource
     if isinstance(data_source, str):
@@ -162,6 +154,12 @@ def _ogrinspect(
     # Creating lists from the `null`, `blank`, and `decimal`
     # keyword arguments.
     def process_kwarg(kwarg):
+        """
+        Converts keyword arguments to a list of lowercase strings.
+
+        eturns:
+            list: A list of lowercase strings if kwarg is a list or tuple, otherwise an empty list or a list of ogr_fields converted to lowercase if kwarg is truthy.
+        """
         if isinstance(kwarg, (list, tuple)):
             return [s.lower() for s in kwarg]
         elif kwarg:
@@ -175,6 +173,9 @@ def _ogrinspect(
 
     # Gets the `null` and `blank` keywords for the given field name.
     def get_kwargs_str(field_name):
+        """
+        Generates a string of keyword arguments for a field based on its name and predefined lists of null and blank fields. Returns a comma-separated string of 'null=True' and/or 'blank=True' if the field is in the corresponding lists, otherwise returns an empty string.
+        """
         kwlist = []
         if field_name.lower() in null_fields:
             kwlist.append("null=True")

@@ -169,18 +169,9 @@ class MigrationTestBase(TransactionTestCase):
     @contextmanager
     def temporary_migration_module(self, app_label="migrations", module=None):
         """
-        Allows testing management commands in a temporary migrations module.
+        Allows testing management commands in a temporary migrations module, preventing accidental creation of migration files in the source tree. 
 
-        Wrap all invocations to makemigrations and squashmigrations with this
-        context manager in order to avoid creating migration files in your
-        source tree inadvertently.
-
-        Takes the application label that will be passed to makemigrations or
-        squashmigrations and the Python path to a migrations module.
-
-        The migrations module is used as a template for creating the temporary
-        migrations module. If it isn't provided, the application's migrations
-        module is used, if it exists.
+        Wraps makemigrations and squashmigrations invocations to use a temporary migrations module, created as a copy of the specified or application's migrations module. 
 
         Returns the filesystem path to the temporary migrations module.
         """
@@ -219,6 +210,9 @@ class OperationTestBase(MigrationTestBase):
         super().tearDown()
 
     def cleanup_test_tables(self):
+        """
+        Removes tables created during test execution that were not present initially.
+        """
         table_names = (
             frozenset(connection.introspection.table_names())
             - self._initial_table_names
@@ -247,8 +241,7 @@ class OperationTestBase(MigrationTestBase):
 
     def make_test_state(self, app_label, operation, **kwargs):
         """
-        Makes a test state using set_up_test_model and returns the
-        original state and the state after the migration is applied.
+        Makes a test state by applying a migration operation to a project state, returning both the original and resulting states.
         """
         project_state = self.set_up_test_model(app_label, **kwargs)
         new_state = project_state.clone()
@@ -272,7 +265,29 @@ class OperationTestBase(MigrationTestBase):
         constraints=None,
         indexes=None,
     ):
-        """Creates a test model state and database table."""
+        """
+        Sets up a test model state and database table with customizable fields, indexes, constraints, and relationships.
+
+        The test model can include various features such as additional models, indexes, unique together constraints, database table name, and custom permissions. It can also include related models, multi-table inheritance models, proxy models, and custom model managers. 
+
+        The function returns the result of applying the created operations to the project state.
+
+        :arg app_label: The application label for the model.
+        :arg second_model: Whether to create a second test model.
+        :arg third_model: Whether to create a third test model.
+        :arg index: Whether to add an index on the 'pink' field.
+        :arg multicol_index: Whether to add a multi-column index on the 'pink' and 'weight' fields.
+        :arg related_model: Whether to create a related model.
+        :arg mti_model: Whether to create a multi-table inheritance model.
+        :arg proxy_model: Whether to create a proxy model.
+        :arg manager_model: Whether to create a model with custom model managers.
+        :arg unique_together: Whether to add a unique together constraint on the 'pink' and 'weight' fields.
+        :arg options: Whether to add custom permissions.
+        :arg db_table: The custom database table name.
+        :arg constraints: A list of custom constraints to add.
+        :arg indexes: A list of custom indexes to add.
+        :return: The result of applying the created operations to the project state.
+        """
         # Make the "current" state.
         model_options = {
             "swappable": "TEST_SWAP_MODEL",

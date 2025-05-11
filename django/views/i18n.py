@@ -29,14 +29,7 @@ def builtin_template_path(name):
 
 def set_language(request):
     """
-    Redirect to a given URL while setting the chosen language in the session
-    (if enabled) and in a cookie. The URL and the language code need to be
-    specified in the request parameters.
-
-    Since this view changes how the user will see the rest of the site, it must
-    only be accessed as a POST request. If called as a GET request, it will
-    redirect to the page in the request (the 'next' parameter) without changing
-    any state.
+    Redirects to a given URL while setting the chosen language in the session and cookie, if enabled, upon a POST request. If called as a GET request, it redirects without changing any state. The URL and language code must be specified in the request parameters. Ensures the redirect URL is safe and secure.
     """
     next_url = request.POST.get("next", request.GET.get("next"))
     if (
@@ -112,6 +105,13 @@ class JavaScriptCatalog(View):
     packages = None
 
     def get(self, request, *args, **kwargs):
+        """
+        Handles HTTP GET requests, fetching the necessary translation data and rendering the response.
+
+        :param request: The incoming HTTP request
+        :param args: Additional positional arguments
+        :param kwargs: Additional keyword arguments, including 'domain' and 'packages' for customization
+        """
         locale = get_language()
         domain = kwargs.get("domain", self.domain)
         # If packages are not provided, default to all installed packages, as
@@ -124,6 +124,13 @@ class JavaScriptCatalog(View):
         return self.render_to_response(context)
 
     def get_paths(self, packages):
+        """
+        Gets locale paths for the specified packages.
+
+        :arg packages: List of package names
+        :raises ValueError: If any of the provided packages are invalid
+        :return: List of locale paths corresponding to the provided packages
+        """
         allowable_packages = {
             app_config.name: app_config for app_config in apps.get_app_configs()
         }
@@ -142,8 +149,7 @@ class JavaScriptCatalog(View):
     @property
     def _num_plurals(self):
         """
-        Return the number of plurals for this catalog language, or 2 if no
-        plural string is available.
+        Retrieves the number of plural forms defined for a language in a catalog, defaulting to 2 if the information is not available.
         """
         match = re.search(r"nplurals=\s*(\d+)", self._plural_string or "")
         if match:
@@ -153,8 +159,7 @@ class JavaScriptCatalog(View):
     @property
     def _plural_string(self):
         """
-        Return the plural string (including nplurals) for this catalog language,
-        or None if no plural string is available.
+        Returns the plural string for the current catalog language, including nplurals, or None if it is not available.
         """
         if "" in self.translation._catalog:
             for line in self.translation._catalog[""].split("\n"):
@@ -176,6 +181,17 @@ class JavaScriptCatalog(View):
         return plural
 
     def get_catalog(self):
+        """
+        Return a dictionary catalog of translated messages.
+
+        This catalog includes both singular and plural forms of messages, 
+        compiled from the translation object and its fallback translations.
+
+        The catalog is a flat dictionary where each key is a message identifier 
+        and the value is the corresponding translated message. For plural messages, 
+        the value is a list of translations for each possible plural form.
+
+        """
         pdict = {}
         catalog = {}
         translation = self.translation
@@ -210,6 +226,17 @@ class JavaScriptCatalog(View):
         }
 
     def render_to_response(self, context, **response_kwargs):
+        """
+        Renders a JavaScript response containing internationalization catalog data.
+
+        The function takes a context dictionary and optional response keyword arguments,
+        renders a template with the provided data, and returns an HTTP response with
+        the rendered JavaScript content.
+
+        :param context: A dictionary containing 'catalog' and 'formats' data
+        :param response_kwargs: Additional keyword arguments for the HTTP response
+        :returns: An HttpResponse object with the rendered JavaScript content
+        """
         def indent(s):
             return s.replace("\n", "\n  ")
 

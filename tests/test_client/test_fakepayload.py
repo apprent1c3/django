@@ -4,6 +4,9 @@ from django.test.client import FakePayload
 
 class FakePayloadTests(SimpleTestCase):
     def test_write_after_read(self):
+        """
+        Tests that attempting to write to a payload after it has been read raises a ValueError.
+        """
         payload = FakePayload()
         for operation in [payload.read, payload.readline]:
             with self.subTest(operation=operation.__name__):

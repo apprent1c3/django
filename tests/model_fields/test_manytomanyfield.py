@@ -9,8 +9,7 @@ from .models import ManyToMany
 class ManyToManyFieldTests(SimpleTestCase):
     def test_abstract_model_pending_operations(self):
         """
-        Many-to-many fields declared on abstract models should not add lazy
-        relations to resolve relationship declared as string (#24215).
+        Tests that many-to-many fields declared on abstract models do not incorrectly add lazy relations, ensuring that relationships declared as strings are handled correctly.
         """
         pending_ops_before = list(apps._pending_operations.items())
 
@@ -29,6 +28,12 @@ class ManyToManyFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields", "model_fields.tests")
     def test_abstract_model_app_relative_foreign_key(self):
+        """
+
+        Tests that the related model and through model of an abstract model's many-to-many field 
+        are correctly resolved when the model is subclassed and used in different apps.
+
+        """
         class AbstractReferent(models.Model):
             reference = models.ManyToManyField("Referred", through="Through")
 
@@ -37,6 +42,16 @@ class ManyToManyFieldTests(SimpleTestCase):
                 abstract = True
 
         def assert_app_model_resolved(label):
+            """
+            Verifies that the application model for a given label is properly resolved.
+
+            Checks that the correct related model and intermediate model are used for the
+            'reference' field in the ConcreteReferent model, ensuring proper relationships
+            between models in the application.
+
+            :param label: The label of the application model to check.
+
+            """
             class Referred(models.Model):
                 class Meta:
                     app_label = label
@@ -63,6 +78,9 @@ class ManyToManyFieldTests(SimpleTestCase):
         assert_app_model_resolved("tests")
 
     def test_invalid_to_parameter(self):
+        """
+        Tests that a TypeError is raised when the first parameter to ManyToManyField is not a valid model, model name, or 'self'.
+        """
         msg = (
             "ManyToManyField(1) is invalid. First parameter to "
             "ManyToManyField must be either a model, a model name, or the "
@@ -75,6 +93,9 @@ class ManyToManyFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_through_db_table_mutually_exclusive(self):
+        """
+        Verify that using an intermediary model in a ManyToManyField prevents setting a custom 'db_table' name, raising a ValueError with a specific error message.
+        """
         class Child(models.Model):
             pass
 

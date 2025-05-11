@@ -67,8 +67,7 @@ class TestTicket14567(TestCase):
 
     def test_empty_queryset_return(self):
         """
-        If a model's ManyToManyField has blank=True and is saved with no data,
-        a queryset is returned.
+        Tests that a form field for a model with a ManyToManyField having blank=True returns an empty queryset when no data is provided. Validates form data and checks the type of cleaned data for the field.
         """
         option = ChoiceOptionModel.objects.create(name="default")
         form = OptionalMultiChoiceModelForm(
@@ -86,8 +85,7 @@ class TestTicket14567(TestCase):
 class ModelFormCallableModelDefault(TestCase):
     def test_no_empty_option(self):
         """
-        If a model's ForeignKey has blank=False and a default, no empty option
-        is created.
+        Tests that a ChoiceField with a ForeignKey that has blank=False and a default value does not include an empty option in its choices.
         """
         option = ChoiceOptionModel.objects.create(name="default")
 
@@ -97,8 +95,7 @@ class ModelFormCallableModelDefault(TestCase):
 
     def test_callable_initial_value(self):
         """
-        The initial value for a callable default returning a queryset is the
-        pk.
+        Tests that the initial value for a form field with a callable default returning a queryset is correctly set to the primary key of the first object in the queryset.
         """
         ChoiceOptionModel.objects.create(id=1, name="default")
         ChoiceOptionModel.objects.create(id=2, name="option 2")
@@ -145,7 +142,9 @@ class ModelFormCallableModelDefault(TestCase):
         )
 
     def test_initial_instance_value(self):
-        "Initial instances for model fields may also be instances (refs #7287)"
+        """
+        Tests that ChoiceFieldForm correctly handles initial instance values for model fields, including single and multiple choice fields.
+        """
         ChoiceOptionModel.objects.create(id=1, name="default")
         obj2 = ChoiceOptionModel.objects.create(id=2, name="option 2")
         obj3 = ChoiceOptionModel.objects.create(id=3, name="option 3")
@@ -205,6 +204,9 @@ class ModelFormCallableModelDefault(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_callable_default_hidden_widget_value_not_overridden(self):
+        """
+        Tests that a form's default hidden widget for a field with a callable default value is not overridden by the form's data, specifically when the field is a JSONField and supports JSON field functionality is available in the database.
+        """
         class FieldWithCallableDefaultsModel(models.Model):
             int_field = models.IntegerField(default=lambda: 1)
             json_field = models.JSONField(default=dict)
@@ -248,6 +250,9 @@ class ModelFormCallableModelDefault(TestCase):
 class FormsModelTestCase(TestCase):
     def test_unicode_filename(self):
         # FileModel with Unicode filename and data #########################
+        """
+        Tests file upload with a Unicode filename, ensuring it is stored correctly and can be retrieved from the database.
+        """
         file1 = SimpleUploadedFile(
             "我隻氣墊船裝滿晒鱔.txt", "मेरी मँडराने वाली नाव सर्पमीनों से भरी ह".encode()
         )
@@ -264,6 +269,9 @@ class FormsModelTestCase(TestCase):
 
     def test_boundary_conditions(self):
         # Boundary conditions on a PositiveIntegerField #########################
+        """
+        Tests the boundary conditions of the positive_integer field in the BoundaryModel, ensuring that it correctly validates positive integers, zero, and negative integers.
+        """
         class BoundaryForm(ModelForm):
             class Meta:
                 model = BoundaryModel
@@ -279,6 +287,12 @@ class FormsModelTestCase(TestCase):
     def test_formfield_initial(self):
         # If the model has default values for some fields, they are used as the
         # formfield initial values.
+        """
+        Tests the form field initial values for a Django model form. 
+        Verifies that default values are properly set when no instance is provided, 
+        and that instance values override default values when an instance is provided.
+        Also checks that excluded fields are handled correctly during form validation and saving.
+        """
         class DefaultsForm(ModelForm):
             class Meta:
                 model = Defaults
@@ -326,7 +340,7 @@ class FormsModelTestCase(TestCase):
 class RelatedModelFormTests(SimpleTestCase):
     def test_invalid_loading_order(self):
         """
-        Test for issue 10405
+        Tests that a ValueError is raised when a ForeignKey in a model references another model that has not been loaded yet, ensuring proper model loading order.
         """
 
         class A(models.Model):
@@ -348,7 +362,10 @@ class RelatedModelFormTests(SimpleTestCase):
 
     def test_valid_loading_order(self):
         """
-        Test for issue 10405
+
+        Tests that model forms can be loaded in a valid order, specifically addressing issue 10405.
+        Verifies that model forms with foreign key references can be successfully validated.
+
         """
 
         class C(models.Model):
@@ -371,6 +388,9 @@ class RelatedModelFormTests(SimpleTestCase):
 class ManyToManyExclusionTestCase(TestCase):
     def test_m2m_field_exclusion(self):
         # Issue 12337. save_instance should honor the passed-in exclude keyword.
+        """
+        Tests the exclusion of many-to-many fields in the ChoiceFieldExclusionForm, verifying that it correctly validates and saves the form data, including choices and multi-choice fields, without modifying the excluded many-to-many relationships.
+        """
         opt1 = ChoiceOptionModel.objects.create(id=1, name="default")
         opt2 = ChoiceOptionModel.objects.create(id=2, name="option 2")
         opt3 = ChoiceOptionModel.objects.create(id=3, name="option 3")
@@ -436,6 +456,9 @@ class EmptyLabelTestCase(TestCase):
     def test_save_empty_label_forms(self):
         # Saving a form with a blank choice results in the expected
         # value being stored in the database.
+        """
+        Tests that saving empty label forms with various field types sets the expected attribute values and display strings.
+        """
         tests = [
             (EmptyCharLabelNoneChoiceForm, "choice_string_w_none", None),
             (EmptyIntegerLabelChoiceForm, "choice_integer", None),
@@ -474,6 +497,9 @@ class EmptyLabelTestCase(TestCase):
         self.assertEqual("No Preference", m.get_choice_integer_display())
 
     def test_html_rendering_of_prepopulated_models(self):
+        """
+        Tests the rendering of an HTML form for a prepopulated ChoiceModel instance, verifying the form's structure and selected values match the expected output for different model configurations.
+        """
         none_model = ChoiceModel(name="none-test", choice_integer=None)
         f = EmptyIntegerLabelChoiceForm(instance=none_model)
         self.assertHTMLEqual(

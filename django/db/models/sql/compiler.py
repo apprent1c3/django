@@ -44,6 +44,16 @@ class SQLCompiler:
     )
 
     def __init__(self, query, connection, using, elide_empty=True):
+        """
+        Initializes a query object with the given query, database connection, and database alias.
+
+        :param query: The query to be executed.
+        :param connection: The database connection to use.
+        :param using: The database alias to use.
+        :param elide_empty: Whether to exclude empty fields from the query results (default: True).
+
+        Initializes internal state and caches for efficient query execution and result processing.
+        """
         self.query = query
         self.connection = connection
         self.using = using
@@ -77,9 +87,12 @@ class SQLCompiler:
 
     def pre_sql_setup(self, with_col_aliases=False):
         """
-        Do any necessary class setup immediately prior to producing SQL. This
-        is for things that can't necessarily be done in __init__ because we
-        might not have all the pieces in place at that time.
+
+            Performs final class setup immediately before generating SQL, handling
+            tasks that require all necessary components to be in place. Optionally,
+            prepares column aliases if requested. Returns extra SELECT clauses,
+            ORDER BY and GROUP BY specifications.
+
         """
         self.setup_query(with_col_aliases=with_col_aliases)
         order_by = self.get_order_by()
@@ -93,11 +106,7 @@ class SQLCompiler:
 
     def get_group_by(self, select, order_by):
         """
-        Return a list of 2-tuples of form (sql, params).
-
-        The logic of what exactly the GROUP BY clause contains is hard
-        to describe in other words than "if it passes the test suite,
-        then it is correct".
+        Return a list of 2-tuples containing the SQL strings and parameters for the GROUP BY clause. This method constructs the GROUP BY clause based on the provided select and order by expressions, taking into account any having conditions. The resulting list is used to generate the GROUP BY clause for the SQL query.
         """
         # Some examples:
         #     SomeModel.objects.annotate(Count('somecol'))
@@ -198,6 +207,9 @@ class SQLCompiler:
         # If the database supports group by functional dependence reduction,
         # then the expressions can be reduced to the set of selected table
         # primary keys as all other columns are functionally dependent on them.
+        """
+        Optimizes the given list of expressions for group by operations by filtering out primary keys that are not required for the group by operation while considering the having clause and database connection features.
+        """
         if self.connection.features.allows_group_by_selected_pks:
             # Filter out all expressions associated with a table's primary key
             # present in the grouped columns. This is done by identifying all
@@ -228,21 +240,11 @@ class SQLCompiler:
 
     def get_select(self, with_col_aliases=False):
         """
-        Return three values:
-        - a list of 3-tuples of (expression, (sql, params), alias)
-        - a klass_info structure,
-        - a dictionary of annotations
+        Return a tuple containing the select clause, model information, and annotations for a query.
 
-        The (sql, params) is what the expression will produce, and alias is the
-        "AS alias" for the column (possibly None).
+        The select clause is a list of 3-tuples, each containing an expression, its SQL representation, and an alias. The model information is a dictionary that describes the base model of the query, the columns present in the query, and related models. The annotations are a dictionary mapping column aliases to their positions in the select clause.
 
-        The klass_info structure contains the following information:
-        - The base model of the query.
-        - Which columns for that model are present in the query (by
-          position of the select clause).
-        - related_klass_infos: [f, klass_info] to descent into
-
-        The annotations is a dictionary of {'attname': column position} values.
+        This function can also generate column aliases if they are not provided and the `with_col_aliases` parameter is set to True.
         """
         select = []
         klass_info = None
@@ -329,6 +331,17 @@ class SQLCompiler:
         return ret, klass_info, annotations
 
     def _order_by_pairs(self):
+        """
+        Determines the ordering of query results based on the query's extra ordering, default ordering, or ordering specified by the query's metadata.
+
+        Returns an iterable of tuples containing the ordering field and a boolean indicating whether the ordering field was found among the selected expressions. 
+
+        The ordering can be specified by the query's `extra_order_by` attribute, `default_ordering`, `order_by` attribute, or the `ordering` attribute of the query's metadata. If no ordering is specified, an empty list is used. The ordering can also be influenced by the `standard_ordering` attribute of the query. 
+
+        The function handles various types of ordering fields, including those that are references to expressions, values, or raw SQL. It also supports ordering by annotated fields, combined queries, and fields with lookup separators. 
+
+        The function yields tuples containing the ordered field and a boolean indicating whether the field was found among the selected expressions. If the ordering field is not found, the function attempts to find it using the `find_ordering_name` method.
+        """
         if self.query.extra_order_by:
             ordering = self.query.extra_order_by
         elif not self.query.default_ordering:
@@ -468,12 +481,7 @@ class SQLCompiler:
 
     def get_order_by(self):
         """
-        Return a list of 2-tuples of the form (expr, (sql, params, is_ref)) for
-        the ORDER BY clause.
-
-        The order_by clause can alter the select clause (for example it can add
-        aliases to clauses that do not yet have one, or it can add totally new
-        select clauses).
+        Return a list of 2-tuples containing expressions and their corresponding SQL, parameters, and reference status for the ORDER BY clause, handling aliasing and select clause modifications as necessary.
         """
         result = []
         seen = set()
@@ -528,6 +536,13 @@ class SQLCompiler:
         return result
 
     def get_extra_select(self, order_by, select):
+        """
+        Determines additional select statements required when using distinct queries with ordering.
+
+        This function checks if a query is using distinct and does not specify distinct fields, 
+        then it identifies any ordering expressions that are not already included in the select statement 
+        and returns them as a list of extra select statements to be added to the query.
+        """
         extra_select = []
         if self.query.distinct and not self.query.distinct_fields:
             select_sql = [t[1] for t in select]
@@ -539,9 +554,9 @@ class SQLCompiler:
 
     def quote_name_unless_alias(self, name):
         """
-        A wrapper around connection.ops.quote_name that doesn't quote aliases
-        for table names. This avoids problems with some SQL dialects that treat
-        quoted strings specially (e.g. PostgreSQL).
+
+        Quote a table or column name unless it's an alias, to avoid compatibility issues with certain SQL dialects.
+
         """
         if name in self.quote_cache:
             return self.quote_cache[name]
@@ -560,6 +575,14 @@ class SQLCompiler:
         return r
 
     def compile(self, node):
+        """
+        Compiles a SQL node into a SQL query string and a list of parameters.
+
+        It attempts to use vendor-specific compilation if available, 
+        otherwise falls back to the default compilation method.
+
+        :return: A tuple containing the compiled SQL query string and parameters.
+        """
         vendor_impl = getattr(node, "as_" + self.connection.vendor, None)
         if vendor_impl:
             sql, params = vendor_impl(self, self.connection)
@@ -568,6 +591,14 @@ class SQLCompiler:
         return sql, params
 
     def get_combinator_sql(self, combinator, all):
+        """
+        Generates the SQL string for a compound query operation, such as UNION or INTERSECT, 
+        combining the results of multiple queries into a single result set. The operation 
+        type is specified by the `combinator` parameter, and may include the `ALL` keyword 
+        depending on the `all` parameter. The function ensures that the query operation is 
+        valid and supported by the underlying database, and raises exceptions if 
+        invalidations are encountered.
+        """
         features = self.connection.features
         compilers = [
             query.get_compiler(self.using, self.connection, self.elide_empty)
@@ -621,6 +652,11 @@ class SQLCompiler:
         return result, params
 
     def _get_combinator_part_sql(self, compiler):
+        """
+        Generates SQL for a portion of a compound query, taking into account the features of the database connection and the query's combinator and subquery conditions.
+
+            Returns a tuple containing the generated SQL and a list of arguments to be used with the SQL.
+        """
         features = self.connection.features
         # If the columns list is limited, then all combined queries
         # must have the same columns list. Set the selects defined on
@@ -647,6 +683,17 @@ class SQLCompiler:
         return part_sql, part_args
 
     def get_qualify_sql(self):
+        """
+        Generates SQL query for the qualify clause.
+
+        This function prepares an inner query based on the provided query and conditions,
+        then constructs a subquery that includes the qualify clause and any necessary
+        replacements, annotations, and ordering. The resulting SQL string and parameter
+        list are returned, ready for compilation and execution.
+
+        The goal of this function is to enable the use of qualify clauses in database
+        queries, allowing for more complex and targeted data filtering and retrieval.
+        """
         where_parts = []
         if self.where:
             where_parts.append(self.where)
@@ -667,6 +714,9 @@ class SQLCompiler:
         replacements = {}
 
         def collect_replacements(expressions):
+            """
+            Collects and processes expressions to determine their replacements, handling various expression types such as lookups, references, and simple expressions, and updates the replacements dictionary accordingly.
+            """
             while expressions:
                 expr = expressions.pop()
                 if expr in replacements:
@@ -744,11 +794,9 @@ class SQLCompiler:
 
     def as_sql(self, with_limits=True, with_col_aliases=False):
         """
-        Create the SQL for this query. Return the SQL string and list of
-        parameters.
+        Generate SQL for the current query, returning the SQL string and a list of parameters.
 
-        If 'with_limits' is False, any limit/offset information is not included
-        in the query.
+        The generated SQL can be customized by passing in `with_limits` to control the inclusion of limit and offset information, and `with_col_aliases` to control the inclusion of column aliases.
         """
         refcounts_before = self.query.alias_refcount.copy()
         try:
@@ -973,15 +1021,9 @@ class SQLCompiler:
         self, select_mask, start_alias=None, opts=None, from_parent=None
     ):
         """
-        Compute the default columns for selecting every field in the base
-        model. Will sometimes be called to pull in related models (e.g. via
-        select_related), in which case "opts" and "start_alias" will be given
-        to provide a starting point for the traversal.
-
-        Return a list of strings, quoted appropriately for use in SQL
-        directly, as well as a set of aliases used in the select statement (if
-        'as_pairs' is True, return a list of (alias, col_name) pairs instead
-        of strings as the first component and None as the second component).
+        Computes the default columns for selecting every field in the base model, 
+        supporting related models and alias generation for SQL queries.
+        Returns a list of quoted column strings and a set of used aliases.
         """
         result = []
         if opts is None:
@@ -1021,10 +1063,7 @@ class SQLCompiler:
 
     def get_distinct(self):
         """
-        Return a quoted list of fields to use in DISTINCT ON part of the query.
-
-        This method can alter the tables in the query, and thus it must be
-        called before get_from_clause().
+        Return a quoted list of fields to use in the DISTINCT ON part of the query, taking into account the query's distinct fields and annotations. This method must be called before generating the FROM clause to ensure correct query construction.
         """
         result = []
         params = []
@@ -1049,9 +1088,18 @@ class SQLCompiler:
         self, name, opts, alias=None, default_order="ASC", already_seen=None
     ):
         """
-        Return the table alias (the name might be ambiguous, the alias will
-        not be) and column name for ordering by the given 'name' parameter.
-        The 'name' is of the form 'field1__field2__...__fieldN'.
+
+        Resolve an ambiguous ordering name to a table alias and column name.
+
+        The given 'name' parameter is resolved to a unique table alias and column name,
+        taking into account potential joins and nested fields. This function is used
+        to determine the ordering of a query result set based on a provided name that
+        may be ambiguous.
+
+        It returns a list of tuples containing the resolved ordering expression and a
+        flag indicating whether the expression is a reference. The ordering direction
+        is determined by the provided options and the name itself.
+
         """
         name, order = get_order_dir(name, default_order)
         descending = order == "DESC"
@@ -1112,11 +1160,12 @@ class SQLCompiler:
 
     def _setup_joins(self, pieces, opts, alias):
         """
-        Helper method for get_order_by() and get_distinct().
 
-        get_ordering() and get_distinct() must produce same target columns on
-        same input, as the prefixes of get_ordering() and get_distinct() must
-        match. Executing SQL where this is not true is an error.
+        Helper method to configure joins for query operations.
+
+        Ensures consistent target columns and prefixes are generated for 
+        order_by and distinct queries, facilitating error-free SQL execution.
+
         """
         alias = alias or self.query.get_initial_alias()
         field, targets, opts, joins, path, transform_function = self.query.setup_joins(
@@ -1127,14 +1176,9 @@ class SQLCompiler:
 
     def get_from_clause(self):
         """
-        Return a list of strings that are joined together to go after the
-        "FROM" part of the query, as well as a list any extra parameters that
-        need to be included. Subclasses, can override this to create a
-        from-clause via a "select".
-
-        This should only be called after any SQL construction methods that
-        might change the tables that are needed. This means the select columns,
-        ordering, and distinct must be done first.
+        Retrieves the FROM clause of a SQL query as a list of strings and any additional parameters required. 
+        This method is intended to be called after specifying the query's columns, ordering, and distinct conditions. 
+        Subclasses can override this method to construct the FROM clause using a SELECT statement.
         """
         result = []
         params = []
@@ -1170,10 +1214,7 @@ class SQLCompiler:
         restricted=None,
     ):
         """
-        Fill in the information needed for a select_related query. The current
-        depth is measured as the number of connections away from the root model
-        (for example, cur_depth=1 means we are looking at models with direct
-        connections to the root model).
+        Fill in the information needed for a select_related query, gathering related model selections based on relationships and selection masks. This method recursively builds a list of related class information, handling both forward and reverse relationships, and validates the requested fields against available choices. The current depth measures the number of connections away from the root model, controlling the recursion.
         """
 
         def _get_field_choices():
@@ -1394,8 +1435,7 @@ class SQLCompiler:
 
     def get_select_for_update_of_arguments(self):
         """
-        Return a quoted list of arguments for the SELECT FOR UPDATE OF part of
-        the query.
+        Return a quoted list of arguments for the SELECT FOR UPDATE OF part of a query, determining which columns to lock based on the query's selections and the model's relationships.
         """
 
         def _get_parent_klass_info(klass_info):
@@ -1419,11 +1459,7 @@ class SQLCompiler:
 
         def _get_first_selected_col_from_model(klass_info):
             """
-            Find the first selected column from a model. If it doesn't exist,
-            don't lock a model.
-
-            select_fields is filled recursively, so it also contains fields
-            from the parent models.
+            Retrieves the first selected column from a model, considering fields from the model itself and its parent models, or returns None if no matching column is found.
             """
             concrete_model = klass_info["model"]._meta.concrete_model
             for select_index in klass_info["select_fields"]:
@@ -1431,7 +1467,9 @@ class SQLCompiler:
                     return self.select[select_index][0]
 
         def _get_field_choices():
-            """Yield all allowed field paths in breadth-first search order."""
+            """
+            Yields all allowed field paths in breadth-first search order, enabling traversal of related model fields for querying or other purposes.
+            """
             queue = collections.deque([(None, self.klass_info)])
             while queue:
                 parent_path, klass_info = queue.popleft()
@@ -1499,6 +1537,20 @@ class SQLCompiler:
         return result
 
     def get_converters(self, expressions):
+        """
+        Returns a dictionary of converters for the given expressions.
+
+        The converters are retrieved from the database backend and the expression
+        fields, and are indexed by the expression's original position. This
+        dictionary can be used to convert values for the given expressions to
+        their corresponding database types.
+
+        :param expressions: A list of expressions for which to retrieve converters
+        :return: A dictionary of converters, where each key is the expression's
+                 original index and the value is a tuple containing the converters
+                 and the original expression
+
+        """
         converters = {}
         for i, expression in enumerate(expressions):
             if expression:
@@ -1509,6 +1561,9 @@ class SQLCompiler:
         return converters
 
     def apply_converters(self, rows, converters):
+        """
+        Applies a series of converter functions to specified columns in a set of rows, transforming the values in place. The converters are applied in sequence to each value, with the output of one converter becoming the input for the next. This allows for complex transformations and processing of the data before it is yielded.
+        """
         connection = self.connection
         converters = list(converters.items())
         for row in map(list, rows):
@@ -1526,7 +1581,9 @@ class SQLCompiler:
         chunked_fetch=False,
         chunk_size=GET_ITERATOR_CHUNK_SIZE,
     ):
-        """Return an iterator over the results from executing this query."""
+        """
+        Retrieves query results, optionally applying data converters and returning the output in an iterable format, with support for chunked fetching and tuple wrapping.
+        """
         if results is None:
             results = self.execute_sql(
                 MULTI, chunked_fetch=chunked_fetch, chunk_size=chunk_size
@@ -1551,16 +1608,18 @@ class SQLCompiler:
         self, result_type=MULTI, chunked_fetch=False, chunk_size=GET_ITERATOR_CHUNK_SIZE
     ):
         """
-        Run the query against the database and return the result(s). The
-        return value is a single data item if result_type is SINGLE, or an
-        iterator over the results if the result_type is MULTI.
+        Executes a SQL query against the database and returns the results based on the specified result type.
 
-        result_type is either MULTI (use fetchmany() to retrieve all rows),
-        SINGLE (only retrieve a single row), or None. In this last case, the
-        cursor is returned if any query is executed, since it's used by
-        subclasses such as InsertQuery). It's possible, however, that no query
-        is needed, as the filters describe an empty set. In that case, None is
-        returned, to avoid any unnecessary database interaction.
+        The result type determines the return value: SINGLE returns a single data item, MULTI returns an iterator over the results, 
+        None returns the cursor if a query is executed, and NO_RESULTS returns None if no query is needed or no results are found.
+
+        Parameters:
+            result_type (str): The type of result to return (SINGLE, MULTI, None, or NO_RESULTS)
+            chunked_fetch (bool): Whether to use chunked fetching
+            chunk_size (int): The size of each chunk when using chunked fetching
+
+        Returns:
+            The result of the query execution, which can be a single data item, an iterator, a cursor, or None.
         """
         result_type = result_type or NO_RESULTS
         try:
@@ -1614,6 +1673,11 @@ class SQLCompiler:
         return result
 
     def as_subquery_condition(self, alias, columns, compiler):
+        """
+        Adds an EXISTS condition to the query, allowing it to be used as a subquery.
+        It converts the main query into a Exists subquery condition, comparing each 
+        selected column with the corresponding column from the specified alias.
+        """
         qn = compiler.quote_name_unless_alias
         qn2 = self.connection.ops.quote_name
         query = self.query.clone()
@@ -1627,6 +1691,9 @@ class SQLCompiler:
         return "EXISTS %s" % sql, params
 
     def explain_query(self):
+        """
+        Generates an explanation for the current query, yielding formatted results according to the specified output format, defaulting to string representation unless JSON format is specified.
+        """
         result = list(self.execute_sql())
         # Some backends return 1 item tuples with strings, and others return
         # tuples with integers and strings. Flatten them out into strings.
@@ -1646,12 +1713,7 @@ class SQLInsertCompiler(SQLCompiler):
 
     def field_as_sql(self, field, val):
         """
-        Take a field and a value intended to be saved on that field, and
-        return placeholder SQL and accompanying params. Check for raw values,
-        expressions, and fields with get_placeholder() defined in that order.
-
-        When field is None, consider the value raw and use it as the
-        placeholder, with no corresponding parameters returned.
+        Generates SQL placeholder and parameters for a given field and value, handling raw values, expressions, and custom field placeholders. Returns a tuple of placeholder SQL and a list of parameters, taking into account database-specific modifications.
         """
         if field is None:
             # A field value of None means the value is raw.
@@ -1678,8 +1740,7 @@ class SQLInsertCompiler(SQLCompiler):
 
     def prepare_value(self, field, value):
         """
-        Prepare a value to be used in a query by resolving it if it is an
-        expression and otherwise calling the field's get_db_prep_save().
+        Prepare a value for use in a database query by resolving any expressions and converting to a database-compatible format. This function ensures that the provided value is properly formatted for insertion into the database, while preventing the use of certain types of queries that are not supported in the current context.
         """
         if hasattr(value, "resolve_expression"):
             value = value.resolve_expression(
@@ -1716,15 +1777,7 @@ class SQLInsertCompiler(SQLCompiler):
 
     def assemble_as_sql(self, fields, value_rows):
         """
-        Take a sequence of N fields and a sequence of M rows of values, and
-        generate placeholder SQL and parameters for each field and value.
-        Return a pair containing:
-         * a sequence of M rows of N SQL placeholder strings, and
-         * a sequence of M rows of corresponding parameter values.
-
-        Each placeholder string may contain any number of '%s' interpolation
-        strings, and each parameter row will contain exactly as many params
-        as the total number of '%s's in the corresponding placeholder row.
+        Generates SQL placeholders and corresponding parameter values for a given set of fields and rows of values, returning a pair of sequences: SQL placeholder rows and parameter rows.
         """
         if not value_rows:
             return [], []
@@ -1752,6 +1805,9 @@ class SQLInsertCompiler(SQLCompiler):
     def as_sql(self):
         # We don't need quote_name_unless_alias() here, since these are all
         # going to be column names (so we can avoid the extra overhead).
+        """
+        Generates the SQL statement and parameters for an insert query, handling bulk inserts, conflict resolution, and returning inserted columns when supported by the database. The SQL statement is constructed based on the query metadata, fields, and values to be inserted.
+        """
         qn = self.connection.ops.quote_name
         opts = self.query.get_meta()
         insert_statement = self.connection.ops.insert_statement(
@@ -1830,6 +1886,20 @@ class SQLInsertCompiler(SQLCompiler):
             ]
 
     def execute_sql(self, returning_fields=None):
+        """
+
+        Execute the SQL query and return the inserted rows with specified fields.
+
+        This function is used to execute an SQL query, typically an insert operation,
+        and retrieve the inserted rows with the fields specified by the user.
+
+        It supports bulk inserts and can return the inserted rows from the database,
+        if the database backend supports it.
+
+        :param returning_fields: A list of fields to return from the inserted rows.
+        :returns: A list of tuples, where each tuple represents an inserted row with the specified fields.
+
+        """
         assert not (
             returning_fields
             and len(self.query.objs) != 1
@@ -1884,6 +1954,12 @@ class SQLDeleteCompiler(SQLCompiler):
 
     @classmethod
     def _expr_refs_base_model(cls, expr, base_model):
+        """
+        Checks if a given expression references a specific base model.
+
+        Determines whether the provided expression directly or indirectly references the base model, 
+        by recursively traversing the source expressions of the given expression.
+        """
         if isinstance(expr, Query):
             return expr.model == base_model
         if not hasattr(expr, "get_source_expressions"):
@@ -1903,6 +1979,15 @@ class SQLDeleteCompiler(SQLCompiler):
         )
 
     def _as_sql(self, query):
+        """
+        Generate SQL string for a DELETE query.
+
+        This method constructs a SQL query string to delete rows from a table, 
+        optionally including a WHERE clause based on the provided query conditions.
+
+        :returns: A tuple containing the SQL query string and a tuple of parameter values.
+
+        """
         delete = "DELETE FROM %s" % self.quote_name_unless_alias(query.base_table)
         try:
             where, params = self.compile(query.where)
@@ -1912,8 +1997,10 @@ class SQLDeleteCompiler(SQLCompiler):
 
     def as_sql(self):
         """
-        Create the SQL for this query. Return the SQL string and list of
-        parameters.
+        Generates the SQL query string and its parameters for the current query. 
+        This function constructs the SQL query by either directly using the query 
+        if it can self-reference or by creating a subquery when self-referencing 
+        is not supported, ensuring compatibility across various database connections.
         """
         if self.single_alias and (
             self.connection.features.delete_can_self_reference_subquery
@@ -1938,8 +2025,16 @@ class SQLDeleteCompiler(SQLCompiler):
 class SQLUpdateCompiler(SQLCompiler):
     def as_sql(self):
         """
-        Create the SQL for this query. Return the SQL string and list of
-        parameters.
+        Return the SQL string and parameters for the current query.
+
+        This method constructs the SQL for an UPDATE query based on the query's values and
+        conditions. It handles various types of values, including model instances, aggregate
+        functions, and window expressions, and raises exceptions for unsupported operations.
+
+        The method returns a tuple containing the constructed SQL string and a list of parameters
+        to be used with the query. The SQL string includes the UPDATE statement, SET clause,
+        and WHERE clause, as applicable.
+
         """
         self.pre_sql_setup()
         if not self.query.values:
@@ -2002,10 +2097,7 @@ class SQLUpdateCompiler(SQLCompiler):
 
     def execute_sql(self, result_type):
         """
-        Execute the specified update. Return the number of rows affected by
-        the primary update query. The "primary update query" is the first
-        non-empty query that is executed. Row counts for any subsequent,
-        related queries are not available.
+        Execute the primary update query and related queries, returning the number of rows affected by the primary update query.
         """
         cursor = super().execute_sql(result_type)
         try:
@@ -2023,12 +2115,7 @@ class SQLUpdateCompiler(SQLCompiler):
 
     def pre_sql_setup(self):
         """
-        If the update depends on results from other tables, munge the "where"
-        conditions to match the format required for (portable) SQL updates.
-
-        If multiple updates are required, pull out the id values to update at
-        this point so that they don't change as a result of the progressive
-        updates.
+        Prepares the query for SQL updates by modifying the \"where\" conditions and extracting id values to update if the update depends on results from other tables or if multiple updates are required. Ensures that id values are preserved across progressive updates and that the query is properly formatted for portable SQL updates.
         """
         refcounts_before = self.query.alias_refcount.copy()
         # Ensure base table is in the query
@@ -2088,8 +2175,7 @@ class SQLUpdateCompiler(SQLCompiler):
 class SQLAggregateCompiler(SQLCompiler):
     def as_sql(self):
         """
-        Create the SQL for this query. Return the SQL string and list of
-        parameters.
+        Generate SQL string and parameters for the current query, combining annotations and the inner query into a single SQL statement.
         """
         sql, params = [], []
         for annotation in self.query.annotation_select.values():
@@ -2112,8 +2198,9 @@ class SQLAggregateCompiler(SQLCompiler):
 
 def cursor_iter(cursor, sentinel, col_count, itersize):
     """
-    Yield blocks of rows from a cursor and ensure the cursor is closed when
-    done.
+    Yield blocks of rows from a database cursor, truncating columns if specified, 
+    and automatically close the cursor when iteration is complete, 
+    regardless of whether an exception occurs or not.
     """
     try:
         for rows in iter((lambda: cursor.fetchmany(itersize)), sentinel):

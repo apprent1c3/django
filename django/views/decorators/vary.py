@@ -7,17 +7,20 @@ from django.utils.cache import patch_vary_headers
 
 def vary_on_headers(*headers):
     """
-    A view decorator that adds the specified headers to the Vary header of the
-    response. Usage:
-
-       @vary_on_headers('Cookie', 'Accept-language')
-       def index(request):
-           ...
-
-    Note that the header names are not case-sensitive.
+    A view decorator that modifies the Vary header of the response by adding the specified headers, to indicate that the response varies based on these headers. The header names are case-insensitive.
     """
 
     def decorator(func):
+        """
+
+        Decorator to patch the 'Vary' response headers for a view function.
+
+        Adds the 'Vary' headers to the response of the decorated function, regardless of whether it is an asynchronous or synchronous function.
+
+        :param func: The view function to be decorated
+        :returns: The decorated view function with patched 'Vary' response headers
+
+        """
         if iscoroutinefunction(func):
 
             async def _view_wrapper(request, *args, **kwargs):

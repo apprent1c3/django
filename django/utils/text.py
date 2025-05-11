@@ -23,7 +23,9 @@ from django.utils.translation import gettext_lazy, pgettext
 
 @keep_lazy_text
 def capfirst(x):
-    """Capitalize the first letter of a string."""
+    """
+    Capitalize the first letter of a given string or string representation of an object, returning the resulting string.
+    """
     if not x:
         return x
     if not isinstance(x, str):
@@ -39,17 +41,19 @@ re_camel_case = _lazy_re_compile(r"(((?<=[a-z])[A-Z])|([A-Z](?![A-Z]|$)))")
 @keep_lazy_text
 def wrap(text, width):
     """
-    A word-wrap function that preserves existing line breaks. Expects that
-    existing line breaks are posix newlines.
-
-    Preserve all white space except added line breaks consume the space on
-    which they break the line.
-
-    Don't wrap long words, thus the output text may have lines longer than
-    ``width``.
+    Wraps input text to a specified width while preserving existing line breaks.
+    Preserves whitespace, except for added line breaks which consume the preceding space.
+    Note that long words are not wrapped, potentially resulting in lines exceeding the specified width.
     """
 
     def _generator():
+        """
+
+        Generates a sequence of lines by wrapping a given text to a specified width.
+        The function splits the text into lines, then divides each line into chunks
+        of a specified maximum width, attempting to split at spaces.
+
+        """
         for line in text.splitlines(True):  # True keeps trailing linebreaks
             max_width = min((line.endswith("\n") and width + 1 or width), width)
             while len(line) > max_width:
@@ -70,6 +74,9 @@ def wrap(text, width):
 
 
 def add_truncation_text(text, truncate=None):
+    """
+    Appends a truncation text to the input text if it does not already end with it, allowing for optional customization of the truncation text.
+    """
     if truncate is None:
         truncate = pgettext(
             "String to return when truncating text", "%(truncated_text)s…"
@@ -86,6 +93,9 @@ def add_truncation_text(text, truncate=None):
 
 
 def calculate_truncate_chars_length(length, replacement):
+    """
+    Calculate the available length for a truncated string, taking into account the length of the replacement text that will be appended.
+    """
     truncate_len = length
     for char in add_truncation_text("", replacement):
         if not unicodedata.combining(char):
@@ -100,6 +110,9 @@ class TruncateHTMLParser(HTMLParser):
         pass
 
     def __init__(self, *, length, replacement, convert_charrefs=True):
+        """
+        Initializes the HTML unescaping parser with the specified length and replacement character, preparing it to process a stream of HTML data.
+        """
         super().__init__(convert_charrefs=convert_charrefs)
         self.tags = deque()
         self.output = ""
@@ -123,6 +136,9 @@ class TruncateHTMLParser(HTMLParser):
             self.tags.appendleft(tag)
 
     def handle_endtag(self, tag):
+        """
+        Closes an HTML tag by appending the corresponding end tag to the output and removing it from the list of open tags, unless it is a void element that does not require a closing tag.
+        """
         if tag not in self.void_elements:
             self.output += f"</{tag}>"
             try:
@@ -131,6 +147,13 @@ class TruncateHTMLParser(HTMLParser):
                 pass
 
     def handle_data(self, data):
+        """
+        Handle incoming data, processing it and adding it to the output while tracking a truncation limit.
+
+        If the data exceeds the remaining truncation limit, truncation is marked as completed, 
+        a replacement string is added to the output, and a TruncationCompleted exception is raised. 
+        Otherwise, the remaining truncation limit is updated and the processed data is appended to the output.
+        """
         data, output = self.process(data)
         data_len = len(data)
         if self.remaining < data_len:
@@ -141,6 +164,9 @@ class TruncateHTMLParser(HTMLParser):
         self.output += output
 
     def feed(self, data):
+        """
+        Feeds data to the parser, handling truncation and resetting the state as necessary.
+        """
         try:
             super().feed(data)
         except self.TruncationCompleted:
@@ -163,6 +189,9 @@ class TruncateCharsHTMLParser(TruncateHTMLParser):
         )
 
     def process(self, data):
+        """
+        Process a chunk of data, potentially completing the truncation process and raising an exception when finished, while also generating escaped output for the current chunk.
+        """
         self.processed_chars += len(data)
         if (self.processed_chars == self.length) and (
             len(self.output) + len(data) == len(self.rawdata)
@@ -196,11 +225,12 @@ class Truncator(SimpleLazyObject):
 
     def chars(self, num, truncate=None, html=False):
         """
-        Return the text truncated to be no longer than the specified number
-        of characters.
 
-        `truncate` specifies what should be used to notify that the string has
-        been truncated, defaulting to a translatable string of an ellipsis.
+        Return the text truncated to a specified number of characters.
+
+        The truncated text can be customized with a notification string.
+        Optional HTML parsing allows for truncation while preserving HTML structure.
+
         """
         self._setup()
         length = int(num)
@@ -216,7 +246,9 @@ class Truncator(SimpleLazyObject):
         return self._text_chars(length, truncate, text)
 
     def _text_chars(self, length, truncate, text):
-        """Truncate a string after a certain number of chars."""
+        """
+        Truncates a given text to a specified length, considering Unicode characters and optionally appending a truncation indicator.
+        """
         truncate_len = calculate_truncate_chars_length(length, truncate)
         s_len = 0
         end_index = None
@@ -237,9 +269,9 @@ class Truncator(SimpleLazyObject):
 
     def words(self, num, truncate=None, html=False):
         """
-        Truncate a string after a certain number of words. `truncate` specifies
-        what should be used to notify that the string has been truncated,
-        defaulting to ellipsis.
+        Truncates a string after a specified number of words, optionally appending a notification that the string has been shortened. 
+        The truncation notification can be customized with the `truncate` parameter. 
+        Also supports HTML truncation, preserving the original HTML structure, when `html` is enabled.
         """
         self._setup()
         length = int(num)
@@ -254,9 +286,7 @@ class Truncator(SimpleLazyObject):
 
     def _text_words(self, length, truncate):
         """
-        Truncate a string after a certain number of words.
-
-        Strip newlines in the string.
+        Truncates a string to a specified number of words, removing newlines and adding a truncation indicator if necessary.
         """
         words = self._wrapped.split()
         if len(words) > length:
@@ -268,12 +298,14 @@ class Truncator(SimpleLazyObject):
 @keep_lazy_text
 def get_valid_filename(name):
     """
-    Return the given string converted to a string that can be used for a clean
-    filename. Remove leading and trailing spaces; convert other spaces to
-    underscores; and remove anything that is not an alphanumeric, dash,
-    underscore, or dot.
-    >>> get_valid_filename("john's portrait in 2004.jpg")
-    'johns_portrait_in_2004.jpg'
+
+    Return a string converted to a valid filename by removing leading and trailing spaces, 
+    converting other spaces to underscores, and removing non-alphanumeric, non-dash, non-underscore, and non-dot characters.
+
+    :param name: The string to be converted to a valid filename
+    :return: A string that can be used as a clean filename
+    :raises SuspiciousFileOperation: If the derived filename is empty, '.' or '..'
+
     """
     s = str(name).strip().replace(" ", "_")
     s = re.sub(r"(?u)[^-\w.]", "", s)
@@ -285,16 +317,14 @@ def get_valid_filename(name):
 @keep_lazy_text
 def get_text_list(list_, last_word=gettext_lazy("or")):
     """
-    >>> get_text_list(['a', 'b', 'c', 'd'])
-    'a, b, c or d'
-    >>> get_text_list(['a', 'b', 'c'], 'and')
-    'a, b and c'
-    >>> get_text_list(['a', 'b'], 'and')
-    'a and b'
-    >>> get_text_list(['a'])
-    'a'
-    >>> get_text_list([])
-    ''
+
+    Converts a list of items into a human-readable string, 
+    joining all but the last item with commas and the last item with a specified conjunction.
+
+    :param list_: The list of items to convert to a string
+    :param last_word: The word to use to join the last item, defaults to 'or'
+    :return: A string representation of the list
+
     """
     if not list_:
         return ""
@@ -353,6 +383,13 @@ def _get_random_filename(max_random_bytes):
 
 
 def compress_string(s, *, max_random_bytes=None):
+    """
+    Compress a string using gzip compression and optionally add a random filename to the header.
+
+    :arg str s: The input string to be compressed.
+    :arg int max_random_bytes: Optional maximum number of bytes for the random filename.
+    :return bytes: The compressed data with optional random filename in the gzip header.
+    """
     compressed_data = gzip_compress(s, compresslevel=6, mtime=0)
 
     if not max_random_bytes:
@@ -377,6 +414,13 @@ class StreamingBuffer(BytesIO):
 
 # Like compress_string, but for iterators of strings.
 def compress_sequence(sequence, *, max_random_bytes=None):
+    """
+    Generate compressed data from a sequence of items on-the-fly.
+
+    This function takes a sequence of items and returns a generator that produces compressed chunks of data.
+    It uses gzip compression and allows for optional specification of a random filename.
+    The compressed data is yielded as it is generated, allowing for efficient handling of large sequences.
+    """
     buf = StreamingBuffer()
     filename = _get_random_filename(max_random_bytes) if max_random_bytes else None
     with GzipFile(
@@ -429,18 +473,9 @@ def smart_split(text):
 
 @keep_lazy_text
 def unescape_string_literal(s):
-    r"""
-    Convert quoted string literals to unquoted strings with escaped quotes and
-    backslashes unquoted::
-
-        >>> unescape_string_literal('"abc"')
-        'abc'
-        >>> unescape_string_literal("'abc'")
-        'abc'
-        >>> unescape_string_literal('"a \"bc\""')
-        'a "bc"'
-        >>> unescape_string_literal("'\'ab\' c'")
-        "'ab' c"
+    """
+    Removes quotes and unescapes characters in a string literal, returning the contained string.
+    It supports both single and double quoted strings and correctly handles escaped quotes and backslashes.
     """
     if not s or s[0] not in "\"'" or s[-1] != s[0]:
         raise ValueError("Not a string literal: %r" % s)
@@ -451,10 +486,7 @@ def unescape_string_literal(s):
 @keep_lazy_text
 def slugify(value, allow_unicode=False):
     """
-    Convert to ASCII if 'allow_unicode' is False. Convert spaces or repeated
-    dashes to single dashes. Remove characters that aren't alphanumerics,
-    underscores, or hyphens. Convert to lowercase. Also strip leading and
-    trailing whitespace, dashes, and underscores.
+    Converts a string into a slug, a lowercase string suitable for use in URLs, by removing unwanted characters and replacing spaces with dashes.
     """
     value = str(value)
     if allow_unicode:

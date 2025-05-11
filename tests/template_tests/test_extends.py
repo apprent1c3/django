@@ -28,6 +28,9 @@ class ExtendsBehaviorTests(SimpleTestCase):
         self.assertEqual(output.strip(), "fs3/recursive fs2/recursive fs/recursive")
 
     def test_extend_missing(self):
+        """
+        Tests that the template engine correctly handles a missing template when using the extend tag, ensuring a TemplateDoesNotExist exception is raised with the expected template name.
+        """
         engine = Engine(dirs=[os.path.join(RECURSIVE, "fs")])
         template = engine.get_template("extend-missing.html")
         with self.assertRaises(TemplateDoesNotExist) as e:
@@ -69,8 +72,7 @@ class ExtendsBehaviorTests(SimpleTestCase):
 
     def test_extend_self_error(self):
         """
-        Catch if a template extends itself and no other matching
-        templates are found.
+        Verify that a TemplateDoesNotExist error is raised when a template attempts to extend itself, preventing infinite recursion.
         """
         engine = Engine(dirs=[os.path.join(RECURSIVE, "fs")])
         template = engine.get_template("self.html")
@@ -83,6 +85,9 @@ class ExtendsBehaviorTests(SimpleTestCase):
         self.assertEqual(message, "Skipped to avoid recursion")
 
     def test_extend_cached(self):
+        """
+        Tests the extension of the cached template loader, verifying that templates are properly cached and their origins are tracked across multiple template directories.
+        """
         engine = Engine(
             dirs=[
                 os.path.join(RECURSIVE, "fs"),
@@ -121,8 +126,7 @@ class ExtendsBehaviorTests(SimpleTestCase):
 
     def test_unique_history_per_loader(self):
         """
-        Extending should continue even if two loaders return the same
-        name for a template.
+        Tests whether template extension continues correctly even when multiple loaders return the same template name, ensuring unique history per loader is maintained during template inheritance.
         """
         engine = Engine(
             loaders=[

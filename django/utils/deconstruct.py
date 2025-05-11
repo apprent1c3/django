@@ -5,13 +5,18 @@ from django.utils.version import get_docs_version
 
 def deconstructible(*args, path=None):
     """
-    Class decorator that allows the decorated class to be serialized
-    by the migrations subsystem.
-
-    The `path` kwarg specifies the import path.
+    Enables the decorated class to be serialized by the migrations subsystem, allowing for easy reconstruction of instances.
+    The path keyword argument specifies the import path for the class.
     """
 
     def decorator(klass):
+        """
+
+        Modify a class to store its constructor arguments and provide a way to deconstruct the object into its class import path, positional arguments, and keyword arguments.
+
+        The deconstruction process allows objects to be serialized and reconstructed, aiding in migration processes.
+
+        """
         def __new__(cls, *args, **kwargs):
             # We capture the arguments to make returning them trivial
             obj = super(klass, cls).__new__(cls)
@@ -20,8 +25,7 @@ def deconstructible(*args, path=None):
 
         def deconstruct(obj):
             """
-            Return a 3-tuple of class import path, positional arguments,
-            and keyword arguments.
+            Deconstructs a given object into its class import path, positional arguments, and keyword arguments, facilitating serialization and migration processes.
             """
             # Fallback version
             if path and type(obj) is klass:

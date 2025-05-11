@@ -25,7 +25,9 @@ class SignalTestCase(TestCase):
         self.login_failed.append(kwargs)
 
     def setUp(self):
-        """Set up the listeners and reset the logged in/logged out counters"""
+        """
+        Initializes the test environment by setting up event listeners for user login, logout, and failed login attempts, and resets the corresponding counters.
+        """
         self.logged_in = []
         self.logged_out = []
         self.login_failed = []
@@ -40,6 +42,13 @@ class SignalTestCase(TestCase):
 
     def test_login(self):
         # Only a successful login will trigger the success signal.
+        """
+        Tests the login functionality with both valid and invalid credentials.
+
+        Verifies that an unsuccessful login attempt is recorded in the login_failed list
+        and a successful login is reflected in the logged_in list, with user credentials
+        and request information properly stored. 
+        """
         self.client.login(username="testclient", password="bad")
         self.assertEqual(len(self.logged_in), 0)
         self.assertEqual(len(self.login_failed), 1)
@@ -70,7 +79,9 @@ class SignalTestCase(TestCase):
         self.assertEqual(self.logged_out[0].username, "testclient")
 
     def test_update_last_login(self):
-        """Only `last_login` is updated in `update_last_login`"""
+        """
+        Tests that the update_last_login function only updates the last_login field of a user model, without modifying other fields.
+        """
         user = self.u3
         old_last_login = user.last_login
 
@@ -87,8 +98,7 @@ class SignalTestCase(TestCase):
 
     def test_login_with_custom_user_without_last_login_field(self):
         """
-        The user_logged_in signal is only registered if the user model has a
-        last_login field.
+        Tests that the user_logged_in signal is not registered for custom user models without a last_login field.
         """
         last_login_receivers = signals.user_logged_in.receivers
         try:

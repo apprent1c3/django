@@ -32,6 +32,9 @@ class TestDataMixin:
 @override_settings(ROOT_URLCONF="generic_inline_admin.urls")
 class GenericAdminViewTest(TestDataMixin, TestCase):
     def setUp(self):
+        """
+        Sets up the test environment by logging in as a superuser and creating test data, including an episode and associated media files.
+        """
         self.client.force_login(self.superuser)
 
         e = Episode.objects.create(name="This Week in Django")
@@ -80,7 +83,7 @@ class GenericAdminViewTest(TestDataMixin, TestCase):
 
     def test_basic_edit_POST(self):
         """
-        A smoke test to ensure POST on edit_view works.
+        Tests the successful handling of a POST request on the edit view, ensuring a redirect response is returned when valid form data is provided.
         """
         prefix = "generic_inline_admin-media-content_type-object_id"
         post_data = {
@@ -124,7 +127,11 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
 
     def test_no_param(self):
         """
-        With one initial form, extra (default) at 3, there should be 4 forms.
+
+        Tests that an episode object is correctly initialized with a single initial form and three extra default forms.
+
+        Checks that the total number of forms is 4 and that there is one initial form.
+
         """
         e = self._create_object(Episode)
         response = self.client.get(
@@ -136,7 +143,9 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
 
     def test_extra_param(self):
         """
-        With extra=0, there should be one form.
+
+        Tests that setting extra=0 in a GenericTabularInline correctly limits the form count to one.
+
         """
 
         class ExtraInline(GenericTabularInline):
@@ -158,7 +167,10 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
 
     def test_max_num_param(self):
         """
-        With extra=5 and max_num=2, there should be only 2 forms.
+
+            Tests that the max_num parameter of an inline formset correctly limits 
+            the number of forms displayed when extra forms are defined. 
+
         """
 
         class MaxNumInline(GenericTabularInline):
@@ -181,7 +193,7 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
 
     def test_min_num_param(self):
         """
-        With extra=3 and min_num=2, there should be five forms.
+        Tests that the GenericTabularInline formset correctly calculates its total form count when the min_num parameter is set, ensuring that the specified minimum number of forms are always displayed in addition to the extra forms.
         """
 
         class MinNumInline(GenericTabularInline):
@@ -203,6 +215,9 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.initial_form_count(), 1)
 
     def test_get_extra(self):
+        """
+        Tests that the get_extra method of a GenericTabularInline subclass is used to determine the number of extra form fields displayed in the Django admin interface.
+        """
         class GetExtraInline(GenericTabularInline):
             model = Media
             extra = 4
@@ -223,6 +238,9 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.extra, 2)
 
     def test_get_min_num(self):
+        """
+        Tests the custom get_min_num method in a GenericTabularInline to ensure it overrides the min_num attribute for the inline formset.
+        """
         class GetMinNumInline(GenericTabularInline):
             model = Media
             min_num = 5
@@ -243,6 +261,9 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.min_num, 2)
 
     def test_get_max_num(self):
+        """
+        Tests that the get_max_num method in a GenericTabularInline returns the expected maximum number of inline forms.
+        """
         class GetMaxNumInline(GenericTabularInline):
             model = Media
             extra = 5
@@ -269,6 +290,11 @@ class GenericInlineAdminWithUniqueTogetherTest(TestDataMixin, TestCase):
         self.client.force_login(self.superuser)
 
     def test_add(self):
+        """
+        Tests the add functionality of the Contact admin view with inline phone number. 
+        Verifies that the view renders correctly and creates a new contact with a phone number 
+        upon successful form submission.
+        """
         category_id = Category.objects.create(name="male").pk
         prefix = "generic_inline_admin-phonenumber-content_type-object_id"
         post_data = {
@@ -289,6 +315,13 @@ class GenericInlineAdminWithUniqueTogetherTest(TestDataMixin, TestCase):
         self.assertEqual(response.status_code, 302)  # redirect somewhere
 
     def test_delete(self):
+        """
+
+        Tests the deletion of a Contact object via the admin interface.
+
+        Verifies that the deletion prompt is correctly displayed when attempting to delete a contact.
+
+        """
         from .models import Contact
 
         c = Contact.objects.create(name="foo")
@@ -333,6 +366,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_get_formset_kwargs(self):
+        """
+        Tests the get_formset method of MediaInline to ensure correct kwargs are passed to the formset, specifically max_num and can_order parameters.
+        """
         media_inline = MediaInline(Media, AdminSite())
 
         # Create a formset with default arguments
@@ -347,9 +383,7 @@ class GenericInlineModelAdminTest(SimpleTestCase):
 
     def test_custom_form_meta_exclude_with_readonly(self):
         """
-        The custom ModelForm's `Meta.exclude` is respected when
-        used in conjunction with `GenericInlineModelAdmin.readonly_fields`
-        and when no `ModelAdmin.exclude` is defined.
+        Tests that the custom ModelForm's Meta.exclude is correctly handled when used with GenericInlineModelAdmin.readonly_fields and no ModelAdmin.exclude is defined, ensuring that excluded fields are not displayed in the form.
         """
 
         class MediaForm(ModelForm):
@@ -374,10 +408,8 @@ class GenericInlineModelAdminTest(SimpleTestCase):
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_custom_form_meta_exclude(self):
         """
-        The custom ModelForm's `Meta.exclude` is respected by
-        `GenericInlineModelAdmin.get_formset`, and overridden if
-        `ModelAdmin.exclude` or `GenericInlineModelAdmin.exclude` are defined.
-        Refs #15907.
+        Tests that the ModelForm's Meta exclude option is respected by GenericInlineModelAdmin's get_formset method, 
+        and can be overridden by ModelAdmin or GenericInlineModelAdmin exclude options.
         """
         # First with `GenericInlineModelAdmin`  -----------------
 
@@ -419,6 +451,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
     def test_get_fieldsets(self):
         # get_fieldsets is called when figuring out form fields.
         # Refs #18681.
+        """
+        Tests that the get_fieldsets method of a GenericTabularInline returns the correct fields for a formset.
+        """
         class MediaForm(ModelForm):
             class Meta:
                 model = Media
@@ -438,7 +473,8 @@ class GenericInlineModelAdminTest(SimpleTestCase):
 
     def test_get_formsets_with_inlines_returns_tuples(self):
         """
-        get_formsets_with_inlines() returns the correct tuples.
+        Tests that the get_formsets_with_inlines method returns the expected tuples, 
+         containing a formset and its corresponding inline instance.
         """
 
         class MediaForm(ModelForm):
@@ -465,6 +501,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
             self.assertIsInstance(formset, other_inline.get_formset(request).__class__)
 
     def test_get_inline_instances_override_get_inlines(self):
+        """
+        Tests the override behavior of the get_inlines method in a custom ModelAdmin class, particularly when get_inline_instances is called, to ensure that only the specified inline instance is returned based on the request object.
+        """
         class MediaInline(GenericTabularInline):
             model = Media
 
@@ -475,6 +514,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
             inlines = (AlternateInline, MediaInline)
 
             def get_inlines(self, request, obj):
+                """
+                Filters inlines for a request based on the request's name, returning specific subsets of inlines for 'alternate' and 'media' requests, and an empty list for other requests.
+                """
                 if hasattr(request, "name"):
                     if request.name == "alternate":
                         return self.inlines[:1]

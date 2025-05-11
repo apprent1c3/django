@@ -83,6 +83,12 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_empty_result_set(self):
+        """
+        Tests the behavior of various aggregations when applied to an empty result set.
+
+        Verifies that aggregate functions return None when called on an empty queryset,
+        and also checks the number of database queries made in these scenarios.
+        """
         AggregateTestModel.objects.all().delete()
         tests = [
             ArrayAgg("char_field"),
@@ -112,6 +118,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": None})
 
     def test_default_argument(self):
+        """
+        Tests database aggregation functions with default values when no data is available, ensuring expected results are returned for different field types and aggregation operations.
+        """
         AggregateTestModel.objects.all().delete()
         tests = [
             (ArrayAgg("char_field", default=["<empty>"]), ["<empty>"]),
@@ -153,6 +162,11 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": ["Foo1", "Foo2", "Foo4", "Foo3"]})
 
     def test_array_agg_charfield_ordering(self):
+        """
+        Tests the ordering parameter of the ArrayAgg function when aggregating a char field from the AggregateTestModel. 
+         Verifies that the ArrayAgg function correctly sorts the aggregated array based on the provided ordering, 
+         including ascending, descending, and multiple field ordering.
+        """
         ordering_test_cases = (
             (F("char_field").desc(), ["Foo4", "Foo3", "Foo2", "Foo1"]),
             (F("char_field").asc(), ["Foo1", "Foo2", "Foo3", "Foo4"]),
@@ -204,6 +218,12 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": [True, False, False, True]})
 
     def test_array_agg_booleanfield_ordering(self):
+        """
+        Tests the ordering of BooleanField values in an ArrayAgg aggregation.
+
+        Verifies that the ArrayAgg aggregation correctly orders BooleanField values
+        in ascending, descending, and default (ascending) order.
+        """
         ordering_test_cases = (
             (F("boolean_field").asc(), [False, False, True, True]),
             (F("boolean_field").desc(), [True, True, False, False]),
@@ -252,6 +272,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": [1, 2]})
 
     def test_array_agg_lookups(self):
+        """
+        Tests array aggregation lookups, ensuring that the ArrayAgg function correctly aggregates and filters values based on overlap with a given list.
+        """
         aggr1 = AggregateTestModel.objects.create()
         aggr2 = AggregateTestModel.objects.create()
         StatTestModel.objects.create(related_field=aggr1, int1=1, int2=0)
@@ -267,6 +290,15 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertCountEqual(qs.get(), [1, 2])
 
     def test_array_agg_filter_index(self):
+        """
+
+        Tests the array aggregation functionality with filtering on a related model's field.
+
+        The test creates aggregate and stat test model instances and then queries the aggregate models,
+        annotating them with an array of int1 values from related stat test models where int2 equals 0.
+        It then checks if the first element of the annotated array matches the expected output.
+
+        """
         aggr1 = AggregateTestModel.objects.create(integer_field=1)
         aggr2 = AggregateTestModel.objects.create(integer_field=2)
         StatTestModel.objects.bulk_create(
@@ -288,6 +320,12 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertCountEqual(qs, [1, 3])
 
     def test_array_agg_filter_slice(self):
+        """
+        Tests array aggregation with filter and slice functionality.
+
+        Verifies that annotated array values are correctly aggregated and filtered
+        based on related model fields, and that array elements can be accessed via slice notation.
+        """
         aggr1 = AggregateTestModel.objects.create(integer_field=1)
         aggr2 = AggregateTestModel.objects.create(integer_field=2)
         StatTestModel.objects.bulk_create(
@@ -407,6 +445,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"stringagg": "Text1;Text2;Text4;Text3"})
 
     def test_string_agg_charfield_ordering(self):
+        """
+        Tests the StringAgg aggregation function with different ordering specifications to ensure correct string aggregation and ordering of character fields.
+        """
         ordering_test_cases = (
             (F("char_field").desc(), "Foo4;Foo3;Foo2;Foo1"),
             (F("char_field").asc(), "Foo1;Foo2;Foo3;Foo4"),
@@ -455,6 +496,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"jsonbagg": ["Foo1", "Foo2", "Foo4", "Foo3"]})
 
     def test_jsonb_agg_charfield_ordering(self):
+        """
+        Tests JSONB aggregation ordering with CharFields, covering ascending, descending, and combined expressions to ensure the expected output is produced.
+        """
         ordering_test_cases = (
             (F("char_field").desc(), ["Foo4", "Foo3", "Foo2", "Foo1"]),
             (F("char_field").asc(), ["Foo1", "Foo2", "Foo3", "Foo4"]),
@@ -478,6 +522,14 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"jsonbagg": [2, 1, 0, 0]})
 
     def test_jsonb_agg_booleanfield_ordering(self):
+        """
+
+        Tests the ordering of a JSONB aggregation on a BooleanField.
+
+        Verifies that the JSONBAgg aggregation correctly handles ascending and descending ordering
+        on a BooleanField, ensuring the resulting aggregated list is ordered as expected.
+
+        """
         ordering_test_cases = (
             (F("boolean_field").asc(), [False, False, True, True]),
             (F("boolean_field").desc(), [True, True, False, False]),
@@ -501,6 +553,10 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"jsonbagg": ["en", "pl"]})
 
     def test_jsonb_agg_key_index_transforms(self):
+        """
+        Tests the transformation of hotel reservation requirements using the JSONB aggregate key index functionality. 
+        Verifies that the most recent reservation requirements are correctly retrieved for rooms with specific requirements, such as 'sea_view'.
+        """
         room101 = Room.objects.create(number=101)
         room102 = Room.objects.create(number=102)
         datetimes = [
@@ -553,6 +609,14 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_string_agg_array_agg_ordering_in_subquery(self):
+        """
+
+        Tests the ordering behavior of string_agg and array_agg aggregates in subqueries.
+
+        Verifies that the aggregation functions correctly order their results based on 
+        the specified ordering when used within a subquery.
+
+        """
         stats = []
         for i, agg in enumerate(AggregateTestModel.objects.order_by("char_field")):
             stats.append(StatTestModel(related_field=agg, int1=i, int2=i + 1))
@@ -596,6 +660,13 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(list(values), expected_result)
 
     def test_string_agg_array_agg_filter_in_subquery(self):
+        """
+
+        Tests the usage of string_agg and array_agg within a subquery filter in an ORM query.
+
+        Verifies that the aggregates correctly filter the results based on the specified conditions.
+
+        """
         StatTestModel.objects.bulk_create(
             [
                 StatTestModel(related_field=self.aggs[0], int1=0, int2=5),
@@ -780,6 +851,12 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
     # Test aggregates
 
     def test_empty_result_set(self):
+        """
+        Tests the behavior of various statistical aggregations when applied to an empty result set.
+
+        Verifies that aggregations return the expected results when applied to an empty queryset and 
+        when the queryset contains no data, without executing any additional database queries in the former case.
+        """
         StatTestModel.objects.all().delete()
         tests = [
             (Corr(y="int2", x="int1"), None),
@@ -811,6 +888,9 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": expected_result})
 
     def test_default_argument(self):
+        """
+        Tests various statistical aggregations on a queryset with default values to ensure correct results are returned when no objects exist and when objects exist in the database.
+        """
         StatTestModel.objects.all().delete()
         tests = [
             (Corr(y="int2", x="int1", default=0), 0),

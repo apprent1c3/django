@@ -20,7 +20,7 @@ class ResolveUrlTests(SimpleTestCase):
 
     def test_relative_path(self):
         """
-        Passing a relative URL path to resolve_url() results in the same url.
+        Tests that relative URL paths passed to resolve_url() are resolved correctly, returning the original path.
         """
         self.assertEqual("../", resolve_url("../"))
         self.assertEqual("../relative/", resolve_url("../relative/"))

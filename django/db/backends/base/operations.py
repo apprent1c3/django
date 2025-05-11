@@ -197,9 +197,11 @@ class BaseDatabaseOperations:
 
     def distinct_sql(self, fields, params):
         """
-        Return an SQL DISTINCT clause which removes duplicate rows from the
-        result set. If any fields are given, only check the given fields for
-        duplicates.
+
+            Generates an SQL DISTINCT clause to remove duplicate rows from a result set.
+            If fields are specified, it attempts to apply the DISTINCT clause only to those fields,
+            although this functionality is currently not supported by the database backend.
+
         """
         if fields:
             raise NotSupportedError(
@@ -257,6 +259,18 @@ class BaseDatabaseOperations:
         )
 
     def _get_limit_offset_params(self, low_mark, high_mark):
+        """
+        Retrieves limit and offset parameters based on low and high marks.
+
+            Returns a tuple containing the limit and offset values for database queries.
+
+            The limit value is calculated as the difference between the high mark and the offset,
+            or the database's no-limit value if only a low mark is provided.
+
+            :param low_mark: The starting point of the query range
+            :param high_mark: The ending point of the query range
+            :return: A tuple of (limit, offset) values
+        """
         offset = low_mark or 0
         if high_mark is not None:
             return (high_mark - offset), offset
@@ -283,13 +297,7 @@ class BaseDatabaseOperations:
 
     def last_executed_query(self, cursor, sql, params):
         """
-        Return a string of the query last executed by the given cursor, with
-        placeholders replaced with actual values.
-
-        `sql` is the raw query containing placeholders and `params` is the
-        sequence of parameters. These are used by default, but this method
-        exists for database backends to provide a better implementation
-        according to their own quoting schemes.
+        Return a string of the query last executed by the given cursor, with placeholders replaced with actual values.
         """
 
         # Convert params to contain string values.
@@ -463,7 +471,9 @@ class BaseDatabaseOperations:
         )
 
     def execute_sql_flush(self, sql_list):
-        """Execute a list of SQL statements to flush the database."""
+        """
+        Executes a list of SQL statements to flush the database within a transaction, ensuring atomicity and consistency of database operations.
+        """
         with transaction.atomic(
             using=self.connection.alias,
             savepoint=self.connection.features.can_rollback_ddl,
@@ -531,11 +541,9 @@ class BaseDatabaseOperations:
 
     def adapt_unknown_value(self, value):
         """
-        Transform a value to something compatible with the backend driver.
-
-        This method only depends on the type of the value. It's designed for
-        cases where the target type isn't known, such as .raw() SQL queries.
-        As a consequence it may not work perfectly in all circumstances.
+        Transforms a given value into a format compatible with the backend driver, 
+        primarily for use in situations where the target type is unknown, 
+        such as raw SQL queries, with potential limitations in certain cases.
         """
         if isinstance(value, datetime.datetime):  # must be before date
             return self.adapt_datetimefield_value(value)
@@ -571,8 +579,7 @@ class BaseDatabaseOperations:
 
     def adapt_timefield_value(self, value):
         """
-        Transform a time value to an object compatible with what is expected
-        by the backend driver for time columns.
+        Transform a time value to be compatible with the backend driver's time column format, handling None and unaware time values, while rejecting timezone-aware times.
         """
         if value is None:
             return None
@@ -599,12 +606,9 @@ class BaseDatabaseOperations:
 
     def year_lookup_bounds_for_date_field(self, value, iso_year=False):
         """
-        Return a two-elements list with the lower and upper bound to be used
-        with a BETWEEN operator to query a DateField value using a year
-        lookup.
-
-        `value` is an int, containing the looked-up year.
-        If `iso_year` is True, return bounds for ISO-8601 week-numbering years.
+        Return the lower and upper bounds for a year-based lookup on a DateField, 
+        suitable for use with a BETWEEN operator. 
+        Optional ISO-8601 week-numbering year bounds can be returned if specified.
         """
         if iso_year:
             first = datetime.date.fromisocalendar(value, 1, 1)
@@ -620,12 +624,7 @@ class BaseDatabaseOperations:
 
     def year_lookup_bounds_for_datetime_field(self, value, iso_year=False):
         """
-        Return a two-elements list with the lower and upper bound to be used
-        with a BETWEEN operator to query a DateTimeField value using a year
-        lookup.
-
-        `value` is an int, containing the looked-up year.
-        If `iso_year` is True, return bounds for ISO-8601 week-numbering years.
+        Returns a list of lower and upper bounds for querying a DateTimeField using a year lookup, with optional support for ISO-8601 week-numbering years.
         """
         if iso_year:
             first = datetime.datetime.fromisocalendar(value, 1, 1)
@@ -710,6 +709,12 @@ class BaseDatabaseOperations:
         return self.integer_field_ranges[internal_type]
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        Perform temporal subtraction operation between two values.
+
+        Supports subtraction of temporal types if the database backend supports it.
+        Otherwise, raises an error indicating the operation is not supported for the given internal type.
+        """
         if self.connection.features.supports_temporal_subtraction:
             lhs_sql, lhs_params = lhs
             rhs_sql, rhs_params = rhs
@@ -719,6 +724,12 @@ class BaseDatabaseOperations:
         )
 
     def window_frame_value(self, value):
+        """
+        Converts an integer value to a string representing a window frame value.
+
+        This function takes an integer value and returns a string that can be used to specify a window frame in a query,
+        such as \"10 PRECEDING\" or \"5 FOLLOWING\". A value of 0 returns \"CURRENT ROW\".
+        """
         if isinstance(value, int):
             if value == 0:
                 return self.CURRENT_ROW
@@ -730,6 +741,17 @@ class BaseDatabaseOperations:
     def window_frame_rows_start_end(self, start=None, end=None):
         """
         Return SQL for start and end points in an OVER clause window frame.
+
+        This function takes optional start and end points and returns the corresponding 
+        SQL values, ensuring that the start point does not exceed the end point and 
+        that both are valid integers or None. It defaults to unbounded preceding and 
+        following if start and end are not specified or invalid.
+
+        :raises ValueError: If start is greater than end, or if start or end are not 
+                            valid integers or None.
+        :returns: A tuple of SQL values representing the start and end points of the 
+                  window frame.
+
         """
         if isinstance(start, int) and isinstance(end, int) and start > end:
             raise ValueError("start cannot be greater than end.")
@@ -746,6 +768,21 @@ class BaseDatabaseOperations:
         return start_, end_
 
     def window_frame_range_start_end(self, start=None, end=None):
+        """
+        Determines the start and end range of a window frame.
+
+        Args:
+            start (int, optional): The start frame boundary, which must be a negative integer, zero, or None.
+            end (int, optional): The end frame boundary, which must be a positive integer, zero, or None.
+
+        Returns:
+            tuple: A tuple containing the start and end frame boundaries.
+
+        Raises:
+            ValueError: If the start or end argument has an invalid type or value.
+            NotSupportedError: If the database connection only supports unbounded window frames with preceding and following, but a bounded frame is specified.
+
+        """
         if (start is not None and not isinstance(start, int)) or (
             isinstance(start, int) and start > 0
         ):
@@ -773,6 +810,26 @@ class BaseDatabaseOperations:
         return start_, end_
 
     def explain_query_prefix(self, format=None, **options):
+        """
+        Explain the execution plan of a query prefix.
+
+        This method provides insight into how the database backend will execute a query,
+        by generating an explanation of the execution plan. The explanation can be 
+        returned in a specified format.
+
+        The supported formats depend on the database backend in use, and attempting to 
+        use an unsupported format will result in a ValueError. If no format is specified,
+        the method will return the explanation in the default format. Any additional 
+        options passed to this method will also raise a ValueError.
+
+        Raises:
+            NotSupportedError: If the database backend does not support explaining query execution.
+            ValueError: If an unsupported format or unknown options are provided.
+
+        Returns:
+            The execution plan explanation.
+
+        """
         if not self.connection.features.supports_explaining_query_execution:
             raise NotSupportedError(
                 "This backend does not support explaining query execution."

@@ -6,7 +6,9 @@ from django.contrib.gis.geos.prototypes.errcheck import GEOSException, last_arg_
 
 # ## Error-checking routines specific to coordinate sequences. ##
 def check_cs_op(result, func, cargs):
-    "Check the status code of a coordinate sequence operation."
+    """
+    Check the status code of a coordinate sequence operation, raising an exception if the operation failed.
+    """
     if result == 0:
         raise GEOSException("Could not set value on coordinate sequence")
     else:
@@ -33,6 +35,9 @@ class CsOperation(GEOSFuncFactory):
     restype = c_int
 
     def __init__(self, *args, ordinate=False, get=False, **kwargs):
+        """
+        Initializes a new instance with optional parameters for customization, supporting both get and operation modes with or without ordinate considerations.
+        """
         if get:
             # Get routines have double parameter passed-in by reference.
             errcheck = check_cs_get

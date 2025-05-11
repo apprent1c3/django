@@ -8,6 +8,9 @@ class BaseDatabaseValidation:
         return []
 
     def check_field(self, field, **kwargs):
+        """
+        Checks a given field for errors, specifically validating its type against the database's capabilities, and returns any encountered errors.
+        """
         errors = []
         # Backends may implement a check_field_type() method.
         if (

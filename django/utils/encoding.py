@@ -52,10 +52,14 @@ def is_protected_type(obj):
 
 def force_str(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
-    Similar to smart_str(), except that lazy instances are resolved to
-    strings, rather than kept as lazy objects.
 
-    If strings_only is True, don't convert (some) non-string-like objects.
+    Converts an object to a string, resolving lazy instances and handling encoding.
+
+    :param s: The object to convert to a string
+    :param encoding: The encoding to use for byte strings (default: 'utf-8')
+    :param strings_only: If True, don't convert non-string-like objects (default: False)
+    :param errors: The error handling scheme to use for encoding (default: 'strict')
+    :return: A string representation of the input object
     """
     # Handle the common case first for performance reasons.
     if issubclass(type(s), str):
@@ -86,10 +90,7 @@ def smart_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
 
 def force_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
     """
-    Similar to smart_bytes, except that lazy instances are resolved to
-    strings, rather than kept as lazy objects.
-
-    If strings_only is True, don't convert (some) non-string-like objects.
+    Converts the input to a bytes object, decoding or encoding as necessary, with options to specify the encoding, error handling, and whether to convert non-string-like objects.
     """
     # Handle the common case first for performance reasons.
     if isinstance(s, bytes):
@@ -106,15 +107,7 @@ def force_bytes(s, encoding="utf-8", strings_only=False, errors="strict"):
 
 def iri_to_uri(iri):
     """
-    Convert an Internationalized Resource Identifier (IRI) portion to a URI
-    portion that is suitable for inclusion in a URL.
-
-    This is the algorithm from RFC 3987 Section 3.1, slightly simplified since
-    the input is assumed to be a string rather than an arbitrary byte stream.
-
-    Take an IRI (string or UTF-8 bytes, e.g. '/I ♥ Django/' or
-    b'/I \xe2\x99\xa5 Django/') and return a string containing the encoded
-    result with ASCII chars only (e.g. '/I%20%E2%99%A5%20Django/').
+    Convert an Internationalized Resource Identifier (IRI) to a URI suitable for inclusion in a URL, replacing non-ASCII characters with their corresponding percent-encoded values.
     """
     # The list of safe characters here is constructed from the "reserved" and
     # "unreserved" characters specified in RFC 3986 Sections 2.2 and 2.3:
@@ -154,13 +147,7 @@ _hextobyte.update(
 
 def uri_to_iri(uri):
     """
-    Convert a Uniform Resource Identifier(URI) into an Internationalized
-    Resource Identifier(IRI).
-
-    This is the algorithm from RFC 3987 Section 3.2, excluding step 4.
-
-    Take an URI in ASCII bytes (e.g. '/I%20%E2%99%A5%20Django/') and return
-    a string containing the encoded result (e.g. '/I%20♥%20Django/').
+    Convert a Uniform Resource Identifier (URI) into an Internationalized Resource Identifier (IRI) as defined in RFC 3987 Section 3.2, excluding step 4, replacing percent-encoded sequences with their corresponding Unicode characters.
     """
     if uri is None:
         return uri
@@ -212,9 +199,7 @@ def punycode(domain):
 
 def repercent_broken_unicode(path):
     """
-    As per RFC 3987 Section 3.2, step three of converting a URI into an IRI,
-    repercent-encode any octet produced that is not part of a strictly legal
-    UTF-8 octet sequence.
+    Fixes a URI path to ensure it complies with IRI requirements by repercent-encoding any invalid UTF-8 octet sequences.
     """
     changed_parts = []
     while True:
@@ -247,9 +232,7 @@ def filepath_to_uri(path):
 
 def get_system_encoding():
     """
-    The encoding for the character type functions. Fallback to 'ascii' if the
-    #encoding is unsupported by Python or could not be determined. See tickets
-    #10335 and #5846.
+    Determines the system's encoding, falling back to 'ascii' if the detected encoding is unsupported or cannot be determined, to ensure compatibility with character type functions.
     """
     try:
         encoding = locale.getlocale()[1] or "ascii"

@@ -67,6 +67,9 @@ class BaseBackendTest(TestCase):
         self.assertIs(self.user.has_perm("other_perm", TestObj()), False)
 
     def test_has_perms_perm_list_invalid(self):
+        """
+        Tests if has_perms function correctly raises a ValueError when an invalid perm_list is provided, specifically when it is not an iterable of permissions.
+        """
         msg = "perm_list must be an iterable of permissions."
         with self.assertRaisesMessage(ValueError, msg):
             self.user.has_perms("user_perm")
@@ -108,6 +111,12 @@ class BaseModelBackendTest:
         self.create_users()
 
     def test_has_perm(self):
+        """
+        Tests whether a user has a specific permission.
+
+        Verifies the expected behavior of the has_perm method for a user with varying staff, superuser, and active statuses.
+
+        """
         user = self.UserModel._default_manager.get(pk=self.user.pk)
         self.assertIs(user.has_perm("auth.test"), False)
 
@@ -126,6 +135,9 @@ class BaseModelBackendTest:
         self.assertIs(user.has_perm("auth.test"), False)
 
     def test_custom_perms(self):
+        """
+        Tests the custom permission functionality for a user, including assigning and checking individual and group permissions, and ensuring the user's permission sets are correctly updated and reported. The test covers various cases, including adding permissions to a user directly and through group membership, and verifying that permission checks work as expected.
+        """
         user = self.UserModel._default_manager.get(pk=self.user.pk)
         content_type = ContentType.objects.get_for_model(Group)
         perm = Permission.objects.create(
@@ -175,7 +187,9 @@ class BaseModelBackendTest:
         self.assertIs(user.has_perms(["auth.test2", "auth.test3"]), False)
 
     def test_has_no_object_perm(self):
-        """Regressiontest for #12462"""
+        """
+        Verifies that a user with a custom permission does not gain object-level permissions by default, while still having the permission at the global level.
+        """
         user = self.UserModel._default_manager.get(pk=self.user.pk)
         content_type = ContentType.objects.get_for_model(Group)
         perm = Permission.objects.create(
@@ -190,8 +204,7 @@ class BaseModelBackendTest:
 
     def test_anonymous_has_no_permissions(self):
         """
-        #17903 -- Anonymous users shouldn't have permissions in
-        ModelBackend.get_(all|user|group)_permissions().
+        Tests that an anonymous user does not have any permissions according to the ModelBackend.
         """
         backend = ModelBackend()
 
@@ -222,8 +235,7 @@ class BaseModelBackendTest:
 
     def test_inactive_has_no_permissions(self):
         """
-        #17903 -- Inactive users shouldn't have permissions in
-        ModelBackend.get_(all|user|group)_permissions().
+        Tests that inactive users have no permissions in the ModelBackend.
         """
         backend = ModelBackend()
 
@@ -263,7 +275,10 @@ class BaseModelBackendTest:
         PASSWORD_HASHERS=["auth_tests.test_auth_backends.CountingMD5PasswordHasher"]
     )
     def test_authentication_timing(self):
-        """Hasher is run once regardless of whether the user exists. Refs #20760."""
+        """
+        Tests that the password hasher is called once during authentication, 
+        regardless of whether the user exists, to prevent timing attacks.
+        """
         # Re-set the password, because this tests overrides PASSWORD_HASHERS
         self.user.set_password("test")
         self.user.save()
@@ -281,6 +296,9 @@ class BaseModelBackendTest:
         PASSWORD_HASHERS=["auth_tests.test_auth_backends.CountingMD5PasswordHasher"]
     )
     def test_authentication_without_credentials(self):
+        """
+        Tests authentication process when credentials are incomplete, ensuring that the password hasher is not invoked and no database queries are made.
+        """
         CountingMD5PasswordHasher.calls = 0
         for credentials in (
             {},
@@ -313,7 +331,7 @@ class ModelBackendTest(BaseModelBackendTest, TestCase):
 
     def test_authenticate_inactive(self):
         """
-        An inactive user can't authenticate.
+        Tests that an inactive user is unable to authenticate, verifying the expected behavior of the authentication system in this edge case.
         """
         self.assertEqual(authenticate(**self.user_credentials), self.user)
         self.user.is_active = False
@@ -423,6 +441,9 @@ class TestObj:
 
 class SimpleRowlevelBackend:
     def has_perm(self, user, perm, obj=None):
+        """
+        Checks if a user has a specific permission for an object. The permission check may be influenced by the object's type, the user's username, activity status, and anonymity, returning True if the permission is granted and False otherwise.
+        """
         if not obj:
             return  # We only support row level perms
 
@@ -439,6 +460,17 @@ class SimpleRowlevelBackend:
         return (user.is_anonymous or user.is_active) and app_label == "app1"
 
     def get_all_permissions(self, user, obj=None):
+        """
+        Retrieve a list of permissions for a given user on a specific object.
+
+        The permissions are determined based on the user's status and the object type.
+        If the object is not provided or is of an unsupported type, an empty list or a default permission is returned.
+
+        :param user: The user to retrieve permissions for
+        :param obj: The object to retrieve permissions on (optional)
+        :return: A list of permissions
+
+        """
         if not obj:
             return []  # We only support row level perms
 
@@ -453,6 +485,12 @@ class SimpleRowlevelBackend:
             return ["simple"]
 
     def get_group_permissions(self, user, obj=None):
+        """
+        Return the permissions for a user within a specific object's group.
+
+        Determines whether the given user has 'group_perm' permissions based on their group membership.
+        If the object is not an instance of TestObj or the user is not in the 'test_group', returns 'none' permission.
+        """
         if not obj:
             return  # We only support row level perms
 
@@ -488,6 +526,9 @@ class RowlevelBackendTest(TestCase):
         ContentType.objects.clear_cache()
 
     def test_has_perm(self):
+        """
+        Tests a user's permissions for specific actions on objects, verifying expected behavior for different users and permission scenarios.
+        """
         self.assertIs(self.user1.has_perm("perm", TestObj()), False)
         self.assertIs(self.user2.has_perm("perm", TestObj()), True)
         self.assertIs(self.user2.has_perm("perm"), False)
@@ -529,6 +570,9 @@ class AnonymousUserBackendTest(SimpleTestCase):
         self.assertIs(self.user1.has_perms(["anon", "perm"], TestObj()), False)
 
     def test_has_perms_perm_list_invalid(self):
+        """
+        Checks that the has_perms method raises an error when given an invalid permission list, ensuring it only accepts iterable inputs of permissions.
+        """
         msg = "perm_list must be an iterable of permissions."
         with self.assertRaisesMessage(ValueError, msg):
             self.user1.has_perms("perm")
@@ -637,6 +681,12 @@ class PermissionDeniedBackendTest(TestCase):
 
     @modify_settings(AUTHENTICATION_BACKENDS={"prepend": backend})
     def test_has_perm_denied(self):
+        """
+        Tests that the user does not have a permission when it is expected to be denied.
+
+        Verifies that a user is not granted a permission despite it being assigned to them directly,
+        and that they also do not have module-level permissions for the associated app.
+        """
         content_type = ContentType.objects.get_for_model(Group)
         perm = Permission.objects.create(
             name="test", content_type=content_type, codename="test"
@@ -648,6 +698,12 @@ class PermissionDeniedBackendTest(TestCase):
 
     @modify_settings(AUTHENTICATION_BACKENDS={"append": backend})
     def test_has_perm(self):
+        """
+        Tests whether a user has the specified permission.
+
+        Verifies that the :meth:`~django.contrib.auth.models.User.has_perm` method correctly checks for user permissions and 
+        module-level permissions, ensuring the backend is configured to append custom authentication backends.
+        """
         content_type = ContentType.objects.get_for_model(Group)
         perm = Permission.objects.create(
             name="test", content_type=content_type, codename="test"
@@ -680,8 +736,7 @@ class ChangedBackendSettingsTest(TestCase):
     @override_settings(AUTHENTICATION_BACKENDS=[backend])
     def test_changed_backend_settings(self):
         """
-        Removing a backend configured in AUTHENTICATION_BACKENDS makes already
-        logged-in users disconnect.
+        Tests the effect of changing the authentication backend on logged-in users, verifying that they are disconnected when a backend is removed from the AUTHENTICATION_BACKENDS setting.
         """
         # Get a session for the test user
         self.assertTrue(
@@ -748,6 +803,9 @@ class AuthenticateTests(TestCase):
         AUTHENTICATION_BACKENDS=["auth_tests.test_auth_backends.TypeErrorBackend"]
     )
     def test_authenticate_sensitive_variables(self):
+        """
+        Tests that sensitive variables, such as passwords, are not leaked in 500 error responses when an authentication backend raises an exception.
+        """
         try:
             authenticate(username="testusername", password=self.sensitive_password)
         except TypeError:
@@ -768,6 +826,9 @@ class AuthenticateTests(TestCase):
         AUTHENTICATION_BACKENDS=["auth_tests.test_auth_backends.TypeErrorBackend"]
     )
     async def test_aauthenticate_sensitive_variables(self):
+        """
+        Tests the security of the aauthenticate function by verifying that sensitive variables, such as passwords, are not leaked in error responses when a TypeError occurs in an authentication backend.
+        """
         try:
             await aauthenticate(
                 username="testusername", password=self.sensitive_password
@@ -787,6 +848,9 @@ class AuthenticateTests(TestCase):
         )
 
     def test_clean_credentials_sensitive_variables(self):
+        """
+        Checks that sensitive variables in credentials are properly hidden in error responses, preventing exposure of confidential information when an internal server error occurs.
+        """
         try:
             # Passing in a list to cause an exception
             _clean_credentials([1, self.sensitive_password])
@@ -842,6 +906,9 @@ class ImproperlyConfiguredUserModelTest(TestCase):
     @override_settings(AUTH_USER_MODEL="thismodel.doesntexist")
     def test_does_not_shadow_exception(self):
         # Prepare a request object
+        """
+        Tests that an ImproperlyConfigured exception is raised when the AUTH_USER_MODEL setting refers to a non-existent model, ensuring this error does not get shadowed.
+        """
         request = HttpRequest()
         request.session = self.client.session
 
@@ -875,6 +942,14 @@ class ImportedBackendTests(TestCase):
 
     @override_settings(AUTHENTICATION_BACKENDS=[backend])
     def test_backend_path(self):
+        """
+
+        Tests a custom authentication backend by verifying a user can log in with it.
+
+        The test covers the creation of a user, a successful login attempt, and the 
+        correct storage of the authentication backend in the session.
+
+        """
         username = "username"
         password = "password"
         User.objects.create_user(username, "email", password)
@@ -949,6 +1024,9 @@ class AllowAllUsersModelBackendTest(TestCase):
         self.assertEqual(authenticate(**self.user_credentials), self.user)
 
     def test_get_user(self):
+        """
+        Tests that the get_user function correctly retrieves the current user from the request session.
+        """
         self.client.force_login(self.user)
         request = HttpRequest()
         request.session = self.client.session

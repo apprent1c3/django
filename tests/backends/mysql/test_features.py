@@ -9,7 +9,7 @@ from django.test import TestCase
 class TestFeatures(TestCase):
     def test_supports_transactions(self):
         """
-        All storage engines except MyISAM support transactions.
+        Tests whether the current MySQL storage engine supports transactions, expecting InnoDB to support transactions and MyISAM not to.
         """
         del connection.features.supports_transactions
         with mock.patch(
@@ -30,6 +30,9 @@ class TestFeatures(TestCase):
             self.assertIs(database_features.allows_auto_pk_0, True)
 
     def test_allows_group_by_selected_pks(self):
+        """
+        Uint tests the behavior of `allows_group_by_selected_pks` property of `DatabaseFeatures` class under different database connection settings, specifically whether MySQL or MariaDB is being used and what SQL mode is enabled.
+        """
         with mock.MagicMock() as _connection:
             _connection.mysql_is_mariadb = False
             database_features = DatabaseFeatures(_connection)

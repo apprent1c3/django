@@ -20,6 +20,9 @@ else:
 
 
 def get_view_name(view_func):
+    """
+    Gets the fully qualified name for a given view function. Returns the view name in the format 'module.name' if it's a function, or 'module.class_name' if it's a view class.
+    """
     if hasattr(view_func, "view_class"):
         klass = view_func.view_class
         return f"{klass.__module__}.{klass.__qualname__}"
@@ -30,7 +33,7 @@ def get_view_name(view_func):
 
 def parse_docstring(docstring):
     """
-    Parse out the parts of a docstring.  Return (title, body, metadata).
+    Parse out the parts of a docstring, separating it into title, body, and metadata components.
     """
     if not docstring:
         return "", "", {}
@@ -58,7 +61,7 @@ def parse_docstring(docstring):
 
 def parse_rst(text, default_reference_context, thing_being_parsed=None):
     """
-    Convert the string from reST to an XHTML fragment.
+    Converts reStructuredText (reST) to an XHTML fragment, allowing for custom default reference context and raw content processing control.
     """
     overrides = {
         "doctitle_xform": True,
@@ -102,6 +105,11 @@ ROLES = {
 
 def create_reference_role(rolename, urlbase):
     # Views and template names are case-sensitive.
+    """
+    ..: role:: Create a custom Sphinx reference role.
+
+        This function registers a new reference role with Sphinx, allowing users to create links to external resources with a specific URL pattern. The role can be configured to be case-sensitive or case-insensitive, depending on its name.
+    """
     is_case_sensitive = rolename in ["template", "view"]
 
     def _role(name, rawtext, text, lineno, inliner, options=None, content=None):
@@ -127,6 +135,20 @@ def create_reference_role(rolename, urlbase):
 def default_reference_role(
     name, rawtext, text, lineno, inliner, options=None, content=None
 ):
+    """
+    Create a default reference role for Sphinx documentation.
+
+    This function generates a reference node with the specified text, linking to the corresponding URL based on the document's default reference context and link base.
+
+    :param name: The role name.
+    :param rawtext: The raw text of the role.
+    :param text: The text to be used in the role.
+    :param lineno: The line number of the role.
+    :param inliner: The inliner object.
+    :param options: Additional options for the reference node (default: {}).
+    :param content: The content of the role (default: None).
+    :return: A tuple containing the reference node and an empty list of system messages.
+    """
     if options is None:
         options = {}
     context = inliner.document.settings.default_reference_context
@@ -170,6 +192,10 @@ def replace_metacharacters(pattern):
 
 def _get_group_start_end(start, end, pattern):
     # Handle nested parentheses, e.g. '^(?P<a>(x|y))/b' or '^b/((x|y)\w+)$'.
+    """
+    Returns the start and end indices of a bracket-matched substring in a given pattern, 
+    starting from the specified end index and working backwards to find a matching opening bracket.
+    """
     unmatched_open_brackets, prev_char = 1, None
     for idx, val in enumerate(pattern[end:]):
         # Check for unescaped `(` and `)`. They mark the start and end of a
@@ -186,6 +212,13 @@ def _get_group_start_end(start, end, pattern):
 
 
 def _find_groups(pattern, group_matcher):
+    """
+    Finds all overlapping or non-overlapping groups in a given pattern that match the provided group matcher.
+
+        :param pattern: The string to search for matches in.
+        :param group_matcher: An object used to match groups in the pattern.
+        :yield: Tuples containing the start and end indices of a match and the match object itself.
+    """
     prev_end = None
     for match in group_matcher.finditer(pattern):
         if indices := _get_group_start_end(match.start(0), match.end(0), pattern):
@@ -196,12 +229,8 @@ def _find_groups(pattern, group_matcher):
 
 
 def replace_named_groups(pattern):
-    r"""
-    Find named groups in `pattern` and replace them with the group name. E.g.,
-    1. ^(?P<a>\w+)/b/(\w+)$ ==> ^<a>/b/(\w+)$
-    2. ^(?P<a>\w+)/b/(?P<c>\w+)/$ ==> ^<a>/b/<c>/$
-    3. ^(?P<a>\w+)/b/(\w+) ==> ^<a>/b/(\w+)
-    4. ^(?P<a>\w+)/b/(?P<c>\w+) ==> ^<a>/b/<c>
+    """
+    Replaces named groups in a pattern with their corresponding group names, simplifying the pattern for further processing or readability.
     """
     group_pattern_and_name = [
         (pattern[start:end], match[1])
@@ -213,12 +242,8 @@ def replace_named_groups(pattern):
 
 
 def replace_unnamed_groups(pattern):
-    r"""
-    Find unnamed groups in `pattern` and replace them with '<var>'. E.g.,
-    1. ^(?P<a>\w+)/b/(\w+)$ ==> ^(?P<a>\w+)/b/<var>$
-    2. ^(?P<a>\w+)/b/((x|y)\w+)$ ==> ^(?P<a>\w+)/b/<var>$
-    3. ^(?P<a>\w+)/b/(\w+) ==> ^(?P<a>\w+)/b/<var>
-    4. ^(?P<a>\w+)/b/((x|y)\w+) ==> ^(?P<a>\w+)/b/<var>
+    """
+    Replace unnamed capture groups in a regular expression pattern with '<var>'.
     """
     final_pattern, prev_end = "", None
     for start, end, _ in _find_groups(pattern, unnamed_group_matcher):
@@ -230,11 +255,15 @@ def replace_unnamed_groups(pattern):
 
 
 def remove_non_capturing_groups(pattern):
-    r"""
-    Find non-capturing groups in the given `pattern` and remove them, e.g.
-    1. (?P<a>\w+)/b/(?:\w+)c(?:\w+) => (?P<a>\\w+)/b/c
-    2. ^(?:\w+(?:\w+))a => ^a
-    3. ^a(?:\w+)/b(?:\w+) => ^a/b
+    """
+
+    Remove non-capturing groups from a regular expression pattern.
+
+    This function optimizes a pattern by removing unnecessary non-capturing groups,
+    simplifying the pattern without changing its matching behavior.
+
+    For example, \"(?P<a>\\w+)/b/(?:\\w+)c(?:\\w+)\" becomes \"(?P<a>\\\\w+)/b/c\".
+
     """
     group_start_end_indices = _find_groups(pattern, non_capturing_group_matcher)
     final_pattern, prev_end = "", None

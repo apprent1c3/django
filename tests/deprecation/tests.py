@@ -16,8 +16,9 @@ class RenameMethodsTests(SimpleTestCase):
 
     def test_class_definition_warnings(self):
         """
-        Ensure a warning is raised upon class definition to suggest renaming
-        the faulty method.
+        Tests that a DeprecationWarning is raised when a class defines a method 
+        that needs renaming, and verifies the warning message suggests the correct 
+        new method name.
         """
         msg = "`Manager.old` method should be renamed `new`."
         with self.assertWarnsMessage(DeprecationWarning, msg):
@@ -28,7 +29,7 @@ class RenameMethodsTests(SimpleTestCase):
 
     def test_get_new_defined(self):
         """
-        Ensure `old` complains and not `new` when only `new` is defined.
+        Tests that a deprecation warning is raised when calling the 'old' method, but not when calling the 'new' method, when only 'new' is defined in a class managed by RenameManagerMethods.
         """
 
         class Manager(metaclass=RenameManagerMethods):
@@ -48,7 +49,7 @@ class RenameMethodsTests(SimpleTestCase):
 
     def test_get_old_defined(self):
         """
-        Ensure `old` complains when only `old` is defined.
+        Tests the deprecation of the 'old' method in a Manager class when it is renamed to 'new', ensuring that a DeprecationWarning is raised when 'old' is called and no warning is raised when 'new' is called.
         """
         msg = "`Manager.old` method should be renamed `new`."
         with self.assertWarnsMessage(DeprecationWarning, msg):
@@ -70,8 +71,7 @@ class RenameMethodsTests(SimpleTestCase):
 
     def test_deprecated_subclass_renamed(self):
         """
-        Ensure the correct warnings are raised when a class that didn't rename
-        `old` subclass one that did.
+        Tests deprecation warnings for a subclass that inherits from a renamed class but doesn't itself rename the deprecated method.
         """
 
         class Renamed(metaclass=RenameManagerMethods):
@@ -97,8 +97,7 @@ class RenameMethodsTests(SimpleTestCase):
 
     def test_renamed_subclass_deprecated(self):
         """
-        Ensure the correct warnings are raised when a class that renamed
-        `old` subclass one that didn't.
+        Tests that the proper deprecation warnings are generated when a subclass of a deprecated class uses a renamed method, ensuring the correct legacy method deprecation behavior.
         """
         msg = "`Deprecated.old` method should be renamed `new`."
         with self.assertWarnsMessage(DeprecationWarning, msg):
@@ -124,9 +123,9 @@ class RenameMethodsTests(SimpleTestCase):
 
     def test_deprecated_subclass_renamed_and_mixins(self):
         """
-        Ensure the correct warnings are raised when a subclass inherit from a
-        class that renamed `old` and mixins that may or may not have renamed
-        `new`.
+        Tests that the correct deprecation warnings are raised when a subclass inherits 
+        from classes with renamed methods and mixins, ensuring proper warning behavior 
+        for renamed and deprecated methods.
         """
 
         class Renamed(metaclass=RenameManagerMethods):

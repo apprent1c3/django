@@ -10,6 +10,9 @@ from django.test.utils import isolate_apps, modify_settings, override_settings
 @isolate_apps("invalid_models_tests")
 class RelativeFieldTests(SimpleTestCase):
     def test_valid_foreign_key_without_accessor(self):
+        """
+        Tests that a foreign key relationship without an accessor is valid and does not raise any errors during field validation.
+        """
         class Target(models.Model):
             # There would be a clash if Model.field installed an accessor.
             model = models.IntegerField()
@@ -43,8 +46,7 @@ class RelativeFieldTests(SimpleTestCase):
     @isolate_apps("invalid_models_tests")
     def test_foreign_key_to_isolate_apps_model(self):
         """
-        #25723 - Referenced model registration lookup should be run against the
-        field's model registry.
+        Tests that foreign key validation is performed within the context of the field's model registry, ensuring that referenced model registration lookup is done correctly.
         """
 
         class OtherModel(models.Model):
@@ -76,8 +78,7 @@ class RelativeFieldTests(SimpleTestCase):
     @isolate_apps("invalid_models_tests")
     def test_many_to_many_to_isolate_apps_model(self):
         """
-        #25723 - Referenced model registration lookup should be run against the
-        field's model registry.
+        Tests that many-to-many field lookups respect the 'isolate_apps' decorator, ensuring that referenced model registration occurs within the field's model registry.
         """
 
         class OtherModel(models.Model):
@@ -91,6 +92,9 @@ class RelativeFieldTests(SimpleTestCase):
 
     @isolate_apps("invalid_models_tests")
     def test_auto_created_through_model(self):
+        """
+        Verifies that a One-To-One field referencing a Many-To-Many relationship's through model is auto-created correctly and does not raise any validation errors.
+        """
         class OtherModel(models.Model):
             pass
 
@@ -107,6 +111,9 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(from_model=O2OModel), [])
 
     def test_many_to_many_with_useless_options(self):
+        """
+        Tests the processing of a ManyToManyField in a Django model with options that have no effect, verifying that the expected warnings are raised.
+        """
         class Model(models.Model):
             name = models.CharField(max_length=20)
 
@@ -155,6 +162,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_ambiguous_relationship_model_from(self):
+        """
+        Tests the validation of a ManyToManyField with an ambiguous through model, verifying that Django correctly raises an error when a model has multiple foreign keys to the same related model.
+        """
         class Person(models.Model):
             pass
 
@@ -189,6 +199,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_ambiguous_relationship_model_to(self):
+        """
+        Tests the ambiguous relationship model when using ManyToManyField with an intermediate model that has multiple foreign keys to the same model, ensuring Django correctly raises an error when it cannot determine which foreign key to use.
+        """
         class Person(models.Model):
             pass
 
@@ -228,6 +241,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_relationship_model_with_foreign_key_to_wrong_model(self):
+        """
+        Tests a ManyToMany field relationship model with an intermediate model that has a foreign key to the wrong model, ensuring the correct validation error is raised.
+        """
         class WrongModel(models.Model):
             pass
 
@@ -257,6 +273,12 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_relationship_model_missing_foreign_key(self):
+        """
+        Tests that the ManyToManyField relationship model is correctly validated.
+
+         Specifically, checks that an error is raised when the intermediate model 
+         is missing a foreign key to at least one of the models in the relationship.
+        """
         class Person(models.Model):
             pass
 
@@ -282,6 +304,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_missing_relationship_model(self):
+        """
+        Tests that a ManyToManyField raises an error when its 'through' model does not exist.
+        """
         class Person(models.Model):
             pass
 
@@ -302,6 +327,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_missing_relationship_model_on_model_check(self):
+        """
+        Checks a case where a model with a many-to-many relationship field points to a through model that does not exist, ensuring the correct error is raised.
+        """
         class Person(models.Model):
             pass
 
@@ -323,8 +351,11 @@ class RelativeFieldTests(SimpleTestCase):
     @isolate_apps("invalid_models_tests")
     def test_many_to_many_through_isolate_apps_model(self):
         """
-        #25723 - Through model registration lookup should be run against the
-        field's model registry.
+
+        Tests that ManyToManyField through model registration looks up against the field's model registry.
+
+        Verifies that model isolation is properly handled when using ManyToManyField with a through model.
+
         """
 
         class GroupMember(models.Model):
@@ -341,6 +372,9 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(from_model=Group), [])
 
     def test_too_many_foreign_keys_in_self_referential_model(self):
+        """
+        Tests that Django correctly raises an error when a self-referential model uses an intermediate model with more than two foreign keys to the model, causing ambiguity in the relationship definition.
+        """
         class Person(models.Model):
             friends = models.ManyToManyField(
                 "self", through="InvalidRelationship", symmetrical=False
@@ -378,6 +412,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_abstract_model(self):
+        """
+        Checks that foreign keys to abstract models raise the correct error, ensuring that fields defining relations with abstract models are properly validated.
+        """
         class AbstractModel(models.Model):
             class Meta:
                 abstract = True
@@ -400,6 +437,9 @@ class RelativeFieldTests(SimpleTestCase):
             self.assertEqual(field.check(), [expected_error])
 
     def test_m2m_to_abstract_model(self):
+        """
+        Verifies that many-to-many fields to abstract models raise the expected error, ensuring that Django's model validation correctly identifies relationships with abstract models as invalid.
+        """
         class AbstractModel(models.Model):
             class Meta:
                 abstract = True
@@ -422,6 +462,9 @@ class RelativeFieldTests(SimpleTestCase):
             self.assertEqual(field.check(from_model=Model), [expected_error])
 
     def test_unique_m2m(self):
+        """
+        Tests that a ManyToManyField cannot be defined with unique=True, as this is a constraint that cannot be enforced by the database.
+        """
         class Person(models.Model):
             name = models.CharField(max_length=5)
 
@@ -441,6 +484,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_non_unique_field(self):
+        """
+        Tests that a foreign key to a non-unique field raises an error, as Django requires foreign key targets to be unique.
+        """
         class Target(models.Model):
             bad = models.IntegerField()  # No unique=True
 
@@ -465,6 +511,11 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_non_unique_field_under_explicit_model(self):
+        """
+
+        Tests that a foreign key to a non-unique field under an explicit model raises an error.
+
+        """
         class Target(models.Model):
             bad = models.IntegerField()
 
@@ -489,6 +540,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_partially_unique_field(self):
+        """
+        Tests that a foreign key referencing a partially unique field in another model raises an expected error due to the referenced field not being fully unique, demonstrating the correct validation of foreign key constraints in model relationships.
+        """
         class Target(models.Model):
             source = models.IntegerField()
 
@@ -522,6 +576,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_unique_field_with_meta_constraint(self):
+        """
+        Checks that a foreign key referencing a unique field with a meta constraint raises no errors when validated.
+        """
         class Target(models.Model):
             source = models.IntegerField()
 
@@ -540,6 +597,9 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(), [])
 
     def test_foreign_object_to_non_unique_fields(self):
+        """
+        Tests the ForeignObject fields referenced to non-unique fields on the target model, verifying that a validation error is raised when no unique field or unique constraint is defined.
+        """
         class Person(models.Model):
             # Note that both fields are not unique.
             country_id = models.IntegerField()
@@ -576,6 +636,10 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_object_to_partially_unique_field(self):
+        """
+        Tests that a ForeignObject field referencing a partially unique field raises an error, 
+        as the referenced field(s) must be completely unique, not conditionally unique.
+        """
         class Person(models.Model):
             country_id = models.IntegerField()
             city_id = models.IntegerField()
@@ -619,6 +683,11 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_object_to_unique_field_with_meta_constraint(self):
+        """
+        Tests the creation of a foreign object to a unique field with a meta constraint.
+
+        Verifies that a foreign object can be successfully created from multiple fields in the model to a unique composite field in the target model, and that the field's constraints are checked correctly.
+        """
         class Person(models.Model):
             country_id = models.IntegerField()
             city_id = models.IntegerField()
@@ -645,6 +714,9 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(), [])
 
     def test_on_delete_set_null_on_non_nullable_field(self):
+        """
+        Tests that setting on_delete=SET_NULL on a non-nullable foreign key field correctly raises an error, as the field cannot be null.
+        """
         class Person(models.Model):
             pass
 
@@ -668,6 +740,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_on_delete_set_default_without_default_value(self):
+        """
+        Tests that a field with on_delete=models.SET_DEFAULT raises an error when no default value is provided.
+        """
         class Person(models.Model):
             pass
 
@@ -688,6 +763,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_nullable_primary_key(self):
+        """
+        Tests that a primary key field defined with null=True raises a validation error, as primary keys cannot be null.
+        """
         class Model(models.Model):
             field = models.IntegerField(primary_key=True, null=True)
 
@@ -712,6 +790,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_not_swapped_model(self):
+        """
+        Tests that swappable models do not raise errors during model checks, ensuring that both explicit and implicit foreign key and many-to-many field references to a swappable model are valid.
+        """
         class SwappableModel(models.Model):
             # A model that can be, but isn't swapped out. References to this
             # model should *not* raise any validation error.
@@ -751,6 +832,14 @@ class RelativeFieldTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL="invalid_models_tests.Replacement")
     def test_referencing_to_swapped_model(self):
+        """
+        Tests that referencing a swapped model in a field raises an error.
+
+            Verifies that both explicit and implicit references to a swapped model
+            are correctly identified and reported, including foreign keys and 
+            many-to-many relationships, ensuring that the model is updated to 
+            point to the swapped model specified in the settings.
+        """
         class Replacement(models.Model):
             pass
 
@@ -798,6 +887,14 @@ class RelativeFieldTests(SimpleTestCase):
             self.assertEqual(field.check(from_model=Model), [expected_error])
 
     def test_related_field_has_invalid_related_name(self):
+        """
+        Tests that the related field's related name is valid.
+
+        Checks for a variety of invalid related names, including those that start or end
+        with invalid characters, contain whitespace or special characters, or are empty.
+        Ensures that the model's check method correctly identifies and reports these
+        invalid related names.
+        """
         digit = 0
         illegal_non_alphanumeric = "!"
         whitespace = "\t"
@@ -849,6 +946,9 @@ class RelativeFieldTests(SimpleTestCase):
             )
 
     def test_related_field_has_valid_related_name(self):
+        """
+        验证 ForeignKey 字段的 related_name 属性的有效性。
+        """
         lowercase = "a"
         uppercase = "A"
         digit = 0
@@ -882,6 +982,9 @@ class RelativeFieldTests(SimpleTestCase):
             self.assertEqual(Child.check(), [])
 
     def test_to_fields_exist(self):
+        """
+        Tests that ForeignObject fields correctly validate the existence of to_fields on the related model.
+        """
         class Parent(models.Model):
             pass
 
@@ -915,6 +1018,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_to_fields_not_checked_if_related_model_doesnt_exist(self):
+        """
+        Checks that the `to_fields` and `from_fields` validation is not performed on a ForeignObject field when the related model does not exist.
+        """
         class Child(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -940,6 +1046,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_invalid_related_query_name(self):
+        """
+        Tests validation of related query names for foreign key fields, specifically checking that they do not contain double underscores or end with an underscore.
+        """
         class Target(models.Model):
             pass
 
@@ -1015,6 +1124,14 @@ class AccessorClashTests(SimpleTestCase):
         )
 
     def _test_accessor_clash(self, target, relative):
+        """
+        Tests whether a reverse accessor clashes with a field name on the target model.
+
+        Verifies that Django model validation correctly identifies conflicts between 
+        related field names and reverse accessor names, providing a helpful error message 
+        to facilitate resolution.
+
+        """
         class Another(models.Model):
             pass
 
@@ -1043,6 +1160,9 @@ class AccessorClashTests(SimpleTestCase):
         )
 
     def test_clash_between_accessors(self):
+        """
+        Tests for clash between reverse accessors for ForeignKey and ManyToManyField fields in a Django model.
+        """
         class Target(models.Model):
             pass
 
@@ -1081,7 +1201,9 @@ class AccessorClashTests(SimpleTestCase):
         )
 
     def test_m2m_to_m2m_with_inheritance(self):
-        """Ref #22047."""
+        """
+        Tests that Many-To-Many fields with inheritance do not create reverse accessor name clashes. Verifies that Django correctly identifies and reports such conflicts.
+        """
 
         class Target(models.Model):
             pass
@@ -1116,6 +1238,9 @@ class AccessorClashTests(SimpleTestCase):
         )
 
     def test_no_clash_for_hidden_related_name(self):
+        """
+        Tests that related names for hidden relationships on a model do not clash, ensuring integrity of the model's relationships.
+        """
         class Stub(models.Model):
             pass
 
@@ -1169,6 +1294,9 @@ class ReverseQueryNameClashTests(SimpleTestCase):
         )
 
     def _test_reverse_query_name_clash(self, target, relative):
+        """
+        Tests that a reverse query name clash between a field and a model is correctly detected and reported as an error when the field's related_name is not specified or clashes with the model's field name.
+        """
         class Another(models.Model):
             pass
 
@@ -1198,6 +1326,9 @@ class ReverseQueryNameClashTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "invalid_models_tests")
     def test_no_clash_across_apps_without_accessor(self):
+        """
+        Checks for field name clashes between models from different apps when using the '+' related name specifier to prevent the reverse relationship from being created, ensuring that models with the same field name can coexist without errors.
+        """
         class Target(models.Model):
             class Meta:
                 app_label = "invalid_models_tests"
@@ -1210,6 +1341,9 @@ class ReverseQueryNameClashTests(SimpleTestCase):
 
         def _test():
             # Define model with the same name.
+            """
+            Tests that a model with an invalid ManyToManyField definition does not raise any errors during model checking.
+            """
             class Model(models.Model):
                 m2m = models.ManyToManyField(Target, related_name="+")
 
@@ -1261,6 +1395,9 @@ class ExplicitRelatedNameClashTests(SimpleTestCase):
         )
 
     def _test_explicit_related_name_clash(self, target, relative):
+        """
+        Tests that an explicit related name clash between a field and a reverse accessor raises the correct errors.
+        """
         class Another(models.Model):
             pass
 
@@ -1380,6 +1517,9 @@ class ExplicitRelatedQueryNameClashTests(SimpleTestCase):
         self.test_m2m_to_m2m(related_name="+")
 
     def _test_explicit_related_query_name_clash(self, target, relative):
+        """
+        Tests that an explicit related query name on a model field does not clash with a field name on another model, ensuring that reverse query names are uniquely resolvable.
+        """
         class Another(models.Model):
             pass
 
@@ -1620,6 +1760,9 @@ class ComplexClashTests(SimpleTestCase):
     # New tests should not be included here, because this is a single,
     # self-contained sanity check, not a test of everything.
     def test_complex_clash(self):
+        """
+        Tests for complex field name clashes in Django models, verifying that fields with related names that could cause conflicts are properly identified and reported as errors.
+        """
         class Target(models.Model):
             tgt_safe = models.CharField(max_length=10)
             clash = models.CharField(max_length=10)
@@ -1787,6 +1930,13 @@ class ComplexClashTests(SimpleTestCase):
         )
 
     def test_clash_parent_link(self):
+        """
+
+        Tests that a child model with a one-to-one field to its parent model raises the correct errors due to link clashes.
+
+        The test checks that the model validation correctly identifies and reports the conflicting reverse relationships.
+
+        """
         class Parent(models.Model):
             pass
 
@@ -1835,8 +1985,11 @@ class ComplexClashTests(SimpleTestCase):
 class M2mThroughFieldsTests(SimpleTestCase):
     def test_m2m_field_argument_validation(self):
         """
-        ManyToManyField accepts the ``through_fields`` kwarg
-        only if an intermediary table is specified.
+
+        Checks that ManyToManyField argument validation correctly raises an error when 
+        'through_fields' is specified without a 'through' model, ensuring proper usage of 
+        intermediary tables in relationships.
+
         """
 
         class Fan(models.Model):
@@ -1849,8 +2002,7 @@ class M2mThroughFieldsTests(SimpleTestCase):
 
     def test_invalid_order(self):
         """
-        Mixing up the order of link fields to ManyToManyField.through_fields
-        triggers validation errors.
+        Tests that validation errors are triggered when the order of link fields to ManyToManyField.through_fields is incorrect.
         """
 
         class Fan(models.Model):
@@ -1893,8 +2045,7 @@ class M2mThroughFieldsTests(SimpleTestCase):
 
     def test_invalid_field(self):
         """
-        Providing invalid field names to ManyToManyField.through_fields
-        triggers validation errors.
+        Checks that ManyToManyField validation raises errors when invalid through field names are provided.
         """
 
         class Fan(models.Model):
@@ -1941,8 +2092,7 @@ class M2mThroughFieldsTests(SimpleTestCase):
 
     def test_explicit_field_names(self):
         """
-        If ``through_fields`` kwarg is given, it must specify both
-        link fields of the intermediary table.
+        Tests that the ``through_fields`` keyword argument correctly specifies both link fields of an intermediary table in a ManyToMany relationship.
         """
 
         class Fan(models.Model):
@@ -1977,6 +2127,9 @@ class M2mThroughFieldsTests(SimpleTestCase):
         )
 
     def test_superset_foreign_object(self):
+        """
+        Checks that a foreign object with multiple fields marked as from_fields does not validate when the subset of fields on the related model is not unique.
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -2016,6 +2169,9 @@ class M2mThroughFieldsTests(SimpleTestCase):
         )
 
     def test_intersection_foreign_object(self):
+        """
+        Tests that raising an error occurs when a ForeignObject field's from_fields and to_fields are not a subset of unique fields on the related model.
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()

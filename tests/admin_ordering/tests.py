@@ -61,8 +61,7 @@ class TestAdminOrdering(TestCase):
 
     def test_specified_ordering(self):
         """
-        Let's use a custom ModelAdmin that changes the ordering, and make sure
-        it actually changes.
+        Tests if a custom ModelAdmin's specified ordering is applied correctly to the resulting queryset.
         """
 
         class BandAdmin(ModelAdmin):
@@ -73,6 +72,9 @@ class TestAdminOrdering(TestCase):
         self.assertEqual(["Radiohead", "Van Halen", "Aerosmith"], names)
 
     def test_specified_ordering_by_f_expression(self):
+        """
+        Tests that ModelAdmin ordering specified by an F-expression is applied correctly to the queryset, ensuring that null values are handled as specified.
+        """
         class BandAdmin(ModelAdmin):
             ordering = (F("rank").desc(nulls_last=True),)
 
@@ -82,7 +84,7 @@ class TestAdminOrdering(TestCase):
 
     def test_dynamic_ordering(self):
         """
-        Let's use a custom ModelAdmin that changes the ordering dynamically.
+        Tests dynamic ordering of Band instances based on the current user's permissions.
         """
         super_user = User.objects.create(username="admin", is_superuser=True)
         other_user = User.objects.create(username="other")
@@ -184,7 +186,9 @@ class TestRelatedFieldsAdminOrdering(TestCase):
         self.check_ordering_of_field_choices([self.b1, self.b2])
 
     def test_custom_queryset_still_wins(self):
-        """Custom queryset has still precedence (#21405)"""
+        """
+        Tests that a custom queryset takes precedence over other ordering configurations when rendering form fields for foreign keys and many-to-many fields in the Django admin interface.
+        """
 
         class SongAdmin(admin.ModelAdmin):
             # Exclude one of the two Bands from the querysets

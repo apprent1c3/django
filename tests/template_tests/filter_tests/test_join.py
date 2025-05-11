@@ -65,6 +65,9 @@ class JoinTests(SimpleTestCase):
         }
     )
     def test_join_autoescape_off(self):
+        """
+        Tests rendering of a template with autoescape turned off when using the join filter, ensuring that HTML characters are not escaped.
+        """
         var_list = ["<p>Hello World!</p>", "beta & me", "<script>Hi!</script>"]
         context = {"var_list": var_list, "var_joiner": "<br/>"}
         output = self.engine.render_to_string("join_autoescape_off", context)

@@ -10,7 +10,7 @@ from django.db.backends.postgresql.psycopg_any import sql
 class PostGISAdapter:
     def __init__(self, obj, geography=False):
         """
-        Initialize on the spatial object.
+        Initializes the spatial object, determining its geometry type and setting its EWKB representation and SRID, with optional geography mode.
         """
         self.is_geometry = isinstance(obj, (GEOSGeometry, PostGISAdapter))
 
@@ -25,7 +25,9 @@ class PostGISAdapter:
         self.geography = geography
 
     def __conform__(self, proto):
-        """Does the given protocol conform to what Psycopg2 expects?"""
+        """
+        Checks if a given protocol conforms to the Psycopg2 SQL quote protocol, returning the object if it does, and raising an exception otherwise, typically indicating that Psycopg2 is not installed.
+        """
         from psycopg2.extensions import ISQLQuote
 
         if proto == ISQLQuote:
@@ -50,7 +52,7 @@ class PostGISAdapter:
 
     def getquoted(self):
         """
-        Return a properly quoted string for use in PostgreSQL/PostGIS.
+        Return a properly quoted string representation of the object for use in PostgreSQL/PostGIS, handling both geometric and raster data types.
         """
         if self.is_geometry:
             # Psycopg will figure out whether to use E'\\000' or '\000'.

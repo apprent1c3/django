@@ -53,10 +53,7 @@ class SpatialReference(GDALBase):
 
     def __init__(self, srs_input="", srs_type="user", axis_order=None):
         """
-        Create a GDAL OSR Spatial Reference object from the given input.
-        The input may be string of OGC Well Known Text (WKT), an integer
-        EPSG code, a PROJ string, and/or a projection "well known" shorthand
-        string (one of 'WGS84', 'WGS72', 'NAD27', 'NAD83').
+        Initialize a Spatial Reference object from various input types, including OGC Well Known Text (WKT), EPSG codes, PROJ strings, and projection shorthand strings, with optional axis order specification.
         """
         if not isinstance(axis_order, (NoneType, AxisOrder)):
             raise ValueError(
@@ -112,27 +109,8 @@ class SpatialReference(GDALBase):
 
     def __getitem__(self, target):
         """
-        Return the value of the given string attribute node, None if the node
-        doesn't exist.  Can also take a tuple as a parameter, (target, child),
-        where child is the index of the attribute in the WKT.  For example:
-
-        >>> wkt = 'GEOGCS["WGS 84", DATUM["WGS_1984, ... AUTHORITY["EPSG","4326"]]'
-        >>> srs = SpatialReference(wkt) # could also use 'WGS84', or 4326
-        >>> print(srs['GEOGCS'])
-        WGS 84
-        >>> print(srs['DATUM'])
-        WGS_1984
-        >>> print(srs['AUTHORITY'])
-        EPSG
-        >>> print(srs['AUTHORITY', 1]) # The authority value
-        4326
-        >>> print(srs['TOWGS84', 4]) # the fourth value in this wkt
-        0
-        >>> # For the units authority, have to use the pipe symbole.
-        >>> print(srs['UNIT|AUTHORITY'])
-        EPSG
-        >>> print(srs['UNIT|AUTHORITY', 1]) # The authority value for the units
-        9122
+        Retrieves the value of a specific attribute node within a spatial reference system.
+        The attribute can be accessed by its name, or by a tuple containing the attribute name and its index in the WKT representation, allowing for retrieval of child values. Returns None if the attribute node does not exist.
         """
         if isinstance(target, tuple):
             return self.attr_value(*target)
@@ -191,7 +169,9 @@ class SpatialReference(GDALBase):
     # #### Name & SRID properties ####
     @property
     def name(self):
-        "Return the name of this Spatial Reference."
+        """
+        Gets the name of the Spatial Reference, which varies depending on its type (projected, geographic, or local).
+        """
         if self.projected:
             return self.attr_value("PROJCS")
         elif self.geographic:
@@ -203,7 +183,9 @@ class SpatialReference(GDALBase):
 
     @property
     def srid(self):
-        "Return the SRID of top-level authority, or None if undefined."
+        """
+        Return the Spatial Reference System Identifier (SRID) of the top-level authority, or None if it is undefined.
+        """
         try:
             return int(self.auth_code(target=None))
         except (TypeError, ValueError):
@@ -237,8 +219,10 @@ class SpatialReference(GDALBase):
     @property
     def units(self):
         """
-        Return a 2-tuple of the units value and the units name. Automatically
-        determine whether to return the linear or angular units.
+        Return the units of measurement associated with the current object, 
+        automatically selecting either linear or angular units based on the object's 
+        projection and coordinate system. The result is a 2-tuple containing the 
+        unit's value and name.
         """
         units, name = None, None
         if self.projected or self.local:
@@ -348,7 +332,14 @@ class CoordTransform(GDALBase):
     destructor = capi.destroy_ct
 
     def __init__(self, source, target):
-        "Initialize on a source and target SpatialReference objects."
+        """
+        Initializes a transformation object between two spatial reference systems.
+
+         :param source: The source SpatialReference object.
+         :param target: The target SpatialReference object.
+
+         :raises TypeError: If source or target are not SpatialReference objects.
+        """
         if not isinstance(source, SpatialReference) or not isinstance(
             target, SpatialReference
         ):

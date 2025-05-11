@@ -115,6 +115,11 @@ class YearLte(models.lookups.LessThanOrEqual):
     def as_sql(self, compiler, connection):
         # Skip the YearTransform above us (no possibility for efficient
         # lookup otherwise).
+        """
+        Generates SQL representation of a date comparison operation, 
+        appending a default date ('-12-31') to the right-hand side if necessary, 
+        and returns the resulting SQL string along with its parameters.
+        """
         real_lhs = self.lhs.lhs
         lhs_sql, params = self.process_lhs(compiler, connection, real_lhs)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
@@ -236,6 +241,9 @@ class RelatedMoreThan(RelatedGreaterThan):
 
 class LookupTests(TestCase):
     def test_custom_name_lookup(self):
+        """
+        Tests custom name lookup for date fields, ensuring that lookup transformations work as expected when applied to the 'birthdate' field of Author objects, correctly filtering results based on specific years.
+        """
         a1 = Author.objects.create(name="a1", birthdate=date(1981, 2, 16))
         Author.objects.create(name="a2", birthdate=date(2012, 2, 29))
         with (
@@ -251,8 +259,7 @@ class LookupTests(TestCase):
 
     def test_custom_exact_lookup_none_rhs(self):
         """
-        __exact=None is transformed to __isnull=True if a custom lookup class
-        with lookup_name != 'exact' is registered as the `exact` lookup.
+        Tests that a custom lookup with 'exact' registration name correctly handles exact lookups with None as the right-hand side value, transforming it into an isnull=True lookup.
         """
         field = Author._meta.get_field("birthdate")
         OldExactLookup = field.get_lookup("exact")
@@ -264,6 +271,10 @@ class LookupTests(TestCase):
             field.register_lookup(OldExactLookup, "exact")
 
     def test_basic_lookup(self):
+        """
+        Test the Div3Lookup functionality on IntegerField, verifying 
+        it correctly filters objects based on division by 3 remainder
+        """
         a1 = Author.objects.create(name="a1", age=1)
         a2 = Author.objects.create(name="a2", age=2)
         a3 = Author.objects.create(name="a3", age=3)
@@ -280,6 +291,9 @@ class LookupTests(TestCase):
         connection.vendor == "postgresql", "PostgreSQL specific SQL used"
     )
     def test_birthdate_month(self):
+        """
+        Tests the 'inmonth' lookup for DateField, ensuring it correctly filters objects by month and year, regardless of day, using PostgreSQL specific SQL.
+        """
         a1 = Author.objects.create(name="a1", birthdate=date(1981, 2, 16))
         a2 = Author.objects.create(name="a2", birthdate=date(2012, 2, 29))
         a3 = Author.objects.create(name="a3", birthdate=date(2012, 1, 31))
@@ -302,6 +316,9 @@ class LookupTests(TestCase):
             )
 
     def test_div3_extract(self):
+        """
+        Tests the functionality of the Div3Transform lookup, ensuring it correctly filters objects based on the division of a field's value by 3, using various comparison operators.
+        """
         with register_lookup(models.IntegerField, Div3Transform):
             a1 = Author.objects.create(name="a1", age=1)
             a2 = Author.objects.create(name="a2", age=2)
@@ -318,6 +335,9 @@ class LookupTests(TestCase):
             )
 
     def test_foreignobject_lookup_registration(self):
+        """
+        Checks the registration of lookups for foreign object fields, specifically verifying that a lookup is correctly registered for a ForeignObject field and not for a regular Field.
+        """
         field = Article._meta.get_field("author")
 
         with register_lookup(models.ForeignObject, Exactly):
@@ -328,6 +348,9 @@ class LookupTests(TestCase):
             self.assertIsNone(field.get_lookup("exactly"))
 
     def test_lookups_caching(self):
+        """
+        Tests the caching behavior of lookups for a model field, specifically that a custom lookup is only available when registered.
+        """
         field = Article._meta.get_field("author")
 
         # clear and re-cache
@@ -344,6 +367,9 @@ class LookupTests(TestCase):
 
 class BilateralTransformTests(TestCase):
     def test_bilateral_upper(self):
+        """
+        Tests the upper bilateral transform lookup for CharField, verifying case-insensitive filtering and containment matching.
+        """
         with register_lookup(models.CharField, UpperBilateralTransform):
             author1 = Author.objects.create(name="Doe")
             author2 = Author.objects.create(name="doe")
@@ -383,6 +409,12 @@ class BilateralTransformTests(TestCase):
             )
 
     def test_div3_bilateral_extract(self):
+        """
+        Tests the functionality of the Div3BilateralTransform lookup type, 
+        which allows querying instances based on the integer division of a field's value by 3. 
+        Verifies that the transform works correctly with different lookup types, 
+        such as exact, less than or equal to, in, greater than or equal to, and range.
+        """
         with register_lookup(models.IntegerField, Div3BilateralTransform):
             a1 = Author.objects.create(name="a1", age=1)
             a2 = Author.objects.create(name="a2", age=2)
@@ -399,6 +431,9 @@ class BilateralTransformTests(TestCase):
             )
 
     def test_bilateral_order(self):
+        """
+        Tests the bilateral ordering of Author objects using custom database lookup functions, Mult3BilateralTransform and Div3BilateralTransform, to ensure correct filtering and ordering of results.
+        """
         with register_lookup(
             models.IntegerField, Mult3BilateralTransform, Div3BilateralTransform
         ):
@@ -415,6 +450,9 @@ class BilateralTransformTests(TestCase):
             self.assertSequenceEqual(baseqs.filter(age__div3__mult3=42), [a3])
 
     def test_transform_order_by(self):
+        """
+        Tests the application of the LastDigitTransform lookup to an IntegerField in an order_by query, ensuring that the resulting queryset is ordered by the last digit of the integer value.
+        """
         with register_lookup(models.IntegerField, LastDigitTransform):
             a1 = Author.objects.create(name="a1", age=11)
             a2 = Author.objects.create(name="a2", age=23)
@@ -424,6 +462,11 @@ class BilateralTransformTests(TestCase):
             self.assertSequenceEqual(qs, [a4, a1, a3, a2])
 
     def test_bilateral_fexpr(self):
+        """
+        Tests the bilateral functionality of the Mult3 transform, 
+        ensuring it correctly filters objects based on the multiplication 
+        of a field's value and verifying its compatibility with other fields.
+        """
         with register_lookup(models.IntegerField, Mult3BilateralTransform):
             a1 = Author.objects.create(name="a1", age=1, average_rating=3.2)
             a2 = Author.objects.create(name="a2", age=2, average_rating=0.5)
@@ -467,6 +510,9 @@ class YearLteTests(TestCase):
         connection.vendor == "postgresql", "PostgreSQL specific SQL used"
     )
     def test_year_lte(self):
+        """
+        Tests the 'testyear' and 'testyear__lte' lookup types on a DateTimeField, ensuring correct filtering by year and exclusion of BETWEEN clause in the generated SQL query.
+        """
         baseqs = Author.objects.order_by("name")
         self.assertSequenceEqual(
             baseqs.filter(birthdate__testyear__lte=2012),
@@ -487,6 +533,11 @@ class YearLteTests(TestCase):
         connection.vendor == "postgresql", "PostgreSQL specific SQL used"
     )
     def test_year_lte_fexpr(self):
+        """
+        Tests the year_lte filter expression when used with PostgreSQL.
+
+        Verifies that the filter correctly limits query results based on a comparison between a model field and a calculated year value.
+        """
         self.a2.age = 2011
         self.a2.save()
         self.a3.age = 2012
@@ -517,6 +568,10 @@ class YearLteTests(TestCase):
         self.assertIn("-12-31", str(baseqs.filter(birthdate__testyear=2011).query))
 
     def test_custom_implementation_year_exact(self):
+        """
+        Tests the use of a custom implementation for a year exact lookup, 
+        ensuring that both monkeypatched and registered custom lookups produce the expected SQL query.
+        """
         try:
             # Two ways to add a customized implementation for different backends:
             # First is MonkeyPatch of the class.
@@ -601,6 +656,9 @@ class TrackCallsYearTransform(YearTransform):
 
 class LookupTransformCallOrderTests(SimpleTestCase):
     def test_call_order(self):
+        """
+        Tests the call order of a lookup transformation applied to a DateField model, ensuring it gets invoked correctly in different querying scenarios.
+        """
         with register_lookup(models.DateField, TrackCallsYearTransform):
             # junk lookup - tries lookup, then transform, then fails
             msg = (
@@ -655,6 +713,9 @@ class CustomisedMethodsTests(SimpleTestCase):
 
 class SubqueryTransformTests(TestCase):
     def test_subquery_usage(self):
+        """
+        Tests the usage of a subquery with a registered lookup, specifically verifying that the ``Div3Transform`` is correctly applied to filter results.
+        """
         with register_lookup(models.IntegerField, Div3Transform):
             Author.objects.create(name="a1", age=1)
             a2 = Author.objects.create(name="a2", age=2)
@@ -674,6 +735,10 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertIsNone(author_name.get_lookup("sw"))
 
     def test_instance_lookup(self):
+        """
+        Tests that custom lookups are correctly registered and removed for an instance field, verifying that the lookup is accessible only while registration is active and is properly cleaned up after de-registration.\"\"\"
+        ```
+        """
         author_name = Author._meta.get_field("name")
         author_alias = Author._meta.get_field("alias")
         with register_lookup(author_name, CustomStartsWith):
@@ -685,6 +750,11 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertIsNone(author_alias.get_lookup("sw"))
 
     def test_instance_lookup_override_class_lookups(self):
+        """
+        Tests that instance field lookups override class-level lookups when using custom lookups.
+
+        Verifies that a custom lookup registered for a specific field on a model instance takes precedence over a lookup registered for the same field type at the class level, and that the instance-level lookup is properly unregistered after use.
+        """
         author_name = Author._meta.get_field("name")
         author_alias = Author._meta.get_field("alias")
         with register_lookup(models.CharField, CustomStartsWith, lookup_name="st_end"):
@@ -697,6 +767,9 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertIsNone(author_alias.get_lookup("st_end"))
 
     def test_instance_lookup_override(self):
+        """
+        Tests that a custom lookup can override an existing lookup for a model field, and that the override is properly cleaned up after use.
+        """
         author_name = Author._meta.get_field("name")
         with register_lookup(author_name, CustomStartsWith, lookup_name="st_end"):
             self.assertEqual(author_name.get_lookup("st_end"), CustomStartsWith)
@@ -705,6 +778,10 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertIsNone(author_name.get_lookup("st_end"))
 
     def test_lookup_on_transform(self):
+        """
+        Tests the registration and retrieval of custom lookups for a Div3Transform instance, 
+        verifying that lookups are properly added and removed when their registration contexts end.
+        """
         transform = Div3Transform
         with register_lookup(Div3Transform, CustomStartsWith):
             with register_lookup(Div3Transform, CustomEndsWith):
@@ -716,6 +793,14 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertEqual(transform.get_lookups(), {})
 
     def test_transform_on_field(self):
+        """
+        Tests the application of Div3Transform on specific fields of the Author model.
+
+        Verifies the registration and lookup of the Div3Transform on the 'name' and 'alias' fields,
+        ensuring that the transform is correctly associated with the fields when registered
+        on the field type or on a specific field instance, and that it is not available when
+        registration is removed.
+        """
         author_name = Author._meta.get_field("name")
         author_alias = Author._meta.get_field("alias")
         with register_lookup(models.CharField, Div3Transform):
@@ -728,6 +813,9 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertIsNone(author_name.get_transform("div3"))
 
     def test_related_lookup(self):
+        """
+        Tests the ability to override lookups for a related field in a Django model, ensuring that custom lookup classes can be successfully registered and used with foreign key fields.
+        """
         article_author = Article._meta.get_field("author")
         with register_lookup(models.Field, CustomStartsWith):
             self.assertIsNone(article_author.get_lookup("sw"))

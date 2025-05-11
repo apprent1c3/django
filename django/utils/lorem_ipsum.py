@@ -251,11 +251,7 @@ def paragraph():
 
 def paragraphs(count, common=True):
     """
-    Return a list of paragraphs as returned by paragraph().
-
-    If `common` is True, then the first paragraph will be the standard
-    'lorem ipsum' paragraph. Otherwise, the first paragraph will be random
-    Latin text. Either way, subsequent paragraphs will be random Latin text.
+    Return a list of paragraphs, either starting with the standard 'lorem ipsum' paragraph or random Latin text, followed by random Latin paragraphs.
     """
     paras = []
     for i in range(count):
@@ -268,10 +264,7 @@ def paragraphs(count, common=True):
 
 def words(count, common=True):
     """
-    Return a string of `count` lorem ipsum words separated by a single space.
-
-    If `common` is True, then the first 19 words will be the standard
-    'lorem ipsum' words. Otherwise, all words will be selected randomly.
+    Return a string of lorem ipsum words separated by spaces, either using the common 'lorem ipsum' sequence or a randomly generated sequence.
     """
     word_list = list(COMMON_WORDS) if common else []
     c = len(word_list)

@@ -4,9 +4,7 @@ from .exceptions import TemplateDoesNotExist
 
 def get_template(template_name, using=None):
     """
-    Load and return a template for the given name.
-
-    Raise TemplateDoesNotExist if no such template exists.
+    Loads and returns a template based on the provided name, utilizing the specified template engine if given, otherwise iterating through available engines until a match is found.
     """
     chain = []
     engines = _engine_list(using)
@@ -21,11 +19,7 @@ def get_template(template_name, using=None):
 
 def select_template(template_name_list, using=None):
     """
-    Load and return a template for one of the given names.
-
-    Try names in order and return the first template found.
-
-    Raise TemplateDoesNotExist if no such template exists.
+    Loads and returns the first existing template from a given list of template names, attempting each in order. If none of the templates exist, it raises a TemplateDoesNotExist exception.
     """
     if isinstance(template_name_list, str):
         raise TypeError(
@@ -51,9 +45,14 @@ def select_template(template_name_list, using=None):
 
 def render_to_string(template_name, context=None, request=None, using=None):
     """
-    Load a template and render it with a context. Return a string.
+    Render a Django template as a string.
 
-    template_name may be a string or a list of strings.
+    :param template_name: Name of the template to render, or a list of template names to try in order
+    :param context: Dictionary of context variables to use when rendering the template
+    :param request: The current request object, used to access request-specific data
+    :param using: The template engine to use for rendering
+
+    :return: The rendered template as a string
     """
     if isinstance(template_name, (list, tuple)):
         template = select_template(template_name, using=using)

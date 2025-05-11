@@ -9,6 +9,9 @@ class BinaryFieldTests(TestCase):
     binary_data = b"\x00\x46\xFE"
 
     def test_set_and_retrieve(self):
+        """
+        Tests setting and retrieving binary data using the DataModel, ensuring data integrity and consistency across different input formats and multiple save operations.
+        """
         data_set = (
             self.binary_data,
             bytearray(self.binary_data),
@@ -33,6 +36,9 @@ class BinaryFieldTests(TestCase):
             dm.full_clean()
 
     def test_editable(self):
+        """
+        Tests that the editable attribute of a BinaryField is properly set based on constructor arguments.
+        """
         field = models.BinaryField()
         self.assertIs(field.editable, False)
         field = models.BinaryField(editable=True)

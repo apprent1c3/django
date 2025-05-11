@@ -62,6 +62,12 @@ class SignatureExpired(BadSignature):
 
 
 def b62_encode(s):
+    """
+    Encodes an integer into a base62 string.
+
+        Provides a compact and URL-safe way to represent integer values as strings.
+        The encoding uses a custom alphabet to generate the resulting string, preserving the sign of the input value if it is negative. 
+    """
     if s == 0:
         return "0"
     sign = "-" if s < 0 else ""
@@ -74,6 +80,16 @@ def b62_encode(s):
 
 
 def b62_decode(s):
+    """
+
+    Decodes a base62 encoded string into a decimal integer.
+
+    The function handles both positive and negative numbers, and supports the standard base62 alphabet.
+
+    \param s: The base62 encoded string to decode.
+    \return: The decoded decimal integer.
+
+    """
     if s == "0":
         return 0
     sign = 1
@@ -178,6 +194,10 @@ class Signer:
     def __init__(
         self, *, key=None, sep=":", salt=None, algorithm=None, fallback_keys=None
     ):
+        """
+        Initializes a signer object with configuration settings for secure signing and verification of data.
+        The signer uses a key, separator, salt, and algorithm to generate signatures, and can fallback to alternative keys if necessary.
+        """
         self.key = key or settings.SECRET_KEY
         self.fallback_keys = (
             fallback_keys
@@ -204,6 +224,15 @@ class Signer:
         return "%s%s%s" % (value, self.sep, self.signature(value))
 
     def unsign(self, signed_value):
+        """
+
+        Checks the signature of a given value and returns the value if the signature is valid.
+
+        The signature is expected to be in the format 'value%ssignature', where %s is the separator defined by :attr:`sep`.
+        If the signature matches one generated with the primary or any fallback key, the value is returned; otherwise,
+        a :exc:`BadSignature` exception is raised.
+
+        """
         if self.sep not in signed_value:
             raise BadSignature('No "%s" found in value' % self.sep)
         value, sig = signed_value.rsplit(self.sep, 1)
@@ -214,13 +243,7 @@ class Signer:
 
     def sign_object(self, obj, serializer=JSONSerializer, compress=False):
         """
-        Return URL-safe, hmac signed base64 compressed JSON string.
-
-        If compress is True (not the default), check if compressing using zlib
-        can save some space. Prepend a '.' to signify compression. This is
-        included in the signature, to protect against zip bombs.
-
-        The serializer is expected to return a bytestring.
+        Signs an object with a URL-safe, HMAC signature, returning the result as a base64 encoded JSON string. Compression using zlib is optionally applied if it reduces the size of the data.
         """
         data = serializer().dumps(obj)
         # Flag for if it's been compressed or not.
@@ -240,6 +263,19 @@ class Signer:
     def unsign_object(self, signed_obj, serializer=JSONSerializer, **kwargs):
         # Signer.unsign() returns str but base64 and zlib compression operate
         # on bytes.
+        """
+        Unsign and deserialize an object that was previously signed and serialized.
+
+        The function first removes the signature from the provided object, then checks if
+        the resulting data is compressed. If so, it decompresses the data before
+        deserializing it using the specified serializer.
+
+        :param signed_obj: The signed object to unsign and deserialize.
+        :param serializer: The serializer to use for deserialization (defaults to JSONSerializer).
+        :param kwargs: Additional keyword arguments to pass to the unsigning process.
+        :returns: The deserialized object.
+
+        """
         base64d = self.unsign(signed_obj, **kwargs).encode()
         decompress = base64d[:1] == b"."
         if decompress:
@@ -261,8 +297,14 @@ class TimestampSigner(Signer):
 
     def unsign(self, value, max_age=None):
         """
-        Retrieve original value and check it wasn't signed more
-        than max_age seconds ago.
+
+            Unsings a value previously signed, verifying that the signature is within the specified time threshold.
+
+            :param value: The signed value to be unsigned
+            :param max_age: Optional maximum age in seconds (or as a datetime.timedelta) since the signature was applied
+            :return: The original value if the signature is valid and within the allowed time threshold
+            :raises SignatureExpired: If the signature age exceeds the specified max_age
+
         """
         result = super().unsign(value)
         value, timestamp = result.rsplit(self.sep, 1)

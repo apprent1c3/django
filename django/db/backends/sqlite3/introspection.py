@@ -60,6 +60,11 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     data_types_reverse = FlexibleFieldLookupDict()
 
     def get_field_type(self, data_type, description):
+        """
+        Determines the field type based on the given data type and description. 
+        It overrides the default field type for primary keys that would otherwise be integer-based, 
+        and for fields with JSON constraints.
+        """
         field_type = super().get_field_type(data_type, description)
         if description.pk and field_type in {
             "BigIntegerField",
@@ -87,8 +92,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_table_description(self, cursor, table_name):
         """
-        Return a description of the table with the DB-API cursor.description
-        interface.
+        Return a description of a database table, providing information about its columns, including data types, sizes, default values, and constraints, utilizing the DB-API cursor.description interface. The description includes details on primary keys, JSON columns, and collation sequences. If the specified table does not exist, a DatabaseError is raised.
         """
         cursor.execute(
             "PRAGMA table_xinfo(%s)" % self.connection.ops.quote_name(table_name)
@@ -169,6 +173,13 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return [name for _, name, *_, pk in cursor.fetchall() if pk]
 
     def _parse_column_or_constraint_definition(self, tokens, columns):
+        """
+        Parse a column or constraint definition from a list of SQL tokens.
+
+        This function iterates over the provided tokens to identify whether they define a column or a constraint, and extracts relevant information such as the constraint name, unique columns, and check columns.
+
+        :returns: A tuple containing the constraint name, unique constraint definition, check constraint definition, and the current token.
+        """
         token = None
         is_constraint_definition = None
         field_name = None
@@ -271,6 +282,17 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     def _parse_table_constraints(self, sql, columns):
         # Check constraint parsing is based of SQLite syntax diagram.
         # https://www.sqlite.org/syntaxdiagrams.html#table-constraint
+        """
+        Parse table constraints from a SQL statement.
+
+        Extracts and organizes constraints, such as unique and check constraints, from a given SQL statement and returns them as a dictionary.
+
+        :param sql: The SQL statement to parse.
+        :param columns: The columns of the table.
+
+        :return: A dictionary of table constraints, where each key is a constraint name and each value is the constraint definition.
+
+        """
         statement = sqlparse.parse(sql)[0]
         constraints = {}
         unnamed_constrains_index = 0
@@ -309,8 +331,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_constraints(self, cursor, table_name):
         """
-        Retrieve any constraints or keys (unique, pk, fk, check, index) across
-        one or more columns.
+        Retrieve all constraints (primary keys, foreign keys, unique keys, check constraints, and indexes) for a specified table in the database. Returns a dictionary where each key is the name of the constraint and the value is a dictionary with details about the constraint.
         """
         constraints = {}
         # Find inline check constraints.
@@ -405,6 +426,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return constraints
 
     def _get_index_columns_orders(self, sql):
+        """
+        Extracts column ordering information (ASC/DESC) from the given SQL query, specifically from columns defined within parentheses.
+        """
         tokens = sqlparse.parse(sql)[0]
         for token in tokens:
             if isinstance(token, sqlparse.sql.Parenthesis):
@@ -413,6 +437,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return None
 
     def _get_column_collations(self, cursor, table_name):
+        """
+        Retrieves the collations of columns in a given SQLite table, returning a dictionary where keys are column names and values are their respective collation names, or None if no collation is specified.
+        """
         row = cursor.execute(
             """
             SELECT sql

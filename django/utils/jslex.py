@@ -12,6 +12,9 @@ class Tok:
     num = 0
 
     def __init__(self, name, regex, next=None):
+        """
+        Initializes a token object with a unique identifier, name, and regular expression pattern, optionally linking to a next token.
+        """
         self.id = Tok.num
         Tok.num += 1
         self.name = name
@@ -35,6 +38,14 @@ class Lexer:
     """
 
     def __init__(self, states, first):
+        """
+        Initializes a finite state machine with predefined rules and transitions.
+
+        :param states: Mapping of state names to lists of token rules
+        :param first: Initial state of the machine
+
+        This constructor sets up the internal state and regular expressions required for token matching, preparing the machine for use in parsing and recognition tasks.
+        """
         self.regexes = {}
         self.toks = {}
 
@@ -50,9 +61,7 @@ class Lexer:
 
     def lex(self, text):
         """
-        Lexically analyze `text`.
-
-        Yield pairs (`name`, `tokentext`).
+        Lexically analyzes the provided text by breaking it down into a sequence of tokens, yielding each token's name and text.
         """
         end = len(text)
         state = self.state
@@ -213,15 +222,17 @@ class JsLexer(Lexer):
 
 def prepare_js_for_gettext(js):
     """
-    Convert the JavaScript source `js` into something resembling C for
-    xgettext.
-
-    What actually happens is that all the regex literals are replaced with
-    "REGEX".
+    Converts JavaScript source code into a format compatible with xgettext, 
+    a tool used for extracting translatable strings. The conversion process 
+    replaces regex literals with a placeholder and modifies strings to 
+    ensure proper escape sequences, allowing for easy extraction of 
+    translatable content.
     """
 
     def escape_quotes(m):
-        """Used in a regex to properly escape double quotes."""
+        """
+        Replaces double quotes with escaped double quotes in a given match, ensuring proper quoting in regular expressions.
+        """
         s = m[0]
         if s == '"':
             return r"\""

@@ -44,7 +44,7 @@ class PermWrapperTests(SimpleTestCase):
 
     def test_permwrapper_in(self):
         """
-        'something' in PermWrapper works as expected.
+        Checks if the membership test ('in' operator) in PermWrapper functions correctly, verifying the presence or absence of applications and permissions.
         """
         perms = PermWrapper(MockUser())
         # Works for modules and full permissions.
@@ -97,6 +97,12 @@ class AuthContextProcessorTests(TestCase):
         self.assertContains(response, "Session accessed")
 
     def test_perms_attrs(self):
+        """
+
+        Tests user permissions attributes by simulating a user with specific permissions 
+        and verifying the corresponding authorization indicators in the response. 
+
+        """
         u = User.objects.create_user(username="normal", password="secret")
         u.user_permissions.add(
             Permission.objects.get(
@@ -111,6 +117,9 @@ class AuthContextProcessorTests(TestCase):
         self.assertNotContains(response, "nonexistent")
 
     def test_perm_in_perms_attrs(self):
+        """
+        Tests that the authentication processor correctly checks if a permission is present in user permissions attributes. Verifies that a user with 'add_permission' can access the view and that the response contains relevant messages.
+        """
         u = User.objects.create_user(username="normal", password="secret")
         u.user_permissions.add(
             Permission.objects.get(
@@ -131,7 +140,7 @@ class AuthContextProcessorTests(TestCase):
 
     def test_user_attrs(self):
         """
-        The lazy objects returned behave just like the wrapped objects.
+        Tests that the attributes of a lazily loaded user object match the expected values, including its username, id, and URL, and that it behaves as expected in various contexts.
         """
         # These are 'functional' level tests for common use cases.  Direct
         # testing of the implementation (SimpleLazyObject) is in the 'utils'

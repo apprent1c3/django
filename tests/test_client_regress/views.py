@@ -21,7 +21,9 @@ def no_template_view(request):
 
 
 def staff_only_view(request):
-    "A view that can only be visited by staff. Non staff members get an exception"
+    """
+    限制访问的视图，仅允许具有员工权限的用户访问，其他用户将抛出异常。
+    """
     if request.user.is_staff:
         return HttpResponse()
     else:
@@ -50,11 +52,8 @@ def request_data(request, template="base.html", data="sausage"):
 
 
 def view_with_argument(request, name):
-    """A view that takes a string argument
-
-    The purpose of this view is to check that if a space is provided in
-    the argument, the test framework unescapes the %20 before passing
-    the value to the view.
+    """
+    A view that takes a string argument and greets the provided name, handling escaped spaces in the input.
     """
     if name == "Arthur Dent":
         return HttpResponse("Hi, Arthur")
@@ -125,7 +124,9 @@ def return_json_response_latin1(request):
 
 
 def return_text_file(request):
-    "A view that parses and returns text as a file."
+    """
+    Returns the request body as a text file, determining the character encoding from the request's Content-Type header or defaulting to the system's default charset if not specified.
+    """
     match = CONTENT_TYPE_RE.match(request.META["CONTENT_TYPE"])
     if match:
         charset = match[1]

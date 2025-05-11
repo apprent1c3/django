@@ -16,6 +16,12 @@ class MessageEncoder(json.JSONEncoder):
     message_key = "__json_message"
 
     def default(self, obj):
+        """
+        Handle serialization of Message objects into a list format, 
+        adding relevant metadata such as message key, safety data flag, 
+        and logging level, with optional extra tags if provided, 
+        otherwise defer to the parent class for serialization.
+        """
         if isinstance(obj, Message):
             # Using 0/1 here instead of False/True to produce more compact json
             is_safedata = 1 if isinstance(obj.message, SafeData) else 0
@@ -32,6 +38,9 @@ class MessageDecoder(json.JSONDecoder):
     """
 
     def process_messages(self, obj):
+        """
+        Recursively processes a given object, decoding and marking as safe any messages found within lists or dictionaries, and returning the processed object.
+        """
         if isinstance(obj, list) and obj:
             if obj[0] == MessageEncoder.message_key:
                 if obj[1]:
@@ -93,10 +102,7 @@ class CookieStorage(BaseStorage):
 
     def _get(self, *args, **kwargs):
         """
-        Retrieve a list of messages from the messages cookie. If the
-        not_finished sentinel value is found at the end of the message list,
-        remove it and return a result indicating that not all messages were
-        retrieved by this storage.
+        Retrieves a list of messages stored in the messages cookie and indicates whether all messages have been retrieved.
         """
         data = self.request.COOKIES.get(self.cookie_name)
         messages = self._decode(data)
@@ -108,8 +114,7 @@ class CookieStorage(BaseStorage):
 
     def _update_cookie(self, encoded_data, response):
         """
-        Either set the cookie with the encoded data if there is any data to
-        store, or delete the cookie.
+        Updates the cookie with the encoded data if present, or deletes it if empty.
         """
         if encoded_data:
             response.set_cookie(
@@ -129,12 +134,7 @@ class CookieStorage(BaseStorage):
 
     def _store(self, messages, response, remove_oldest=True, *args, **kwargs):
         """
-        Store the messages to a cookie and return a list of any messages which
-        could not be stored.
-
-        If the encoded data is larger than ``max_cookie_size``, remove
-        messages until the data fits (these are the messages which are
-        returned), and add the not_finished sentinel value to indicate as much.
+        Stores messages in a cookie, returning a list of messages that could not be stored due to cookie size limitations. If the encoded message data exceeds the maximum cookie size, messages are removed to fit within the size constraint, with the removed messages being returned.
         """
         unstored_messages = []
         serialized_messages = MessagePartSerializer().dumps(messages)
@@ -197,10 +197,11 @@ class CookieStorage(BaseStorage):
 
     def _decode(self, data):
         """
-        Safely decode an encoded text stream back into a list of messages.
+        Decodes an encoded text stream back into a list of messages.
 
-        If the encoded text stream contained an invalid hash or was in an
-        invalid format, return None.
+        Reverses the encoding process, returning the original messages if the data is valid.
+
+        Returns None if the encoded text stream contains an invalid hash, is in an invalid format, or if the decoding process fails.
         """
         if not data:
             return None
@@ -216,9 +217,7 @@ class CookieStorage(BaseStorage):
 
 def bisect_keep_left(a, fn):
     """
-    Find the index of the first element from the start of the array that
-    verifies the given condition.
-    The function is applied from the start of the array to the pivot.
+    Find the index of the first element from the start of the array that verifies the given condition, using a binary search approach. The condition is checked for the subarray from the start to the pivot, allowing for efficient search.
     """
     lo = 0
     hi = len(a)
@@ -233,9 +232,14 @@ def bisect_keep_left(a, fn):
 
 def bisect_keep_right(a, fn):
     """
+
     Find the index of the first element from the end of the array that verifies
-    the given condition.
-    The function is applied from the pivot to the end of array.
+    the given condition. The function is applied from the pivot to the end of array.
+
+    :param a: The input array
+    :param fn: The function to apply to subarrays of a
+    :return: The index of the first element from the end of the array that verifies the condition
+
     """
     lo = 0
     hi = len(a)

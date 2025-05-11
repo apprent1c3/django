@@ -40,6 +40,9 @@ class TransformPoint(list):
     }
 
     def __init__(self, raster, prop):
+        """
+        Initializes the object with a raster and a property, extracting the corresponding geotransform coordinates and setting up the base class with these coordinates.
+        """
         x = raster.geotransform[self.indices[prop][0]]
         y = raster.geotransform[self.indices[prop][1]]
         super().__init__([x, y])
@@ -75,6 +78,9 @@ class GDALRaster(GDALRasterBase):
     destructor = capi.close_ds
 
     def __init__(self, ds_input, write=False):
+        """
+        Initializes a raster data source object, allowing for various input types such as file paths, JSON strings, byte buffers, or dictionaries containing creation parameters. The input data source can be read-only or writable, depending on the specified `write` flag. The function handles different input formats and validation, creating a new data source if necessary, and raises exceptions for invalid inputs or failed creation attempts.
+        """
         self._write = 1 if write else 0
         Driver.ensure_registered()
 
@@ -242,6 +248,9 @@ class GDALRaster(GDALRasterBase):
 
     @property
     def vsi_buffer(self):
+        """
+        Retrieves the contents of a VSI file as a bytes buffer, if the current object represents a VSI-based file in memory. Returns None otherwise.
+        """
         if not (
             self.is_vsi_based and self.name.startswith(VSI_MEM_FILESYSTEM_BASE_PATH)
         ):
@@ -294,7 +303,7 @@ class GDALRaster(GDALRasterBase):
     @property
     def srs(self):
         """
-        Return the SpatialReference used in this GDALRaster.
+        Return the SpatialReference used in this GDALRaster, represented as a SpatialReference object, or None if no spatial reference system is defined.
         """
         try:
             wkt = capi.get_ds_projection_ref(self._ptr)
@@ -307,9 +316,7 @@ class GDALRaster(GDALRasterBase):
     @srs.setter
     def srs(self, value):
         """
-        Set the spatial reference used in this GDALRaster. The input can be
-        a SpatialReference or any parameter accepted by the SpatialReference
-        constructor.
+        Sets the spatial reference system (SRS) for the GDALRaster, accepting either a SpatialReference object or a compatible input for the SpatialReference constructor.
         """
         if isinstance(value, SpatialReference):
             srs = value
@@ -348,7 +355,13 @@ class GDALRaster(GDALRasterBase):
 
     @geotransform.setter
     def geotransform(self, values):
-        "Set the geotransform for the data source."
+        """
+        Set the geotransform for the data source, specifying its spatial reference.
+
+        The geotransform is a six-element tuple of numeric values. It defines the affine transformation from image coordinates to georeferenced coordinates, typically in a format of (top-left x, x-pixel size, x-rotation, top-left y, y-rotation, y-pixel size).
+
+        :raises: ValueError if the geotransform is not provided as 6 numeric values.
+        """
         if len(values) != 6 or not all(isinstance(x, (int, float)) for x in values):
             raise ValueError("Geotransform must consist of 6 numeric values.")
         # Create ctypes double array with input and write data
@@ -380,7 +393,7 @@ class GDALRaster(GDALRasterBase):
     @property
     def extent(self):
         """
-        Return the extent as a 4-tuple (xmin, ymin, xmax, ymax).
+        Get the bounding box of an object as a 4-tuple (xmin, ymin, xmax, ymax).
         """
         # Calculate boundary values based on scale and size
         xval = self.origin.x + self.scale.x * self.width
@@ -401,18 +414,10 @@ class GDALRaster(GDALRasterBase):
         """
         Return a warped GDALRaster with the given input characteristics.
 
-        The input is expected to be a dictionary containing the parameters
-        of the target raster. Allowed values are width, height, SRID, origin,
-        scale, skew, datatype, driver, and name (filename).
-
-        By default, the warp functions keeps all parameters equal to the values
-        of the original source raster. For the name of the target raster, the
-        name of the source raster will be used and appended with
-        _copy. + source_driver_name.
-
-        In addition, the resampling algorithm can be specified with the "resampling"
-        input parameter. The default is NearestNeighbor. For a list of all options
-        consult the GDAL_RESAMPLE_ALGORITHMS constant.
+        The function takes in parameters that define the target raster, including its spatial reference system, resolution, and output filename.
+        It allows for specifying a resampling algorithm and a maximum error threshold for the warping process.
+        If certain parameters are not provided, default values are used that match the original source raster.
+        The function returns the resulting warped raster object.
         """
         # Get the parameters defining the geotransform, srid, and size of the raster
         ds_input.setdefault("width", self.width)
@@ -459,7 +464,15 @@ class GDALRaster(GDALRasterBase):
         return target
 
     def clone(self, name=None):
-        """Return a clone of this GDALRaster."""
+        """
+        Create a copy of the current GDALRaster instance.
+
+        The clone can be optionally given a custom name. If no name is provided,
+        a default name will be generated based on the original raster's name and driver,
+        or a unique temporary filename if the raster is in-memory.
+
+        Returns a new GDALRaster instance that is a copy of the current one.
+        """
         if name:
             clone_name = name
         elif self.driver.name != "MEM":
@@ -483,8 +496,16 @@ class GDALRaster(GDALRasterBase):
         self, srs, driver=None, name=None, resampling="NearestNeighbour", max_error=0.0
     ):
         """
-        Return a copy of this raster reprojected into the given spatial
-        reference system.
+        Reprojects this raster into the specified spatial reference system.
+
+            :param srs: Spatial reference system (int, str or SpatialReference object) to transform into.
+            :param driver: Name of the driver to use for transformation.
+            :param name: Name of the transformed raster.
+            :param resampling: Resampling algorithm (default is 'NearestNeighbour').
+            :param max_error: Maximum allowed error for transformation (default is 0.0).
+
+            :return: Reprojected raster.
+
         """
         # Convert the resampling algorithm name into an algorithm id
         algorithm = GDAL_RESAMPLE_ALGORITHMS[resampling]

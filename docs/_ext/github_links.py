@@ -31,6 +31,12 @@ class CodeLocator(ast.NodeVisitor):
         self.visit_node(node)
 
     def visit_ImportFrom(self, node):
+        """
+        Updates the import locations dictionary based on an ImportFrom node.
+
+        Handles both absolute and relative imports, as well as wildcard imports.
+        Resolves imported names to their corresponding module or file paths, and stores the locations for future reference.
+        """
         for alias in node.names:
             if alias.asname:
                 # Exclude linking aliases (`import x as y`) to avoid confusion
@@ -65,6 +71,14 @@ def module_name_to_file_path(module_name):
     # Avoid importlib machinery as locating a module involves importing its
     # parent, which would trigger import side effects.
 
+    """
+    Resolves a module name to its corresponding file path.
+
+    Given a module name, this function attempts to locate the corresponding Python file
+    (with.py or __init__.py suffix) within a predefined directory structure, returning
+    the full file path if found. If no matching file is discovered, a CodeNotFound exception
+    is raised.
+    """
     for suffix in [".py", "/__init__.py"]:
         file_path = pathlib.Path(__file__).parents[2] / (
             module_name.replace(".", "/") + suffix
@@ -76,6 +90,28 @@ def module_name_to_file_path(module_name):
 
 
 def get_path_and_line(module, fullname):
+    """
+    Search for the file path and line number of a given object within a Python module.
+
+    Parameters
+    ----------
+    module : str
+        The name of the module to search in.
+    fullname : str
+        The fully qualified name of the object to locate.
+
+    Returns
+    -------
+    tuple
+        A tuple containing the file path and line number of the object, or raises CodeNotFound if not found. 
+
+    Raises
+    ------
+    CodeNotFound
+        If the object is not found in the module or any of its imports.
+    ImportError
+        If an import error occurs while trying to resolve the imported module.
+    """
     path = module_name_to_file_path(module_name=module)
 
     locator = get_locator(path)
@@ -130,6 +166,15 @@ def get_branch(version, next_version):
 
 
 def github_linkcode_resolve(domain, info, *, version, next_version):
+    """
+    Returns a GitHub URL pointing to the source code of a Python object, allowing users to easily view the code online. 
+
+    The URL is constructed based on the object's module and fullname, as well as the current and next version of the project. 
+
+    It assumes the project is hosted on GitHub and the source code is located in the same repository as the documentation. 
+
+    If the object is not found or the domain is not Python, returns None.
+    """
     if domain != "py":
         return None
 

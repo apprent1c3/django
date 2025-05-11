@@ -27,14 +27,15 @@ else:
 
 def supports_color():
     """
-    Return True if the running system's terminal supports color,
-    and False otherwise.
+    Return True if the running system's terminal supports color, 
+    and False otherwise. This check applies various methods to 
+    determine color support, including platform detection, environment 
+    variable checks, and registry inspection for Windows platforms.
     """
 
     def vt_codes_enabled_in_windows_registry():
         """
-        Check the Windows Registry to see if VT code handling has been enabled
-        by default, see https://superuser.com/a/1300251/447564.
+        Check if VT code handling is enabled in the Windows Registry by default, indicating support for ANSI escape sequences in the console.
         """
         try:
             # winreg is only available on Windows.
@@ -73,9 +74,10 @@ class Style:
 
 def make_style(config_string=""):
     """
-    Create a Style object from the given config_string.
-
-    If config_string is empty django.utils.termcolors.DEFAULT_PALETTE is used.
+    Create a Style object from the given configuration string, 
+    falling back to the default color palette if no configuration is provided. 
+    The resulting Style object encapsulates color settings for various roles, 
+    allowing for styled output in a terminal environment.
     """
 
     style = Style()

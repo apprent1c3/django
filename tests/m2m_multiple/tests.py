@@ -7,6 +7,10 @@ from .models import Article, Category
 
 class M2MMultipleTests(TestCase):
     def test_multiple(self):
+        """
+        Tests the creation and assignment of primary and secondary categories to articles, 
+        and verifies the correct retrieval of articles by category.
+        """
         c1, c2, c3, c4 = [
             Category.objects.create(name=name)
             for name in ["Sports", "News", "Crime", "Life"]

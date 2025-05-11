@@ -5,8 +5,7 @@ from django.utils.text import format_lazy
 
 def prefix_validation_error(error, prefix, code, params):
     """
-    Prefix a validation error message while maintaining the existing
-    validation data structure.
+    Prefixes a validation error message with the provided prefix while maintaining the existing validation data structure, allowing for additional context to be added to the error message.
     """
     if error.error_list == [error]:
         error_params = error.params or {}

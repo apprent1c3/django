@@ -18,6 +18,9 @@ class AsyncAuthTest(TestCase):
         )
 
     async def test_aauthenticate(self):
+        """
+        Tests the asynchronous user authentication function, verifying that a valid username and password return an active user object, and that an inactive user is not authenticated.
+        """
         user = await aauthenticate(username="testuser", password="testpw")
         self.assertIsInstance(user, User)
         self.assertEqual(user.username, self.test_user.username)
@@ -26,6 +29,12 @@ class AsyncAuthTest(TestCase):
         self.assertIsNone(await aauthenticate(username="testuser", password="testpw"))
 
     async def test_alogin(self):
+        """
+        Tests asynchronous user login functionality.
+
+        Verifies that a user can successfully log in and that the resulting user object
+        is correctly retrieved from the request session.
+        """
         request = HttpRequest()
         request.session = await self.client.asession()
         await alogin(request, self.test_user)
@@ -34,6 +43,9 @@ class AsyncAuthTest(TestCase):
         self.assertEqual(user.username, self.test_user.username)
 
     async def test_alogin_without_user(self):
+        """
+        Tests asynchronous login functionality without providing a user, ensuring the request's user remains unchanged after login.
+        """
         request = HttpRequest()
         request.user = self.test_user
         request.session = await self.client.asession()
@@ -43,6 +55,11 @@ class AsyncAuthTest(TestCase):
         self.assertEqual(user.username, self.test_user.username)
 
     async def test_alogout(self):
+        """
+
+        Tests the asynchronous logout functionality by verifying that a user is logged out and becomes an anonymous user after calling the alogout function.
+
+        """
         await self.client.alogin(username="testuser", password="testpw")
         request = HttpRequest()
         request.session = await self.client.asession()
@@ -51,6 +68,9 @@ class AsyncAuthTest(TestCase):
         self.assertIsInstance(user, AnonymousUser)
 
     async def test_client_alogout(self):
+        """
+        Tests that the client logout functionality correctly revokes the user's session, resulting in an AnonymousUser.
+        """
         await self.client.alogin(username="testuser", password="testpw")
         request = HttpRequest()
         request.session = await self.client.asession()
@@ -59,6 +79,12 @@ class AsyncAuthTest(TestCase):
         self.assertIsInstance(user, AnonymousUser)
 
     async def test_change_password(self):
+        """
+
+        Tests the change password functionality by simulating a login, updating the session auth hash, 
+        and verifying that the currently authenticated user is correctly retrieved.
+
+        """
         await self.client.alogin(username="testuser", password="testpw")
         request = HttpRequest()
         request.session = await self.client.asession()
@@ -73,6 +99,9 @@ class AsyncAuthTest(TestCase):
         )
 
     async def test_client_aforce_login(self):
+        """
+        Tests forcing a user login and verifies the user's session is correctly set
+        """
         await self.client.aforce_login(self.test_user)
         request = HttpRequest()
         request.session = await self.client.asession()
@@ -86,6 +115,9 @@ class AsyncAuthTest(TestCase):
         ]
     )
     async def test_client_aforce_login_backend(self):
+        """
+        Tests the AllowAllUsersModelBackend authentication backend by forcing a login with an inactive user. Verifies that the user is successfully authenticated and their session is correctly set.
+        """
         self.test_user.is_active = False
         await self.test_user.asave()
         await self.client.aforce_login(

@@ -49,6 +49,17 @@ class BlockNode(Node):
         return "<Block Node: %s. Contents: %r>" % (self.name, self.nodelist)
 
     def render(self, context):
+        """
+
+        Renders the block content within the given context.
+
+        This method handles block rendering for both new blocks and nested blocks,
+        allowing for contextual rendering of block content.
+
+        The method maintains the block context and updated rendering state as needed,
+        ensuring proper block rendering and context management.
+
+        """
         block_context = context.render_context.get(BLOCK_CONTEXT_KEY)
         with context.push():
             if block_context is None:
@@ -68,6 +79,9 @@ class BlockNode(Node):
         return result
 
     def super(self):
+        """
+        Renders the content of a block from a parent template if it exists, raising an error if the context is not available. The rendered content is marked as safe to avoid HTML escaping. Returns an empty string if the block does not exist in the parent template.
+        """
         if not hasattr(self, "context"):
             raise TemplateSyntaxError(
                 "'%s' object has no attribute 'context'. Did you use "
@@ -97,10 +111,12 @@ class ExtendsNode(Node):
 
     def find_template(self, template_name, context):
         """
-        This is a wrapper around engine.find_template(). A history is kept in
-        the render_context attribute between successive extends calls and
-        passed as the skip argument. This enables extends to work recursively
-        without extending the same template twice.
+
+        Finds a template by name while keeping track of the rendering history.
+
+        This function ensures that the same template is not extended multiple times,
+        enabling recursive extends to work correctly. It returns the found template.
+
         """
         history = context.render_context.setdefault(
             self.context_key,
@@ -114,6 +130,13 @@ class ExtendsNode(Node):
         return template
 
     def get_parent(self, context):
+        """
+        Retrieve the parent template, resolving the parent name in the given context.
+
+        Raises a TemplateSyntaxError if the parent name is invalid.
+
+        Returns the parent template, or the template associated with the parent object if applicable.
+        """
         parent = self.parent_name.resolve(context)
         if not parent:
             error_msg = "Invalid template name in 'extends' tag: %r." % parent
@@ -131,6 +154,9 @@ class ExtendsNode(Node):
         return self.find_template(parent, context)
 
     def render(self, context):
+        """
+        Render the compiled parent template, inheriting blocks from the parent template if they are not explicitly overridden, and passing the rendered template through the context's render engine.
+        """
         compiled_parent = self.get_parent(context)
 
         if BLOCK_CONTEXT_KEY not in context.render_context:
@@ -175,9 +201,7 @@ class IncludeNode(Node):
 
     def render(self, context):
         """
-        Render the specified template and context. Cache the template object
-        in render_context to avoid reparsing and loading when used in a for
-        loop.
+        Render a template using the provided context, utilizing caching to improve performance when rendering in loops.
         """
         template = self.template.resolve(context)
         # Does this quack like a Template?
@@ -213,7 +237,14 @@ class IncludeNode(Node):
 @register.tag("block")
 def do_block(parser, token):
     """
+
     Define a block that can be overridden by child templates.
+
+    This template tag is used to define a section of a template that can be 
+    replaced or extended by child templates. The block is given a name, 
+    which is used to identify it in the template. The tag must be closed 
+    with an 'endblock' statement.
+
     """
     # token.split_contents() isn't useful here because this tag doesn't accept
     # variable as arguments.
@@ -244,8 +275,7 @@ def do_block(parser, token):
 
 def construct_relative_path(current_template_name, relative_name):
     """
-    Convert a relative path (starting with './' or '../') to the full template
-    name based on the current_template_name.
+    Converts a relative template path to a full template name based on the current template, ensuring the resulting path is within the same file hierarchy and does not refer to the current template itself.
     """
     new_name = relative_name.strip("'\"")
     if not new_name.startswith(("./", "../")):
@@ -281,11 +311,7 @@ def do_extends(parser, token):
     """
     Signal that this template extends a parent template.
 
-    This tag may be used in two ways: ``{% extends "base" %}`` (with quotes)
-    uses the literal value "base" as the name of the parent template to extend,
-    or ``{% extends variable %}`` uses the value of ``variable`` as either the
-    name of the parent template to extend (if it evaluates to a string) or as
-    the parent template itself (if it evaluates to a Template object).
+    This tag may be used in two ways: with a literal template name or with a variable that resolves to a template name or a Template object. It marks a template as extending a parent, allowing for template inheritance and code reuse.
     """
     bits = token.split_contents()
     if len(bits) != 2:
@@ -303,19 +329,7 @@ def do_extends(parser, token):
 @register.tag("include")
 def do_include(parser, token):
     """
-    Load a template and render it with the current context. You can pass
-    additional context using keyword arguments.
-
-    Example::
-
-        {% include "foo/some_include" %}
-        {% include "foo/some_include" with bar="BAZZ!" baz="BING!" %}
-
-    Use the ``only`` argument to exclude the current context when rendering
-    the included template::
-
-        {% include "foo/some_include" only %}
-        {% include "foo/some_include" with bar="1" only %}
+    Load a template and render it with the current context, allowing for additional context to be passed as keyword arguments and optional exclusion of the current context.
     """
     bits = token.split_contents()
     if len(bits) < 2:

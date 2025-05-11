@@ -16,6 +16,12 @@ class ExpTests(TestCase):
         self.assertIsNone(obj.null_exp)
 
     def test_decimal(self):
+        """
+        Tests the calculation of the exponential function for decimal numbers.
+
+        Verifies that the result of applying the exponential function to decimal fields
+        is of type Decimal and accurately represents the expected mathematical result.
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_exp=Exp("n1"), n2_exp=Exp("n2")).first()
         self.assertIsInstance(obj.n1_exp, Decimal)
@@ -24,6 +30,9 @@ class ExpTests(TestCase):
         self.assertAlmostEqual(obj.n2_exp, Decimal(math.exp(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the calculation of exponential values for float fields in the database model using annotation.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_exp=Exp("f1"), f2_exp=Exp("f2")).first()
         self.assertIsInstance(obj.f1_exp, float)
@@ -32,6 +41,9 @@ class ExpTests(TestCase):
         self.assertAlmostEqual(obj.f2_exp, math.exp(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the calculation of the exponential function on integer fields in a database model, verifying the correct data type and mathematical result for negative, zero, and positive integers.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_exp=Exp("small"),
@@ -46,6 +58,9 @@ class ExpTests(TestCase):
         self.assertAlmostEqual(obj.big_exp, math.exp(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of DecimalField values using the Exp lookup type.
+        """
         with register_lookup(DecimalField, Exp):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-1.0"), n2=Decimal("0"))

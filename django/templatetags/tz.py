@@ -99,6 +99,9 @@ class LocalTimeNode(Node):
         self.use_tz = use_tz
 
     def render(self, context):
+        """
+        Renders the template node list using the provided context, temporarily overriding the timezone setting to match the instance's configuration.
+        """
         old_setting = context.use_tz
         context.use_tz = self.use_tz
         output = self.nodelist.render(context)
@@ -159,17 +162,7 @@ def localtime_tag(parser, token):
 @register.tag("timezone")
 def timezone_tag(parser, token):
     """
-    Enable a given time zone just for this block.
-
-    The ``timezone`` argument must be an instance of a ``tzinfo`` subclass, a
-    time zone name, or ``None``. If it is ``None``, the default time zone is
-    used within the block.
-
-    Sample usage::
-
-        {% timezone "Europe/Paris" %}
-            It is {{ now }} in Paris.
-        {% endtimezone %}
+    Sets the time zone for a block of template code, allowing for localized date and time displays, and accepts a tzinfo subclass instance, time zone name, or None to revert to the default time zone.
     """
     bits = token.split_contents()
     if len(bits) != 2:

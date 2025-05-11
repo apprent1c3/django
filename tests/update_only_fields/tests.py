@@ -12,6 +12,9 @@ class UpdateOnlyFieldsTests(TestCase):
     )
 
     def test_update_fields_basic(self):
+        """
+        Tests updating specific fields of a model instance, verifying that only the specified fields are modified in the database.
+        """
         s = Person.objects.create(name="Sara", gender="F")
         self.assertEqual(s.gender, "F")
 
@@ -24,6 +27,13 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s.name, "Ian")
 
     def test_update_fields_deferred(self):
+        """
+
+        Tests that updating fields of a deferred model instance works correctly,
+        ensuring that only the necessary database queries are executed when saving
+        the instance.
+
+        """
         s = Person.objects.create(name="Sara", gender="F", pid=22)
         self.assertEqual(s.gender, "F")
 
@@ -39,6 +49,11 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s2.gender, "M")
 
     def test_update_fields_only_1(self):
+        """
+        Tests that updating fields of a model instance only updates the specified fields in the database.
+
+        Verifies that using the 'only' method to retrieve a subset of fields and then modifying those fields results in a database update that only affects the modified fields, without overwriting unchanged fields.
+        """
         s = Person.objects.create(name="Sara", gender="F")
         self.assertEqual(s.gender, "F")
 
@@ -54,6 +69,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s2.gender, "M")
 
     def test_update_fields_only_2(self):
+        """
+        Tests that updating a model instance only updates the specified fields, without affecting unchanged fields.
+        """
         s = Person.objects.create(name="Sara", gender="F", pid=22)
         self.assertEqual(s.gender, "F")
 
@@ -69,6 +87,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s2.gender, "F")
 
     def test_update_fields_only_repeated(self):
+        """
+        Tests that when only certain fields are loaded from the database, updating and saving only those fields results in a single database query.
+        """
         s = Person.objects.create(name="Sara", gender="F")
         self.assertEqual(s.gender, "F")
 
@@ -82,6 +103,10 @@ class UpdateOnlyFieldsTests(TestCase):
             s1.save()
 
     def test_update_fields_inheritance_defer(self):
+        """
+        Test that updating fields of an Employee instance works correctly when using select_related or deferred field loading, 
+            and that the save operation respects the deferred loading of fields by minimizing database queries.
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         e1 = Employee.objects.create(
             name="Sara", gender="F", employee_num=1, profile=profile_boss
@@ -93,6 +118,12 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(Employee.objects.get(pk=e1.pk).name, "Linda")
 
     def test_update_fields_fk_defer(self):
+        """
+
+        Tests the updating of foreign key fields on the Employee model with deferred loading,
+        ensuring that a single database query is used when saving changes.
+
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         profile_receptionist = Profile.objects.create(name="Receptionist", salary=1000)
         e1 = Employee.objects.create(
@@ -109,6 +140,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(Employee.objects.get(pk=e1.pk).profile, profile_boss)
 
     def test_select_related_only_interaction(self):
+        """
+        Tests that select_related only loads related objects and does not keep them in sync with database changes.
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         e1 = Employee.objects.create(
             name="Sara", gender="F", employee_num=1, profile=profile_boss
@@ -130,6 +164,11 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(reloaded_profile.salary, 3000)
 
     def test_update_fields_m2m(self):
+        """
+        Tests updating a many-to-many field ('accounts') when saving an Employee instance, 
+        verifying that the expected ValueError is raised when attempting to use 'update_fields' 
+        with a many-to-many relationship.
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         e1 = Employee.objects.create(
             name="Sara", gender="F", employee_num=1, profile=profile_boss
@@ -142,6 +181,9 @@ class UpdateOnlyFieldsTests(TestCase):
             e1.save(update_fields=["accounts"])
 
     def test_update_fields_inheritance(self):
+        """
+        Tests the behavior of the `save` method when using the `update_fields` argument to update specific fields of an `Employee` instance, specifically when updating inherited fields from a related `Profile` instance, and when updating the relationship itself.
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         profile_receptionist = Profile.objects.create(name="Receptionist", salary=1000)
         e1 = Employee.objects.create(
@@ -174,6 +216,12 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(e4.profile_id, profile_boss.pk)
 
     def test_update_fields_inheritance_with_proxy_model(self):
+        """
+        Tests the updating of fields on a ProxyEmployee model instance, 
+        verifying that updates are persisted correctly and that changes to 
+        specific fields do not affect others, even when using the update_fields 
+        parameter to control which fields are saved.
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         profile_receptionist = Profile.objects.create(name="Receptionist", salary=1000)
         e1 = ProxyEmployee.objects.create(
@@ -198,6 +246,9 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(e3.profile, profile_receptionist)
 
     def test_update_fields_signals(self):
+        """
+        Tests that the update_fields parameter is correctly passed to pre_save and post_save signals when saving a model instance with update_fields specified.
+        """
         p = Person.objects.create(name="Sara", gender="F")
         pre_save_data = []
 
@@ -223,6 +274,9 @@ class UpdateOnlyFieldsTests(TestCase):
         post_save.disconnect(post_save_receiver)
 
     def test_update_fields_incorrect_params(self):
+        """
+        Tests updating model fields with incorrect parameters, ensuring that a ValueError is raised when using both a non-existent field and an invalid field type.
+        """
         s = Person.objects.create(name="Sara", gender="F")
 
         with self.assertRaisesMessage(ValueError, self.msg % "first_name"):
@@ -234,6 +288,9 @@ class UpdateOnlyFieldsTests(TestCase):
             s.save(update_fields="name")
 
     def test_empty_update_fields(self):
+        """
+        Tests if calling save with an empty update_fields list doesn't trigger any pre or post save signals, and also doesn't execute any database query.
+        """
         s = Person.objects.create(name="Sara", gender="F")
         pre_save_data = []
 
@@ -268,6 +325,9 @@ class UpdateOnlyFieldsTests(TestCase):
             s.save(False, False, None, [])
 
     async def test_empty_update_fields_positional_asave(self):
+        """
+        Tests that passing positional arguments to the asave method marks the operation as deprecated and does not persist changes to the object's fields, ensuring the original values are retained when refreshed from the database.
+        """
         s = await Person.objects.acreate(name="Sara", gender="F")
         # Workaround for a lack of async assertNumQueries.
         s.name = "Other"
@@ -281,6 +341,16 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s.name, "Sara")
 
     def test_num_queries_inheritance(self):
+        """
+
+        Tests that the correct number of database queries are executed when saving 
+        Employee objects with inheritance, using the update_fields parameter to 
+        control which fields are updated.
+
+        Verifies that the object's state is correctly preserved and that the 
+        database query count is as expected for different update scenarios.
+
+        """
         s = Employee.objects.create(name="Sara", gender="F")
         s.employee_num = 1
         s.name = "Emily"

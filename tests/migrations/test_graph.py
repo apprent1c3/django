@@ -10,11 +10,9 @@ class GraphTests(SimpleTestCase):
 
     def test_simple_graph(self):
         """
-        Tests a basic dependency graph:
-
-        app_a:  0001 <-- 0002 <--- 0003 <-- 0004
-                                 /
-        app_b:  0001 <-- 0002 <-/
+        Tests the functionality of a migration graph with a simple dependency structure. 
+        This test covers creation of a graph, adding nodes and dependencies, 
+        and verifying the correctness of forwards and backwards plans, as well as root and leaf nodes.
         """
         # Build graph
         graph = MigrationGraph()
@@ -67,14 +65,8 @@ class GraphTests(SimpleTestCase):
         )
 
     def test_complex_graph(self):
-        r"""
-        Tests a complex dependency graph:
-
-        app_a:  0001 <-- 0002 <--- 0003 <-- 0004
-                      \        \ /         /
-        app_b:  0001 <-\ 0002 <-X         /
-                      \          \       /
-        app_c:         \ 0001 <-- 0002 <-
+        """
+        Tests a complex migration dependency graph across multiple applications to ensure correct forward and backward planning and node identification.
         """
         # Build graph
         graph = MigrationGraph()
@@ -144,7 +136,9 @@ class GraphTests(SimpleTestCase):
 
     def test_circular_graph(self):
         """
-        Tests a circular dependency graph.
+
+            Tests a circular dependency graph, verifying that a CircularDependencyError is raised when the graph contains cycles.
+
         """
         # Build graph
         graph = MigrationGraph()
@@ -163,6 +157,16 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_circular_graph_2(self):
+        """
+        Tests that the MigrationGraph correctly raises an error when a circular dependency is detected.\"\"\"
+
+        \"\"\"
+        Tests a graph with a circular relationship between nodes 'A' and 'B', with 'C' also dependent on 'B'.
+
+        Raises:
+            CircularDependencyError: When graph contains a cycle.
+
+        """
         graph = MigrationGraph()
         graph.add_node(("A", "0001"), None)
         graph.add_node(("C", "0001"), None)
@@ -175,6 +179,12 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_iterative_dfs(self):
+        """
+        Tests the iterative depth-first search functionality of the MigrationGraph class.
+
+        Verifies that forwards and backwards plans can be correctly generated for a linear dependency chain of nodes, 
+        ensuring the resulting plans match the expected order of nodes.
+        """
         graph = MigrationGraph()
         root = ("app_a", "1")
         graph.add_node(root, None)
@@ -195,8 +205,12 @@ class GraphTests(SimpleTestCase):
 
     def test_iterative_dfs_complexity(self):
         """
-        In a graph with merge migrations, iterative_dfs() traverses each node
-        only once even if there are multiple paths leading to it.
+
+        Verifies the complexity of the iterative depth-first search algorithm.
+
+        Tests that the iterative_dfs function in a graph with merge migrations visits each node only once, 
+        even when multiple paths lead to it, ensuring efficient traversal.
+
         """
         n = 50
         graph = MigrationGraph()
@@ -217,7 +231,7 @@ class GraphTests(SimpleTestCase):
 
     def test_plan_invalid_node(self):
         """
-        Tests for forwards/backwards_plan of nonexistent node.
+        Tests that :meth:`forwards_plan` and :meth:`backwards_plan` correctly raise a :class:`NodeNotFoundError` when given a nonexistent node.
         """
         graph = MigrationGraph()
         message = "Node ('app_b', '0001') not a valid node"
@@ -230,7 +244,11 @@ class GraphTests(SimpleTestCase):
 
     def test_missing_parent_nodes(self):
         """
-        Tests for missing parent nodes.
+
+            Tests if adding a dependency to a node with a nonexistent parent raises a NodeNotFoundError.
+
+            Verifies the migration graph's ability to detect and handle missing parent nodes.
+
         """
         # Build graph
         graph = MigrationGraph()
@@ -249,7 +267,7 @@ class GraphTests(SimpleTestCase):
 
     def test_missing_child_nodes(self):
         """
-        Tests for missing child nodes.
+        Tests for the condition where a child node referenced in a dependency does not exist in the migration graph.
         """
         # Build graph
         graph = MigrationGraph()
@@ -262,6 +280,9 @@ class GraphTests(SimpleTestCase):
             graph.add_dependency("app_a.0002", ("app_a", "0002"), ("app_a", "0001"))
 
     def test_validate_consistency_missing_parent(self):
+        """
+        Tests that validate_consistency raises an exception when a migration dependency references a nonexistent parent node.
+        """
         graph = MigrationGraph()
         graph.add_node(("app_a", "0001"), None)
         graph.add_dependency(
@@ -275,6 +296,11 @@ class GraphTests(SimpleTestCase):
             graph.validate_consistency()
 
     def test_validate_consistency_missing_child(self):
+        """
+        Validate the consistency of a migration graph with a missing child node in the dependencies. 
+
+        This function checks if a migration's dependencies reference a node that does not exist in the graph, and verifies that a NodeNotFoundError is raised in such cases.
+        """
         graph = MigrationGraph()
         graph.add_node(("app_b", "0002"), None)
         graph.add_dependency(
@@ -288,6 +314,9 @@ class GraphTests(SimpleTestCase):
             graph.validate_consistency()
 
     def test_validate_consistency_no_error(self):
+        """
+        Tests that validate_consistency does not raise an error for a migration graph with a valid dependency structure
+        """
         graph = MigrationGraph()
         graph.add_node(("app_a", "0001"), None)
         graph.add_node(("app_b", "0002"), None)
@@ -298,8 +327,7 @@ class GraphTests(SimpleTestCase):
 
     def test_validate_consistency_dummy(self):
         """
-        validate_consistency() raises an error if there's an isolated dummy
-        node.
+        Tests that validate_consistency raises a NodeNotFoundError when a graph contains an isolated dummy node.
         """
         msg = "app_a.0001 (req'd by app_b.0002) is missing!"
         graph = MigrationGraph()
@@ -311,7 +339,7 @@ class GraphTests(SimpleTestCase):
 
     def test_remove_replaced_nodes(self):
         """
-        Replaced nodes are properly removed and dependencies remapped.
+        Tests that replaced migration nodes are properly removed from the graph and dependencies are remapped to the replacement node, ensuring consistency in the migration graph after removal.
         """
         # Add some dummy nodes to be replaced.
         graph = MigrationGraph()
@@ -364,8 +392,7 @@ class GraphTests(SimpleTestCase):
 
     def test_remove_replacement_node(self):
         """
-        A replacement node is properly removed and child dependencies remapped.
-        We assume parent dependencies are already correct.
+        Tests that a replacement node can be properly removed from a migration graph and its child dependencies remapped to the replaced nodes, assuming parent dependencies are already correct.
         """
         # Add some dummy nodes to be replaced.
         graph = MigrationGraph()
@@ -407,15 +434,11 @@ class GraphTests(SimpleTestCase):
 
     def test_infinite_loop(self):
         """
-        Tests a complex dependency graph:
 
-        app_a:        0001 <-
-                             \
-        app_b:        0001 <- x 0002 <-
-                       /               \
-        app_c:   0001<-  <------------- x 0002
+        Tests the detection of an infinite loop in a complex migration dependency graph 
+        when squashing is applied to one of the nodes, ensuring the graph validator raises 
+        a CircularDependencyError.
 
-        And apply squashing on app_c.
         """
         graph = MigrationGraph()
 
@@ -439,6 +462,9 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_stringify(self):
+        """
+        Tests the string representation of a MigrationGraph instance, ensuring it correctly reports the number of nodes and edges, both in its initial empty state and after adding nodes and dependencies.
+        """
         graph = MigrationGraph()
         self.assertEqual(str(graph), "Graph: 0 nodes, 0 edges")
 

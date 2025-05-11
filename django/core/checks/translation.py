@@ -28,7 +28,9 @@ E004 = Error(
 
 @register(Tags.translation)
 def check_setting_language_code(app_configs, **kwargs):
-    """Error if LANGUAGE_CODE setting is invalid."""
+    """
+    Checks the LANGUAGE_CODE setting for validity, returning an error if it's not a valid language code.
+    """
     tag = settings.LANGUAGE_CODE
     if not isinstance(tag, str) or not language_code_re.match(tag):
         return [Error(E001.msg.format(tag), id=E001.id)]
@@ -57,7 +59,9 @@ def check_setting_languages_bidi(app_configs, **kwargs):
 
 @register(Tags.translation)
 def check_language_settings_consistent(app_configs, **kwargs):
-    """Error if language settings are not consistent with each other."""
+    """
+    Checks the consistency of language settings in the application, returning an error code if the LANGUAGE_CODE setting does not match any supported language variants.
+    """
     try:
         get_supported_language_variant(settings.LANGUAGE_CODE)
     except LookupError:

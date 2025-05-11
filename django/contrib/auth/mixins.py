@@ -20,7 +20,9 @@ class AccessMixin:
 
     def get_login_url(self):
         """
-        Override this method to override the login_url attribute.
+
+        Provides the URL to redirect to for login, defaulting to settings.LOGIN_URL if not explicitly set.
+
         """
         login_url = self.login_url or settings.LOGIN_URL
         if not login_url:
@@ -44,6 +46,9 @@ class AccessMixin:
         return self.redirect_field_name
 
     def handle_no_permission(self):
+        """
+        Handles the lack of permission for the current request, either raising a PermissionDenied exception or redirecting the user to the login page.
+        """
         if self.raise_exception or self.request.user.is_authenticated:
             raise PermissionDenied(self.get_permission_denied_message())
 
@@ -80,8 +85,7 @@ class PermissionRequiredMixin(AccessMixin):
 
     def get_permission_required(self):
         """
-        Override this method to override the permission_required attribute.
-        Must return an iterable.
+        Returns the permission required to access the view, allowing subclasses to override the permission_required attribute. The returned value must be an iterable. If permission_required is not defined, it raises an ImproperlyConfigured exception.
         """
         if self.permission_required is None:
             raise ImproperlyConfigured(

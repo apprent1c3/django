@@ -50,6 +50,9 @@ class UrlizetruncTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_truncate(self):
+        """
+        Tests the function to truncate a URL and convert it to an HTML anchor tag with proper nofollow attribute, verifying correct handling of different truncation lengths.
+        """
         uri = "http://31characteruri.com/test/"
         self.assertEqual(len(uri), 31)
 

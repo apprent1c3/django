@@ -12,7 +12,13 @@ class UnserializableContentError(ValueError):
 
 class SimplerXMLGenerator(XMLGenerator):
     def addQuickElement(self, name, contents=None, attrs=None):
-        "Convenience method for adding an element with no children"
+        """
+        Convenience method for adding a simple XML element with no child elements.
+
+        :param name: Name of the XML element to be added
+        :param contents: Optional text content of the element
+        :param attrs: Optional dictionary of attributes for the element
+        """
         if attrs is None:
             attrs = {}
         self.startElement(name, attrs)

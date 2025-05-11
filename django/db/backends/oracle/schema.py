@@ -27,6 +27,14 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_create_index = "CREATE INDEX %(name)s ON %(table)s (%(columns)s)%(extra)s"
 
     def quote_value(self, value):
+        """
+        Formats a value into a string suitable for quoting.
+
+        This function takes a value of various types, including dates, times, strings, and more,
+        and returns a string representation that can be safely quoted for use in other contexts.
+        The formatting rules are type-specific, ensuring that the resulting string is accurate
+        and consistent across different data types.
+        """
         if isinstance(value, (datetime.date, datetime.time, datetime.datetime)):
             return "'%s'" % value
         elif isinstance(value, datetime.timedelta):
@@ -71,6 +79,18 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def alter_field(self, model, old_field, new_field, strict=False):
+        """
+        Alters a database field, falling back to workarounds for specific Oracle errors if necessary.
+
+        Relaxes field modification constraints by catching and handling various Oracle database exceptions,
+        enabling modifications that would otherwise fail due to primary key or identity constraints.
+
+        :param model: The model containing the field to be altered.
+        :param old_field: The original field to be modified.
+        :param new_field: The new field definition.
+        :param strict: A flag indicating whether to strictly enforce field modification rules.
+
+        """
         try:
             super().alter_field(model, old_field, new_field, strict)
         except DatabaseError as e:
@@ -102,14 +122,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def _alter_field_type_workaround(self, model, old_field, new_field):
         """
-        Oracle refuses to change from some type to other type.
-        What we need to do instead is:
-        - Add a nullable version of the desired field with a temporary name. If
-          the new column is an auto field, then the temporary column can't be
-          nullable.
-        - Update the table to transfer values from old to new
-        - Drop old column
-        - Rename the new column and possibly drop the nullable property
+        Provides a workaround for Oracle database's limitation on changing field types by adding a temporary column, transferring data, dropping the old column, and renaming the new column. This process handles auto fields and maintains database constraints.
         """
         # Make a new field that's like the new one but with a temporary
         # column name.
@@ -184,8 +197,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def normalize_name(self, name):
         """
-        Get the properly shortened and uppercased identifier as returned by
-        quote_name() but without the quotes.
+        Removes quotes from a quoted identifier and returns the result.
         """
         nn = self.quote_name(name)
         if nn[0] == '"' and nn[-1] == '"':
@@ -201,6 +213,10 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return self.quote_value(value)
 
     def _field_should_be_indexed(self, model, field):
+        """
+        Determines whether a field should be indexed, considering database type limitations.
+        Overrides the parent class behavior to account for data types with indexing restrictions.
+        """
         create_index = super()._field_should_be_indexed(model, field)
         db_type = field.db_type(self.connection)
         if (

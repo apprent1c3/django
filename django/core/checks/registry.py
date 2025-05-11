@@ -32,22 +32,15 @@ class CheckRegistry:
 
     def register(self, check=None, *tags, **kwargs):
         """
-        Can be used as a function or a decorator. Register given function
-        `f` labeled with given `tags`. The function should receive **kwargs
-        and return list of Errors and Warnings.
-
-        Example::
-
-            registry = CheckRegistry()
-            @registry.register('mytag', 'anothertag')
-            def my_check(app_configs, **kwargs):
-                # ... perform checks and collect `errors` ...
-                return errors
-            # or
-            registry.register(my_check, 'mytag', 'anothertag')
+        Registers a given function with optional tags, making it available for execution. 
+        The registered function should accept keyword arguments and return a list of errors and warnings. 
+        This method can be used as a function or a decorator.
         """
 
         def inner(check):
+            """
+            Registers a check function with the system, validating that it accepts keyword arguments and associates it with a set of tags, adding it to either deployment or registered checks based on the 'deploy' keyword argument.
+            """
             if not func_accepts_kwargs(check):
                 raise TypeError(
                     "Check functions must accept keyword arguments (**kwargs)."
@@ -76,7 +69,18 @@ class CheckRegistry:
         databases=None,
     ):
         """
-        Run all registered checks and return list of Errors and Warnings.
+        Run all registered checks and return a list of errors and warnings.
+
+        The function iterates over a set of checks, filtered by optional tags and deployment status, 
+        and executes each check with the provided application configurations and databases. 
+
+        It returns a consolidated list of errors from all executed checks. 
+
+        :param app_configs: Application configuration objects
+        :param tags: Optional filter for checks by tag
+        :param include_deployment_checks: Include deployment checks in the run
+        :param databases: Database objects to be used by the checks
+        :return: List of errors and warnings from the executed checks
         """
         errors = []
         checks = self.get_checks(include_deployment_checks)

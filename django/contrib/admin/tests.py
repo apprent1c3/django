@@ -118,7 +118,11 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
     @contextmanager
     def wait_page_loaded(self, timeout=10):
         """
-        Block until a new page has loaded and is ready.
+        Context manager to block execution until a new page has loaded and is ready.
+
+            Enables automated waiting for page load completion, allowing for reliable
+            execution of subsequent actions. The wait period can be customized using the 
+            timeout parameter (default is 10 seconds).
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec
@@ -131,7 +135,13 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def admin_login(self, username, password, login_url="/admin/"):
         """
-        Log in to the admin.
+
+            Logs into the administrative interface using the provided credentials.
+
+            :param username: The username for the admin account
+            :param password: The password for the admin account
+            :param login_url: The URL for the login page (defaults to '/admin/')
+
         """
         from selenium.webdriver.common.by import By
 
@@ -148,8 +158,10 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def select_option(self, selector, value):
         """
-        Select the <OPTION> with the value `value` inside the <SELECT> widget
-        identified by the CSS selector `selector`.
+        Selects an option from a dropdown menu identified by a CSS selector. 
+
+        :param selector: The CSS selector identifying the dropdown menu.
+        :param value: The value of the option to be selected.
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -159,8 +171,7 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
 
     def deselect_option(self, selector, value):
         """
-        Deselect the <OPTION> with the value `value` inside the <SELECT> widget
-        identified by the CSS selector `selector`.
+        Deselect the OPTION with a specified value from a SELECT widget identified by a CSS selector.
         """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -182,6 +193,19 @@ class AdminSeleniumTestCase(SeleniumTestCase, StaticLiveServerTestCase):
         )
 
     def _assertOptionsValues(self, options_selector, values):
+        """
+        Asserts that the values of options matching the given selector are as expected.
+
+        Checks if the values of HTML elements selected by the options_selector match the
+        provided values. If values is empty, it asserts that no options are present.
+
+        Args:
+            options_selector (str): CSS selector for the options.
+            values (list): Expected values of the options.
+
+        Raises:
+            AssertionError: If the actual values do not match the expected values.
+        """
         from selenium.webdriver.common.by import By
 
         if values:

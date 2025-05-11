@@ -10,6 +10,13 @@ from django.core.mail.backends.console import EmailBackend as ConsoleEmailBacken
 
 class EmailBackend(ConsoleEmailBackend):
     def __init__(self, *args, file_path=None, **kwargs):
+        """
+        Initializes the object, setting up the directory for saving email messages.
+
+        If a file path is provided, it is used; otherwise, the path specified in the EMAIL_FILE_PATH setting is used.
+        The directory is created if it does not exist, and the object ensures it can write to the directory.
+        Any other keyword arguments are passed to the superclass initializer.
+        """
         self._fname = None
         if file_path is not None:
             self.file_path = file_path
@@ -45,7 +52,9 @@ class EmailBackend(ConsoleEmailBackend):
         self.stream.write(b"\n")
 
     def _get_filename(self):
-        """Return a unique file name."""
+        """
+        Return a unique file name in the specified file path, based on the current timestamp and instance identifier, to ensure distinct filenames across instances.
+        """
         if self._fname is None:
             timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
             fname = "%s-%s.log" % (timestamp, abs(id(self)))
@@ -59,6 +68,9 @@ class EmailBackend(ConsoleEmailBackend):
         return False
 
     def close(self):
+        """
+        Closes the stream and releases associated resources, ensuring it is properly cleaned up.
+        """
         try:
             if self.stream is not None:
                 self.stream.close()

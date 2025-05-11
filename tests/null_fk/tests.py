@@ -6,6 +6,11 @@ from .models import Comment, Forum, Item, Post, PropertyValue, SystemDetails, Sy
 
 class NullFkTests(TestCase):
     def test_null_fk(self):
+        """
+        Test the behavior of foreign key fields when set to null, specifically verifying 
+        that Django's ORM correctly handles null foreign key relationships in various 
+        query scenarios, including select_related and filter operations.
+        """
         d = SystemDetails.objects.create(details="First details")
         s = SystemInfo.objects.create(system_name="First forum", system_details=d)
         f = Forum.objects.create(system_info=s, forum_name="First forum")
@@ -45,6 +50,9 @@ class NullFkTests(TestCase):
         )
 
     def test_combine_isnull(self):
+        """
+        Tests the combination of query filters using logical operators (AND, OR) with negated conditions, specifically the \"isnull\" lookup, on model instances with properties.
+        """
         item = Item.objects.create(title="Some Item")
         pv = PropertyValue.objects.create(label="Some Value")
         item.props.create(key="a", value=pv)

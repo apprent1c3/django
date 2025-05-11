@@ -21,10 +21,8 @@ class MultipleObjectMixin(ContextMixin):
 
     def get_queryset(self):
         """
-        Return the list of items for this view.
-
-        The return value must be an iterable and may be an instance of
-        `QuerySet` in which case `QuerySet` specific behavior will be enabled.
+        Return the list of items for this view, either based on the specified model or queryset. 
+        If neither is defined, an exception is raised. The returned queryset may be ordered according to the defined ordering.
         """
         if self.queryset is not None:
             queryset = self.queryset
@@ -51,7 +49,13 @@ class MultipleObjectMixin(ContextMixin):
         return self.ordering
 
     def paginate_queryset(self, queryset, page_size):
-        """Paginate the queryset, if needed."""
+        """
+        Paginates a given queryset by splitting it into pages of a specified size.
+
+         Returns a tuple containing the paginator instance, the current page instance, 
+         the list of objects on the current page, and a boolean indicating whether there 
+         are other pages.
+        """
         paginator = self.get_paginator(
             queryset,
             page_size,
@@ -111,7 +115,10 @@ class MultipleObjectMixin(ContextMixin):
         return self.allow_empty
 
     def get_context_object_name(self, object_list):
-        """Get the name of the item to be used in the context."""
+        """
+        Returns the name of the object to be used in the context, 
+        falling back to the model name of the provided object list if not explicitly set.
+        """
         if self.context_object_name:
             return self.context_object_name
         elif hasattr(object_list, "model"):
@@ -120,7 +127,10 @@ class MultipleObjectMixin(ContextMixin):
             return None
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        """Get the context for this view."""
+        """
+        Get the context for this view, including pagination data if enabled, 
+        and update it with any additional keyword arguments.
+        """
         queryset = object_list if object_list is not None else self.object_list
         page_size = self.get_paginate_by(queryset)
         context_object_name = self.get_context_object_name(queryset)
@@ -151,6 +161,12 @@ class BaseListView(MultipleObjectMixin, View):
     """A base view for displaying a list of objects."""
 
     def get(self, request, *args, **kwargs):
+        """
+        Handles GET requests, retrieving and rendering a list of objects.
+
+        Checks if the list is empty and raises a 404 error if the view does not allow empty lists.
+        Otherwise, generates the context data and renders a response
+        """
         self.object_list = self.get_queryset()
         allow_empty = self.get_allow_empty()
 
@@ -182,8 +198,7 @@ class MultipleObjectTemplateResponseMixin(TemplateResponseMixin):
 
     def get_template_names(self):
         """
-        Return a list of template names to be used for the request. Must return
-        a list. May not be called if render_to_response is overridden.
+        Returns a list of template names to be used for rendering the current request. The list is constructed by appending a template name derived from the object list's model to the list of template names obtained from the superclass, if available. If no template names are found and no model is associated with the object list, an ImproperlyConfigured exception is raised.
         """
         try:
             names = super().get_template_names()

@@ -28,6 +28,9 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(response.headers["Content-Length"], "14")
 
     def test_content_length_nonzero_starting_position_file(self):
+        """
+        Tests that the Content-Length header is correctly calculated when serving a file with a non-zero starting position.
+        """
         file = open(__file__, "rb")
         file.seek(10)
         response = FileResponse(file)
@@ -37,6 +40,10 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_content_length_nonzero_starting_position_buffer(self):
+        """
+        Tests that the Content-Length header is correctly calculated for a FileResponse 
+        with a buffer that has a non-zero starting position, using different buffer classes.
+        """
         test_tuples = (
             ("BytesIO", io.BytesIO),
             ("UnseekableBytesIO", UnseekableBytesIO),
@@ -49,6 +56,9 @@ class FileResponseTests(SimpleTestCase):
                 self.assertEqual(response.headers["Content-Length"], "4")
 
     def test_content_length_nonzero_starting_position_file_seekable_no_tell(self):
+        """
+        Tests that the Content-Length header is correctly set when a file response is created from a seekable file with a non-zero starting position.
+        """
         class TestFile:
             def __init__(self, path, *args, **kwargs):
                 self._file = open(path, *args, **kwargs)
@@ -107,6 +117,9 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(response.headers["Content-Type"], "text/html; charset=utf-8")
 
     def test_content_type_buffer_named(self):
+        """
+        Tests that the Content-Type header in a FileResponse is correctly inferred from the name of the buffer when no explicit content type is provided.
+        """
         test_tuples = (
             (__file__, ["text/x-python", "text/plain"]),
             (__file__ + "nosuchfile", ["application/octet-stream"]),
@@ -121,6 +134,9 @@ class FileResponseTests(SimpleTestCase):
                 self.assertIn(response.headers["Content-Type"], content_types)
 
     def test_content_disposition_file(self):
+        """
+        Tests the setting of the 'Content-Disposition' header in a FileResponse, covering various combinations of file names and attachment settings to ensure correct header formatting.
+        """
         filenames = (
             ("", "test_fileresponse.py"),
             ("custom_name.py", "custom_name.py"),
@@ -145,6 +161,9 @@ class FileResponseTests(SimpleTestCase):
 
     def test_content_disposition_escaping(self):
         # fmt: off
+        """
+        Verifies that the Content-Disposition header in a FileResponse is correctly escaped for various filenames, ensuring proper handling of special characters across different platforms.
+        """
         tests = [
             (
                 'multi-part-one";\" dummy".txt',
@@ -207,6 +226,9 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(list(response), [b"binary content"])
 
     def test_response_nonzero_starting_position(self):
+        """
+        Tests that the FileResponse class correctly handles file-like objects with non-zero starting positions, by seeking to a non-zero position and verifying that the response returns the expected content.
+        """
         test_tuples = (
             ("BytesIO", io.BytesIO),
             ("UnseekableBytesIO", UnseekableBytesIO),
@@ -232,6 +254,13 @@ class FileResponseTests(SimpleTestCase):
 
     @skipIf(sys.platform == "win32", "Named pipes are Unix-only.")
     def test_file_from_named_pipe_response(self):
+        """
+
+        Tests that a FileResponse can be created from a named pipe and 
+        correctly returns the contents of the pipe without setting the 
+        Content-Length header.
+
+        """
         with tempfile.TemporaryDirectory() as temp_dir:
             pipe_file = os.path.join(temp_dir, "named_pipe")
             os.mkfifo(pipe_file)
@@ -247,9 +276,7 @@ class FileResponseTests(SimpleTestCase):
 
     def test_compressed_response(self):
         """
-        If compressed responses are served with the uncompressed Content-Type
-        and a compression Content-Encoding, browsers might automatically
-        uncompress the file, which is most probably not wanted.
+        Tests that compressed file responses are served with the correct Content-Type and lack a Content-Encoding header, to prevent unwanted automatic decompression by browsers.
         """
         test_tuples = (
             (".tar.gz", "application/gzip"),

@@ -6,10 +6,7 @@ from .models import Article, Bar, Base, Child, Foo, Whiz
 class StringLookupTests(TestCase):
     def test_string_form_referencing(self):
         """
-        Regression test for #1661 and #1662
-
-        String form referencing of models works, both as pre and post
-        reference, on all RelatedField types.
+        Tests the correct functioning of string form referencing for models, including pre and post referencing on various RelatedField types.
         """
 
         f1 = Foo(name="Foo1")
@@ -52,9 +49,7 @@ class StringLookupTests(TestCase):
 
     def test_queries_on_textfields(self):
         """
-        Regression tests for #5087
-
-        make sure we can perform queries on TextFields.
+        Performs regression tests to ensure query functionality on TextFields, validating exact and contain searches.
         """
 
         a = Article(name="Test", text="The quick brown fox jumps over the lazy dog.")
@@ -70,9 +65,7 @@ class StringLookupTests(TestCase):
 
     def test_ipaddress_on_postgresql(self):
         """
-        Regression test for #708
-
-        "like" queries on IP address fields require casting with HOST() (on PostgreSQL).
+        Tests IP address filtering on PostgreSQL to ensure \"like\" queries correctly utilize HOST() casting.
         """
         a = Article(name="IP test", text="The body", submitted_from="192.0.2.100")
         a.save()

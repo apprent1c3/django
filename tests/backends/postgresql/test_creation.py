@@ -20,6 +20,11 @@ else:
 class DatabaseCreationTests(SimpleTestCase):
     @contextmanager
     def changed_test_settings(self, **kwargs):
+        """
+        Temporarily changes the test database settings for the duration of a block of code, restoring the original settings afterwards. 
+
+        :param kwargs: Keyword arguments specifying the test settings to modify and their new values.
+        """
         settings = connection.settings_dict["TEST"]
         saved_values = {}
         for name in kwargs:
@@ -88,6 +93,10 @@ class DatabaseCreationTests(SimpleTestCase):
     @mock.patch("sys.stdout", new_callable=StringIO)
     @mock.patch("sys.stderr", new_callable=StringIO)
     def test_create_test_db(self, *mocked_objects):
+        """
+        Tests the DatabaseCreation class's ability to create a test database under various conditions, 
+        including when the database already exists, when permission is denied, and when the keepdb flag is set.
+        """
         creation = DatabaseCreation(connection)
         # Simulate test database creation raising "database already exists"
         with self.patch_test_db_creation(self._execute_raise_database_already_exists):

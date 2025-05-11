@@ -21,7 +21,15 @@ class MessageFailure(Exception):
 
 def add_message(request, level, message, extra_tags="", fail_silently=False):
     """
-    Attempt to add a message to the request using the 'messages' app.
+    :param request: The current HTTP request
+    :param level: The message level (e.g. error, warning, info)
+    :param message: The message to be added
+    :param extra_tags: Additional tags for the message
+    :param fail_silently: Whether to fail silently if the 'messages' app is not installed
+    :raises TypeError: If the request is not an HttpRequest object
+    :raises MessageFailure: If the 'messages' app is not installed and fail_silently is False
+    :returns: The result of adding the message
+    :note: This function requires the 'messages' app to be installed, specifically the MessageMiddleware.
     """
     try:
         messages = request._messages
@@ -61,10 +69,8 @@ def get_level(request):
 
 def set_level(request, level):
     """
-    Set the minimum level of messages to be recorded, and return ``True`` if
-    the level was recorded successfully.
-
-    If set to ``None``, use the default level (see the get_level() function).
+    Sets the minimum level of messages to be recorded for a given request, returning True on success. 
+    A level of None reverts to the default level.
     """
     if not hasattr(request, "_messages"):
         return False

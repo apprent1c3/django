@@ -30,6 +30,9 @@ class Engine:
         builtins=None,
         autoescape=True,
     ):
+        """
+        Initializes and configures a template engine with various settings, such as template directories, loaders, context processors, and libraries, to control the rendering of templates.
+        """
         if dirs is None:
             dirs = []
         if context_processors is None:
@@ -88,17 +91,7 @@ class Engine:
     @functools.lru_cache
     def get_default():
         """
-        Return the first DjangoTemplates backend that's configured, or raise
-        ImproperlyConfigured if none are configured.
-
-        This is required for preserving historical APIs that rely on a
-        globally available, implicitly configured engine such as:
-
-        >>> from django.template import Context, Template
-        >>> template = Template("Hello {{ name }}!")
-        >>> context = Context({'name': "world"})
-        >>> template.render(context)
-        'Hello world!'
+        Retrieves the first configured DjangoTemplates backend or raises an exception if none are found, ensuring compatibility with legacy APIs that rely on a globally available template engine.
         """
         # Since Engine is imported in django.template and since
         # DjangoTemplates is a wrapper around this Engine class,
@@ -131,6 +124,12 @@ class Engine:
         return self.get_template_loaders(self.loaders)
 
     def get_template_loaders(self, template_loaders):
+        """
+        Filters a list of template loaders and returns a list of valid loaders found by the instance.
+
+        :param template_loaders: List of template loaders to filter
+        :returns: List of valid template loaders
+        """
         loaders = []
         for template_loader in template_loaders:
             loader = self.find_template_loader(template_loader)
@@ -139,6 +138,13 @@ class Engine:
         return loaders
 
     def find_template_loader(self, loader):
+        """
+        Initializes a template loader instance based on the provided loader configuration.
+
+         The loader can be a string representing the loader class to import, or a tuple/list 
+         where the first element is the loader class and the remaining elements are 
+         initialization arguments. If the loader configuration is invalid, an error is raised.
+        """
         if isinstance(loader, (tuple, list)):
             loader, *args = loader
         else:
@@ -153,6 +159,18 @@ class Engine:
             )
 
     def find_template(self, name, dirs=None, skip=None):
+        """
+
+        Finds a template by name, searching through a list of template loaders.
+
+        :param name: The name of the template to find
+        :param dirs: Optional list of directories to search for the template
+        :param skip: Optional parameter to pass to template loaders
+
+        :returns: A tuple containing the found template and its origin
+        :raises TemplateDoesNotExist: If the template is not found in any of the template loaders
+
+        """
         tried = []
         for loader in self.template_loaders:
             try:
@@ -171,8 +189,7 @@ class Engine:
 
     def get_template(self, template_name):
         """
-        Return a compiled Template object for the given template name,
-        handling template inheritance recursively.
+        Retrieves a compiled template object for the specified template name, handling inheritance and rendering preparation.
         """
         template, origin = self.find_template(template_name)
         if not hasattr(template, "render"):
@@ -182,8 +199,7 @@ class Engine:
 
     def render_to_string(self, template_name, context=None):
         """
-        Render the template specified by template_name with the given context.
-        For use in Django's test suite.
+        Render a template as a string based on the provided template name and context, typically used for testing purposes in a Django environment.
         """
         if isinstance(template_name, (list, tuple)):
             t = self.select_template(template_name)
@@ -198,7 +214,9 @@ class Engine:
 
     def select_template(self, template_name_list):
         """
-        Given a list of template names, return the first that can be loaded.
+        Select the first loadable template from a list of template names.
+
+        This function iterates over a list of template names and returns the first template that can be loaded. If none of the templates can be loaded, it raises an exception listing all the templates that were not found.
         """
         if not template_name_list:
             raise TemplateDoesNotExist("No template names provided")

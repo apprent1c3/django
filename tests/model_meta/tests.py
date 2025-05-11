@@ -33,6 +33,14 @@ class OptionsBaseTests(SimpleTestCase):
         return None if model == current_model else model
 
     def _details(self, current_model, relation):
+        """
+
+        Resolves relational model details for a given relation.
+
+        Returns a tuple containing the relation, resolved model, direct relation flag,
+        and a flag indicating if the field is many-to-many.
+
+        """
         direct = isinstance(relation, (Field, GenericForeignKey))
         model = relation.model._meta.concrete_model
         if model == current_model:
@@ -49,6 +57,9 @@ class OptionsBaseTests(SimpleTestCase):
 
 class GetFieldsTests(OptionsBaseTests):
     def test_get_fields_is_immutable(self):
+        """
+        Tests if the get_fields() method of a model's meta returns an immutable list. Verifies that attempting to modify the returned list raises an AttributeError with a warning message.
+        """
         msg = IMMUTABLE_WARNING % "get_fields()"
         for _ in range(2):
             # Running unit test twice to ensure both non-cached and cached result
@@ -75,6 +86,9 @@ class DataTests(OptionsBaseTests):
             self.assertEqual([f.attname for f in fields], expected_result)
 
     def test_local_fields(self):
+        """
+        Tests that the local fields of a model are correctly identified and configured. Verifies that the field names match the expected results and that each field is an instance of Field with a many-to-many relationship check.
+        """
         def is_data_field(f):
             return isinstance(f, Field) and not f.many_to_many
 
@@ -86,6 +100,9 @@ class DataTests(OptionsBaseTests):
                 self.assertTrue(is_data_field(f))
 
     def test_local_concrete_fields(self):
+        """
+        Tests that local concrete fields of a model are correctly identified and have a valid column definition.
+        """
         for model, expected_result in TEST_RESULTS["local_concrete_fields"].items():
             fields = model._meta.local_concrete_fields
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -95,6 +112,9 @@ class DataTests(OptionsBaseTests):
 
 class M2MTests(OptionsBaseTests):
     def test_many_to_many(self):
+        """
+        Tests the correctness of many-to-many fields in various models, ensuring their field names match expected results and verifying that they are properly configured as many-to-many relationships.
+        """
         for model, expected_result in TEST_RESULTS["many_to_many"].items():
             fields = model._meta.many_to_many
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -204,6 +224,9 @@ class GetFieldByNameTests(OptionsBaseTests):
         self.assertIsInstance(field_info[0], GenericRelation)
 
     def test_get_fields_only_searches_forward_on_apps_not_ready(self):
+        """
+        Tests that the get_field method only searches forward when the app's models are not ready, simulating the case where auto-created related fields are not yet available.
+        """
         opts = Person._meta
         # If apps registry is not ready, get_field() searches over only
         # forward fields.
@@ -275,6 +298,9 @@ class RelationTreeTests(SimpleTestCase):
 
     def test_first_relation_tree_access_populates_all(self):
         # On first access, relation tree should have populated cache.
+        """
+        Tests that the relation tree is correctly populated for all models, with the exception of AbstractPerson which should have an empty relation tree.
+        """
         self.assertTrue(self.all_models[0]._meta._relation_tree)
 
         # AbstractPerson does not have any relations, so relation_tree

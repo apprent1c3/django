@@ -7,6 +7,13 @@ from django.utils.deprecation import MiddlewareMixin
 
 class SecurityMiddleware(MiddlewareMixin):
     def __init__(self, get_response):
+        """
+
+        Initializes the security middleware, loading security-related settings from the project's configuration.
+
+        These settings include HTTP Strict Transport Security (HSTS), SSL redirects, content type sniffing, referrer policies, and cross-origin opener policies.
+
+        """
         super().__init__(get_response)
         self.sts_seconds = settings.SECURE_HSTS_SECONDS
         self.sts_include_subdomains = settings.SECURE_HSTS_INCLUDE_SUBDOMAINS
@@ -31,6 +38,13 @@ class SecurityMiddleware(MiddlewareMixin):
             )
 
     def process_response(self, request, response):
+        """
+
+        Updates a response object with additional security headers.
+
+        Adds headers for Strict-Transport-Security, X-Content-Type-Options, Referrer-Policy, and Cross-Origin-Opener-Policy if corresponding attributes are set.
+
+        """
         if (
             self.sts_seconds
             and request.is_secure()

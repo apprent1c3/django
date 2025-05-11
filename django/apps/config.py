@@ -15,6 +15,15 @@ class AppConfig:
 
     def __init__(self, app_name, app_module):
         # Full Python path to the application e.g. 'django.contrib.admin'.
+        """
+        Initializes an application instance with the given name and module.
+
+        Sets up the application's label, verbose name, and path, while performing basic validation to ensure the label is a valid Python identifier.
+
+        Raises:
+            ImproperlyConfigured: If the app label is not a valid Python identifier.
+
+        """
         self.name = app_name
 
         # Root module for the application e.g. <module 'django.contrib.admin'
@@ -69,7 +78,13 @@ class AppConfig:
         return self.__class__.default_auto_field is not AppConfig.default_auto_field
 
     def _path_from_module(self, module):
-        """Attempt to determine app's filesystem path from its module."""
+        """
+        Returns the filesystem path of an application from its module.
+
+        Determines the path by inspecting the module's __path__ or __file__ attributes, 
+        raising an error if multiple or no paths are found, and returning the single path.
+        Useful for configuration and initialization of the application.
+        """
         # See #21874 for extended discussion of the behavior of this method in
         # various cases.
         # Convert to list because __path__ may not support indexing.
@@ -99,7 +114,7 @@ class AppConfig:
     @classmethod
     def create(cls, entry):
         """
-        Factory that creates an app config from an entry in INSTALLED_APPS.
+        Creates an application configuration instance from an entry in INSTALLED_APPS, using the provided entry to determine the class and module to use. If the entry has a default AppConfig, it will be used; otherwise, it defaults to the provided class.
         """
         # create() eventually returns app_config_class(app_name, app_module).
         app_config_class = None
@@ -223,9 +238,7 @@ class AppConfig:
 
     def get_model(self, model_name, require_ready=True):
         """
-        Return the model with the given case-insensitive model_name.
-
-        Raise LookupError if no model exists with this name.
+        Retrieves a model instance by its case-insensitive name, optionally checking if the model is ready for use. If the model does not exist, a LookupError is raised.
         """
         if require_ready:
             self.apps.check_models_ready()
@@ -240,16 +253,9 @@ class AppConfig:
 
     def get_models(self, include_auto_created=False, include_swapped=False):
         """
-        Return an iterable of models.
-
-        By default, the following models aren't included:
-
-        - auto-created models for many-to-many relations without
-          an explicit intermediate table,
-        - models that have been swapped out.
-
-        Set the corresponding keyword argument to True to include such models.
-        Keyword arguments aren't documented; they're a private API.
+        Return an iterable of models, optionally including auto-created and swapped models. 
+        By default, auto-created models for many-to-many relations and swapped models are excluded. 
+        The `include_auto_created` and `include_swapped` parameters control their inclusion.
         """
         self.apps.check_models_ready()
         for model in self.models.values():

@@ -89,7 +89,9 @@ class UserAdmin(admin.ModelAdmin):
 
     def get_form(self, request, obj=None, **kwargs):
         """
-        Use special form during user creation
+        Returns a form instance for the given request and optionally an object.
+        If the object is not provided (i.e., during creation), a special add form is used by default.
+        Additional keyword arguments can be used to override the default form behavior.
         """
         defaults = {}
         if obj is None:
@@ -130,6 +132,15 @@ class UserAdmin(admin.ModelAdmin):
         # the permission to change users. To avoid the problem entirely, we
         # disallow users from adding users if they don't have change
         # permission.
+        """
+
+        Handles the add view for a model, enforcing permission checks before delegating to the superclass.
+
+        Checks if the user has the necessary \"change\" permission for the model. If not, a PermissionDenied exception is raised.
+        If the user has \"add\" permission but not \"change\" permission, and DEBUG is enabled, a more informative Http404 exception is raised.
+        Otherwise, it constructs the view context, including any additional context provided, and proceeds with the add view.
+
+        """
         if not self.has_change_permission(request):
             if self.has_add_permission(request) and settings.DEBUG:
                 # Raise Http404 in debug mode so that the user gets a helpful
@@ -153,6 +164,14 @@ class UserAdmin(admin.ModelAdmin):
 
     @sensitive_post_parameters_m
     def user_change_password(self, request, id, form_url=""):
+        """
+
+        Handle the password change process for a specific user.
+
+        This view allows a user with the required permission to change their own password or set a password for a user that doesn't have one.
+        It uses a form to validate the input and then updates the user's password and logs the change.
+
+        """
         user = self.get_object(request, unquote(id))
         if not self.has_change_permission(request, user):
             raise PermissionDenied
@@ -241,9 +260,7 @@ class UserAdmin(admin.ModelAdmin):
 
     def response_add(self, request, obj, post_url_continue=None):
         """
-        Determine the HttpResponse for the add_view stage. It mostly defers to
-        its superclass implementation but is customized because the User model
-        has a slightly different workflow.
+        Determines the HttpResponse for the add_view stage, customized for the User model's unique workflow. Optionally, modifies the request to continue editing after a successful addition if neither 'add another' nor 'is popup' options are selected.
         """
         # We should allow further modification of the user just added i.e. the
         # 'Save' button should behave like the 'Save and continue editing'

@@ -13,12 +13,10 @@ class AutocompleteJsonView(BaseListView):
 
     def get(self, request, *args, **kwargs):
         """
-        Return a JsonResponse with search results as defined in
-        serialize_result(), by default:
-        {
-            results: [{id: "123" text: "foo"}],
-            pagination: {more: true}
-        }
+        Return a JSON response containing search results and pagination information, 
+        allowing users to retrieve a list of objects that match a search query. 
+        The response format includes a list of results, where each result contains an 
+        id and text, as well as pagination details indicating whether there are more results available.
         """
         (
             self.term,
@@ -54,7 +52,10 @@ class AutocompleteJsonView(BaseListView):
         return self.model_admin.get_paginator(self.request, *args, **kwargs)
 
     def get_queryset(self):
-        """Return queryset based on ModelAdmin.get_search_results()."""
+        """
+        Retrieve a filtered queryset for a given search term and request, 
+        taking into account the model admin's search results and limit choices to constraints.
+        """
         qs = self.model_admin.get_queryset(self.request)
         qs = qs.complex_filter(self.source_field.get_limit_choices_to())
         qs, search_use_distinct = self.model_admin.get_search_results(
@@ -66,14 +67,10 @@ class AutocompleteJsonView(BaseListView):
 
     def process_request(self, request):
         """
-        Validate request integrity, extract and return request parameters.
+        Validate a request and extract relevant parameters for an autocomplete view.
 
-        Since the subsequent view permission check requires the target model
-        admin, which is determined here, raise PermissionDenied if the
-        requested app, model or field are malformed.
-
-        Raise Http404 if the target model admin is not configured properly with
-        search_fields.
+        This function checks the integrity of the input request, ensuring that the app label, model name, and field name are provided and correctly configured.
+        It raises exceptions if the request is malformed or if the target model admin is not properly set up, and returns the extracted parameters if validation succeeds.
         """
         term = request.GET.get("term", "")
         try:

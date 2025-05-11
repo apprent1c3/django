@@ -48,7 +48,7 @@ ERR_NONE = 0
 
 def check_err(code, cpl=False):
     """
-    Check the given CPL/OGRERR and raise an exception where appropriate.
+    Check the given error code and raise an exception if it represents an error condition, simplifying error handling for CPL and OGR error codes.
     """
     err_dict = CPLERR_DICT if cpl else OGRERR_DICT
 

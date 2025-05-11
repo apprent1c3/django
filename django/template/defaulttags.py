@@ -50,6 +50,14 @@ class AutoEscapeControlNode(Node):
         self.nodelist = nodelist
 
     def render(self, context):
+        """
+
+        Renders the node list within the given context, applying autoescaping settings as specified by the node.
+
+        The function temporarily overrides the context's autoescape setting, renders the node list, and then restores the original setting.
+        If autoescaping is enabled, the rendered output is marked as safe. Otherwise, the output is returned as is.
+
+        """
         old_setting = context.autoescape
         context.autoescape = self.setting
         output = self.nodelist.render(context)
@@ -71,6 +79,13 @@ class CsrfTokenNode(Node):
     child_nodelists = ()
 
     def render(self, context):
+        """
+        Renders a CSRF token field based on the provided context.
+
+        Returns a hidden input field containing the CSRF token if available in the context,
+        otherwise returns an empty string. If the context is missing the CSRF token during
+        debug mode, a warning is raised to indicate a potential configuration issue.
+        """
         csrf_token = context.get("csrf_token")
         if csrf_token:
             if csrf_token == "NOTPROVIDED":
@@ -99,6 +114,9 @@ class CycleNode(Node):
         self.silent = silent
 
     def render(self, context):
+        """
+        Render a value from a cycle of values, updating the context with the rendered value if a variable name is specified.
+        """
         if self not in context.render_context:
             # First time the node is rendered in template
             context.render_context[self] = itertools_cycle(self.cyclevars)
@@ -119,6 +137,14 @@ class CycleNode(Node):
 
 class DebugNode(Node):
     def render(self, context):
+        """
+
+        Renders the current context for debugging purposes.
+
+        When not in debug mode, an empty string is returned.
+        Otherwise, it formats and escapes the context values and the loaded modules as a string, making it easier to inspect and debug the current state.
+
+        """
         if not settings.DEBUG:
             return ""
 
@@ -148,6 +174,14 @@ class FirstOfNode(Node):
         self.asvar = asvar
 
     def render(self, context):
+        """
+        Renders the first non-empty value of the variables in the given context.
+
+        The rendered value is either returned directly or stored in the context under a specified key if :attr:`asvar` is set.
+
+        :param context: The context to resolve the variables in
+        :return: The rendered value or an empty string if :attr:`asvar` is set
+        """
         first = ""
         for var in self.vars:
             value = var.resolve(context, ignore_failures=True)
@@ -166,6 +200,18 @@ class ForNode(Node):
     def __init__(
         self, loopvars, sequence, is_reversed, nodelist_loop, nodelist_empty=None
     ):
+        """
+
+
+        Initializes a loop construct.
+
+        :param loopvars: Loop variables to be used during iteration
+        :param sequence: The sequence to be iterated over
+        :param is_reversed: Flag indicating whether the sequence is reversed
+        :param nodelist_loop: List of nodes to be executed during each iteration
+        :param nodelist_empty: Optional list of nodes to be executed when the sequence is empty, defaults to an empty NodeList
+
+        """
         self.loopvars = loopvars
         self.sequence = sequence
         self.is_reversed = is_reversed
@@ -186,6 +232,15 @@ class ForNode(Node):
         )
 
     def render(self, context):
+        """
+
+        Render a for loop in a template, iterating over a sequence of values and rendering a specified template for each item.
+
+        The loop context includes various counters and flags (e.g. counter, counter0, first, last) that can be used in the template.
+        If the loop has multiple variables, the values are unpacked into each variable, otherwise a single variable is used.
+        If the sequence is empty, an alternative template is rendered.
+
+        """
         if "forloop" in context:
             parentloop = context["forloop"]
         else:
@@ -260,6 +315,13 @@ class IfChangedNode(Node):
 
     def render(self, context):
         # Init state storage
+        """
+        Renders the node list based on the comparison of the current state and the stored state.
+
+        The function checks if the current state has changed compared to the previous state. If it has, 
+        the function updates the state, returns the rendered true node list or a default value. 
+        If the state hasn't changed, it returns the rendered false node list if available, otherwise an empty string.
+        """
         state_frame = self._get_context_stack_frame(context)
         state_frame.setdefault(self)
 
@@ -314,6 +376,16 @@ class IfNode(Node):
         return NodeList(self)
 
     def render(self, context):
+        """
+
+        Renders the first matching nodelist based on the given conditions.
+
+        This method iterates through a list of conditions and corresponding nodelists.
+        For each condition, it evaluates the condition in the given context and renders
+        the corresponding nodelist if the condition is true. If no conditions match, an
+        empty string is returned.
+
+        """
         for condition, nodelist in self.conditions_nodelists:
             if condition is not None:  # if / elif clause
                 try:
@@ -336,6 +408,17 @@ class LoremNode(Node):
         self.common = common
 
     def render(self, context):
+        """
+        Renders a specified amount of text based on the provided context.
+
+        Generates a given number of words or paragraphs, formatted accordingly, 
+        with the option to wrap paragraphs in HTML tags. 
+
+        The number of text elements to generate is determined by the count resolved 
+        from the context, defaulting to 1 if the count cannot be resolved.
+
+        Returns the generated text as a string, separated by newline characters.
+        """
         try:
             count = int(self.count.resolve(context))
         except (ValueError, TypeError):
@@ -365,6 +448,11 @@ class RegroupNode(Node):
         return self.expression.resolve(context, ignore_failures=True)
 
     def render(self, context):
+        """
+        **:param context: The rendering context
+        :rtype: str
+        Renders the target objects, grouping them by a dynamically resolved key and storing the result in the context variable specified by :attr:`var_name`.**
+        """
         obj_list = self.target.resolve(context, ignore_failures=True)
         if obj_list is None:
             # target variable wasn't found in context; fail silently.
@@ -394,6 +482,13 @@ class NowNode(Node):
         self.asvar = asvar
 
     def render(self, context):
+        """
+        Renders the current date based on the specified format string.
+
+        Returns the formatted date as a string, unless the `asvar` attribute is set,
+        in which case it assigns the formatted date to the given variable in the context
+        and returns an empty string.
+        """
         tzinfo = timezone.get_current_timezone() if settings.USE_TZ else None
         formatted = date(datetime.now(tz=tzinfo), self.format_string)
 
@@ -461,6 +556,18 @@ class URLNode(Node):
         )
 
     def render(self, context):
+        """
+
+        Renders a URL using Django's reverse function with provided view name, arguments, and keyword arguments.
+
+        The function takes into account the current application and handles cases where it is not provided.
+        If the URL cannot be reversed, it raises an exception unless an 'asvar' variable is provided.
+        The rendered URL can be either returned directly or stored in the context under the 'asvar' key.
+
+        :param context: The template context
+        :return: The rendered URL or an empty string if 'asvar' is provided
+
+        """
         from django.urls import NoReverseMatch, reverse
 
         args = [arg.resolve(context) for arg in self.args]
@@ -507,6 +614,15 @@ class WidthRatioNode(Node):
         self.asvar = asvar
 
     def render(self, context):
+        """
+
+        Calculate and render a width ratio based on provided values.
+
+        :param context: The template context to resolve values from.
+        :returns: The calculated width ratio as a string, or an empty string if errors occur.
+        :raises TemplateSyntaxError: If the final argument is not a number.
+
+        """
         try:
             value = self.val_expr.resolve(context)
             max_value = self.max_expr.resolve(context)
@@ -553,7 +669,13 @@ class WithNode(Node):
 @register.tag
 def autoescape(parser, token):
     """
-    Force autoescape behavior for this block.
+
+    Enable or disable autoescaping of template content within a block.
+
+    This tag takes a single argument, either 'on' or 'off', to control the autoescape behavior.
+    It parses the content of the block until it encounters an 'endautoescape' tag.
+    The autoescape behavior is then applied to the parsed content based on the specified argument.
+
     """
     # token.split_contents() isn't useful here because this tag doesn't accept
     # variable as arguments.
@@ -580,35 +702,7 @@ def comment(parser, token):
 @register.tag
 def cycle(parser, token):
     """
-    Cycle among the given strings each time this tag is encountered.
-
-    Within a loop, cycles among the given strings each time through
-    the loop::
-
-        {% for o in some_list %}
-            <tr class="{% cycle 'row1' 'row2' %}">
-                ...
-            </tr>
-        {% endfor %}
-
-    Outside of a loop, give the values a unique name the first time you call
-    it, then use that name each successive time through::
-
-            <tr class="{% cycle 'row1' 'row2' 'row3' as rowcolors %}">...</tr>
-            <tr class="{% cycle rowcolors %}">...</tr>
-            <tr class="{% cycle rowcolors %}">...</tr>
-
-    You can use any number of values, separated by spaces. Commas can also
-    be used to separate values; if a comma is used, the cycle values are
-    interpreted as literal strings.
-
-    The optional flag "silent" can be used to prevent the cycle declaration
-    from returning any value::
-
-        {% for o in some_list %}
-            {% cycle 'row1' 'row2' as rowcolors silent %}
-            <tr class="{{ rowcolors }}">{% include "subtemplate.html " %}</tr>
-        {% endfor %}
+    Cycle among the given strings each time this tag is encountered, often used within loops to alternate between different values, such as CSS classes or colors. Can also be used outside of loops by giving a unique name to the cycle values and referencing them on subsequent calls. Supports an optional \"silent\" flag to prevent the cycle declaration from returning a value.
     """
     # Note: This returns the exact same node on each {% cycle name %} call;
     # that is, the node object returned from {% cycle a b c as name %} and the
@@ -693,20 +787,7 @@ def debug(parser, token):
 @register.tag("filter")
 def do_filter(parser, token):
     """
-    Filter the contents of the block through variable filters.
-
-    Filters can also be piped through each other, and they can have
-    arguments -- just like in variable syntax.
-
-    Sample usage::
-
-        {% filter force_escape|lower %}
-            This text will be HTML-escaped, and will appear in lowercase.
-        {% endfilter %}
-
-    Note that the ``escape`` and ``safe`` filters are not acceptable arguments.
-    Instead, use the ``autoescape`` tag to manage autoescaping for blocks of
-    template code.
+    Apply filters to a block of template content, allowing for chaining and argument passing, to modify the output.
     """
     # token.split_contents() isn't useful here because this tag doesn't accept
     # variable as arguments.
@@ -727,40 +808,7 @@ def do_filter(parser, token):
 @register.tag
 def firstof(parser, token):
     """
-    Output the first variable passed that is not False.
-
-    Output nothing if all the passed variables are False.
-
-    Sample usage::
-
-        {% firstof var1 var2 var3 as myvar %}
-
-    This is equivalent to::
-
-        {% if var1 %}
-            {{ var1 }}
-        {% elif var2 %}
-            {{ var2 }}
-        {% elif var3 %}
-            {{ var3 }}
-        {% endif %}
-
-    but much cleaner!
-
-    You can also use a literal string as a fallback value in case all
-    passed variables are False::
-
-        {% firstof var1 var2 var3 "fallback value" %}
-
-    If you want to disable auto-escaping of variables you can use::
-
-        {% autoescape off %}
-            {% firstof var1 var2 var3 "<strong>fallback value</strong>" %}
-        {% autoescape %}
-
-    Or if only some variables should be escaped, you can use::
-
-        {% firstof var1 var2|safe var3 "<strong>fallback value</strong>"|safe %}
+    Output the first variable passed that is not False, allowing for a fallback value and optional assignment to a variable.
     """
     bits = token.split_contents()[1:]
     asvar = None
@@ -776,65 +824,11 @@ def firstof(parser, token):
 @register.tag("for")
 def do_for(parser, token):
     """
-    Loop over each item in an array.
+    Loop over each item in an array, allowing iteration over sequences and setting variables for loop tracking.
 
-    For example, to display a list of athletes given ``athlete_list``::
+    Can be used to display lists of items, iterate over dictionary key-value pairs, and more. Supports reversing iteration order, empty result handling, and loop tracking variables. 
 
-        <ul>
-        {% for athlete in athlete_list %}
-            <li>{{ athlete.name }}</li>
-        {% endfor %}
-        </ul>
-
-    You can loop over a list in reverse by using
-    ``{% for obj in list reversed %}``.
-
-    You can also unpack multiple values from a two-dimensional array::
-
-        {% for key,value in dict.items %}
-            {{ key }}: {{ value }}
-        {% endfor %}
-
-    The ``for`` tag can take an optional ``{% empty %}`` clause that will
-    be displayed if the given array is empty or could not be found::
-
-        <ul>
-          {% for athlete in athlete_list %}
-            <li>{{ athlete.name }}</li>
-          {% empty %}
-            <li>Sorry, no athletes in this list.</li>
-          {% endfor %}
-        <ul>
-
-    The above is equivalent to -- but shorter, cleaner, and possibly faster
-    than -- the following::
-
-        <ul>
-          {% if athlete_list %}
-            {% for athlete in athlete_list %}
-              <li>{{ athlete.name }}</li>
-            {% endfor %}
-          {% else %}
-            <li>Sorry, no athletes in this list.</li>
-          {% endif %}
-        </ul>
-
-    The for loop sets a number of variables available within the loop:
-
-        ==========================  ================================================
-        Variable                    Description
-        ==========================  ================================================
-        ``forloop.counter``         The current iteration of the loop (1-indexed)
-        ``forloop.counter0``        The current iteration of the loop (0-indexed)
-        ``forloop.revcounter``      The number of iterations from the end of the
-                                    loop (1-indexed)
-        ``forloop.revcounter0``     The number of iterations from the end of the
-                                    loop (0-indexed)
-        ``forloop.first``           True if this is the first time through the loop
-        ``forloop.last``            True if this is the last time through the loop
-        ``forloop.parentloop``      For nested loops, this is the loop "above" the
-                                    current one
-        ==========================  ================================================
+    Tracking variables available within the loop include counters, first and last iteration indicators, and nested loop tracking. The optional ``{% empty %}`` clause allows customization for empty result sets.
     """
     bits = token.split_contents()
     if len(bits) < 4:
@@ -900,61 +894,7 @@ class TemplateIfParser(IfParser):
 @register.tag("if")
 def do_if(parser, token):
     """
-    Evaluate a variable, and if that variable is "true" (i.e., exists, is not
-    empty, and is not a false boolean value), output the contents of the block:
-
-    ::
-
-        {% if athlete_list %}
-            Number of athletes: {{ athlete_list|count }}
-        {% elif athlete_in_locker_room_list %}
-            Athletes should be out of the locker room soon!
-        {% else %}
-            No athletes.
-        {% endif %}
-
-    In the above, if ``athlete_list`` is not empty, the number of athletes will
-    be displayed by the ``{{ athlete_list|count }}`` variable.
-
-    The ``if`` tag may take one or several `` {% elif %}`` clauses, as well as
-    an ``{% else %}`` clause that will be displayed if all previous conditions
-    fail. These clauses are optional.
-
-    ``if`` tags may use ``or``, ``and`` or ``not`` to test a number of
-    variables or to negate a given variable::
-
-        {% if not athlete_list %}
-            There are no athletes.
-        {% endif %}
-
-        {% if athlete_list or coach_list %}
-            There are some athletes or some coaches.
-        {% endif %}
-
-        {% if athlete_list and coach_list %}
-            Both athletes and coaches are available.
-        {% endif %}
-
-        {% if not athlete_list or coach_list %}
-            There are no athletes, or there are some coaches.
-        {% endif %}
-
-        {% if athlete_list and not coach_list %}
-            There are some athletes and absolutely no coaches.
-        {% endif %}
-
-    Comparison operators are also available, and the use of filters is also
-    allowed, for example::
-
-        {% if articles|length >= 5 %}...{% endif %}
-
-    Arguments and operators _must_ have a space between them, so
-    ``{% if 1>2 %}`` is not a valid if tag.
-
-    All supported operators are: ``or``, ``and``, ``in``, ``not in``
-    ``==``, ``!=``, ``>``, ``>=``, ``<`` and ``<=``.
-
-    Operator precedence follows Python.
+    Evaluates a condition or a series of conditions and renders a block of template code based on the result. Conditions can be combined using logical operators like \"and\", \"or\", and \"not\", and can also include comparisons and \"in\" checks. The function can handle multiple elif clauses and an optional else clause.
     """
     # {% if ... %}
     bits = token.split_contents()[1:]
@@ -997,26 +937,14 @@ def ifchanged(parser, token):
     possible uses.
 
     1. Check its own rendered contents against its previous state and only
-       displays the content if it has changed. For example, this displays a
-       list of days, only displaying the month if it changes::
-
-            <h1>Archive for {{ year }}</h1>
-
-            {% for date in days %}
-                {% ifchanged %}<h3>{{ date|date:"F" }}</h3>{% endifchanged %}
-                <a href="{{ date|date:"M/d"|lower }}/">{{ date|date:"j" }}</a>
-            {% endfor %}
+       displays the content if it has changed.
 
     2. If given one or more variables, check whether any variable has changed.
-       For example, the following shows the date every time it changes, while
-       showing the hour if either the hour or the date has changed::
+       This allows for displaying certain content only when a specific condition
+       changes.
 
-            {% for date in days %}
-                {% ifchanged date.date %} {{ date.date }} {% endifchanged %}
-                {% ifchanged date.hour date.date %}
-                    {{ date.hour }}
-                {% endifchanged %}
-            {% endfor %}
+    It can be used to reduce repetition in loop outputs by only showing
+    content when it changes, making the output more concise and easier to read.
     """
     bits = token.split_contents()
     nodelist_true = parser.parse(("else", "endifchanged"))
@@ -1045,7 +973,8 @@ def find_library(parser, name):
 
 def load_from_library(library, label, names):
     """
-    Return a subset of tags and filters from a library.
+    Retrieves a subset of tags and filters from a specified library, 
+    raising an error if any requested item does not exist.
     """
     subset = Library()
     for name in names:
@@ -1070,17 +999,10 @@ def load_from_library(library, label, names):
 @register.tag
 def load(parser, token):
     """
-    Load a custom template tag library into the parser.
+    Register a custom template tag library into the parser for use within templates, allowing access to custom tags and filters.\"\"\"
 
-    For example, to load the template tags in
-    ``django/templatetags/news/photos.py``::
-
-        {% load news.photos %}
-
-    Can also be used to load an individual tag/filter from
-    a library::
-
-        {% load byline from news %}
+    Alternatively: 
+    \"\"\"Loads custom template tags into the parser, enabling their use within templates, either by loading entire libraries or specific tags/filters from a library.
     """
     # token.split_contents() isn't useful here because this tag doesn't accept
     # variable as arguments.
@@ -1115,12 +1037,12 @@ def lorem(parser, token):
     plain-text paragraph blocks (default is ``b``).
 
     ``random`` is the word ``random``, which if given, does not use the common
-    paragraph (starting "Lorem ipsum dolor sit amet, consectetuer...").
+    paragraph (starting \"Lorem ipsum dolor sit amet, consectetuer...\").
 
     Examples:
 
-    * ``{% lorem %}`` outputs the common "lorem ipsum" paragraph
-    * ``{% lorem 3 p %}`` outputs the common "lorem ipsum" paragraph
+    * ``{% lorem %}`` outputs the common \"lorem ipsum\" paragraph
+    * ``{% lorem 3 p %}`` outputs the common \"lorem ipsum\" paragraph
       and two random paragraphs each wrapped in HTML ``<p>`` tags
     * ``{% lorem 2 w random %}`` outputs two random latin words
     """
@@ -1149,14 +1071,7 @@ def lorem(parser, token):
 @register.tag
 def now(parser, token):
     """
-    Display the date, formatted according to the given string.
-
-    Use the same format as PHP's ``date()`` function; see https://php.net/date
-    for all the possible values.
-
-    Sample usage::
-
-        It is {% now "jS F Y H:i" %}
+    Display the current date and time, formatted according to a given string, using a format compatible with PHP's date() function.
     """
     bits = token.split_contents()
     asvar = None
@@ -1172,25 +1087,9 @@ def now(parser, token):
 @register.simple_tag(name="querystring", takes_context=True)
 def querystring(context, query_dict=None, **kwargs):
     """
-    Add, remove, and change parameters of a ``QueryDict`` and return the result
-    as a query string. If the ``query_dict`` argument is not provided, default
-    to ``request.GET``.
-
-    For example::
-
-        {% querystring foo=3 %}
-
-    To remove a key::
-
-        {% querystring foo=None %}
-
-    To use with pagination::
-
-        {% querystring page=page_obj.next_page_number %}
-
-    A custom ``QueryDict`` can also be used::
-
-        {% querystring my_query_dict foo=3 %}
+    Add, remove, and change parameters of a query string.
+    Allows modifying the query string by adding, removing, or changing its parameters.
+    Supports pagination and custom query dictionaries.
     """
     if query_dict is None:
         query_dict = context.request.GET
@@ -1212,49 +1111,14 @@ def querystring(context, query_dict=None, **kwargs):
 @register.tag
 def regroup(parser, token):
     """
-    Regroup a list of alike objects by a common attribute.
+    def regroup(parser, token):
+        \"\"\"
+        Regroups a list of objects by a common attribute.
 
-    This complex tag is best illustrated by use of an example: say that
-    ``musicians`` is a list of ``Musician`` objects that have ``name`` and
-    ``instrument`` attributes, and you'd like to display a list that
-    looks like:
+        Takes a list of objects and groups them by a specified attribute, returning a list of objects with 'grouper' and 'list' attributes.
+        The 'grouper' attribute contains the item that was grouped by, and the 'list' attribute contains the list of objects that share that 'grouper'.
+        The input list must be sorted by the key being grouped by.
 
-        * Guitar:
-            * Django Reinhardt
-            * Emily Remler
-        * Piano:
-            * Lovie Austin
-            * Bud Powell
-        * Trumpet:
-            * Duke Ellington
-
-    The following snippet of template code would accomplish this dubious task::
-
-        {% regroup musicians by instrument as grouped %}
-        <ul>
-        {% for group in grouped %}
-            <li>{{ group.grouper }}
-            <ul>
-                {% for musician in group.list %}
-                <li>{{ musician.name }}</li>
-                {% endfor %}
-            </ul>
-        {% endfor %}
-        </ul>
-
-    As you can see, ``{% regroup %}`` populates a variable with a list of
-    objects with ``grouper`` and ``list`` attributes. ``grouper`` contains the
-    item that was grouped by; ``list`` contains the list of objects that share
-    that ``grouper``. In this case, ``grouper`` would be ``Guitar``, ``Piano``
-    and ``Trumpet``, and ``list`` is the list of musicians who play this
-    instrument.
-
-    Note that ``{% regroup %}`` does not work when the list to be grouped is not
-    sorted by the key you are grouping by! This means that if your list of
-    musicians was not sorted by instrument, you'd need to make sure it is sorted
-    before using it, i.e.::
-
-        {% regroup musicians|dictsort:"instrument" by instrument as grouped %}
     """
     bits = token.split_contents()
     if len(bits) != 6:
@@ -1280,11 +1144,10 @@ def regroup(parser, token):
 @register.tag
 def resetcycle(parser, token):
     """
-    Reset a cycle tag.
+    Reset a cycle tag in a template.
 
-    If an argument is given, reset the last rendered cycle tag whose name
-    matches the argument, else reset the last rendered cycle tag (named or
-    unnamed).
+    If an argument is given, reset the last rendered cycle tag with the matching name; 
+    otherwise, reset the last rendered cycle tag, regardless of whether it was named or unnamed.
     """
     args = token.split_contents()
 
@@ -1337,25 +1200,7 @@ def spaceless(parser, token):
 @register.tag
 def templatetag(parser, token):
     """
-    Output one of the bits used to compose template tags.
-
-    Since the template system has no concept of "escaping", to display one of
-    the bits used in template tags, you must use the ``{% templatetag %}`` tag.
-
-    The argument tells which template bit to output:
-
-        ==================  =======
-        Argument            Outputs
-        ==================  =======
-        ``openblock``       ``{%``
-        ``closeblock``      ``%}``
-        ``openvariable``    ``{{``
-        ``closevariable``   ``}}``
-        ``openbrace``       ``{``
-        ``closebrace``      ``}``
-        ``opencomment``     ``{#``
-        ``closecomment``    ``#}``
-        ==================  =======
+    Output one of the bits used to compose template tags, such as block or variable delimiters, escaping the template system's syntax to display them as literal text. The tag accepts a single argument specifying which template bit to output, including openblock, closeblock, openvariable, closevariable, openbrace, closebrace, opencomment, and closecomment.
     """
     # token.split_contents() isn't useful here because this tag doesn't accept
     # variable as arguments.
@@ -1373,45 +1218,21 @@ def templatetag(parser, token):
 
 @register.tag
 def url(parser, token):
-    r"""
+    """
     Return an absolute URL matching the given view with its parameters.
 
-    This is a way to define links that aren't tied to a particular URL
-    configuration::
+    This template tag allows defining links that aren't tied to a particular URL
+    configuration, by providing the view name and its required arguments.
 
-        {% url "url_name" arg1 arg2 %}
+    It supports both positional and keyword arguments, and can also use template
+    variables as the view name or URL name.
 
-        or
+    The resulting URL will be resolved based on the provided view name and arguments,
+    and can be used to create links in templates.
 
-        {% url "url_name" name1=value1 name2=value2 %}
-
-    The first argument is a URL pattern name. Other arguments are
-    space-separated values that will be filled in place of positional and
-    keyword arguments in the URL. Don't mix positional and keyword arguments.
-    All arguments for the URL must be present.
-
-    For example, if you have a view ``app_name.views.client_details`` taking
-    the client's id and the corresponding line in a URLconf looks like this::
-
-        path('client/<int:id>/', views.client_details, name='client-detail-view')
-
-    and this app's URLconf is included into the project's URLconf under some
-    path::
-
-        path('clients/', include('app_name.urls'))
-
-    then in a template you can create a link for a certain client like this::
-
-        {% url "client-detail-view" client.id %}
-
-    The URL will look like ``/clients/client/123/``.
-
-    The first argument may also be the name of a template variable that will be
-    evaluated to obtain the view name or the URL name, e.g.::
-
-        {% with url_name="client-detail-view" %}
-        {% url url_name client.id %}
-        {% endwith %}
+    Example usage:
+        {% url \"view_name\" arg1 arg2 %}
+        {% url \"view_name\" name1=value1 name2=value2 %}
     """
     bits = token.split_contents()
     if len(bits) < 2:
@@ -1466,23 +1287,7 @@ def verbatim(parser, token):
 @register.tag
 def widthratio(parser, token):
     """
-    For creating bar charts and such. Calculate the ratio of a given value to a
-    maximum value, and then apply that ratio to a constant.
-
-    For example::
-
-        <img src="bar.png" alt="Bar"
-             height="10" width="{% widthratio this_value max_value max_width %}">
-
-    If ``this_value`` is 175, ``max_value`` is 200, and ``max_width`` is 100,
-    the image in the above example will be 88 pixels wide
-    (because 175/200 = .875; .875 * 100 = 87.5 which is rounded up to 88).
-
-    In some cases you might want to capture the result of widthratio in a
-    variable. It can be useful for instance in a blocktranslate like this::
-
-        {% widthratio this_value max_value max_width as width %}
-        {% blocktranslate %}The width is: {{ width }}{% endblocktranslate %}
+    Calculates the ratio of a given value to a maximum value and applies it to a constant, commonly used for creating bar charts and similar visualizations where a value needs to be proportionally represented. The result can be used directly in a template or captured in a variable for further use.
     """
     bits = token.split_contents()
     if len(bits) == 4:
@@ -1508,23 +1313,7 @@ def widthratio(parser, token):
 @register.tag("with")
 def do_with(parser, token):
     """
-    Add one or more values to the context (inside of this block) for caching
-    and easy access.
-
-    For example::
-
-        {% with total=person.some_sql_method %}
-            {{ total }} object{{ total|pluralize }}
-        {% endwith %}
-
-    Multiple values can be added to the context::
-
-        {% with foo=1 bar=2 %}
-            ...
-        {% endwith %}
-
-    The legacy format of ``{% with person.some_sql_method as total %}`` is
-    still accepted.
+    Adds variables to the template context within a block for caching and easy access, allowing for concise and readable template code.
     """
     bits = token.split_contents()
     remaining_bits = bits[1:]

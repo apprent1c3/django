@@ -32,7 +32,9 @@ class Tests(TestCase):
             cursor.callproc("DBMS_SESSION.SET_IDENTIFIER", ["_django_testing!"])
 
     def test_cursor_var(self):
-        """Cursor variables can be passed as query parameters."""
+        """
+        Tests that cursor variables can be successfully passed as parameters to queries and retrieves their values.
+        """
         with connection.cursor() as cursor:
             var = cursor.var(str)
             cursor.execute("BEGIN %s := 'X'; END; ", [var])
@@ -40,8 +42,9 @@ class Tests(TestCase):
 
     def test_order_of_nls_parameters(self):
         """
-        An 'almost right' datetime works with configured NLS parameters
-        (#18465).
+        Tests that a datetime with an 'almost right' format can be successfully queried 
+        when using configured NLS parameters. Verifies correct comparison of 
+        datetime values against the system date.
         """
         suffix = connection.features.bare_select_suffix
         with connection.cursor() as cursor:
@@ -52,7 +55,9 @@ class Tests(TestCase):
             self.assertEqual(cursor.fetchone()[0], 1)
 
     def test_boolean_constraints(self):
-        """Boolean fields have check constraints on their values."""
+        """
+        Verifies that boolean fields enforce check constraints on their values to ensure data integrity.
+        """
         for field in (BooleanField(), BooleanField(null=True)):
             with self.subTest(field=field):
                 field.set_attributes_from_name("is_nice")
@@ -77,6 +82,11 @@ class TransactionalTests(TransactionTestCase):
     def test_hidden_no_data_found_exception(self):
         # "ORA-1403: no data found" exception is hidden by Oracle OCI library
         # when an INSERT statement is used with a RETURNING clause (see #28859).
+        """
+
+        Tests that a 'no data found' exception is properly raised and handled when a database trigger raises an ORA-1403 error internally.
+
+        """
         with connection.cursor() as cursor:
             # Create trigger that raises "ORA-1403: no data found".
             cursor.execute(
@@ -104,6 +114,9 @@ class TransactionalTests(TransactionTestCase):
                 cursor.execute('DROP TRIGGER "TRG_NO_DATA_FOUND"')
 
     def test_password_with_at_sign(self):
+        """
+        Test that a password containing the at sign (@) raises a DatabaseError when attempting to connect to the Oracle database.
+        """
         from django.db.backends.oracle.base import Database
 
         old_password = connection.settings_dict["PASSWORD"]

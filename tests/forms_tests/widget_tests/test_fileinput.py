@@ -39,6 +39,9 @@ class FileInputTest(WidgetTest):
         self.assertIs(self.widget.use_required_attribute("resume.txt"), False)
 
     def test_fieldset(self):
+        """
+        Tests that a file field widget without fieldset attribute renders correctly as a div container with a label and input field.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = FileField(widget=self.widget)
@@ -57,6 +60,9 @@ class FileInputTest(WidgetTest):
             FileInput(attrs={"multiple": True})
 
     def test_value_from_datadict_multiple(self):
+        """
+        Tests the value_from_datadict method of the FileInput widget to ensure it correctly handles multiple file inputs when the allow_multiple_selected attribute is enabled and disabled.
+        """
         class MultipleFileInput(FileInput):
             allow_multiple_selected = True
 
@@ -80,6 +86,11 @@ class FileInputTest(WidgetTest):
         self.assertEqual(value, file_2)
 
     def test_multiple_default(self):
+        """
+        Tests the MultipleFileInput widget's handling of the 'multiple' attribute.
+
+        Verifies that the widget correctly sets the 'multiple' attribute based on provided HTML attributes.
+        """
         class MultipleFileInput(FileInput):
             allow_multiple_selected = True
 

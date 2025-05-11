@@ -47,6 +47,12 @@ def normalize_whitespace(string):
 
 
 def normalize_attributes(attributes):
+    """
+    Normalizes a list of attribute tuples to conform to standard HTML attribute formatting rules.
+
+    The normalization process involves standardizing class attribute values by sorting and joining multiple classes,
+    and handling boolean attributes and empty or None values according to their specific rules.
+    """
     normalized = []
     for name, value in attributes:
         if name == "class" and value:
@@ -74,6 +80,9 @@ class Element:
         self.children = []
 
     def append(self, element):
+        """
+        Appends an element to the list of children, handling string concatenation and whitespace normalization to maintain a clean and formatted structure.
+        """
         if isinstance(element, str):
             element = normalize_whitespace(element)
             if self.children and isinstance(self.children[-1], str):
@@ -90,7 +99,13 @@ class Element:
             self.children.append(element)
 
     def finalize(self):
+        """
+        Finalize the object by cleaning up its children, removing trailing whitespace from strings and recursively finalizing child objects with a finalize method.
+        """
         def rstrip_last_element(children):
+            """
+            Removes trailing whitespace from the last string element in a list and recursively removes empty strings from the end of the list.
+            """
             if children and isinstance(children[-1], str):
                 children[-1] = children[-1].rstrip()
                 if not children[-1]:
@@ -106,6 +121,9 @@ class Element:
                 child.finalize()
 
     def __eq__(self, element):
+        """
+        Checks if the current object is equal to another by comparing their names, attributes, and children.
+        """
         if not hasattr(element, "name") or self.name != element.name:
             return False
         if self.attributes != element.attributes:
@@ -116,6 +134,15 @@ class Element:
         return hash((self.name, *self.attributes))
 
     def _count(self, element, count=True):
+        """
+        .. method:: _count(element, count=True)
+            :param element: The element to search for
+            :param count: Whether to return the total count (True) or stop at the first match (False), defaults to True
+            :return: The number of occurrences of the element in the current object and its children
+
+            Recursively counts the occurrences of a given element within the current object and its children. 
+            The element can be either a string or a RootElement object, and the search can be performed in a way that either counts all occurrences or stops at the first match.
+        """
         if not isinstance(element, str) and self == element:
             return 1
         if isinstance(element, RootElement) and self.children == element.children:
@@ -164,6 +191,10 @@ class Element:
         return self.children[key]
 
     def __str__(self):
+        """
+        Returns a string representation of the object, formatted as an HTML tag with name and attributes, 
+        and enclosing child elements or content if present.
+        """
         output = "<%s" % self.name
         for key, value in self.attributes:
             if value is not None:
@@ -212,6 +243,11 @@ class Parser(HTMLParser):
         raise HTMLParseError(msg, self.getpos())
 
     def format_position(self, position=None, element=None):
+        """
+        Formats a given position into a human-readable string, defaulting to the current position if none is provided. 
+        If an element is specified and no position is given, uses the pre-recorded position for that element. 
+        Returns a string in the format \"Line X, Column Y\".
+        """
         if not position and element:
             position = self.element_positions[element]
         if position is None:
@@ -233,6 +269,9 @@ class Parser(HTMLParser):
             self.handle_endtag(tag)
 
     def handle_starttag(self, tag, attrs):
+        """
+        Handles the start of an HTML tag by creating and storing an Element instance, updating the current parsing state and tracking open tags.
+        """
         attrs = normalize_attributes(attrs)
         element = Element(tag, attrs)
         self.current.append(element)
@@ -241,6 +280,9 @@ class Parser(HTMLParser):
         self.element_positions[element] = self.getpos()
 
     def handle_endtag(self, tag):
+        """
+        Processes an end tag in the parsing process, checking if it matches the top of the open tags stack, and popping tags until a match is found, or an error is raised if an unexpected end tag is encountered.
+        """
         if not self.open_tags:
             self.error("Unexpected end tag `%s` (%s)" % (tag, self.format_position()))
         element = self.open_tags.pop()
@@ -257,10 +299,7 @@ class Parser(HTMLParser):
 
 def parse_html(html):
     """
-    Take a string that contains HTML and turn it into a Python object structure
-    that can be easily compared against other HTML on semantic equivalence.
-    Syntactical differences like which quotation is used on arguments will be
-    ignored.
+    Parse HTML string into a Python object structure for semantic equivalence comparison, ignoring syntactical differences.
     """
     parser = Parser()
     parser.feed(html)

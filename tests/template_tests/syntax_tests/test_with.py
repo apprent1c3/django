@@ -26,6 +26,9 @@ class WithTagTests(SimpleTestCase):
         }
     )
     def test_with02(self):
+        """
+        Tests the 'with' template tag behavior, specifically scoping and variable overriding, within the template engine.
+        """
         output = self.engine.render_to_string("with02", {"dict": {"key": 50}})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID50-50-50INVALID")
@@ -40,6 +43,9 @@ class WithTagTests(SimpleTestCase):
         }
     )
     def test_legacywith02(self):
+        """
+        Tests the rendering of templates with legacy `with` tags to ensure correct variable scoping and output.
+        """
         output = self.engine.render_to_string("legacywith02", {"dict": {"key": 50}})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID50-50-50INVALID")

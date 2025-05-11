@@ -33,6 +33,9 @@ class TestTestCase(TestCase):
     @skipUnlessDBFeature("can_defer_constraint_checks")
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_fixture_teardown_checks_constraints(self):
+        """
+        Tests that fixture teardown checks database constraints by simulating a scenario where a reference to a deleted object still exists, verifying that an IntegrityError is raised when attempting to commit the transaction.
+        """
         rollback_atomics = self._rollback_atomics
         self._rollback_atomics = lambda connection: None  # noop
         try:
@@ -44,6 +47,9 @@ class TestTestCase(TestCase):
             self._rollback_atomics = rollback_atomics
 
     def test_disallowed_database_connection(self):
+        """
+        Tests that connections to a disallowed database raise a DatabaseOperationForbidden exception, ensuring proper test isolation.
+        """
         message = (
             "Database connections to 'other' are not allowed in this test. "
             "Add 'other' to test_utils.test_testcase.TestTestCase.databases to "
@@ -65,6 +71,11 @@ class TestTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_transactions")
     def test_reset_sequences(self):
+        """
+        Tests that reset_sequences cannot be used on TestCase instances when transactions are supported.\"\"\"
+
+        \"\"\"Verifies that setting reset_sequences to True raises a TypeError when setting up test fixtures.
+        """
         old_reset_sequences = self.reset_sequences
         self.reset_sequences = True
         msg = "reset_sequences cannot be used on TestCase instances"
@@ -77,6 +88,13 @@ class TestTestCase(TestCase):
 
 def assert_no_queries(test):
     @wraps(test)
+    """
+
+    Decorator that asserts a test function runs with no database queries.
+
+    It wraps the provided test function to automatically check that it does not execute any database queries.
+
+    """
     def inner(self):
         with self.assertNumQueries(0):
             test(self)
@@ -94,6 +112,10 @@ class TestDataTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for a test class, creating a person, car, and a possession relationship between them, 
+        as well as a person with binary data to be used across tests in the class.
+        """
         cls.jim_douglas = Person.objects.create(name="Jim Douglas")
         cls.car = Car.objects.create(name="1963 Volkswagen Beetle")
         cls.herbie = cls.jim_douglas.possessed_cars.create(

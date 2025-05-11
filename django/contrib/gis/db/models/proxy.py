@@ -21,10 +21,7 @@ class SpatialProxy(DeferredAttribute):
 
     def __get__(self, instance, cls=None):
         """
-        Retrieve the geometry or raster, initializing it using the
-        corresponding class specified during initialization and the value of
-        the field. Currently, GEOS or OGR geometries as well as GDALRasters are
-        supported.
+        Retrieves the geometry or raster associated with the given instance, initializing it if necessary using the specified class and field value, supporting GEOS, OGR, and GDALRasters.
         """
         if instance is None:
             # Accessed on a class, not an instance
@@ -49,11 +46,17 @@ class SpatialProxy(DeferredAttribute):
 
     def __set__(self, instance, value):
         """
-        Retrieve the proxied geometry or raster with the corresponding class
-        specified during initialization.
+        Sets the proxied geometry or raster for an instance, handling different input types based on the geometry type specified during initialization. 
 
-        To set geometries, use values of None, HEXEWKB, or WKT.
-        To set rasters, use JSON or dict values.
+        Args:
+            instance: The instance to set the proxied geometry or raster for.
+            value: The value to set, which can be None, HEXEWKB, WKT for geometries, or JSON, dict for rasters.
+
+        Returns:
+            The set value. 
+
+        Raises:
+            TypeError: If the value type is incompatible with the geometry type.
         """
         # The geographic type of the field.
         gtype = self.field.geom_type

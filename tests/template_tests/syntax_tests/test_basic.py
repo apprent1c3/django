@@ -43,7 +43,7 @@ class BasicSyntaxTests(SimpleTestCase):
     @setup({"basic-syntax04": "as{{ missing }}df"})
     def test_basic_syntax04(self):
         """
-        Fail silently when a variable is not found in the current context
+        Tests the behavior of the templating engine when a variable is missing in the current context, verifying that it either replaces the variable with a default string or silently fails, depending on the engine's configuration.
         """
         output = self.engine.render_to_string("basic-syntax04")
         if self.engine.string_if_invalid:
@@ -98,7 +98,7 @@ class BasicSyntaxTests(SimpleTestCase):
     @setup({"basic-syntax11": "{{ var.blech }}"})
     def test_basic_syntax11(self):
         """
-        Fail silently when a variable's attribute isn't found.
+        Tests the template engine's behavior when encountering a non-existent attribute on a variable, verifying that it fails silently without raising an error.
         """
         output = self.engine.render_to_string("basic-syntax11", {"var": SomeClass()})
 
@@ -155,7 +155,7 @@ class BasicSyntaxTests(SimpleTestCase):
     @setup({"basic-syntax19": "{{ foo.spam }}"})
     def test_basic_syntax19(self):
         """
-        Fail silently when a variable's dictionary key isn't found.
+        Tests the silent failure of template rendering when a variable dictionary key is not found, depending on the engine's string if invalid setting.
         """
         output = self.engine.render_to_string("basic-syntax19", {"foo": {"bar": "baz"}})
 
@@ -167,7 +167,7 @@ class BasicSyntaxTests(SimpleTestCase):
     @setup({"basic-syntax20": "{{ var.method2 }}"})
     def test_basic_syntax20(self):
         """
-        Fail silently when accessing a non-simple method
+        Tests the template engine's behavior when rendering a template that accesses a non-simple method, verifying that it fails silently by either rendering an 'INVALID' string or an empty string, depending on the engine's configuration.
         """
         output = self.engine.render_to_string("basic-syntax20", {"var": SomeClass()})
 
@@ -236,6 +236,9 @@ class BasicSyntaxTests(SimpleTestCase):
     # suppressed on dictionary and attribute lookup.
     @setup({"basic-syntax28": "{{ a.b }}"})
     def test_basic_syntax28(self):
+        """
+        Tests the basic syntax of the templating engine, specifically attribute access on objects, when the attribute does not exist.
+        """
         output = self.engine.render_to_string(
             "basic-syntax28", {"a": SilentGetItemClass()}
         )
@@ -246,6 +249,12 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"basic-syntax29": "{{ a.b }}"})
     def test_basic_syntax29(self):
+        """
+        Tests the basic syntax for attribute access in the templating engine.
+
+        Verifies that accessing an undefined attribute on an object results in either
+        an 'INVALID' string or an empty string, depending on the engine's configuration.
+        """
         output = self.engine.render_to_string(
             "basic-syntax29", {"a": SilentAttrClass()}
         )
@@ -339,6 +348,9 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"tpl-str": "%s", "tpl-percent": "%%", "tpl-weird-percent": "% %s"})
     def test_ignores_strings_that_look_like_format_interpolation(self):
+        """
+        Tests that the templating engine correctly ignores strings that resemble format interpolation patterns, ensuring they are rendered verbatim without substitution.
+        """
         output = self.engine.render_to_string("tpl-str")
         self.assertEqual(output, "%s")
         output = self.engine.render_to_string("tpl-percent")

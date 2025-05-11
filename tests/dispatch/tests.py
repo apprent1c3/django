@@ -35,6 +35,9 @@ class DispatcherTests(SimpleTestCase):
 
     @override_settings(DEBUG=True)
     def test_cannot_connect_no_kwargs(self):
+        """
+        Tests that connecting a signal receiver without keyword arguments (**kwargs) raises a ValueError.
+        """
         def receiver_no_kwargs(sender):
             pass
 
@@ -51,6 +54,12 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send(self):
+        """
+        Tests the sending of a signal with a single receiver.
+
+        Verifies that the signal is successfully sent, received, and then properly disconnected, 
+        leaving the signal in a clean state.
+        """
         a_signal.connect(receiver_1_arg, sender=self)
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -62,6 +71,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertEqual(result, [])
 
     def test_send_connected_no_sender(self):
+        """
+        Tests if a signal is successfully sent to a connected receiver when a sender is specified, verifying the signal's behavior and cleanup.
+        """
         a_signal.connect(receiver_1_arg)
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -69,6 +81,12 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_different_no_sender(self):
+        """
+
+        Tests that a signal sender can be different from the object used when connecting a receiver.
+        Verifies that the receiver is not called when the sender does not match the connected sender.
+
+        """
         a_signal.connect(receiver_1_arg, sender=object)
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [])
@@ -76,6 +94,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_garbage_collected(self):
+        """
+        Tests that signal handlers are properly garbage collected when their associated objects are deleted.
+        """
         a = Callable()
         a_signal.connect(a.a, sender=self)
         del a
@@ -86,8 +107,7 @@ class DispatcherTests(SimpleTestCase):
 
     def test_cached_garbaged_collected(self):
         """
-        Make sure signal caching sender receivers don't prevent garbage
-        collection of senders.
+        Tests whether signal caching prevents garbage collection of sender objects, ensuring senders can be collected after being deleted.
         """
 
         class sender:
@@ -105,6 +125,13 @@ class DispatcherTests(SimpleTestCase):
             d_signal.disconnect(receiver_1_arg)
 
     def test_multiple_registration(self):
+        """
+
+        Tests that connecting the same callable multiple times to a signal results in 
+        only one receiver being stored and only one signal being sent to the receiver, 
+        and that everything is properly cleaned up afterwards.
+
+        """
         a = Callable()
         a_signal.connect(a)
         a_signal.connect(a)
@@ -121,6 +148,14 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_uid_registration(self):
+        """
+
+        Tests the registration and management of signal receivers based on a unique dispatch UID.
+
+        Confirms that when two receivers with the same dispatch UID are connected, only one is stored,
+        and that the disconnect method successfully removes the receiver based on the UID.
+
+        """
         def uid_based_receiver_1(**kwargs):
             pass
 
@@ -134,6 +169,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_robust_success(self):
+        """
+        Tests the successful sending of a signal using the send_robust method, verifying that the connected receiver is called with the expected arguments and that the signal can be properly disconnected afterwards.
+        """
         a_signal.connect(receiver_1_arg)
         result = a_signal.send_robust(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -145,6 +183,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertEqual(result, [])
 
     def test_send_robust_ignored_sender(self):
+        """
+        Tests the send_robust method of a signal, ensuring it correctly sends a signal to a receiver and handles the sender, while also verifying cleanup after disconnection.
+        """
         a_signal.connect(receiver_1_arg)
         result = a_signal.send_robust(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -152,6 +193,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_robust_fail(self):
+        """
+        Test that signal.send_robust correctly handles sender errors and logs the exception
+        """
         def fails(val, **kwargs):
             raise ValueError("this")
 
@@ -181,6 +225,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_disconnection(self):
+        """
+        Tests the disconnection of receivers from a signal, covering both explicit disconnection and removal due to garbage collection.
+        """
         receiver_1 = Callable()
         receiver_2 = Callable()
         receiver_3 = Callable()
@@ -194,6 +241,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_values_returned_by_disconnection(self):
+        """
+        Verifies the return values of the disconnect method when removing signal receivers, ensuring that it correctly indicates whether a receiver was actually disconnected.
+        """
         receiver_1 = Callable()
         receiver_2 = Callable()
         a_signal.connect(receiver_1)
@@ -204,6 +254,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_has_listeners(self):
+        """
+        Checks if a signal has any listeners, with or without a specific sender object.
+        """
         self.assertFalse(a_signal.has_listeners())
         self.assertFalse(a_signal.has_listeners(sender=object()))
         receiver_1 = Callable()
@@ -218,6 +271,13 @@ class DispatcherTests(SimpleTestCase):
 class ReceiverTestCase(SimpleTestCase):
     def test_receiver_single_signal(self):
         @receiver(a_signal)
+        """
+
+        Tests that a single signal is correctly received and processed by a registered receiver.
+
+        Verifies that the receiver function is called with the expected signal value and updates the object's state accordingly.
+
+        """
         def f(val, **kwargs):
             self.state = val
 
@@ -227,6 +287,9 @@ class ReceiverTestCase(SimpleTestCase):
 
     def test_receiver_signal_list(self):
         @receiver([a_signal, b_signal, c_signal])
+        """
+        Tests that signals a, b, and c are properly received and processed by the function, appending their values to the state list in the order they are received.
+        """
         def f(val, **kwargs):
             self.state.append(val)
 

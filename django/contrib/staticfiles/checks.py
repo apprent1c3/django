@@ -9,7 +9,18 @@ E005 = Error(
 
 
 def check_finders(app_configs=None, **kwargs):
-    """Check all registered staticfiles finders."""
+    """
+
+    Checks all registered static files finders for potential issues.
+
+    Returns a list of errors found by the finders. This check can be useful for 
+    identifying and debugging problems with static file configuration.
+
+    :param app_configs: Optional application configurations.
+    :param kwargs: Additional keyword arguments.
+    :return: A list of errors found by the finders.
+
+    """
     errors = []
     for finder in get_finders():
         try:
@@ -22,7 +33,9 @@ def check_finders(app_configs=None, **kwargs):
 
 
 def check_storages(app_configs=None, **kwargs):
-    """Ensure staticfiles is defined in STORAGES setting."""
+    """
+    Checks if the staticfiles storage is defined in the project's STORAGES setting, returning a list of errors if it's not configured properly.
+    """
     errors = []
     if STATICFILES_STORAGE_ALIAS not in settings.STORAGES:
         errors.append(E005)

@@ -11,7 +11,9 @@ from django.utils.http import http_date
 
 class SetCookieTests(SimpleTestCase):
     def test_near_expiration(self):
-        """Cookie will expire when a near expiration time is provided."""
+        """
+        Tests that a cookie's expiration time is set correctly when a near expiration time is provided.
+        """
         response = HttpResponse()
         # There's a timing weakness in this test; The expected result for
         # max-age requires that there be a very slight difference between the
@@ -27,7 +29,9 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(datetime_cookie["max-age"], 10)
 
     def test_aware_expiration(self):
-        """set_cookie() accepts an aware datetime as expiration time."""
+        """
+        Tests that the set_cookie method correctly handles an aware datetime object as the expiration time, verifying that the resulting cookie's max-age is set to the expected value.
+        """
         response = HttpResponse()
         expires = datetime.now(tz=timezone.utc) + timedelta(seconds=10)
         time.sleep(0.001)
@@ -36,7 +40,9 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(datetime_cookie["max-age"], 10)
 
     def test_create_cookie_after_deleting_cookie(self):
-        """Setting a cookie after deletion clears the expiry date."""
+        """
+        Verifies that setting a cookie after it has been deleted results in the expiry date being cleared.
+        """
         response = HttpResponse()
         response.set_cookie("c", "old-value")
         self.assertEqual(response.cookies["c"]["expires"], "")
@@ -48,7 +54,9 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(response.cookies["c"]["expires"], "")
 
     def test_far_expiration(self):
-        """Cookie will expire when a distant expiration time is provided."""
+        """
+        Tests that a cookie is correctly set to expire at a distant future time. Verifies the cookie's expiration time matches the provided future datetime in the HTTP response.
+        """
         response = HttpResponse()
         future_datetime = datetime(
             date.today().year + 2, 1, 1, 4, 5, 6, tzinfo=timezone.utc
@@ -65,7 +73,9 @@ class SetCookieTests(SimpleTestCase):
         )
 
     def test_max_age_expiration(self):
-        """Cookie will expire if max_age is provided."""
+        """
+        Tests that setting a cookie's max-age attribute causes it to expire after the specified time.
+        """
         response = HttpResponse()
         set_cookie_time = time.time()
         with freeze_time(set_cookie_time):
@@ -93,6 +103,10 @@ class SetCookieTests(SimpleTestCase):
             )
 
     def test_httponly_cookie(self):
+        """
+        Verifies that an HttpOnly cookie is correctly set and configured in an HttpResponse.\"\"\"
+        ```
+        """
         response = HttpResponse()
         response.set_cookie("example", httponly=True)
         example_cookie = response.cookies["example"]
@@ -102,13 +116,21 @@ class SetCookieTests(SimpleTestCase):
         self.assertIs(example_cookie["httponly"], True)
 
     def test_unicode_cookie(self):
-        """HttpResponse.set_cookie() works with Unicode data."""
+        """
+        Tests that HttpResponse.set_cookie() can handle Unicode values, ensuring cookies can be set with non-ASCII characters.
+        """
         response = HttpResponse()
         cookie_value = "清風"
         response.set_cookie("test", cookie_value)
         self.assertEqual(response.cookies["test"].value, cookie_value)
 
     def test_samesite(self):
+        """
+
+        Tests the functionality of setting the SameSite attribute of a cookie in an HTTP response.
+        Verifies that the attribute can be successfully set to 'None', 'Lax', and 'Strict' values.
+
+        """
         response = HttpResponse()
         response.set_cookie("example", samesite="None")
         self.assertEqual(response.cookies["example"]["samesite"], "None")
@@ -125,6 +147,12 @@ class SetCookieTests(SimpleTestCase):
 
 class DeleteCookieTests(SimpleTestCase):
     def test_default(self):
+        """
+        Tests the default behavior of deleting a cookie in an HTTP response.
+
+        Verifies that the deleted cookie has its expiration date set to the past,
+        a zero max-age, and default settings for path, security, domain, and same-site attributes.
+        """
         response = HttpResponse()
         response.delete_cookie("c")
         cookie = response.cookies["c"]
@@ -137,9 +165,7 @@ class DeleteCookieTests(SimpleTestCase):
 
     def test_delete_cookie_secure_prefix(self):
         """
-        delete_cookie() sets the secure flag if the cookie name starts with
-        __Host- or __Secure- (without that, browsers ignore cookies with those
-        prefixes).
+        Tests that the delete_cookie method sets the secure flag for cookies with names prefixed with '__Host-' or '__Secure-'.
         """
         response = HttpResponse()
         for prefix in ("Secure", "Host"):

@@ -7,6 +7,9 @@ class ManyToOneNullTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a Reporter.
+        """
+        Set up test data for the application, including reporters and articles with varying relationships, to support testing scenarios.
+        """
         cls.r = Reporter(name="John Smith")
         cls.r.save()
         # Create an Article.
@@ -40,6 +43,17 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(self.r.article_set.count(), 2)
 
     def test_created_without_related(self):
+        """
+
+        Tests the creation of an Article instance without a related Reporter.
+
+        Verifies that the reporter attribute is initially None, and that attempting
+        to access the id of the non-existent reporter raises an AttributeError.
+        Also checks that the instance is correctly filtered by queries looking for
+        Articles with a null or non-existent reporter, and that adding and removing
+        the Article from a Reporter's set works as expected.
+
+        """
         self.assertIsNone(self.a3.reporter)
         # Need to reget a3 to refresh the cache
         a3 = Article.objects.get(pk=self.a3.pk)
@@ -79,6 +93,11 @@ class ManyToOneNullTests(TestCase):
     def test_set(self):
         # Use manager.set() to allocate ForeignKey. Null is legal, so existing
         # members of the set that are not in the assignment set are set to null.
+        """
+        Tests the setter functionality of the article_set relationship, including 
+        overwriting existing values, clearing existing values, and handling empty sets. 
+        Verifies that the changes are correctly persisted to the database.
+        """
         self.r2.article_set.set([self.a2, self.a3])
         self.assertSequenceEqual(self.r2.article_set.all(), [self.a2, self.a3])
         # Use manager.set(clear=True)
@@ -101,6 +120,11 @@ class ManyToOneNullTests(TestCase):
         # Use descriptor assignment to allocate ForeignKey. Null is legal, so
         # existing members of the set that are not in the assignment set are
         # set to null.
+        """
+        Tests the assignment and clearing of a related set in a many-to-many relationship. 
+
+        Verifies that setting a new set of related objects works as expected and that clearing the set removes all related objects.
+        """
         self.r2.article_set.set([self.a2, self.a3])
         self.assertSequenceEqual(self.r2.article_set.all(), [self.a2, self.a3])
         # Clear the rest of the set
@@ -115,6 +139,12 @@ class ManyToOneNullTests(TestCase):
         # Querysets used in reverse FK assignments are pre-evaluated
         # so their value isn't affected by the clearing operation in
         # RelatedManager.set() (#19816).
+        """
+
+        Tests the behavior of assigning a queryset to a relation field, 
+        ensuring it correctly filters and updates the related objects.
+
+        """
         self.r2.article_set.set([self.a2, self.a3])
 
         qs = self.r2.article_set.filter(headline="Second")
@@ -124,6 +154,9 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(1, qs.count())
 
     def test_add_efficiency(self):
+        """
+        Verifies the efficiency of adding multiple articles to a reporter's collection in a single database query.
+        """
         r = Reporter.objects.create()
         articles = []
         for _ in range(3):
@@ -133,6 +166,10 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(r.article_set.count(), 3)
 
     def test_clear_efficiency(self):
+        """
+        Tests the efficiency of clearing a set of articles associated with a reporter, 
+        ensuring it is done within a single database query.
+        """
         r = Reporter.objects.create()
         for _ in range(3):
             r.article_set.create()
@@ -141,6 +178,9 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(r.article_set.count(), 0)
 
     def test_related_null_to_field(self):
+        """
+        Tests that related fields are set to null by default and that an empty related queryset doesn't generate additional database queries.
+        """
         c1 = Car.objects.create()
         d1 = Driver.objects.create()
         self.assertIs(d1.car, None)
@@ -156,6 +196,9 @@ class ManyToOneNullTests(TestCase):
             Car(make="Ford").drivers.all()
 
     def test_related_null_to_field_related_managers(self):
+        """
+        Tests that attempting to manage related objects for a null foreign key field raises a ValueError with a descriptive message, ensuring data integrity by prohibiting relationship creation or modification when the referencing field has no value.
+        """
         car = Car.objects.create(make=None)
         driver = Driver.objects.create()
         msg = (

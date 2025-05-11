@@ -73,6 +73,9 @@ class TranslateNode(Node):
     child_nodelists = ()
 
     def __init__(self, filter_expression, noop, asvar=None, message_context=None):
+        """
+        Initializes a new instance with a filter expression, setting up optional variables for storing the result and custom message context.
+        """
         self.noop = noop
         self.asvar = asvar
         self.message_context = message_context
@@ -82,6 +85,9 @@ class TranslateNode(Node):
             self.filter_expression.var = Variable("'%s'" % self.filter_expression.var)
 
     def render(self, context):
+        """
+        Renders the filter expression based on the provided context, applying any necessary translations and resolving message context variables. The output is then sanitized and optionally assigned to a variable in the context, or directly returned.
+        """
         self.filter_expression.var.translate = not self.noop
         if self.message_context:
             self.filter_expression.var.message_context = self.message_context.resolve(
@@ -114,6 +120,9 @@ class BlockTranslateNode(Node):
         asvar=None,
         tag_name="blocktranslate",
     ):
+        """
+        Initializes a translation block with various context and configuration options, allowing for flexible and accurate translation of singular and plural forms.
+        """
         self.extra_context = extra_context
         self.singular = singular
         self.plural = plural
@@ -132,6 +141,11 @@ class BlockTranslateNode(Node):
         )
 
     def render_token_list(self, tokens):
+        """
+        Render a list of tokens into a string message, escaping text and formatting variable tokens for translation.
+
+            :return: A tuple containing the rendered message and a list of variable names used in the message
+        """
         result = []
         vars = []
         for token in tokens:
@@ -146,6 +160,13 @@ class BlockTranslateNode(Node):
         return msg, vars
 
     def render(self, context, nested=False):
+        """
+        Render a translated string using the gettext functionality and format it with provided context values.
+
+        The function supports both singular and plural forms of a message and resolves any additional context variables.
+        It also handles nested rendering to prevent recursive template rendering errors.
+        The final result is either returned directly or assigned to a variable in the context.
+        """
         if self.message_context:
             message_context = self.message_context.resolve(context)
         else:
@@ -178,6 +199,13 @@ class BlockTranslateNode(Node):
         default_value = context.template.engine.string_if_invalid
 
         def render_value(key):
+            """
+            :param key: The key to render
+            :returns: The rendered value for the given key, either from the context or using a default value
+            :rtype: object
+
+            Renders a value based on the provided key, attempting to retrieve it from the context and falling back to a default value if necessary.
+            """
             if key in context:
                 val = context[key]
             else:
@@ -218,16 +246,7 @@ class LanguageNode(Node):
 @register.tag("get_available_languages")
 def do_get_available_languages(parser, token):
     """
-    Store a list of available languages in the context.
-
-    Usage::
-
-        {% get_available_languages as languages %}
-        {% for language in languages %}
-        ...
-        {% endfor %}
-
-    This puts settings.LANGUAGES into the named variable.
+    Store a list of available languages in the context for use in templates.
     """
     # token.split_contents() isn't useful here because this tag doesn't accept
     # variable as arguments.
@@ -242,17 +261,7 @@ def do_get_available_languages(parser, token):
 @register.tag("get_language_info")
 def do_get_language_info(parser, token):
     """
-    Store the language information dictionary for the given language code in a
-    context variable.
-
-    Usage::
-
-        {% get_language_info for LANGUAGE_CODE as l %}
-        {{ l.code }}
-        {{ l.name }}
-        {{ l.name_translated }}
-        {{ l.name_local }}
-        {{ l.bidi|yesno:"bi-directional,uni-directional" }}
+    Stores language information for a given language code in a context variable for later use in the template.
     """
     args = token.split_contents()
     if len(args) != 5 or args[1] != "for" or args[3] != "as":
@@ -265,21 +274,7 @@ def do_get_language_info(parser, token):
 @register.tag("get_language_info_list")
 def do_get_language_info_list(parser, token):
     """
-    Store a list of language information dictionaries for the given language
-    codes in a context variable. The language codes can be specified either as
-    a list of strings or a settings.LANGUAGES style list (or any sequence of
-    sequences whose first items are language codes).
-
-    Usage::
-
-        {% get_language_info_list for LANGUAGES as langs %}
-        {% for l in langs %}
-          {{ l.code }}
-          {{ l.name }}
-          {{ l.name_translated }}
-          {{ l.name_local }}
-          {{ l.bidi|yesno:"bi-directional,uni-directional" }}
-        {% endfor %}
+    Store a list of language information dictionaries for the given language codes in a context variable, allowing for iteration and access to language details such as code, name, and translation information.
     """
     args = token.split_contents()
     if len(args) != 5 or args[1] != "for" or args[3] != "as":
@@ -313,14 +308,7 @@ def language_bidi(lang_code):
 @register.tag("get_current_language")
 def do_get_current_language(parser, token):
     """
-    Store the current language in the context.
-
-    Usage::
-
-        {% get_current_language as language %}
-
-    This fetches the currently active language and puts its value into the
-    ``language`` context variable.
+    Retrieves the currently active language and stores it in the template context.
     """
     # token.split_contents() isn't useful here because this tag doesn't accept
     # variable as arguments.
@@ -341,8 +329,8 @@ def do_get_current_language_bidi(parser, token):
 
         {% get_current_language_bidi as bidi %}
 
-    This fetches the currently active language's layout and puts its value into
-    the ``bidi`` context variable. True indicates right-to-left layout,
+    This fetches the currently active language's layout and puts its value into 
+    the ``bidi`` context variable. True indicates right-to-left layout, 
     otherwise left-to-right.
     """
     # token.split_contents() isn't useful here because this tag doesn't accept
@@ -359,43 +347,24 @@ def do_get_current_language_bidi(parser, token):
 @register.tag("trans")
 def do_translate(parser, token):
     """
-    Mark a string for translation and translate the string for the current
-    language.
+    Mark a string for translation and translate the string for the current language.
 
-    Usage::
+    Usage:
+        Mark a string for translation so it will be pulled out by makemessages into the.po files and runs the string through the translation engine.
+        Optionally, specify a context or store the translated string into a variable.
 
-        {% translate "this is a test" %}
+    Accepted options:
+        * noop: Marks the string for translation, but returns the string unchanged.
+        * as: Stores the translated string into a variable.
+        * context: Specifies a contextual translation.
 
-    This marks the string for translation so it will be pulled out by
-    makemessages into the .po files and runs the string through the translation
-    engine.
+    Examples:
+        * Translate a string: ``{% translate \"this is a test\" %}``
+        * Translate a string with a context: ``{% translate \"this is a test\" context \"greeting\" %}``
+        * Store the translated string into a variable: ``{% translate \"this is a test\" as var %}``
 
-    There is a second form::
-
-        {% translate "this is a test" noop %}
-
-    This marks the string for translation, but returns the string unchanged.
-    Use it when you need to store values into forms that should be translated
-    later on.
-
-    You can use variables instead of constant strings
-    to translate stuff you marked somewhere else::
-
-        {% translate variable %}
-
-    This tries to translate the contents of the variable ``variable``. Make
-    sure that the string in there is something that is in the .po file.
-
-    It is possible to store the translated string into a variable::
-
-        {% translate "this is a test" as var %}
-        {{ var }}
-
-    Contextual translations are also supported::
-
-        {% translate "this is a test" context "greeting" %}
-
-    This is equivalent to calling pgettext instead of (u)gettext.
+    Raises:
+        TemplateSyntaxError: If the required arguments or valid options are not provided.
     """
     bits = token.split_contents()
     if len(bits) < 2:
@@ -475,7 +444,7 @@ def do_block_translate(parser, token):
 
     This is much like ngettext, only in template syntax.
 
-    The "var as value" legacy format is still supported::
+    The \"var as value\" legacy format is still supported::
 
         {% blocktranslate with foo|filter as bar and baz|filter as boo %}
         {% blocktranslate count var|length as count %}
@@ -489,7 +458,7 @@ def do_block_translate(parser, token):
 
     Contextual translations are supported::
 
-        {% blocktranslate with bar=foo|filter context "greeting" %}
+        {% blocktranslate with bar=foo|filter context \"greeting\" %}
             This is {{ bar }}.
         {% endblocktranslate %}
 
@@ -599,13 +568,7 @@ def do_block_translate(parser, token):
 @register.tag
 def language(parser, token):
     """
-    Enable the given language just for this block.
-
-    Usage::
-
-        {% language "de" %}
-            This is {{ bar }} and {{ boo }}.
-        {% endlanguage %}
+    Enable a specific language for a block of content, allowing for language-dependent rendering of variables and expressions.
     """
     bits = token.split_contents()
     if len(bits) != 2:

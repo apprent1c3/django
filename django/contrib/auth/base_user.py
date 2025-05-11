@@ -22,7 +22,7 @@ class BaseUserManager(models.Manager):
     @classmethod
     def normalize_email(cls, email):
         """
-        Normalize the email address by lowercasing the domain part of it.
+        Normalize the email address by converting the domain part to lowercase, ensuring consistency in email address formatting.
         """
         email = email or ""
         try:
@@ -96,8 +96,7 @@ class AbstractBaseUser(models.Model):
 
     def check_password(self, raw_password):
         """
-        Return a boolean of whether the raw_password was correct. Handles
-        hashing formats behind the scenes.
+        Verifies the correctness of a provided raw password by comparing it to the stored password, handling various hashing formats internally.
         """
 
         def setter(raw_password):
@@ -109,7 +108,9 @@ class AbstractBaseUser(models.Model):
         return check_password(raw_password, self.password, setter)
 
     async def acheck_password(self, raw_password):
-        """See check_password()."""
+        """
+        Asynchronously checks the given raw password against the instance's password, handling password verification and potential updates in an asynchronous manner.
+        """
 
         async def setter(raw_password):
             self.set_password(raw_password)

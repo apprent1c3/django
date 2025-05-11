@@ -6,6 +6,9 @@ from django.test import SimpleTestCase
 
 class TestTemplates(SimpleTestCase):
     def test_javascript_escaping(self):
+        """
+        Tests that JavaScript strings are properly escaped in both stacked and tabular inline admin formsets, ensuring that backslashes and quotes are correctly handled.
+        """
         context = {
             "inline_admin_formset": {
                 "inline_formset_data": json.dumps(

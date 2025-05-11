@@ -95,7 +95,16 @@ class Columns(TableColumns):
         super().__init__(table, columns)
 
     def __str__(self):
+        """
+        Returns a string representation of the object's columns.
+
+        This includes the quoted column names and any applicable suffixes, 
+        formatted as a comma-separated list.
+        """
         def col_str(column, idx):
+            """
+            Returns a formatted string representation of a column name, potentially including a suffix based on the provided index.
+            """
             col = self.quote_name(column)
             try:
                 suffix = self.col_suffixes[idx]
@@ -128,9 +137,15 @@ class IndexColumns(Columns):
         super().__init__(table, columns, quote_name, col_suffixes)
 
     def __str__(self):
+        """
+        Returns a string representation of indexed columns, formatted with their respective operator classes and suffixes.
+        """
         def col_str(column, idx):
             # Index.__init__() guarantees that self.opclasses is the same
             # length as self.columns.
+            """
+            Construct a column string by quoting the column name and appending an operator class and optional suffix based on the provided index.
+            """
             col = "{} {}".format(self.quote_name(column), self.opclasses[idx])
             try:
                 suffix = self.col_suffixes[idx]
@@ -238,6 +253,9 @@ class Statement(Reference):
 
 class Expressions(TableColumns):
     def __init__(self, table, expressions, compiler, quote_value):
+        """
+        Initializes a database query object with the specified table, expressions and compiler, preparing it for execution by extracting column information from the provided expressions.
+        """
         self.compiler = compiler
         self.expressions = expressions
         self.quote_value = quote_value
@@ -254,6 +272,18 @@ class Expressions(TableColumns):
         super().rename_table_references(old_table, new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+
+        Updates column references in expressions to reflect a column name change.
+
+        This method modifies the internal state to replace references to an old column name with a new one, 
+        but only if the column is part of the current table. 
+
+        :param table: The table for which column references are being updated
+        :param old_column: The original name of the column
+        :param new_column: The new name of the column
+
+        """
         if self.table != table:
             return
         expressions = deepcopy(self.expressions)

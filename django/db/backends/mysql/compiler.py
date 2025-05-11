@@ -28,6 +28,9 @@ class SQLDeleteCompiler(compiler.SQLDeleteCompiler, SQLCompiler):
         # the SQLDeleteCompiler's default implementation when multiple tables
         # are involved since MySQL/MariaDB will generate a more efficient query
         # plan than when using a subquery.
+        """
+        Generates the SQL string and parameters for a DELETE query, handling cases where filtering, grouping, or subqueries are involved.
+        """
         where, having, qualify = self.query.where.split_having_qualify(
             must_group_by=self.query.group_by is not None
         )
@@ -54,6 +57,14 @@ class SQLDeleteCompiler(compiler.SQLDeleteCompiler, SQLCompiler):
 
 class SQLUpdateCompiler(compiler.SQLUpdateCompiler, SQLCompiler):
     def as_sql(self):
+        """
+        Returns the SQL query for an update operation, including an ORDER BY clause if specified.
+
+        This method extends the basic update query by appending an ORDER BY clause based on the ordering specified in the query. It ensures that the ordering is valid for the current database table.
+
+        :return: A tuple containing the SQL query and the parameters for the query.
+
+        """
         update_query, update_params = super().as_sql()
         # MySQL and MariaDB support UPDATE ... ORDER BY syntax.
         if self.query.order_by:

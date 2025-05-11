@@ -9,6 +9,9 @@ from .models import Band
 class AdminActionsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for user authentication, including a superuser and five users with varying permissions for the Band model, to facilitate testing of different authorization scenarios.
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -28,6 +31,9 @@ class AdminActionsTests(TestCase):
             setattr(cls, username, user)
 
     def test_get_actions_respects_permissions(self):
+        """
+        Tests that the get_actions method in a ModelAdmin respects model-level permissions when determining which actions to display.
+        """
         class MockRequest:
             pass
 
@@ -65,6 +71,9 @@ class AdminActionsTests(TestCase):
                 self.assertEqual(list(actions.keys()), expected)
 
     def test_actions_inheritance(self):
+        """
+        Tests that admin actions are properly inherited from a parent admin class, and can be disabled by setting actions to None in a subclass.
+        """
         class AdminBase(admin.ModelAdmin):
             actions = ["custom_action"]
 
@@ -88,6 +97,13 @@ class AdminActionsTests(TestCase):
 
     def test_global_actions_description(self):
         @admin.action(description="Site-wide admin action 1.")
+        """
+
+        Tests that globally-added admin actions are correctly included in the list of base actions for a model admin.
+
+        Checks the retrieval of descriptions for global admin actions, including those with explicitly provided descriptions and those without.
+
+        """
         def global_action_1(modeladmin, request, queryset):
             pass
 
@@ -114,6 +130,9 @@ class AdminActionsTests(TestCase):
 
     def test_actions_replace_global_action(self):
         @admin.action(description="Site-wide admin action 1.")
+        """
+        Tests that local admin actions correctly replace global actions of the same name when registered on a ModelAdmin instance.
+        """
         def global_action_1(modeladmin, request, queryset):
             pass
 

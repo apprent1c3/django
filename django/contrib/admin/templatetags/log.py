@@ -13,6 +13,14 @@ class AdminLogNode(template.Node):
         return "<GetAdminLog Node>"
 
     def render(self, context):
+        """
+
+        Renders log entries for the given context, filtering by user if specified.
+
+        Filters log entries by the user ID if `self.user` is provided, and limits the number of entries to `self.limit`.
+        The filtered entries are stored in the context under `self.varname`.
+
+        """
         entries = context["log_entries"]
         if self.user is not None:
             user_id = self.user
@@ -38,8 +46,8 @@ def get_admin_log(parser, token):
         {% get_admin_log 10 as admin_log for_user user %}
         {% get_admin_log 10 as admin_log %}
 
-    Note that ``context_var_containing_user_obj`` can be a hard-coded integer
-    (user ID) or the name of a template context variable containing the user
+    Note that ``context_var_containing_user_obj`` can be a hard-coded integer 
+    (user ID) or the name of a template context variable containing the user 
     object whose ID you want.
     """
     tokens = token.contents.split()

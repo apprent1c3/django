@@ -8,8 +8,7 @@ from django.test import SimpleTestCase
 class ModelPickleTests(SimpleTestCase):
     def test_missing_django_version_unpickling(self):
         """
-        #21430 -- Verifies a warning is raised for models that are
-        unpickled without a Django version
+        Verifies that a warning is raised when unpickling a Django model instance without a specified Django version.
         """
 
         class MissingDjangoVersion(models.Model):
@@ -28,8 +27,7 @@ class ModelPickleTests(SimpleTestCase):
 
     def test_unsupported_unpickle(self):
         """
-        #21430 -- Verifies a warning is raised for models that are
-        unpickled with a different Django version than the current
+        Tests that a warning is raised when unpickling a model instance that was pickled with a different Django version than the current one.
         """
 
         class DifferentDjangoVersion(models.Model):
@@ -51,7 +49,7 @@ class ModelPickleTests(SimpleTestCase):
 
     def test_with_getstate(self):
         """
-        A model may override __getstate__() to choose the attributes to pickle.
+        Tests that a model's __getstate__ method is correctly used to exclude attributes from pickling.
         """
 
         class PickledModel(models.Model):

@@ -19,7 +19,10 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
 
     def test_submit_row(self):
         """
-        submit_row template tag should pass whole context.
+
+        Tests the submit_row template tag functionality.
+        Verifies that the tag receives and passes on the entire context as expected.
+
         """
         request = self.request_factory.get(
             reverse("admin:auth_user_change", args=[self.superuser.pk])
@@ -35,6 +38,11 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
         self.assertIs(template_context["show_save"], True)
 
     def test_submit_row_save_as_new_add_permission_required(self):
+        """
+        Tests that the 'Save as new' button in the admin change view is only displayed 
+        to users with both the add and change permissions for the model, and hidden from 
+        users with only the change permission.
+        """
         change_user = User.objects.create_user(
             username="change_user", password="secret", is_staff=True
         )
@@ -67,6 +75,9 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
         self.assertIs(template_context["show_save_as_new"], True)
 
     def test_override_show_save_and_add_another(self):
+        """
+        Tests that the 'show_save_and_add_another' flag in the admin change view is correctly overridden by the 'show_save_and_add_another' key in the extra context.
+        """
         request = self.request_factory.get(
             reverse("admin:auth_user_change", args=[self.superuser.pk]),
         )
@@ -89,8 +100,7 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
 
     def test_override_change_form_template_tags(self):
         """
-        admin_modify template tags follow the standard search pattern
-        admin/app_label/model/template.html.
+        Tests that the admin change form template is correctly overridden with custom template tags, ensuring the display of specific form elements and JavaScript files.
         """
         article = Article.objects.all()[0]
         request = self.request_factory.get(
@@ -112,8 +122,10 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
 
     def test_override_change_list_template_tags(self):
         """
-        admin_list template tags follow the standard search pattern
-        admin/app_label/model/template.html.
+
+            Tests that the admin changelist view uses the custom template tags for 
+            overriding the change list page components.
+
         """
         request = self.request_factory.get(
             reverse("admin:admin_views_article_changelist")
@@ -142,6 +154,13 @@ class DateHierarchyTests(TestCase):
         )
 
     def test_choice_links(self):
+        """
+        Tests the date hierarchy links in the ModelAdmin changelist view.
+
+        Verifies that the correct links are displayed for various date-based queries,
+        including year, month, and day filters, and checks that the links are properly
+        constructed and returned in the expected order.
+        """
         modeladmin = ModelAdmin(Question, site)
         modeladmin.date_hierarchy = "posted"
 
@@ -188,6 +207,9 @@ class DateHierarchyTests(TestCase):
                 self.assertEqual(choices, expected_choices)
 
     def test_choice_links_datetime(self):
+        """
+        Tests the date hierarchy links generation for the expires field in the Question model admin interface, ensuring correct filtering by year, month, and day.
+        """
         modeladmin = ModelAdmin(Question, site)
         modeladmin.date_hierarchy = "expires"
         Question.objects.bulk_create(

@@ -41,6 +41,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *tablenames, **options):
+        """
+        \".. function:: handle(*tablenames, **options)
+
+        Create database tables for the specified tablenames or all tables configured in the cache settings.
+
+        :param tablenames: Optional list of table names to create
+        :param options: Dictionary containing database connection details and configuration options
+        :note: If no table names are provided, creates tables for all valid cache backend configurations\"
+        """
         db = options["database"]
         self.verbosity = options["verbosity"]
         dry_run = options["dry_run"]
@@ -55,6 +64,17 @@ class Command(BaseCommand):
                     self.create_table(db, cache._table, dry_run)
 
     def create_table(self, database, tablename, dry_run):
+        """
+        Creates a cache table in the specified database.
+
+        Args:
+            database (str): The name of the database in which the table will be created.
+            tablename (str): The name of the table to be created.
+            dry_run (bool): A flag indicating whether to simulate the creation without actually running the SQL commands.
+
+        This function checks for the existence of the table, creates it if it does not exist, and handles migration permissions.
+
+        """
         cache = BaseDatabaseCache(tablename, {})
         if not router.allow_migrate_model(database, cache.cache_model_class):
             return

@@ -139,7 +139,7 @@ class UserManager(BaseUserManager):
 
     def _create_user(self, username, email, password, **extra_fields):
         """
-        Create and save a user with the given username, email, and password.
+        Create and save a user with the given credentials, validating and normalizing the input data as necessary, and store the user in the database.
         """
         if not username:
             raise ValueError("The given username must be set")
@@ -162,6 +162,16 @@ class UserManager(BaseUserManager):
         return self._create_user(username, email, password, **extra_fields)
 
     def create_superuser(self, username, email=None, password=None, **extra_fields):
+        """
+        Creates a superuser with the given username, email, and password.
+
+        This function ensures that the created user has the necessary permissions to act as a superuser by setting 'is_staff' and 'is_superuser' to True.
+        Any additional fields provided in `extra_fields` are also applied to the user.
+
+        Raises:
+            ValueError: If 'is_staff' or 'is_superuser' is not True in `extra_fields`.
+
+        """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -175,6 +185,18 @@ class UserManager(BaseUserManager):
     def with_perm(
         self, perm, is_active=True, include_superusers=True, backend=None, obj=None
     ):
+        """
+
+        Decorator to add a permission check to a view.
+
+        Receives a permission string and optional arguments for active status, 
+        superuser inclusion, and the permission backend. If multiple backends 
+        are configured, the backend must be specified explicitly.
+
+        It then calls the `with_perm` method of the specified backend, 
+        or raises an error if the backend is not specified or invalid.
+
+        """
         if backend is None:
             backends = auth._get_backends(return_tuples=True)
             if len(backends) == 1:
@@ -202,6 +224,10 @@ class UserManager(BaseUserManager):
 
 # A few helper functions for common logic between User and AnonymousUser.
 def _user_get_permissions(user, obj, from_name):
+    """
+    Retrieves a set of permissions for a given user on a specific object from multiple authentication backends. 
+    The permissions are collected by calling the `get_{from_name}_permissions` method on each backend that implements it.
+    """
     permissions = set()
     name = "get_%s_permissions" % from_name
     for backend in auth.get_backends():
@@ -212,7 +238,7 @@ def _user_get_permissions(user, obj, from_name):
 
 def _user_has_perm(user, perm, obj):
     """
-    A backend can raise `PermissionDenied` to short-circuit permission checking.
+    Checks if a user has a specific permission for an object by querying all authentication backends.
     """
     for backend in auth.get_backends():
         if not hasattr(backend, "has_perm"):
@@ -227,7 +253,12 @@ def _user_has_perm(user, perm, obj):
 
 def _user_has_module_perms(user, app_label):
     """
-    A backend can raise `PermissionDenied` to short-circuit permission checking.
+    Determines whether a user has permission to access a specific module in the system.
+
+    Given a user and an application label, it iterates through available authentication backends, 
+    checking if each backend grants the user module-level permissions. The checking process 
+    short-circuits as soon as any backend raises a `PermissionDenied` exception or grants 
+    permission. If no backend grants permission and no exception is raised, it returns False.
     """
     for backend in auth.get_backends():
         if not hasattr(backend, "has_module_perms"):

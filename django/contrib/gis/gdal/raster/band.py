@@ -63,22 +63,7 @@ class GDALBand(GDALRasterBase):
 
     def statistics(self, refresh=False, approximate=False):
         """
-        Compute statistics on the pixel values of this band.
-
-        The return value is a tuple with the following structure:
-        (minimum, maximum, mean, standard deviation).
-
-        If approximate=True, the statistics may be computed based on overviews
-        or a subset of image tiles.
-
-        If refresh=True, the statistics will be computed from the data directly,
-        and the cache will be updated where applicable.
-
-        For empty bands (where all pixel values are nodata), all statistics
-        values are returned as None.
-
-        For raster formats using Persistent Auxiliary Metadata (PAM) services,
-        the statistics might be cached in an auxiliary file.
+        Compute statistics on the pixel values of this band, returning minimum, maximum, mean, and standard deviation. The computation can be forced to re-calculate from the data directly or use cached values. Approximate statistics can also be computed for performance. If the band is empty, all statistics values are returned as None.
         """
         # Prepare array with arguments for capi function
         smin, smax, smean, sstd = c_double(), c_double(), c_double(), c_double()
@@ -144,7 +129,9 @@ class GDALBand(GDALRasterBase):
     @property
     def nodata_value(self):
         """
-        Return the nodata value for this band, or None if it isn't set.
+        Return the no-data value for this band, or None if it isn't set.
+
+        This property allows retrieval of the value that represents invalid or missing data in the band. If no such value is defined, it returns None. The returned value is cast to an integer if the band's data type is an integer type, otherwise the native type is preserved.
         """
         # Get value and nodata exists flag
         nodata_exists = c_int()
@@ -159,7 +146,7 @@ class GDALBand(GDALRasterBase):
     @nodata_value.setter
     def nodata_value(self, value):
         """
-        Set the nodata value for this band.
+        Sets the nodata value for this band, which is used to indicate missing or invalid data. The value can be a numeric type or None, where None clears any existing nodata value.
         """
         if value is None:
             capi.delete_band_nodata_value(self._ptr)
@@ -171,7 +158,12 @@ class GDALBand(GDALRasterBase):
 
     def datatype(self, as_string=False):
         """
-        Return the GDAL Pixel Datatype for this band.
+
+            Return the GDAL Pixel Datatype for this band, optionally as a human-readable string.
+
+            :param bool as_string: If True, return the datatype as a string, otherwise return as a numeric value.
+            :return: The GDAL Pixel Datatype for this band.
+
         """
         dtype = capi.get_band_datatype(self._ptr)
         if as_string:
@@ -179,7 +171,9 @@ class GDALBand(GDALRasterBase):
         return dtype
 
     def color_interp(self, as_string=False):
-        """Return the GDAL color interpretation for this band."""
+        """
+        Return the GDAL color interpretation for this band, optionally as a human-readable string if as_string is True.
+        """
         color = capi.get_band_color_interp(self._ptr)
         if as_string:
             color = GDAL_COLOR_TYPES[color]
@@ -187,12 +181,10 @@ class GDALBand(GDALRasterBase):
 
     def data(self, data=None, offset=None, size=None, shape=None, as_memoryview=False):
         """
-        Read or writes pixel values for this band. Blocks of data can
-        be accessed by specifying the width, height and offset of the
-        desired block. The same specification can be used to update
-        parts of a raster by providing an array of values.
-
-        Allowed input data types are bytes, memoryview, list, tuple, and array.
+        Read or write pixel values for this band by accessing blocks of data.
+        The block is specified by its offset, size, and optionally a shape.
+        Data can be provided in various formats (bytes, memoryview, list, tuple, and array) to update parts of the raster.
+        If no data is provided, the function returns the pixel values for the specified block, optionally as a memoryview or numpy array.
         """
         offset = offset or (0, 0)
         size = size or (self.width - offset[0], self.height - offset[1])

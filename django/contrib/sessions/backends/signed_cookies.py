@@ -5,9 +5,7 @@ from django.core import signing
 class SessionStore(SessionBase):
     def load(self):
         """
-        Load the data from the key itself instead of fetching from some
-        external data store. Opposite of _get_session_key(), raise BadSignature
-        if signature fails.
+        Load session data directly from a signed cookie, verifying its integrity and authenticity. If the signature is invalid, a BadSignature exception is raised; otherwise, a new session is created if loading fails.
         """
         try:
             return signing.loads(

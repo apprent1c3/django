@@ -26,6 +26,9 @@ class SQLiteNumericMixin:
     """
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        Generates a SQL string and parameters for the given query, converting DecimalField outputs to SQLite's NUMERIC type if necessary.
+        """
         sql, params = self.as_sql(compiler, connection, **extra_context)
         try:
             if self.output_field.get_internal_type() == "DecimalField":
@@ -61,6 +64,14 @@ class Combinable:
     BITXOR = "#"
 
     def _combine(self, other, connector, reversed):
+        """
+        Combine two expressions using a specified connector.
+
+        :arg other: The other expression to combine with.
+        :arg connector: The connector to use for combining the expressions.
+        :arg reversed: Whether to reverse the order of the expressions in the combination.
+        :return: A new CombinedExpression object representing the combined expressions.
+        """
         if not hasattr(other, "resolve_expression"):
             # everything must be resolvable to an expression
             other = Value(other)
@@ -273,18 +284,7 @@ class BaseExpression:
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
         """
-        Provide the chance to do any preprocessing or validation before being
-        added to the query.
-
-        Arguments:
-         * query: the backend query implementation
-         * allow_joins: boolean allowing or denying use of joins
-           in this query
-         * reuse: a set of reusable joins for multijoins
-         * summarize: a terminal aggregate clause
-         * for_save: whether this expression about to be used in a save or update
-
-        Return: an Expression to be added to the query.
+        Preprocesses an expression before adding it to a query, allowing for validation, preprocessing, and optimization of the expression, including the option to reuse joins and apply aggregate clauses.
         """
         c = self.copy()
         c.is_summary = summarize
@@ -310,7 +310,10 @@ class BaseExpression:
 
     @cached_property
     def output_field(self):
-        """Return the output type of this expressions."""
+        """
+        Returns the output type of this expression, resolving it if necessary. 
+        Raises a FieldError if the output type cannot be resolved.
+        """
         output_field = self._resolve_output_field()
         if output_field is None:
             self._output_field_resolved_to_none = True
@@ -320,8 +323,7 @@ class BaseExpression:
     @cached_property
     def _output_field_or_none(self):
         """
-        Return the output field of this expression, or None if
-        _resolve_output_field() didn't return an output type.
+        Return the output field of this expression, or None if it could not be resolved to a specific type, providing a fallback for unsuccessful field resolution attempts
         """
         try:
             return self.output_field
@@ -331,14 +333,7 @@ class BaseExpression:
 
     def _resolve_output_field(self):
         """
-        Attempt to infer the output type of the expression.
-
-        As a guess, if the output fields of all source fields match then simply
-        infer the same type here.
-
-        If a source's output field resolves to None, exclude it from this check.
-        If all sources are None, then an error is raised higher up the stack in
-        the output_field property.
+        Attempts to infer the output type of an expression by checking the output fields of its source fields. If all output fields match, it returns the matched type. If the sources have mixed types, it raises a FieldError.
         """
         # This guess is mostly a bad idea, but there is quite a lot of code
         # (especially 3rd party Func subclasses) that depend on it, we'd need a
@@ -366,9 +361,8 @@ class BaseExpression:
     @cached_property
     def convert_value(self):
         """
-        Expressions provide their own converters because users have the option
-        of manually specifying the output_field which may be a different type
-        from the one the database returns.
+        Converts a database value to a Python type suitable for the output field, 
+        accounting for cases where the user manually specifies a different output field type.
         """
         field = self.output_field
         internal_type = field.get_internal_type()
@@ -403,6 +397,12 @@ class BaseExpression:
         return clone
 
     def replace_expressions(self, replacements):
+        """
+        Replace expressions within the object using the provided replacements dictionary.
+
+        This method recursively substitutes expressions with their corresponding replacements, 
+        returning a new object with the modified expressions, or the original object if no replacements are applicable.
+        """
         if not replacements:
             return self
         if replacement := replacements.get(self):
@@ -419,6 +419,9 @@ class BaseExpression:
         return clone
 
     def get_refs(self):
+        """
+        Return a set of references derived from the source expressions of this object.
+        """
         refs = set()
         for expr in self.get_source_expressions():
             if expr is None:
@@ -444,6 +447,12 @@ class BaseExpression:
         return clone
 
     def get_group_by_cols(self):
+        """
+        Returns a list of columns used for grouping.
+
+        If the object does not contain any aggregate expressions, returns the object itself.
+        Otherwise, recursively collects group by columns from its source expressions.
+        """
         if not self.contains_aggregate:
             return [self]
         cols = []
@@ -466,8 +475,7 @@ class BaseExpression:
 
     def flatten(self):
         """
-        Recursively yield this expression and all subexpressions, in
-        depth-first order.
+        Recursively yields the current expression and all its subexpressions in a depth-first order, allowing for iteration over the entire expression tree.
         """
         yield self
         for expr in self.get_source_expressions():
@@ -488,6 +496,9 @@ class BaseExpression:
 
     def get_expression_for_validation(self):
         # Ignore expressions that cannot be used during a constraint validation.
+        """
+        Returns an expression suitable for validation purposes, considering the constraint validation compatibility of the current object. If the object is compatible, it returns the object itself. Otherwise, it returns a single source expression, or raises an error if multiple expressions are found.
+        """
         if not getattr(self, "constraint_validation_compatible", True):
             try:
                 (expression,) = self.get_source_expressions()
@@ -512,6 +523,12 @@ class Expression(BaseExpression, Combinable):
 
     @cached_property
     def identity(self):
+        """
+        Calculates a unique identity for the object based on its constructor arguments.
+
+        Returns a tuple containing the class and hashable representations of the object's constructor arguments, 
+        excluding the first argument (typically 'self'). This identity is used for caching and other purposes.
+        """
         args, kwargs = self._constructor_args
         signature = self._constructor_signature.bind_partial(self, *args, **kwargs)
         signature.apply_defaults()
@@ -734,6 +751,9 @@ class CombinedExpression(SQLiteNumericMixin, Expression):
         return combined_type()
 
     def as_sql(self, compiler, connection):
+        """
+        Converts a binary expression into SQL, combining the left-hand side and right-hand side expressions with the specified connector, and returns the resulting SQL string along with its parameters.
+        """
         expressions = []
         expression_params = []
         sql, params = compiler.compile(self.lhs)
@@ -750,6 +770,9 @@ class CombinedExpression(SQLiteNumericMixin, Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        Resolve an expression by recursively resolving its left-hand side and right-hand side, applying type conversions as necessary to ensure compatibility between the two sides. The function handles special cases involving duration and temporal fields, and returns the resolved expression.
+        """
         lhs = self.lhs.resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -801,6 +824,9 @@ class CombinedExpression(SQLiteNumericMixin, Expression):
 
 class DurationExpression(CombinedExpression):
     def compile(self, side, compiler, connection):
+        """
+        Compile a database query for the given side, handling DurationField specially to ensure proper formatting for duration arithmetic operations.
+        """
         try:
             output = side.output_field
         except FieldError:
@@ -812,6 +838,9 @@ class DurationExpression(CombinedExpression):
         return compiler.compile(side)
 
     def as_sql(self, compiler, connection):
+        """
+        Generates the SQL representation of a duration expression, falling back to a custom implementation if the database backend does not natively support duration fields.
+        """
         if connection.features.has_native_duration_field:
             return super().as_sql(compiler, connection)
         connection.ops.check_expression_support(self)
@@ -829,6 +858,9 @@ class DurationExpression(CombinedExpression):
         return expression_wrapper % sql, expression_params
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        Generates the SQL query and parameters for the current node, adapting for SQLite specific requirements when necessary, particularly for multiplication and division operators to ensure compatible field types.
+        """
         sql, params = self.as_sql(compiler, connection, **extra_context)
         if self.connector in {Combinable.MUL, Combinable.DIV}:
             try:
@@ -931,6 +963,14 @@ class ResolvedOuterRef(F):
         )
 
     def resolve_expression(self, *args, **kwargs):
+        """
+        Resolves an expression by delegating to the superclass and then applying additional checks.
+
+        It disallows referencing outer query window expressions and determines if the column is possibly multivalued based on the presence of a lookup separator in its name.
+
+        Raises:
+            NotSupportedError: If the column contains an over clause.
+        """
         col = super().resolve_expression(*args, **kwargs)
         if col.contains_over_clause:
             raise NotSupportedError(
@@ -972,6 +1012,12 @@ class Sliced(F):
     """
 
     def __init__(self, obj, subscript):
+        """
+        Initializes a subscripted object, supporting both integer and slice indexing.
+
+         Sets the object and its corresponding start and length based on the provided subscript.
+         Validates the subscript to ensure it does not use negative indexing, step arguments, or invalid slice ranges.
+        """
         super().__init__(obj.name)
         self.obj = obj
         if isinstance(subscript, int):
@@ -1010,6 +1056,14 @@ class Sliced(F):
         summarize=False,
         for_save=False,
     ):
+        """
+        Resolves an expression by referencing the object's name in a query.
+
+        Accepts optional parameters to control how the expression is resolved, including
+        support for joins and summarization. Returns a sliced expression based on the
+        object's start and length properties. Used to process and transform object
+        references within a query, enabling complex data retrieval and manipulation.
+        """
         resolved = query.resolve_ref(self.name, allow_joins, reuse, summarize)
         if isinstance(self.obj, (OuterRef, self.__class__)):
             expr = self.obj.resolve_expression(
@@ -1030,6 +1084,9 @@ class Func(SQLiteNumericMixin, Expression):
     arity = None  # The number of arguments the function accepts.
 
     def __init__(self, *expressions, output_field=None, **extra):
+        """
+        Initializes an instance of the class, validating the number of input expressions and setting up the output field and source expressions.
+        """
         if self.arity is not None and len(expressions) != self.arity:
             raise TypeError(
                 "'%s' takes exactly %s %s (%s given)"
@@ -1045,6 +1102,9 @@ class Func(SQLiteNumericMixin, Expression):
         self.extra = extra
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, including its source expressions and extra attributes, for debugging purposes.
+        """
         args = self.arg_joiner.join(str(arg) for arg in self.source_expressions)
         extra = {**self.extra, **self._get_repr_options()}
         if extra:
@@ -1067,6 +1127,18 @@ class Func(SQLiteNumericMixin, Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+
+        Resolves an expression by recursively processing its source expressions.
+
+        :param query: Optional query to apply during resolution.
+        :param allow_joins: Whether to allow joins during resolution (default: True).
+        :param reuse: Optional reuse object.
+        :param summarize: Whether to summarize the expression (default: False).
+        :param for_save: Whether the resolution is for saving (default: False).
+        :returns: The resolved expression.
+
+        """
         c = self.copy()
         c.is_summary = summarize
         for pos, arg in enumerate(c.source_expressions):
@@ -1084,6 +1156,11 @@ class Func(SQLiteNumericMixin, Expression):
         arg_joiner=None,
         **extra_context,
     ):
+        """
+        Generates the SQL string and parameters for the given function or template, 
+        handling empty and full result set cases. 
+        The resulting SQL string is parameterized and can be executed directly on the database connection.
+        """
         connection.ops.check_expression_support(self)
         sql_parts = []
         params = []
@@ -1150,6 +1227,9 @@ class Value(SQLiteNumericMixin, Expression):
         return f"{self.__class__.__name__}({self.value!r})"
 
     def as_sql(self, compiler, connection):
+        """
+        Converts the value to a SQL expression, preparing it for database interaction. The function checks the database support for the expression, applies output field preparation, and generates a SQL placeholder for the value.
+        """
         connection.ops.check_expression_support(self)
         val = self.value
         output_field = self._output_field_or_none
@@ -1178,6 +1258,9 @@ class Value(SQLiteNumericMixin, Expression):
         return []
 
     def _resolve_output_field(self):
+        """
+        Determines and returns the most suitable field type based on the value type.
+        """
         if isinstance(self.value, str):
             return fields.CharField()
         if isinstance(self.value, bool):
@@ -1228,6 +1311,9 @@ class RawSQL(Expression):
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
         # Resolve parents fields used in raw SQL.
+        """
+        Resolve an expression by checking for references to parent model fields and resolving them if necessary, before delegating to the parent class for further processing.
+        """
         if query.model:
             for parent in query.model._meta.all_parents:
                 for parent_field in parent._meta.local_fields:
@@ -1400,6 +1486,10 @@ class ExpressionWrapper(SQLiteNumericMixin, Expression):
         return [self.expression]
 
     def get_group_by_cols(self):
+        """
+        Returns the columns to group by for the current object, delegating to the wrapped expression if applicable.\"\"\"
+        ```
+        """
         if isinstance(self.expression, Expression):
             expression = self.expression.copy()
             expression.output_field = self.output_field
@@ -1429,6 +1519,11 @@ class NegatedExpression(ExpressionWrapper):
         return self.expression.copy()
 
     def as_sql(self, compiler, connection):
+        """
+        Generates SQL for the given expression, handling cases where the database 
+        does not support boolean expressions or conditional expressions in the select 
+        or where clauses, and returning the negation of the SQL expression if possible.
+        """
         try:
             sql, params = super().as_sql(compiler, connection)
         except EmptyResultSet:
@@ -1477,6 +1572,17 @@ class When(Expression):
     conditional = False
 
     def __init__(self, condition=None, then=None, **lookups):
+        """
+
+        Initializes a When object that represents a conditional expression.
+
+        It accepts a condition, which can be a Q object, a boolean expression, or lookups.
+        The 'then' parameter specifies the result when the condition is met.
+
+        Raises a TypeError if the condition is not valid or if lookups are provided without a condition.
+        Raises a ValueError if an empty Q object is used as a condition.
+
+        """
         if lookups:
             if condition is None:
                 condition, lookups = Q(**lookups), None
@@ -1512,6 +1618,22 @@ class When(Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+
+        Resolve an expression by recursively resolving its condition and result.
+
+        The resolved expression can be used to prepare queries for execution,
+        and can optionally allow joins, reuse existing queries, summarize results,
+        or prepare for saving. 
+
+        :param query: The query to resolve against.
+        :param allow_joins: Whether to allow joins in the resolution process.
+        :param reuse: Reusable query or other optimization hint.
+        :param summarize: Whether to summarize the results.
+        :param for_save: Whether the resolution is being done for saving.
+        :returns: A copy of the expression with its condition and result resolved.
+
+        """
         c = self.copy()
         c.is_summary = summarize
         if hasattr(c.condition, "resolve_expression"):
@@ -1524,6 +1646,14 @@ class When(Expression):
         return c
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+
+        Generates SQL for a given expression.
+
+        This method compiles the condition and result of the expression into SQL and 
+        applies them to a template, returning the formatted SQL string and its parameters.
+
+        """
         connection.ops.check_expression_support(self)
         template_params = extra_context
         sql_params = []
@@ -1568,6 +1698,9 @@ class Case(SQLiteNumericMixin, Expression):
     case_joiner = " "
 
     def __init__(self, *cases, default=None, output_field=None, **extra):
+        """
+        Initializes a Case expression, defining a set of cases to evaluate and an optional default value to return if none of the cases match.
+        """
         if not all(isinstance(case, When) for case in cases):
             raise TypeError("Positional arguments must all be When objects.")
         super().__init__(output_field)
@@ -1593,6 +1726,11 @@ class Case(SQLiteNumericMixin, Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        Resolves an expression by recursively resolving all cases and default values, 
+        optionally allowing joins, reusing existing expressions, and summarizing the output.
+        The resulting expression can be used for querying or saving, depending on the input parameters.
+        """
         c = self.copy()
         c.is_summary = summarize
         for pos, case in enumerate(c.cases):
@@ -1612,6 +1750,9 @@ class Case(SQLiteNumericMixin, Expression):
     def as_sql(
         self, compiler, connection, template=None, case_joiner=None, **extra_context
     ):
+        """
+        Compiles a case expression into SQL, combining multiple cases and a default value into a single SQL string. Supports custom templates and parameter handling. The resulting SQL and associated parameters are returned for further processing.
+        """
         connection.ops.check_expression_support(self)
         if not self.cases:
             return compiler.compile(self.default)
@@ -1694,6 +1835,11 @@ class Subquery(BaseExpression, Combinable):
         return self.query.get_external_cols()
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+        Generates an SQL query string based on a provided template, substituting in parameters from a given subquery. 
+        The template is populated with values from the extra context and the subquery's SQL. 
+        Returns a tuple containing the formatted SQL string and the parameters to use when executing it.
+        """
         connection.ops.check_expression_support(self)
         template_params = {**self.extra, **extra_context}
         subquery_sql, sql_params = self.query.as_sql(compiler, connection)
@@ -1725,6 +1871,14 @@ class Exists(Subquery):
         return sql, params
 
     def as_sql(self, compiler, *args, **kwargs):
+        """
+
+        Generates the SQL representation of the current query.
+
+        Handles the case where the result set is empty and the database
+        does not support boolean expressions in the SELECT clause.
+
+        """
         try:
             return super().as_sql(compiler, *args, **kwargs)
         except EmptyResultSet:
@@ -1741,6 +1895,18 @@ class OrderBy(Expression):
     constraint_validation_compatible = False
 
     def __init__(self, expression, descending=False, nulls_first=None, nulls_last=None):
+        """
+        Initializes an object for ordering or sorting data based on a given expression.
+
+        The object can be configured to order data in descending or ascending order, and
+        to place null values first or last in the sorted data. It validates the provided
+        parameters to ensure consistency and correct type for the expression.
+
+        :param expression: The expression to order data by.
+        :param descending: Whether to sort in descending order (default: False).
+        :param nulls_first: Whether to place null values first in the sorted data (default: None).
+        :param nulls_last: Whether to place null values last in the sorted data (default: None).
+        """
         if nulls_first and nulls_last:
             raise ValueError("nulls_first and nulls_last are mutually exclusive")
         if nulls_first is False or nulls_last is False:
@@ -1764,6 +1930,16 @@ class OrderBy(Expression):
         return [self.expression]
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+        Generate SQL for this ordering instance.
+
+        Provides a way to translate the ordering expression into SQL syntax,
+        taking into account the database connection's capabilities and the
+        ordering's nulls first/last requirements.
+
+        :return: A tuple containing the SQL string and parameters.
+
+        """
         template = template or self.template
         if connection.features.supports_order_by_nulls_modifier:
             if self.nulls_last:
@@ -1792,6 +1968,14 @@ class OrderBy(Expression):
     def as_oracle(self, compiler, connection):
         # Oracle < 23c doesn't allow ORDER BY EXISTS() or filters unless it's
         # wrapped in a CASE WHEN.
+        """
+        Workaround for databases that don't support boolean expressions in SQL SELECT clauses.
+
+        Returns the SQL representation of this object, adapted for the given database connection.
+        If the connection does not support boolean expressions in the SELECT clause but does support
+        them in the WHERE clause, it constructs a CASE statement to simulate the boolean expression.
+        Otherwise, it returns the standard SQL representation of this object.
+        """
         if (
             not connection.features.supports_boolean_expr_in_select_clause
             and connection.ops.conditional_expression_supported_in_where_clause(
@@ -1813,6 +1997,9 @@ class OrderBy(Expression):
         return cols
 
     def reverse_ordering(self):
+        """
+        Reverses the ordering of a sorted list, switching between ascending and descending order and toggling the placement of null values.
+        """
         self.descending = not self.descending
         if self.nulls_first:
             self.nulls_last = True
@@ -1845,6 +2032,19 @@ class Window(SQLiteNumericMixin, Expression):
         frame=None,
         output_field=None,
     ):
+        """
+        Initializes a window expression.
+
+        :arg expression: The expression to apply the window function to.
+        :arg partition_by: Optional field(s) to partition the expression by.
+        :arg order_by: Optional field(s) to order the expression by.
+        :arg frame: Optional frame to apply to the expression.
+        :arg output_field: Optional field to output the result to.
+
+        :raises ValueError: If the expression is not compatible with OVER clauses, or if the order_by argument is invalid.
+
+        This initializer prepares a window expression for use in a database query, allowing for partitioning, ordering, and framing of the results.
+        """
         self.partition_by = partition_by
         self.order_by = order_by
         self.frame = frame
@@ -1883,6 +2083,16 @@ class Window(SQLiteNumericMixin, Expression):
         self.source_expression, self.partition_by, self.order_by, self.frame = exprs
 
     def as_sql(self, compiler, connection, template=None):
+        """
+
+        Render a window expression as SQL.
+
+        This method compiles the given window expression into a SQL string,
+        taking into account the expression's source, partitioning, ordering, and frame.
+        It checks if the database backend supports window expressions and raises an error
+        if it does not. The resulting SQL string and parameters are then returned.
+
+        """
         connection.ops.check_expression_support(self)
         if not connection.features.supports_over_clause:
             raise NotSupportedError("This backend does not support window expressions.")
@@ -1916,6 +2126,11 @@ class Window(SQLiteNumericMixin, Expression):
         )
 
     def as_sqlite(self, compiler, connection):
+        """
+        Special case for SQLite to convert Decimal fields in window functions to Float fields, 
+        as SQLite does not support Decimal fields in window functions, 
+        and then generates the SQL representation of the window function.
+        """
         if isinstance(self.output_field, fields.DecimalField):
             # Casting to numeric must be outside of the window expression.
             copy = self.copy()
@@ -1937,6 +2152,9 @@ class Window(SQLiteNumericMixin, Expression):
         return "<%s: %s>" % (self.__class__.__name__, self)
 
     def get_group_by_cols(self):
+        """
+        Returns a list of columns used for grouping based on partition and order settings.
+        """
         group_by_cols = []
         if self.partition_by:
             group_by_cols.extend(self.partition_by.get_group_by_cols())
@@ -1967,6 +2185,9 @@ class WindowFrame(Expression):
     template = "%(frame_type)s BETWEEN %(start)s AND %(end)s%(exclude)s"
 
     def __init__(self, start=None, end=None, exclusion=None):
+        """
+        Initializes a window frame object, specifying the frame's start and end boundaries, as well as an optional exclusion policy.
+        """
         self.start = Value(start)
         self.end = Value(end)
         if not isinstance(exclusion, (NoneType, WindowFrameExclusion)):
@@ -1988,6 +2209,9 @@ class WindowFrame(Expression):
         return f" EXCLUDE {self.exclusion.value}"
 
     def as_sql(self, compiler, connection):
+        """
+        Generates the SQL representation of a window function, incorporating frame boundaries and exclusions, while ensuring the underlying database connection supports the required features.
+        """
         connection.ops.check_expression_support(self)
         start, end = self.window_frame_start_end(
             connection, self.start.value, self.end.value
@@ -2014,6 +2238,11 @@ class WindowFrame(Expression):
         return []
 
     def __str__(self):
+        """
+        Returns a string representation of a window frame clause, 
+        including frame type, start, end, and exclusion specifications, 
+        formatted according to the database connection's operations.
+        """
         if self.start.value is not None and self.start.value < 0:
             start = "%d %s" % (abs(self.start.value), connection.ops.PRECEDING)
         elif self.start.value is not None and self.start.value == 0:

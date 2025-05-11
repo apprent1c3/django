@@ -430,6 +430,13 @@ class NoURLPatternsTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns_reverse.urls")
 class URLPatternReverse(SimpleTestCase):
     def test_urlpattern_reverse(self):
+        """
+
+        Verifies the correctness of URL pattern reversal by comparing expected results with actual outcomes from the reverse function.
+
+        The test iterates over a set of predefined test cases, covering various URL patterns and parameters. It checks for both successful reversals and expected NoReverseMatch exceptions.
+
+        """
         for name, expected, args, kwargs in test_data:
             with self.subTest(name=name, args=args, kwargs=kwargs):
                 try:
@@ -536,8 +543,9 @@ class ResolverTests(SimpleTestCase):
 
     def test_reverse_lazy_object_coercion_by_resolve(self):
         """
-        Verifies lazy object returned by reverse_lazy is coerced to
-        text by resolve(). Previous to #21043, this would raise a TypeError.
+
+        Verifies that the lazy object returned by reverse_lazy is properly coerced to text by the resolve function, ensuring compatibility and preventing Type Errors.
+
         """
         urls = "urlpatterns_reverse.named_urls"
         proxy_url = reverse_lazy("named-url1", urlconf=urls)
@@ -545,6 +553,9 @@ class ResolverTests(SimpleTestCase):
         resolver.resolve(proxy_url)
 
     def test_resolver_reverse(self):
+        """
+        Tests the resolver's ability to reverse named URLs, verifying that it correctly generates URLs from names, arguments, and keyword arguments.
+        """
         resolver = get_resolver("urlpatterns_reverse.named_urls")
         test_urls = [
             # (name, args, kwargs, expected)
@@ -558,8 +569,10 @@ class ResolverTests(SimpleTestCase):
 
     def test_resolver_reverse_conflict(self):
         """
-        URL pattern name arguments don't need to be unique. The last registered
-        pattern takes precedence for conflicting names.
+        Test the resolver's handling of reverse URL pattern name conflicts.
+
+        Verify that when multiple URL patterns share the same name, the last registered
+        pattern takes precedence for resolving the URL.
         """
         resolver = get_resolver("urlpatterns_reverse.named_urls_conflict")
         test_urls = [
@@ -581,10 +594,7 @@ class ResolverTests(SimpleTestCase):
 
     def test_non_regex(self):
         """
-        A Resolver404 is raised if resolving doesn't meet the basic
-        requirements of a path to match - i.e., at the very least, it matches
-        the root pattern '^/'. Never return None from resolve() to prevent a
-        TypeError from occurring later (#10834).
+        Tests that a Resolver404 is raised when resolving a path that does not meet the basic requirements, ensuring that resolve() does not return None.
         """
         test_urls = ["", "a", "\\", "."]
         for path_ in test_urls:
@@ -594,9 +604,7 @@ class ResolverTests(SimpleTestCase):
 
     def test_404_tried_urls_have_names(self):
         """
-        The list of URLs that come back from a Resolver404 exception contains
-        a list in the right format for printing out in the DEBUG 404 page with
-        both the patterns and URL names, if available.
+        Verifies that URLs returned in a Resolver404 exception contain the correct pattern and URL names for display in the DEBUG 404 page.
         """
         urls = "urlpatterns_reverse.named_urls"
         # this list matches the expected URL types and names returned when
@@ -642,6 +650,13 @@ class ResolverTests(SimpleTestCase):
                             )
 
     def test_namespaced_view_detail(self):
+        """
+
+        Tests that view callbacks are correctly identified within a namespaced URL configuration.
+
+        Verifies that the resolver accurately distinguishes between registered view callbacks and non-callback URLs.
+
+        """
         resolver = get_resolver("urlpatterns_reverse.nested_urls")
         self.assertTrue(resolver._is_callback("urlpatterns_reverse.nested_urls.view1"))
         self.assertTrue(resolver._is_callback("urlpatterns_reverse.nested_urls.view2"))
@@ -664,8 +679,7 @@ class ResolverTests(SimpleTestCase):
 
     def test_populate_concurrency(self):
         """
-        URLResolver._populate() can be called concurrently, but not more
-        than once per thread (#26888).
+        Tests that URLResolver's populate method can be called concurrently, but only once per thread, without causing issues with the resolver's internal state.
         """
         resolver = URLResolver(RegexPattern(r"^/"), "urlpatterns_reverse.urls")
         resolver._local.populating = True
@@ -682,6 +696,11 @@ class ReverseLazyTest(TestCase):
         self.assertRedirects(response, "/redirected_to/", status_code=302)
 
     def test_user_permission_with_lazy_reverse(self):
+        """
+
+        Tests that a view with login requirement correctly redirects unauthenticated users to the login page and allows access to authenticated users.
+
+        """
         alfred = User.objects.create_user(
             "alfred", "alfred@example.com", password="testpw"
         )
@@ -732,6 +751,13 @@ class ReverseLazySettingsTest(AdminScriptTestCase):
 class ReverseShortcutTests(SimpleTestCase):
     def test_redirect_to_object(self):
         # We don't really need a model; just something with a get_absolute_url
+        """
+        Tests that the redirect function correctly redirects to an object's absolute URL.
+
+        The redirect can occur as either a temporary or permanent redirect, with the
+        function returning either an HttpResponseRedirect or HttpResponsePermanentRedirect
+        respectively.
+        """
         class FakeObj:
             def get_absolute_url(self):
                 return "/hi-there/"
@@ -745,6 +771,13 @@ class ReverseShortcutTests(SimpleTestCase):
         self.assertEqual(res.url, "/hi-there/")
 
     def test_redirect_to_view_name(self):
+        """
+
+        Tests the redirect function to ensure it correctly generates URLs 
+        for different view names with varied parameter inputs and raises 
+        an exception for non-existent views.
+
+        """
         res = redirect("hardcoded2")
         self.assertEqual(res.url, "/hardcoded/doc.pdf")
         res = redirect("places", 1)
@@ -755,6 +788,9 @@ class ReverseShortcutTests(SimpleTestCase):
             redirect("not-a-view")
 
     def test_redirect_to_url(self):
+        """
+        Tests the redirect function to ensure it correctly handles various URL redirection scenarios, including internal URLs, external URLs, and URLs with special characters, verifying that the resulting URL is properly encoded.
+        """
         res = redirect("/foo/")
         self.assertEqual(res.url, "/foo/")
         res = redirect("http://example.com/")
@@ -781,6 +817,11 @@ class ReverseShortcutTests(SimpleTestCase):
         self.assertEqual(reverse(nested_view), "/includes/nested_path/")
 
     def test_redirect_view_object(self):
+        """
+        ..: 
+            Tests the redirect function with a view object, verifying that it correctly 
+            generates a URL and raises a NoReverseMatch exception when given invalid arguments.
+        """
         from .views import absolute_kwargs_view
 
         res = redirect(absolute_kwargs_view)
@@ -793,8 +834,10 @@ class ReverseShortcutTests(SimpleTestCase):
 class NamespaceTests(SimpleTestCase):
     def test_ambiguous_object(self):
         """
-        Names deployed via dynamic URL objects that require namespaces can't
-        be resolved.
+
+        Tests that URLs with dynamic objects requiring namespaces cannot be resolved.
+        Ensures a NoReverseMatch exception is raised for various URL patterns and arguments.
+
         """
         test_urls = [
             ("urlobject-view", [], {}),
@@ -808,8 +851,7 @@ class NamespaceTests(SimpleTestCase):
 
     def test_ambiguous_urlpattern(self):
         """
-        Names deployed via dynamic URL objects that require namespaces can't
-        be resolved.
+        Tests the reverse URL resolution for ambiguous dynamic URL patterns that require namespace, verifying that a NoReverseMatch exception is raised when attempting to resolve such patterns.
         """
         test_urls = [
             ("inner-nothing", [], {}),
@@ -822,7 +864,9 @@ class NamespaceTests(SimpleTestCase):
                     reverse(name, args=args, kwargs=kwargs)
 
     def test_non_existent_namespace(self):
-        """Nonexistent namespaces raise errors."""
+        """
+        Tests that reversing URLs with non-existent namespaces raises a NoReverseMatch error.
+        """
         test_urls = [
             "blahblah:urlobject-view",
             "test-ns1:blahblah:urlobject-view",
@@ -833,7 +877,10 @@ class NamespaceTests(SimpleTestCase):
                     reverse(name)
 
     def test_normal_name(self):
-        """Normal lookups work as expected."""
+        """
+        Tests that URL reversing works correctly for views with normal names, 
+        covering various scenarios with positional and keyword arguments.
+        """
         test_urls = [
             ("normal-view", [], {}, "/normal/"),
             ("normal-view", [37, 42], {}, "/normal/37/42/"),
@@ -845,7 +892,9 @@ class NamespaceTests(SimpleTestCase):
                 self.assertEqual(reverse(name, args=args, kwargs=kwargs), expected)
 
     def test_simple_included_name(self):
-        """Normal lookups work on names included from other patterns."""
+        """
+        Tests that URLs can be correctly reversed when their names are included from other patterns, handling various argument scenarios and ensuring accurate URL construction.
+        """
         test_urls = [
             ("included_namespace_urls:inc-normal-view", [], {}, "/included/normal/"),
             (
@@ -867,7 +916,9 @@ class NamespaceTests(SimpleTestCase):
                 self.assertEqual(reverse(name, args=args, kwargs=kwargs), expected)
 
     def test_namespace_object(self):
-        """Dynamic URL objects can be found using a namespace."""
+        """
+        Tests if dynamic URL objects can be correctly resolved using a namespace.
+        """
         test_urls = [
             ("test-ns1:urlobject-view", [], {}, "/test1/inner/"),
             ("test-ns1:urlobject-view", [37, 42], {}, "/test1/inner/37/42/"),
@@ -885,8 +936,8 @@ class NamespaceTests(SimpleTestCase):
 
     def test_app_object(self):
         """
-        Dynamic URL objects can return a (pattern, app_name) 2-tuple, and
-        include() can set the namespace.
+        Tests the functionality of dynamic URL objects with include() and reverse(), 
+        covering various scenarios with different URL patterns, arguments, and namespaces.
         """
         test_urls = [
             ("new-ns1:urlobject-view", [], {}, "/newapp1/inner/"),
@@ -905,8 +956,7 @@ class NamespaceTests(SimpleTestCase):
 
     def test_app_object_default_namespace(self):
         """
-        Namespace defaults to app_name when including a (pattern, app_name)
-        2-tuple.
+        Tests that the namespace defaults to the app name when reversing URLs with a (pattern, app_name) 2-tuple.
         """
         test_urls = [
             ("newapp:urlobject-view", [], {}, "/new-default/inner/"),
@@ -924,7 +974,9 @@ class NamespaceTests(SimpleTestCase):
                 self.assertEqual(reverse(name, args=args, kwargs=kwargs), expected)
 
     def test_embedded_namespace_object(self):
-        """Namespaces can be installed anywhere in the URL pattern tree."""
+        """
+        Tests whether namespaces can be successfully embedded within the URL pattern tree by verifying the correctness of URL reversal for various scenarios involving namespace objects.
+        """
         test_urls = [
             (
                 "included_namespace_urls:test-ns3:urlobject-view",
@@ -956,7 +1008,15 @@ class NamespaceTests(SimpleTestCase):
                 self.assertEqual(reverse(name, args=args, kwargs=kwargs), expected)
 
     def test_namespace_pattern(self):
-        """Namespaces can be applied to include()'d urlpatterns."""
+        """
+
+        Tests whether Django's URL namespace pattern works as expected for included URL patterns.
+
+        Verifies that the reverse function correctly generates URLs for named views within
+        a namespace, handling various scenarios with arguments, keyword arguments, and
+        special characters.
+
+        """
         test_urls = [
             ("inc-ns1:inc-normal-view", [], {}, "/ns-included1/normal/"),
             ("inc-ns1:inc-normal-view", [37, 42], {}, "/ns-included1/normal/37/42/"),
@@ -974,8 +1034,12 @@ class NamespaceTests(SimpleTestCase):
 
     def test_app_name_pattern(self):
         """
-        Namespaces can be applied to include()'d urlpatterns that set an
-        app_name attribute.
+
+            Tests the correctness of URL reversing for views in included URLs with an app_name namespace.
+
+            Verifies that URLs are correctly generated for both normal and special cases, 
+            including paths with arguments and keyword arguments.
+
         """
         test_urls = [
             ("app-ns1:inc-normal-view", [], {}, "/app-included1/normal/"),
@@ -994,8 +1058,7 @@ class NamespaceTests(SimpleTestCase):
 
     def test_namespace_pattern_with_variable_prefix(self):
         """
-        Using include() with namespaces when there is a regex variable in front
-        of it.
+        Tests that URL namespaces work correctly when reversing URLs with regex variables in the pattern prefix, ensuring the resulting URLs match the expected output.
         """
         test_urls = [
             ("inc-outer:inc-normal-view", [], {"outer": 42}, "/ns-outer/42/normal/"),
@@ -1015,7 +1078,9 @@ class NamespaceTests(SimpleTestCase):
                 self.assertEqual(reverse(name, args=args, kwargs=kwargs), expected)
 
     def test_multiple_namespace_pattern(self):
-        """Namespaces can be embedded."""
+        """
+        Tests the functionality of reversing URLs with multiple embedded namespaces, verifying that the resulting URL paths are correctly generated based on the input namespace, arguments, and keyword arguments.
+        """
         test_urls = [
             ("inc-ns1:test-ns3:urlobject-view", [], {}, "/ns-included1/test3/inner/"),
             (
@@ -1042,7 +1107,9 @@ class NamespaceTests(SimpleTestCase):
                 self.assertEqual(reverse(name, args=args, kwargs=kwargs), expected)
 
     def test_nested_namespace_pattern(self):
-        """Namespaces can be nested."""
+        """
+        Tests the handling of nested namespaces in URL reversal, verifying that the function correctly generates URLs with multiple levels of namespace inclusion and various argument combinations.
+        """
         test_urls = [
             (
                 "inc-ns1:inc-ns4:inc-ns1:test-ns3:urlobject-view",
@@ -1074,7 +1141,9 @@ class NamespaceTests(SimpleTestCase):
                 self.assertEqual(reverse(name, args=args, kwargs=kwargs), expected)
 
     def test_app_lookup_object(self):
-        """A default application namespace can be used for lookup."""
+        """
+        Tests the application namespace lookup by verifying that the reverse URL resolver correctly constructs URLs for various test cases, confirming that a default application namespace can be used for lookup.
+        """
         test_urls = [
             ("testapp:urlobject-view", [], {}, "/default/inner/"),
             ("testapp:urlobject-view", [37, 42], {}, "/default/inner/37/42/"),
@@ -1091,7 +1160,14 @@ class NamespaceTests(SimpleTestCase):
                 self.assertEqual(reverse(name, args=args, kwargs=kwargs), expected)
 
     def test_app_lookup_object_with_default(self):
-        """A default application namespace is sensitive to the current app."""
+        """
+
+        Tests that the application namespace in URL lookup is sensitive to the current app.
+
+        Verifies that the reverse URL resolver correctly generates URLs based on the current app,
+        when using default application namespaces.
+
+        """
         test_urls = [
             ("testapp:urlobject-view", [], {}, "test-ns3", "/default/inner/"),
             (
@@ -1127,8 +1203,7 @@ class NamespaceTests(SimpleTestCase):
 
     def test_app_lookup_object_without_default(self):
         """
-        An application namespace without a default is sensitive to the current
-        app.
+        Tests that the application namespace can correctly resolve URLs when no default application is specified, considering the current application context and various URL patterns.
         """
         test_urls = [
             ("nodefault:urlobject-view", [], {}, None, "/other2/inner/"),
@@ -1205,7 +1280,9 @@ class NamespaceTests(SimpleTestCase):
                 self.assertEqual(reverse(name, args=args, kwargs=kwargs), expected)
 
     def test_namespaces_with_variables(self):
-        """Namespace prefixes can capture variables."""
+        """
+        Tests that namespace prefixes correctly capture variables when reversing URLs.
+        """
         test_urls = [
             ("inc-ns5:inner-nothing", [], {"outer": "70"}, "/inc70/"),
             (
@@ -1223,7 +1300,7 @@ class NamespaceTests(SimpleTestCase):
 
     def test_nested_app_lookup(self):
         """
-        A nested current_app should be split in individual namespaces (#24904).
+        Checks if nested current_app context is properly handled when reversing URLs, ensuring correct splitting into individual namespaces.
         """
         test_urls = [
             (
@@ -1293,7 +1370,9 @@ class NamespaceTests(SimpleTestCase):
                 )
 
     def test_current_app_no_partial_match(self):
-        """current_app shouldn't be used unless it matches the whole path."""
+        """
+        Verifies that the current_app parameter in a reverse URL lookup only matches when it fully aligns with the namespace of the URL path, preventing partial matches.
+        """
         test_urls = [
             (
                 "inc-ns1:testapp:urlobject-view",
@@ -1337,6 +1416,9 @@ class NamespaceTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF=urlconf_outer.__name__)
 class RequestURLconfTests(SimpleTestCase):
     def test_urlconf(self):
+        """
+        ..: Tests if the URL configuration is working as expected by sending GET requests to specific URLs and verifying the response status codes and content.
+        """
         response = self.client.get("/test/me/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -1353,6 +1435,10 @@ class RequestURLconfTests(SimpleTestCase):
         ]
     )
     def test_urlconf_overridden(self):
+        """
+        Tests that the URLconf is correctly overridden by the ChangeURLconfMiddleware, 
+        verifying that the correct URLs return expected HTTP status codes and content.
+        """
         response = self.client.get("/test/me/")
         self.assertEqual(response.status_code, 404)
         response = self.client.get("/inner_urlconf/second_test/")
@@ -1368,8 +1454,7 @@ class RequestURLconfTests(SimpleTestCase):
     )
     def test_urlconf_overridden_with_null(self):
         """
-        Overriding request.urlconf with None will fall back to the default
-        URLconf.
+        Tests that when the URLconf is overridden with None, the default URLconf is used, ensuring correct routing and response.
         """
         response = self.client.get("/test/me/")
         self.assertEqual(response.status_code, 200)
@@ -1437,8 +1522,7 @@ class RequestURLconfTests(SimpleTestCase):
     )
     def test_reverse_outer_in_streaming(self):
         """
-        Test reversing an URL from the *default* URLconf from inside
-        a streaming response.
+        Test that reversing a URL from the default URLconf fails when attempted from within a streaming response.
         """
         message = "Reverse for 'outer' not found."
         with self.assertRaisesMessage(NoReverseMatch, message):
@@ -1446,7 +1530,9 @@ class RequestURLconfTests(SimpleTestCase):
             b"".join(self.client.get("/second_test/"))
 
     def test_urlconf_is_reset_after_request(self):
-        """The URLconf is reset after each request."""
+        """
+        Tests that the URLconf is properly reset after each request, ensuring that changes made by the ChangeURLconfMiddleware are discarded and the original URLconf is restored.
+        """
         self.assertIsNone(get_urlconf())
         with override_settings(
             MIDDLEWARE=["%s.ChangeURLconfMiddleware" % middleware.__name__]
@@ -1480,7 +1566,9 @@ class ErrorHandlerResolutionTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns_reverse.urls_without_handlers")
 class DefaultErrorHandlerTests(SimpleTestCase):
     def test_default_handler(self):
-        "If the urls.py doesn't specify handlers, the defaults are used"
+        """
+        Tests the default handler behavior when no custom handlers are specified in urls.py, verifying a 404 status code is returned for a non-existent view and a ValueError is raised for an invalid view.
+        """
         response = self.client.get("/test/")
         self.assertEqual(response.status_code, 404)
 
@@ -1507,6 +1595,15 @@ class NoRootUrlConfTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns_reverse.namespace_urls")
 class ResolverMatchTests(SimpleTestCase):
     def test_urlpattern_resolve(self):
+        """
+
+        Tests the functionality of the urlpattern resolve function.
+
+        Verifies that resolving a URL path yields the correct ResolverMatch object, 
+        containing the expected function, arguments, and keyword arguments, 
+        as well as other relevant URL attributes such as name, namespace, and app name.
+
+        """
         for (
             path_,
             url_name,
@@ -1576,6 +1673,12 @@ class ResolverMatchTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns_reverse.urls")
     def test_repr_functools_partial(self):
+        """
+
+        Tests the string representation of a ResolverMatch object created by resolving URLs 
+        for views wrapped with functools.partial, ensuring the output matches the expected pattern.
+
+        """
         tests = [
             ("partial", "template.html"),
             ("partial_nested", "nested_partial.html"),
@@ -1736,6 +1839,9 @@ class LookaheadTests(SimpleTestCase):
                 self.assertEqual(resolve(test_url).kwargs, {"city": "a-city"})
 
     def test_invalid_resolve(self):
+        """
+        Tests the resolver function with invalid URLs to ensure it raises a Resolver404 exception when encountering non-existent city paths.
+        """
         test_urls = [
             "/lookahead-/not-a-city/",
             "/lookbehind-/not-a-city/",
@@ -1759,6 +1865,11 @@ class LookaheadTests(SimpleTestCase):
                 self.assertEqual(reverse(name, kwargs=kwargs), expected)
 
     def test_invalid_reverse(self):
+        """
+        Tests that reversing URLs with invalid or mismatched keyword arguments raises a NoReverseMatch exception.
+
+        This test covers various URL patterns, including lookahead and lookbehind assertions, to ensure that the reverse URL resolver correctly handles invalid input and raises an exception as expected.
+        """
         test_urls = [
             ("lookahead-positive", {"city": "other-city"}),
             ("lookahead-negative", {"city": "not-a-city"}),

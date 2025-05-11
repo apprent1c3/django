@@ -23,10 +23,7 @@ def i18n_patterns(*urls, prefix_default_language=True):
 @functools.cache
 def is_language_prefix_patterns_used(urlconf):
     """
-    Return a tuple of two booleans: (
-        `True` if i18n_patterns() (LocalePrefixPattern) is used in the URLconf,
-        `True` if the default language should be prefixed
-    )
+    Checks if Django's internationalization URL patterns are used in the given URL configuration, returning whether locale prefix patterns are present and whether the default language should be prefixed.
     """
     for url_pattern in get_resolver(urlconf).url_patterns:
         if isinstance(url_pattern.pattern, LocalePrefixPattern):

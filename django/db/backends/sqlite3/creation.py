@@ -23,6 +23,18 @@ class DatabaseCreation(BaseDatabaseCreation):
         return test_database_name
 
     def _create_test_db(self, verbosity, autoclobber, keepdb=False):
+        """
+        ```\"\"\"Creates a test database, optionally destroying an existing one.
+
+        Deletes the existing test database file if it is not an in-memory database,
+        unless the user chooses to cancel. Returns the name of the test database.
+
+        :param bool keepdb: Whether to keep the existing test database.
+        :param int verbosity: Verbosity level for logging.
+        :param bool autoclobber: Whether to automatically delete the existing test database without asking for confirmation.
+        :return: The name of the test database.
+        \"\"\"```
+        """
         test_database_name = self._get_test_db_name()
 
         if keepdb:
@@ -52,6 +64,13 @@ class DatabaseCreation(BaseDatabaseCreation):
         return test_database_name
 
     def get_test_db_clone_settings(self, suffix):
+        """
+        Returns a dictionary of database settings for a test database clone, modified from the original database settings.
+
+         The clone's database name is appended with the provided suffix, allowing for multiple clones.
+
+         NOTE: The cloning behavior differs for in-memory databases and databases with different multiprocessing start methods (fork or spawn).
+        """
         orig_settings_dict = self.connection.settings_dict
         source_database_name = orig_settings_dict["NAME"] or ":memory:"
 
@@ -72,6 +91,13 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
+        """
+        Clones the source test database to a new target database with the specified suffix.
+
+        :param suffix: The suffix to append to the target database name
+        :param verbosity: The level of logging detail to display
+        :param keepdb: If True, does not destroy the old test database (default is False)
+        """
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
         if not self.is_in_memory_db(source_database_name):
@@ -113,11 +139,7 @@ class DatabaseCreation(BaseDatabaseCreation):
 
     def test_db_signature(self):
         """
-        Return a tuple that uniquely identifies a test database.
-
-        This takes into account the special cases of ":memory:" and "" for
-        SQLite since the databases will be distinct despite having the same
-        TEST NAME. See https://www.sqlite.org/inmemorydb.html
+        Returns a unique identifier for a test database, considering special cases for SQLite in-memory databases.
         """
         test_database_name = self._get_test_db_name()
         sig = [self.connection.settings_dict["NAME"]]
@@ -128,6 +150,14 @@ class DatabaseCreation(BaseDatabaseCreation):
         return tuple(sig)
 
     def setup_worker_connection(self, _worker_id):
+        """
+
+        Sets up a worker connection for the given worker ID, adapting to the current multiprocessing start method.
+
+        Configuration is updated based on the worker ID, and a connection to a SQLite database is established.
+        In a 'spawn' context, a new in-memory database is created as a clone of the test database, allowing for isolated execution.
+
+        """
         settings_dict = self.get_test_db_clone_settings(_worker_id)
         # connection.settings_dict must be updated in place for changes to be
         # reflected in django.db.connections. Otherwise new threads would

@@ -16,6 +16,9 @@ class ACosTests(TestCase):
         self.assertIsNone(obj.null_acos)
 
     def test_decimal(self):
+        """
+        Tests the calculation of the inverse cosine of decimal fields in a database model, verifying the result type and accuracy.
+        """
         DecimalModel.objects.create(n1=Decimal("-0.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_acos=ACos("n1"), n2_acos=ACos("n2")
@@ -26,6 +29,9 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.n2_acos, Decimal(math.acos(obj.n2)))
 
     def test_float(self):
+        """
+        Checks the functionality of the ACos database function on float fields by creating a test object, applying the function, and verifying that the result is a float and mathematically correct.
+        """
         FloatModel.objects.create(f1=-0.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_acos=ACos("f1"), f2_acos=ACos("f2")
@@ -36,6 +42,12 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.f2_acos, math.acos(obj.f2))
 
     def test_integer(self):
+        """
+
+        Tests the functionality of the ACos function in the Django ORM,
+        verifying it correctly calculates the inverse cosine of integer values.
+
+        """
         IntegerModel.objects.create(small=0, normal=1, big=-1)
         obj = IntegerModel.objects.annotate(
             small_acos=ACos("small"),
@@ -50,6 +62,9 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.big_acos, math.acos(obj.big))
 
     def test_transform(self):
+        """
+        Tests the ACos transformation function with DecimalField, verifying its correct application and filtering of model instances based on the transformed value.
+        """
         with register_lookup(DecimalField, ACos):
             DecimalModel.objects.create(n1=Decimal("0.5"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-0.9"), n2=Decimal("0"))

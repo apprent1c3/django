@@ -87,7 +87,7 @@ class PickleabilityTestCase(TestCase):
 
     def test_model_pickle(self):
         """
-        A model not defined on module level is picklable.
+        Verifies that models can be successfully pickled and unpickled, ensuring their state is preserved after serialization and deserialization.
         """
         original = Container.SomeModel(pk=1)
         dumped = pickle.dumps(original)
@@ -103,7 +103,7 @@ class PickleabilityTestCase(TestCase):
 
     def test_model_pickle_m2m(self):
         """
-        Test intentionally the automatically created through model.
+        Tests the ability to pickle and unpickle an instance of the automatically created many-to-many through model, ensuring it can be safely serialized and deserialized without losing its integrity.
         """
         m1 = M2MModel.objects.create()
         g1 = Group.objects.create(name="foof")
@@ -115,6 +115,9 @@ class PickleabilityTestCase(TestCase):
         self.assertEqual(original, reloaded)
 
     def test_model_pickle_dynamic(self):
+        """
+        Tests the ability to pickle and unpickle an instance of a dynamically created subclass of Event, ensuring the reloaded instance has the same attributes and class as the original.
+        """
         class Meta:
             proxy = True
 
@@ -140,6 +143,9 @@ class PickleabilityTestCase(TestCase):
         )
 
     def test_pickle_prefetch_related_idempotence(self):
+        """
+        Tests that prefetch related queries on a QuerySet are idempotent after pickling and unpickling.
+        """
         g = Group.objects.create(name="foo")
         groups = Group.objects.prefetch_related("event_set")
 
@@ -154,6 +160,14 @@ class PickleabilityTestCase(TestCase):
     def test_pickle_prefetch_queryset_usable_outside_of_prefetch(self):
         # Prefetch shouldn't affect the fetch-on-pickle behavior of the
         # queryset passed to it.
+        """
+
+        Tests that a prefetched queryset is usable outside of the prefetch context after being pickled.
+
+        Verifies that the queryset can be serialized, deserialized, and still benefit from the original prefetch,
+        resulting in no additional database queries when iterated over.
+
+        """
         Group.objects.create(name="foo")
         events = Event.objects.order_by("id")
         Group.objects.prefetch_related(models.Prefetch("event_set", queryset=events))
@@ -171,6 +185,9 @@ class PickleabilityTestCase(TestCase):
         self.assertSequenceEqual(groups2.filter(id__gte=0), [g])
 
     def test_pickle_prefetch_queryset_not_evaluated(self):
+        """
+        Tests that a QuerySet with a prefetched related object set, which has not been evaluated, can be pickled and unpickled without generating additional database queries.
+        """
         Group.objects.create(name="foo")
         groups = Group.objects.prefetch_related(
             models.Prefetch("event_set", queryset=Event.objects.order_by("id"))
@@ -181,8 +198,7 @@ class PickleabilityTestCase(TestCase):
 
     def test_pickle_prefetch_related_with_m2m_and_objects_deletion(self):
         """
-        #24831 -- Cached properties on ManyToOneRel created in QuerySet.delete()
-        caused subsequent QuerySet pickling to fail.
+        Tests that pickling a QuerySet with prefetching of Many-To-Many relationships works correctly after related objects have been deleted.
         """
         g = Group.objects.create(name="foo")
         m2m = M2MModel.objects.create()
@@ -194,6 +210,12 @@ class PickleabilityTestCase(TestCase):
         self.assertSequenceEqual(m2ms, [m2m])
 
     def test_pickle_boolean_expression_in_Q__queryset(self):
+        """
+
+        Tests that boolean expressions in a QuerySet can be properly pickled and unpickled.
+        Verifies that the pickled QuerySet produces the same results as the original when evaluated.
+
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.filter(
@@ -207,6 +229,9 @@ class PickleabilityTestCase(TestCase):
         self.assertSequenceEqual(groups2, [group])
 
     def test_pickle_exists_queryset_still_usable(self):
+        """
+        Tests that a QuerySet remains usable after being pickled and unpickled, specifically after annotating it with an Exists subquery. Verifies the QuerySet correctly filters objects based on the annotation after deserialization.
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -218,6 +243,13 @@ class PickleabilityTestCase(TestCase):
         self.assertSequenceEqual(groups2.filter(has_event=True), [group])
 
     def test_pickle_exists_queryset_not_evaluated(self):
+        """
+
+        Tests that a queryset with Exists subquery is properly pickled without evaluating the queryset.
+
+        Verifies that pickling the queryset does not trigger additional database queries.
+
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -230,6 +262,9 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_exists_kwargs_queryset_not_evaluated(self):
+        """
+        Tests that a queryset with an Exists annotation is pickleable without re-evaluating the queryset, ensuring no extra database queries are made.
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -242,6 +277,9 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_subquery_queryset_not_evaluated(self):
+        """
+        Test that a queryset with a subquery annotation is not evaluated when pickled, ensuring that the queryset remains usable after being serialized.
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -254,6 +292,9 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_filteredrelation(self):
+        """
+        Tests the use of filtered relation and annotation in a query when pickled and unpickled, ensuring the original functionality is preserved after serialization. Specifically, verifies that a filtered relation on events within a group correctly sums related happening numbers after being pickled and unpickled.
+        """
         group = Group.objects.create(name="group")
         event_1 = Event.objects.create(title="Big event", group=group)
         event_2 = Event.objects.create(title="Small event", group=group)
@@ -275,6 +316,9 @@ class PickleabilityTestCase(TestCase):
         self.assertEqual(groups.get().sum_number, 5)
 
     def test_pickle_filteredrelation_m2m(self):
+        """
+        Tests the serialization and deserialization of a Django ORM query that uses a filtered relation with a many-to-many relationship, ensuring that the query can be pickled and unpickled without losing its annotated fields.
+        """
         group = Group.objects.create(name="group")
         m2mmodel = M2MModel.objects.create(added=datetime.date(2020, 1, 1))
         m2mmodel.groups.add(group)
@@ -305,6 +349,11 @@ class PickleabilityTestCase(TestCase):
 
     def test_annotation_values_list(self):
         # values_list() is reloaded to values() when using a pickled query.
+        """
+
+        Test that values_list annotations are properly preserved when a Happening QuerySet is pickled and reloaded.
+
+        """
         tests = [
             Happening.objects.values_list("name"),
             Happening.objects.values_list("name", flat=True),
@@ -324,8 +373,7 @@ class PickleabilityTestCase(TestCase):
 
     def test_missing_django_version_unpickling(self):
         """
-        #21430 -- Verifies a warning is raised for querysets that are
-        unpickled without a Django version
+        Verifies that a warning is raised when unpickling a queryset without a specified Django version.
         """
         qs = Group.missing_django_version_objects.all()
         msg = "Pickled queryset instance's Django version is not specified."
@@ -334,8 +382,7 @@ class PickleabilityTestCase(TestCase):
 
     def test_unsupported_unpickle(self):
         """
-        #21430 -- Verifies a warning is raised for querysets that are
-        unpickled with a different Django version than the current
+        Tests that a RuntimeWarning is raised when unpickling a Django queryset that was pickled with a different Django version.
         """
         qs = Group.previous_django_version_objects.all()
         msg = (
@@ -361,8 +408,9 @@ class InLookupTests(TestCase):
 
     def test_in_lookup_queryset_evaluation(self):
         """
-        Neither pickling nor unpickling a QuerySet.query with an __in=inner_qs
-        lookup should evaluate inner_qs.
+        Verifies that neither pickling nor unpickling a QuerySet with an __in lookup 
+        evaluates the inner QuerySet until the results are actually accessed, ensuring 
+        lazy evaluation behavior is preserved throughout the serialization process.
         """
         events = Event.objects.filter(group__in=Group.objects.all())
 
@@ -377,6 +425,12 @@ class InLookupTests(TestCase):
         self.assertSequenceEqual(reloaded_events, [self.e1])
 
     def test_in_lookup_query_evaluation(self):
+        """
+        Test that a lookup query evaluation is properly serialized and deserialized.
+
+        Verifies that an Event queryset with an 'in' lookup can be pickled and unpickled without
+        executing any SQL queries, and that the reloaded queryset returns the same results as the original.
+        """
         events = Event.objects.filter(group__in=Group.objects.values("id").query)
 
         with self.assertNumQueries(0):

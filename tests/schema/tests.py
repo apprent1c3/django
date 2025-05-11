@@ -143,6 +143,14 @@ class SchemaTests(TransactionTestCase):
 
     def tearDown(self):
         # Delete any tables made for our models
+        """
+
+        Teardown method to clean up after a test.
+
+        Removes tables, clears caches, and deletes models and their many-to-many relationships
+        to ensure a clean slate for subsequent tests.
+
+        """
         self.delete_tables()
         new_apps.clear_cache()
         for model in new_apps.get_models():
@@ -160,7 +168,9 @@ class SchemaTests(TransactionTestCase):
                     editor.delete_model(model)
 
     def delete_tables(self):
-        "Deletes all model tables for our models for a clean test environment"
+        """
+        Deletes all model tables for a clean test environment, ensuring a pristine state for testing by removing existing tables associated with the application's models.
+        """
         converter = connection.introspection.identifier_converter
         with connection.schema_editor() as editor:
             connection.disable_constraint_checking()
@@ -177,6 +187,9 @@ class SchemaTests(TransactionTestCase):
             connection.enable_constraint_checking()
 
     def column_classes(self, model):
+        """
+        Returns a dictionary mapping column names to their respective types and descriptions for the given model's database table.
+        """
         with connection.cursor() as cursor:
             columns = {
                 d[0]: (connection.introspection.get_field_type(d[1], d), d)
@@ -226,6 +239,9 @@ class SchemaTests(TransactionTestCase):
             return connection.introspection.get_constraints(cursor, table)
 
     def get_constraints_for_column(self, model, column_name):
+        """
+        Retrieves a list of constraint names that apply specifically to a given column in a model's database table.
+        """
         constraints = self.get_constraints(model._meta.db_table)
         constraints_for_column = []
         for name, details in constraints.items():
@@ -254,6 +270,14 @@ class SchemaTests(TransactionTestCase):
         expected_default,
         cast_function=None,
     ):
+        """
+
+        Checks if the default value of a newly added field in the database matches the expected value.
+
+        It first adds the field to the model, then queries the database for the default value and compares it
+        to the expected default, optionally applying a casting function to ensure type consistency.
+
+        """
         with connection.cursor() as cursor:
             schema_editor.add_field(model, field)
             cursor.execute(
@@ -266,10 +290,7 @@ class SchemaTests(TransactionTestCase):
 
     def get_constraints_count(self, table, column, fk_to):
         """
-        Return a dict with keys 'fks', 'uniques, and 'indexes' indicating the
-        number of foreign keys, unique constraints, and indexes on
-        `table`.`column`. The `fk_to` argument is a 2-tuple specifying the
-        expected foreign key relationship's (table, column).
+        Returns a dictionary containing the counts of foreign keys, unique constraints, and indexes for a specified column in a table. The dictionary keys are 'fks', 'uniques', and 'indexes', providing the respective counts. The function also considers the expected foreign key relationship when counting foreign keys.
         """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(cursor, table)
@@ -323,8 +344,16 @@ class SchemaTests(TransactionTestCase):
 
     def assertForeignKeyExists(self, model, column, expected_fk_table, field="id"):
         """
-        Fail if the FK constraint on `model.Meta.db_table`.`column` to
-        `expected_fk_table`.id doesn't exist.
+
+        Verifies that a foreign key constraint exists on the specified column of a model's database table.
+
+        The constraint is checked to reference the expected foreign key table and field.
+
+        :param model: The model to check for the foreign key constraint
+        :param column: The column on the model's table to check for the foreign key
+        :param expected_fk_table: The expected foreign key table
+        :param field: The field on the foreign key table that the constraint should reference (default: 'id')
+
         """
         if not connection.features.can_introspect_foreign_keys:
             return
@@ -345,7 +374,7 @@ class SchemaTests(TransactionTestCase):
     # Tests
     def test_creation_deletion(self):
         """
-        Tries creating a model's table, and then deleting it.
+        Tests the creation and deletion of a model's database table, verifying that the table can be successfully created and deleted, and that attempting to access the deleted table raises an error.
         """
         with connection.schema_editor() as editor:
             # Create the table
@@ -362,7 +391,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_fk(self):
-        "Creating tables out of FK order, then repointing, works"
+        """
+        Tests that creating tables out of foreign key order and then repointing the foreign key works correctly, including validation of database integrity constraints.
+        """
         # Create the table
         with connection.schema_editor() as editor:
             editor.create_model(Book)
@@ -389,6 +420,12 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("can_create_inline_fk")
     def test_inline_fk(self):
         # Create some tables.
+        """
+        Tests the creation of an inline foreign key using the schema editor.
+
+        Verifies that a foreign key constraint is correctly added to the 'book_id' field
+        in the 'Note' model without producing any ALTER TABLE SQL statements with ADD CONSTRAINT clauses.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
@@ -412,6 +449,13 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("can_create_inline_fk")
     def test_add_inline_fk_update_data(self):
+        """
+        Tests adding an inline foreign key to a model and updating its data.
+
+        This test case verifies that a foreign key can be added to a model and 
+        that the data can be updated successfully, while also checking the 
+        creation of the corresponding index.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Node)
         # Add an inline foreign key and update data in the same transaction.
@@ -434,6 +478,13 @@ class SchemaTests(TransactionTestCase):
     )
     @isolate_apps("schema")
     def test_add_inline_fk_index_update_data(self):
+        """
+        Test adding an inline foreign key index and updating existing data in a model schema.
+
+        This test case ensures that creating a foreign key with an inline index and then updating existing data does not fail, 
+        particularly when the related model is the same as the model being modified, 
+        and that the new index is properly added to the model's schema.
+        """
         class Node(Model):
             class Meta:
                 app_label = "schema"
@@ -457,6 +508,11 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_char_field_with_db_index_to_fk(self):
         # Create the table
+        """
+
+        Tests the ability to convert a CharField with a database index to a foreign key.
+
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(AuthorCharFieldWithIndex)
@@ -476,6 +532,9 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_index_on_text_field")
     def test_text_field_with_db_index_to_fk(self):
         # Create the table
+        """
+        Tests changing a text field with a database index to a foreign key field, verifying the foreign key exists in the database schema.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(AuthorTextFieldWithIndex)
@@ -493,6 +552,9 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_char_field_pk_to_auto_field(self):
+        """
+        #: Tests the conversion of a CharField primary key to an AutoField.
+        """
         class Foo(Model):
             id = CharField(max_length=255, primary_key=True)
 
@@ -511,7 +573,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_fk_to_proxy(self):
-        "Creating a FK to a proxy model creates database constraints."
+        """
+        Tests the creation of a foreign key constraint to a proxy model, ensuring the database properly sets up the relationship.
+        """
 
         class AuthorProxy(Author):
             class Meta:
@@ -536,7 +600,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_foreign_keys", "can_introspect_foreign_keys")
     def test_fk_db_constraint(self):
-        "The db_constraint parameter is respected"
+        """
+        Tests that the db_constraint parameter is respected when creating and altering foreign key fields in the database schema.
+        """
         # Create the table
         with connection.schema_editor() as editor:
             editor.create_model(Tag)
@@ -569,8 +635,7 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     def test_no_db_constraint_added_during_primary_key_change(self):
         """
-        When a primary key that's pointed to by a ForeignKey with
-        db_constraint=False is altered, a foreign key constraint isn't added.
+        Checks if changing the primary key of a model does not add a foreign key constraint when db_constraint=False is set on the referencing ForeignKey.
         """
 
         class Author(Model):
@@ -599,6 +664,9 @@ class SchemaTests(TransactionTestCase):
         self.assertForeignKeyNotExists(BookWeak, "author_id", "schema_author")
 
     def _test_m2m_db_constraint(self, M2MFieldClass):
+        """
+        Tests the behavior of a many-to-many field when the database constraint is disabled. It creates a local model with a many-to-many relationship to a tag model, then verifies that the foreign key constraint does not exist in the database.
+        """
         class LocalAuthorWithM2M(Model):
             name = CharField(max_length=255)
 
@@ -639,7 +707,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_add_field(self):
         """
-        Tests adding fields to models
+        Tests the addition of a new field to a model, verifying that the field is correctly created and the corresponding database table is updated without dropping or recreating it, and that the new field's type is correctly introspected.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -677,7 +745,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_add_field_remove_field(self):
         """
-        Adding a field and removing it removes all deferred sql referring to it.
+        Tests that adding and then removing a field from a model results in all deferred SQL related to that field being properly cleaned up.
         """
         with connection.schema_editor() as editor:
             # Create a table with a unique constraint on the slug field.
@@ -688,7 +756,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_add_field_temp_default(self):
         """
-        Tests adding fields to models with a temporary default
+        Tests the addition of a field to a model with a temporary default value, verifying the correct creation and configuration of the new field.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -716,8 +784,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_add_field_temp_default_boolean(self):
         """
-        Tests adding fields to models with a temporary default where
-        the default is False. (#21783)
+        Tests the addition of a field to a model with a temporary default value set to False, ensuring the field is correctly added to the model's schema and is of the expected BooleanField type.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -742,8 +809,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_add_field_default_transform(self):
         """
-        Tests adding fields to models with a default that is not directly
-        valid in the database (#22581)
+        Tests the addition of a field to a model where the default value requires transformation before being stored in the database.
         """
 
         class TestTransformField(IntegerField):
@@ -777,6 +843,9 @@ class SchemaTests(TransactionTestCase):
         self.assertEqual(Author.objects.extra(where=["thing = 1"]).count(), 2)
 
     def test_add_field_o2o_nullable(self):
+        """
+        Tests the addition of a nullable one-to-one field to a model, ensuring the field is created with the correct nullability in the database.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Note)
@@ -790,7 +859,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_add_field_binary(self):
         """
-        Tests binary fields get a sane default (#22851)
+        Verifies that binary fields are properly added to a model with a sane default value, checking the resulting column type is either BinaryField or TextField.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -806,6 +875,9 @@ class SchemaTests(TransactionTestCase):
         self.assertIn(columns["bits"][0], ("BinaryField", "TextField"))
 
     def test_add_field_durationfield_with_default(self):
+        """
+        Tests adding a DurationField to the Author model with a default value.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         new_field = DurationField(default=datetime.timedelta(minutes=10))
@@ -821,7 +893,7 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "mysql", "MySQL specific")
     def test_add_binaryfield_mediumblob(self):
         """
-        Test adding a custom-sized binary field on MySQL (#24846).
+        Tests the addition of a custom-sized binary field on MySQL databases, ensuring the field is correctly created and its type is properly identified.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -838,6 +910,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipUnlessDBFeature("supports_json_field", "supports_stored_generated_columns")
     def test_add_generated_field_with_kt_model(self):
+        """
+        Tests the creation of a model containing a generated field, ensuring that the generated field is properly persisted and no queries contain 'None'.
+        """
         class GeneratedFieldKTModel(Model):
             data = JSONField()
             status = GeneratedField(
@@ -860,6 +935,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipUnlessDBFeature("supports_virtual_generated_columns")
     def test_add_generated_boolean_field(self):
+        """
+        Tests the addition of a generated boolean field to a model, verifying that the field accurately reflects whether a related integer field has a value.
+        """
         class GeneratedBooleanFieldModel(Model):
             value = IntegerField(null=True)
             has_value = GeneratedField(
@@ -881,6 +959,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_add_generated_field(self):
+        """
+        Tests the addition of a generated field to a model, verifying support for stored generated columns in the database.
+        """
         class GeneratedFieldOutputFieldModel(Model):
             price = DecimalField(max_digits=7, decimal_places=2)
             vat_price = GeneratedField(
@@ -898,6 +979,14 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_add_generated_field_contains(self):
+        """
+
+        Tests the addition of a generated field that contains a specific value.
+
+        Verifies that a model can have a generated field that uses the ``contains``
+        database function and that the field's value is correctly calculated and stored.
+
+        """
         class GeneratedFieldContainsModel(Model):
             text = TextField(default="foo")
             generated = GeneratedField(
@@ -931,6 +1020,14 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_alter_generated_field(self):
+        """
+
+        Test altering a generated field by adding a database index to it.
+
+        Verifies that altering a generated field to have a database index results in the
+        index being created in the database.
+
+        """
         class GeneratedFieldIndexedModel(Model):
             number = IntegerField(default=1)
             generated = GeneratedField(
@@ -963,6 +1060,9 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_add_auto_field(self):
+        """
+        Tests adding an auto field to an existing model
+        """
         class AddAutoFieldModel(Model):
             name = CharField(max_length=255, primary_key=True)
 
@@ -987,6 +1087,12 @@ class SchemaTests(TransactionTestCase):
         AddAutoFieldModel.objects.create(name="test")
 
     def test_remove_field(self):
+        """
+        Tests the removal of a field from a model.
+
+        Verifies that the field is successfully removed from the model's table
+        and that the relevant database operations are executed correctly.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             with CaptureQueriesContext(connection) as ctx:
@@ -1005,6 +1111,13 @@ class SchemaTests(TransactionTestCase):
             )
 
     def test_remove_indexed_field(self):
+        """
+
+        Tests that an indexed field can be successfully removed from a model.
+
+        Verifies that after removing the field, it is no longer present in the model's columns.
+
+        """
         with connection.schema_editor() as editor:
             editor.create_model(AuthorCharFieldWithIndex)
         with connection.schema_editor() as editor:
@@ -1017,7 +1130,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter(self):
         """
-        Tests simple altering of fields
+        Tests the alteration of model fields, specifically changing the type and nullability of a field, and verifies the changes are successfully applied to the database schema.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -1055,6 +1168,9 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_auto_field_to_integer_field(self):
         # Create the table
+        """
+        Tests the alteration of an auto field to an integer field in a model, verifying that the field is successfully replaced and that the primary key constraint is maintained, with additional checks for database support of unspecified primary keys.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Change AutoField to IntegerField
@@ -1072,6 +1188,9 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_auto_field_to_char_field(self):
         # Create the table
+        """
+        Tests the alteration of an auto field to a character field in a database model. Specifically, it verifies that the 'id' field of the Author model can be successfully changed from an auto-incrementing field to a character field with a maximum length of 50 characters.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Change AutoField to CharField
@@ -1084,6 +1203,9 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_alter_auto_field_quoted_db_column(self):
+        """
+        Tests the alteration of an AutoField to a BigAutoField when the database column name is quoted, ensuring the new field is correctly applied to the model schema.
+        """
         class Foo(Model):
             id = AutoField(primary_key=True, db_column='"quoted_id"')
 
@@ -1104,6 +1226,12 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_not_unique_field_to_primary_key(self):
         # Create the table.
+        """
+
+        Tests the alteration of a non-unique field to a primary key field, 
+        verifying that the resulting field has at most one unique constraint.
+
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Change UUIDField to primary key.
@@ -1124,6 +1252,14 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_alter_primary_key_quoted_db_table(self):
+        """
+
+        Tests altering the primary key of a model that uses a quoted database table name.
+
+        Verifies that the primary key can be successfully modified without errors,
+        even when the database table name is enclosed in quotes.
+
+        """
         class Foo(Model):
             class Meta:
                 app_label = "schema"
@@ -1144,6 +1280,9 @@ class SchemaTests(TransactionTestCase):
         # Regression for "BLOB/TEXT column 'info' can't have a default value")
         # on MySQL.
         # Create the table
+        """
+        Tests altering a text field in the Note model to allow blank values.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Note)
         old_field = Note._meta.get_field("info")
@@ -1153,6 +1292,12 @@ class SchemaTests(TransactionTestCase):
             editor.alter_field(Note, old_field, new_field, strict=True)
 
     def test_alter_text_field_to_not_null_with_default_value(self):
+        """
+        Test altering a text field to not null with a default value.
+
+        Verifies that when a TextField is changed to not allow null values, 
+        existing null values are replaced with the specified default value.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Note)
         note = Note.objects.create(address=None)
@@ -1167,8 +1312,7 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("can_defer_constraint_checks", "can_rollback_ddl")
     def test_alter_fk_checks_deferred_constraints(self):
         """
-        #25492 - Altering a foreign key's structure and data in the same
-        transaction.
+        Tests altering a foreign key's structure and data within the same transaction, ensuring deferred constraint checks are handled correctly.
         """
         with connection.schema_editor() as editor:
             editor.create_model(Node)
@@ -1183,6 +1327,13 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_alter_null_with_default_value_deferred_constraints(self):
+        """
+        Tests altering null fields with default values when deferred constraints are present.
+
+            Verifies the ability to modify a model's field from nullable to non-nullable
+            with a default value, while ensuring that deferred constraints are properly handled.
+
+        """
         class Publisher(Model):
             class Meta:
                 app_label = "schema"
@@ -1215,7 +1366,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_text_field_to_date_field(self):
         """
-        #25002 - Test conversion of text field to date field.
+        Tests the conversion of a text field to a date field in a database schema, ensuring the alteration is applied correctly and the resulting field has the expected properties.
         """
         with connection.schema_editor() as editor:
             editor.create_model(Note)
@@ -1231,7 +1382,10 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_text_field_to_datetime_field(self):
         """
-        #25002 - Test conversion of text field to datetime field.
+
+        Tests the conversion of a text field to a datetime field in a database schema.
+        VERifies that the field conversion is correctly applied and that the resulting datetime field does not allow null values.
+
         """
         with connection.schema_editor() as editor:
             editor.create_model(Note)
@@ -1247,7 +1401,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_text_field_to_time_field(self):
         """
-        #25002 - Test conversion of text field to time field.
+        Tests the migration of a text field to a time field in the database schema, ensuring the conversion is successful and the new field behaves as expected.
         """
         with connection.schema_editor() as editor:
             editor.create_model(Note)
@@ -1264,7 +1418,11 @@ class SchemaTests(TransactionTestCase):
     @skipIfDBFeature("interprets_empty_strings_as_nulls")
     def test_alter_textual_field_keep_null_status(self):
         """
-        Changing a field type shouldn't affect the not null status.
+
+            Tests that altering a textual field preserves its null status.
+
+            Verifies that changing the type of a field does not modify its 'not null' constraint.
+
         """
         with connection.schema_editor() as editor:
             editor.create_model(Note)
@@ -1281,8 +1439,7 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("interprets_empty_strings_as_nulls")
     def test_alter_textual_field_not_null_to_null(self):
         """
-        Nullability for textual fields is preserved on databases that
-        interpret empty strings as NULLs.
+        Tests the preservation of nullability for textual fields when a database interprets empty strings as NULLs, specifically when altering a field from non-nullable to nullable.
         """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
@@ -1301,7 +1458,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_numeric_field_keep_null_status(self):
         """
-        Changing a field type shouldn't affect the not null status.
+        Tests that altering the type of a numeric field preserves its null status, ensuring that the change does not impact the field's not null constraints.
         """
         with connection.schema_editor() as editor:
             editor.create_model(UniqueTest)
@@ -1317,7 +1474,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_null_to_not_null(self):
         """
-        #23609 - Tests handling of default values when altering from NULL to NOT NULL.
+        Tests the behavior of altering a database model field from nullable to non-nullable, verifying that existing null values are updated to the field's new default value.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -1345,8 +1502,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_charfield_to_null(self):
         """
-        #24307 - Should skip an alter statement on databases with
-        interprets_empty_strings_as_nulls when changing a CharField to null.
+        Tests database compatibility with CharField to null alterations on databases interpreting empty strings as null. Verifies that an alter statement is skipped in such cases.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -1361,6 +1517,9 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_char_field_decrease_length(self):
         # Create the table.
+        """
+        Tests that attempting to decrease the length of a char field in PostgreSQL raises a DataError when data exceeds the new length.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         Author.objects.create(name="x" * 255)
@@ -1375,6 +1534,11 @@ class SchemaTests(TransactionTestCase):
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_field_with_custom_db_type(self):
+        """
+        Tests altering a model field with a custom database type in PostgreSQL.
+
+        Verifies that changing the field type using an ArrayField with a custom CharField can be successfully altered in the database schema.
+        """
         from django.contrib.postgres.fields import ArrayField
 
         class Foo(Model):
@@ -1396,6 +1560,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_array_field_decrease_base_field_length(self):
+        """
+        Tests that decreasing the base field length of an array field in PostgreSQL results in a DataError when there are instances with values longer than the new length.
+        """
         from django.contrib.postgres.fields import ArrayField
 
         class ArrayModel(Model):
@@ -1420,6 +1587,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_array_field_decrease_nested_base_field_length(self):
+        """
+        Tests that decreasing the length of a nested base field in an ArrayField raises an error when the new length is too small to hold existing data on PostgreSQL.
+        """
         from django.contrib.postgres.fields import ArrayField
 
         class ArrayModel(Model):
@@ -1442,6 +1612,15 @@ class SchemaTests(TransactionTestCase):
                 editor.alter_field(ArrayModel, old_field, new_field, strict=True)
 
     def _add_ci_collation(self):
+        """
+        Creates a case-insensitive database collation and schedules it for cleanup.
+
+        Adds a collation named 'case_insensitive' to the database, enabling case-insensitive string comparisons.
+        The collation is removed when the test is complete to prevent interference with other tests.
+
+        Returns:
+            str: The name of the created collation.
+        """
         ci_collation = "case_insensitive"
 
         def drop_collation():
@@ -1463,6 +1642,9 @@ class SchemaTests(TransactionTestCase):
         "supports_non_deterministic_collations",
     )
     def test_db_collation_arrayfield(self):
+        """
+        Tests that a PostgreSQL database correctly handles collation changes on ArrayField instances that contain CharField elements, ensuring that the collation is updated correctly when altering the model field.
+        """
         from django.contrib.postgres.fields import ArrayField
 
         ci_collation = self._add_ci_collation()
@@ -1501,6 +1683,9 @@ class SchemaTests(TransactionTestCase):
         "supports_non_deterministic_collations",
     )
     def test_unique_with_collation_charfield(self):
+        """
+        Tests that a CharField in a PostgreSQL database with a case-insensitive collation and the unique constraint is correctly created and registered. Verifies that the column's collation and uniqueness constraint are properly set.
+        """
         ci_collation = self._add_ci_collation()
 
         class CiCharModel(Model):
@@ -1523,6 +1708,11 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_unique_with_deterministic_collation_charfield(self):
+        """
+        Tests the creation of a model with a char field that has a deterministic collation and is defined as unique. 
+        Verifies that the field is created with the correct collation, opclass and is included in the unique constraints for the model's table. 
+        This test is specific to PostgreSQL databases that support collation on char fields and deterministic collations.
+        """
         deterministic_collation = connection.features.test_collations.get(
             "deterministic"
         )
@@ -1560,6 +1750,11 @@ class SchemaTests(TransactionTestCase):
         "supports_non_deterministic_collations",
     )
     def test_relation_to_collation_charfield(self):
+        """
+        Tests the relation to a CharField with a case-insensitive collation in PostgreSQL.
+
+        Verifies that the collation is correctly applied to the OneToOneField in the related model and that a unique constraint is created on the related field.
+        """
         ci_collation = self._add_ci_collation()
 
         class CiCharModel(Model):
@@ -1593,6 +1788,12 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_relation_to_deterministic_collation_charfield(self):
+        """
+
+        Tests the behavior of a relation to a model with a CharField that uses a deterministic collation,
+        ensuring that the related model's foreign key column has the correct collation and constraints.
+
+        """
         deterministic_collation = connection.features.test_collations.get(
             "deterministic"
         )
@@ -1646,8 +1847,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_textfield_to_null(self):
         """
-        #24307 - Should skip an alter statement on databases with
-        interprets_empty_strings_as_nulls when changing a TextField to null.
+        Tests that altering a TextField to allow null values is skipped on databases where empty strings are interpreted as null.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -1661,8 +1861,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_null_to_not_null_keeping_default(self):
         """
-        #23738 - Can change a nullable field with default to non-nullable
-        with the same default.
+        Tests the ability to change a nullable field with a default value to a non-nullable field while preserving the default value.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -1684,7 +1883,7 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_alter_fk(self):
         """
-        Tests altering of FKs
+        Tests the alteration of a foreign key constraint on a model field to ensure it correctly updates the database schema and introspected field types.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -1713,7 +1912,7 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_alter_to_fk(self):
         """
-        #24447 - Tests adding a FK constraint for an existing column
+        Tests adding a foreign key constraint to an existing column on a model, ensuring the database correctly updates the schema and establishes the relationship.
         """
 
         class LocalBook(Model):
@@ -1748,7 +1947,7 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_foreign_keys", "can_introspect_foreign_keys")
     def test_alter_o2o_to_fk(self):
         """
-        #24163 - Tests altering of OneToOneField to ForeignKey
+        Tests the database operation of altering a OneToOneField to a ForeignKey, verifying that the resulting foreign key constraint allows multiple relationships and that the schema is updated correctly.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -1794,7 +1993,7 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_foreign_keys", "can_introspect_foreign_keys")
     def test_alter_fk_to_o2o(self):
         """
-        #24163 - Tests altering of ForeignKey to OneToOneField
+        Tests the migration of a ForeignKey field to a OneToOneField, ensuring the altered database schema enforces the one-to-one relationship constraint.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -1838,6 +2037,9 @@ class SchemaTests(TransactionTestCase):
         self.assertForeignKeyExists(BookWithO2O, "author_id", "schema_author")
 
     def test_alter_field_fk_to_o2o(self):
+        """
+        Tests the alteration of a foreign key field to a one-to-one field, verifying that the resulting database constraints are correct.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
@@ -1876,6 +2078,14 @@ class SchemaTests(TransactionTestCase):
         self.assertEqual(counts, {"fks": expected_fks, "uniques": 1, "indexes": 0})
 
     def test_autofield_to_o2o(self):
+        """
+
+        Tests the transformation of an AutoField to a OneToOneField in a Django model.
+
+        Checks if an AutoField can be successfully replaced with a OneToOneField, and 
+        if the resulting field has the correct type.
+
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Note)
@@ -1902,6 +2112,9 @@ class SchemaTests(TransactionTestCase):
         )
 
     def test_alter_field_fk_keeps_index(self):
+        """
+        Tests that altering a foreign key field maintains any existing index after the modification.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
@@ -1943,6 +2156,9 @@ class SchemaTests(TransactionTestCase):
         )
 
     def test_alter_field_o2o_to_fk(self):
+        """
+        Tests the successful alteration of a One-To-One field to a Foreign Key field in the database schema.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(BookWithO2O)
@@ -1977,6 +2193,9 @@ class SchemaTests(TransactionTestCase):
         self.assertEqual(counts, {"fks": expected_fks, "uniques": 0, "indexes": 1})
 
     def test_alter_field_o2o_keeps_unique(self):
+        """
+        Tests whether altering a model field from a One-To-One relationship with a unique constraint maintains that unique constraint after the alteration.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(BookWithO2O)
@@ -2013,6 +2232,9 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("ignores_table_name_case")
     def test_alter_db_table_case(self):
         # Create the table
+        """
+        Tests altering a database table's case by changing its name from the original to uppercase, verifying that the operation is successful when the database feature 'ignores_table_name_case' is supported.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Alter the case of the table
@@ -2022,8 +2244,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_implicit_id_to_explicit(self):
         """
-        Should be able to convert an implicit "id" field to an explicit "id"
-        primary key field.
+        Tests the conversion of an implicit \"id\" field to an explicit primary key \"id\" field, verifying the field alteration process does not disrupt data creation.
         """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
@@ -2040,6 +2261,10 @@ class SchemaTests(TransactionTestCase):
         Author.objects.create(name="Bar")
 
     def test_alter_autofield_pk_to_bigautofield_pk(self):
+        """
+        Tests altering the primary key of a model from an AutoField to a BigAutoField.
+        Verifies that the change is successfully applied and data can be inserted into the model afterwards.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         old_field = Author._meta.get_field("id")
@@ -2059,6 +2284,14 @@ class SchemaTests(TransactionTestCase):
         self.assertIsNotNone(Author.objects.create(name="Bar"))
 
     def test_alter_autofield_pk_to_smallautofield_pk(self):
+        """
+
+        Tests that altering a model's AutoField primary key to a SmallAutoField primary key works correctly.
+
+        The test creates a model, alters its primary key field, creates an instance with a specific primary key,
+        and then verifies that new instances can be created with automatically assigned primary keys.
+
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         old_field = Author._meta.get_field("id")
@@ -2079,8 +2312,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_int_pk_to_autofield_pk(self):
         """
-        Should be able to rename an IntegerField(primary_key=True) to
-        AutoField(primary_key=True).
+        Tests whether an IntegerField with primary key can be altered to an AutoField with primary key, ensuring data integrity and successful creation of objects with the new AutoField primary key.
         """
         with connection.schema_editor() as editor:
             editor.create_model(IntegerPK)
@@ -2109,8 +2341,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_int_pk_to_bigautofield_pk(self):
         """
-        Should be able to rename an IntegerField(primary_key=True) to
-        BigAutoField(primary_key=True).
+        Tests the ability to alter a model's primary key field from an IntegerField to a BigAutoField, ensuring the change is applied correctly and the new field is populated with auto-incrementing values.
         """
         with connection.schema_editor() as editor:
             editor.create_model(IntegerPK)
@@ -2140,8 +2371,7 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     def test_alter_smallint_pk_to_smallautofield_pk(self):
         """
-        Should be able to rename an SmallIntegerField(primary_key=True) to
-        SmallAutoField(primary_key=True).
+        Tests the ability to alter a SmallIntegerField that serves as a primary key to a SmallAutoField that serves as a primary key, ensuring a successful renaming operation.
         """
 
         class SmallIntegerPK(Model):
@@ -2163,6 +2393,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_serial_auto_field_to_bigautofield(self):
+        """
+        Tests the alteration of a serial auto field to a big auto field and then to an auto field, verifying the data type of the sequence is updated correctly in PostgreSQL.
+        """
         class SerialAutoField(Model):
             id = SmallAutoField(primary_key=True)
 
@@ -2213,8 +2446,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_int_pk_to_int_unique(self):
         """
-        Should be able to rename an IntegerField(primary_key=True) to
-        IntegerField(unique=True).
+        Tests the database migration when altering an IntegerField from a primary key to a unique constraint and vice versa.
         """
         with connection.schema_editor() as editor:
             editor.create_model(IntegerPK)
@@ -2268,7 +2500,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_rename(self):
         """
-        Tests simple altering of fields
+        Tests the functionality of renaming a model field, verifying that the field name change is correctly reflected in the model's metadata and database schema.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -2295,6 +2527,12 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_rename_referenced_field(self):
+        """
+
+        Tests the successful renaming of a field that is referenced by a foreign key.
+        Verifies that the corresponding foreign key is updated correctly after the rename operation.
+
+        """
         class Author(Model):
             name = CharField(max_length=255, unique=True)
 
@@ -2320,7 +2558,10 @@ class SchemaTests(TransactionTestCase):
     @skipIfDBFeature("interprets_empty_strings_as_nulls")
     def test_rename_keep_null_status(self):
         """
-        Renaming a field shouldn't affect the not null status.
+
+        Tests whether renaming a field preserves its null status, ensuring that a field's 
+        ability to accept or reject null values remains unchanged after a name change.
+
         """
         with connection.schema_editor() as editor:
             editor.create_model(Note)
@@ -2339,7 +2580,9 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_rename_keep_db_default(self):
-        """Renaming a field shouldn't affect a database default."""
+        """
+        Tests that renaming a field does not affect its database default value.
+        """
 
         class AuthorDbDefault(Model):
             birth_year = IntegerField(db_default=1985)
@@ -2364,6 +2607,9 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_add_field_both_defaults_preserves_db_default(self):
+        """
+        Tests that adding a field with both default and db_default set preserves the db_default when creating the database column.
+        """
         class Author(Model):
             class Meta:
                 app_label = "schema"
@@ -2381,6 +2627,9 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_add_text_field_with_db_default(self):
+        """
+        Tests adding a text field with a database default value to a model
+        """
         class Author(Model):
             description = TextField(db_default="(missing)")
 
@@ -2394,6 +2643,11 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_db_default_equivalent_sql_noop(self):
+        """
+        Test that alter_field with db_default equivalent SQL is a no-op.
+
+        Verifies that changing a field's db_default to an equivalent value does not trigger any SQL operations.
+        """
         class Author(Model):
             name = TextField(db_default=Value("foo"))
 
@@ -2411,6 +2665,9 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_db_default_output_field_resolving(self):
+        """
+        Tests that the default output field for a model field is resolved correctly when using a database default value.
+        """
         class Author(Model):
             data = JSONField(
                 encoder=DjangoJSONEncoder,
@@ -2434,6 +2691,9 @@ class SchemaTests(TransactionTestCase):
     )
     @isolate_apps("schema")
     def test_rename_field_with_check_to_truncated_name(self):
+        """
+        Tests renaming a field with a check constraint to a truncated name, ensuring the check constraint remains intact after the alteration.
+        """
         class AuthorWithLongColumn(Model):
             field_with_very_looooooong_name = PositiveIntegerField(null=True)
 
@@ -2464,7 +2724,7 @@ class SchemaTests(TransactionTestCase):
 
     def _test_m2m_create(self, M2MFieldClass):
         """
-        Tests M2M fields on models during creation
+        Tests the creation of many-to-many (M2M) fields on models, specifically verifying the correct establishment of relationships and field types during model creation.
         """
 
         class LocalBookWithM2M(Model):
@@ -2503,7 +2763,7 @@ class SchemaTests(TransactionTestCase):
 
     def _test_m2m_create_through(self, M2MFieldClass):
         """
-        Tests M2M fields on models during creation with through models
+        Tests the creation of many-to-many fields on models through intermediate models, verifying the correct setup of foreign key fields in the intermediate model.
         """
 
         class LocalTagThrough(Model):
@@ -2551,6 +2811,9 @@ class SchemaTests(TransactionTestCase):
         self._test_m2m_create_through(InheritedManyToManyField)
 
     def test_m2m_through_remove(self):
+        """
+        Tests that removing the `through` parameter from a ManyToManyField with a pre-existing through model raises an error, as this operation is not supported.
+        """
         class LocalAuthorNoteThrough(Model):
             book = ForeignKey("schema.Author", CASCADE)
             tag = ForeignKey("self", CASCADE)
@@ -2587,7 +2850,7 @@ class SchemaTests(TransactionTestCase):
 
     def _test_m2m(self, M2MFieldClass):
         """
-        Tests adding/removing M2M fields on models
+        Tests the addition and removal of many-to-many (M2M) fields on models, covering both creation and alteration of underlying database tables.
         """
 
         class LocalAuthorWithM2M(Model):
@@ -2668,7 +2931,9 @@ class SchemaTests(TransactionTestCase):
 
     def _test_m2m_through_alter(self, M2MFieldClass):
         """
-        Tests altering M2Ms with explicit through models (should no-op)
+
+            Tests altering many-to-many fields with explicit through models, ensuring no operation is performed.
+
         """
 
         class LocalAuthorTag(Model):
@@ -2722,7 +2987,7 @@ class SchemaTests(TransactionTestCase):
 
     def _test_m2m_repoint(self, M2MFieldClass):
         """
-        Tests repointing M2M fields
+        Tests the repointing of many-to-many fields, ensuring that the field's through model and relationships are correctly updated when the related model is changed.
         """
 
         class LocalBookWithM2M(Model):
@@ -2781,6 +3046,9 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     def test_m2m_rename_field_in_target_model(self):
+        """
+        Tests that renaming a field in a model that is part of a many-to-many relationship correctly updates the relationship, ensuring data integrity is maintained.
+        """
         class LocalTagM2MTest(Model):
             title = CharField(max_length=255)
 
@@ -2817,7 +3085,7 @@ class SchemaTests(TransactionTestCase):
     )
     def test_check_constraints(self):
         """
-        Tests creating/deleting CHECK constraints
+        Tests the creation, deletion, and alteration of CHECK constraints on a database model. Verifies that constraints are properly added or removed when a field's properties are changed.
         """
         # Create the tables
         with connection.schema_editor() as editor:
@@ -2855,6 +3123,9 @@ class SchemaTests(TransactionTestCase):
     )
     @isolate_apps("schema")
     def test_check_constraint_timedelta_param(self):
+        """
+        Tests that a check constraint with a timedelta parameter is correctly applied to a DurationField
+        """
         class DurationModel(Model):
             duration = DurationField()
 
@@ -2885,6 +3156,9 @@ class SchemaTests(TransactionTestCase):
     )
     @isolate_apps("schema")
     def test_check_constraint_exact_jsonfield(self):
+        """
+        Tests that a check constraint on a JSONField is enforced to only allow a specific version, verifying that the constraint is created and applied correctly.
+        """
         class JSONConstraintModel(Model):
             data = JSONField()
 
@@ -2916,6 +3190,9 @@ class SchemaTests(TransactionTestCase):
         "supports_column_check_constraints", "can_introspect_check_constraints"
     )
     def test_remove_field_check_does_not_remove_meta_constraints(self):
+        """
+        Tests that when removing a field's check constraint, manually added meta constraints are preserved, but automatically generated constraints are removed and then re-added after field alteration.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Add the custom check constraint
@@ -2974,7 +3251,8 @@ class SchemaTests(TransactionTestCase):
 
     def test_unique(self):
         """
-        Tests removing and adding unique constraints to a single column.
+        Tests the addition and removal of unique constraints from a single column, 
+        ensuring the correct behavior when creating, updating, and deleting model instances with such constraints.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -3016,6 +3294,9 @@ class SchemaTests(TransactionTestCase):
         Tag.objects.all().delete()
 
     def test_unique_name_quoting(self):
+        """
+        Tests the quoting of unique names by creating a temporary database table, altering its name, and setting unique constraints.
+        """
         old_table_name = TagUniqueRename._meta.db_table
         try:
             with connection.schema_editor() as editor:
@@ -3033,10 +3314,7 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_unique_no_unnecessary_fk_drops(self):
         """
-        If AlterField isn't selective about dropping foreign key constraints
-        when modifying a field with a unique constraint, the AlterField
-        incorrectly drops and recreates the Book.author foreign key even though
-        it doesn't restrict the field being changed (#29193).
+        Tests that altering a model field with a unique constraint does not unnecessarily drop and recreate foreign key constraints.
         """
 
         class Author(Model):
@@ -3066,8 +3344,7 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     def test_unique_and_reverse_m2m(self):
         """
-        AlterField can modify a unique field when there's a reverse M2M
-        relation on the model.
+        Tests that AlterField can modify a unique field with a reverse many-to-many relation on the model, ensuring data integrity is maintained.
         """
 
         class Tag(Model):
@@ -3101,6 +3378,12 @@ class SchemaTests(TransactionTestCase):
             Tag.objects.create(title="bar", slug="foo")
 
     def test_remove_ignored_unique_constraint_not_create_fk_index(self):
+        """
+        Tests removal of ignored unique constraint does not create foreign key index.
+
+        Verifies that removing a unique constraint does not create an index when a foreign key is not 
+        related, ensuring underlying data structure remains consistent and efficient after constraint removal.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
@@ -3135,6 +3418,10 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("allows_multiple_constraints_on_same_fields")
     def test_remove_field_unique_does_not_remove_meta_constraints(self):
+        """
+        Tests that removing a unique field via alter_field does not remove other unique constraints on the same field, 
+        also verifies the behavior when the model's meta constraints are updated and then the constraints are removed.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(AuthorWithUniqueName)
         self.local_models = [AuthorWithUniqueName]
@@ -3192,7 +3479,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_unique_together(self):
         """
-        Tests removing and adding unique_together constraints on a model.
+        Tests the functionality of unique together constraints on a model, ensuring that they are enforced correctly when adding and removing them, and that integrity errors are raised when attempting to create duplicate entries.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -3228,8 +3515,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_unique_together_with_fk(self):
         """
-        Tests removing and adding unique_together constraints that include
-        a foreign key.
+        Tests the removal and addition of unique_together constraints that contain a foreign key, ensuring that the database schema is updated correctly.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -3246,9 +3532,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_unique_together_with_fk_with_existing_index(self):
         """
-        Tests removing and adding unique_together constraints that include
-        a foreign key, where the foreign key is added after the model is
-        created.
+        Verifies the correct application of unique_together constraints involving a foreign key on a model, specifically when the foreign key is added after the model's initial creation.
         """
         # Create the tables
         with connection.schema_editor() as editor:
@@ -3267,6 +3551,9 @@ class SchemaTests(TransactionTestCase):
             editor.alter_unique_together(Book, [["author", "title"]], [])
 
     def _test_composed_index_with_fk(self, index):
+        """
+        Tests the creation and removal of a composed index with a foreign key on the Book model.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
@@ -3306,6 +3593,9 @@ class SchemaTests(TransactionTestCase):
             self._test_composed_index_with_fk(index)
 
     def _test_composed_constraint_with_fk(self, constraint):
+        """
+        Tests the creation and removal of a composed constraint with a foreign key on a model's table.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
@@ -3338,6 +3628,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("allows_multiple_constraints_on_same_fields")
     def test_remove_unique_together_does_not_remove_meta_constraints(self):
+        """
+        Tests that removing a model's unique_together constraint does not affect custom constraints with the same fields, ensuring that metadata constraints are preserved separately.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(AuthorWithUniqueNameAndBirthday)
         self.local_models = [AuthorWithUniqueNameAndBirthday]
@@ -3403,6 +3696,14 @@ class SchemaTests(TransactionTestCase):
             editor.remove_constraint(AuthorWithUniqueNameAndBirthday, constraint)
 
     def test_unique_constraint(self):
+        """
+
+        Tests the creation and removal of a unique constraint on the Author model's 'name' field.
+
+        Verifies that the constraint is correctly created, its SQL definition references the correct table and column,
+        and that the constraint is successfully removed.
+
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(fields=["name"], name="name_uq")
@@ -3420,6 +3721,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint(self):
+        """
+        Test the creation of a functional unique constraint with a custom SQL function on a model field.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(Upper("name").desc(), name="func_upper_uq")
@@ -3443,6 +3747,10 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_composite_func_unique_constraint(self):
+        """
+        Tests the creation and removal of a unique constraint with composite functional indexes, 
+        ensuring the constraint is correctly applied and SQL syntax is generated as expected.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(BookWithSlug)
@@ -3473,6 +3781,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_unique_constraint_field_and_expression(self):
+        """
+        Tests the creation and removal of a unique constraint with both a field and an expression.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(
@@ -3504,6 +3815,11 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes", "supports_partial_indexes")
     def test_func_unique_constraint_partial(self):
+        """
+        Tests the creation and removal of a unique constraint with a partial index 
+        and a database function (UPPER) on the Author model, verifying that the 
+        constraint is correctly created, applied, and then removed.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(
@@ -3532,6 +3848,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes", "supports_covering_indexes")
     def test_func_unique_constraint_covering(self):
+        """
+        Tests the creation and removal of a unique constraint that covers specific columns and uses a database function (UPPER) for one of the constraint columns.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(
@@ -3570,6 +3889,12 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_lookups(self):
+        """
+        Tests that unique constraints using function-based lookups can be created and removed from a model.
+
+        Verifies that the constraint is correctly added to the database table, including the lookup functions,
+        and that the constraint is marked as unique. Also tests that the constraint can be successfully removed.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         with register_lookup(CharField, Lower), register_lookup(IntegerField, Abs):
@@ -3596,6 +3921,13 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_collate(self):
+        """
+        Test the creation and removal of a unique constraint that utilizes a non-default collation.
+
+        This test case verifies that a unique constraint can be applied to a model using a
+        case-insensitive collation, and that it is correctly added to and removed from the
+        database schema.
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("This backend does not support case-insensitive collations.")
@@ -3630,6 +3962,9 @@ class SchemaTests(TransactionTestCase):
     def test_func_unique_constraint_unsupported(self):
         # UniqueConstraint is ignored on databases that don't support indexes on
         # expressions.
+        """
+        Tests the behavior of attempting to add and remove a unique constraint with a functional expression on a database that does not support expression indexes.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(F("name"), name="func_name_uq")
@@ -3639,6 +3974,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_nonexistent_field(self):
+        """
+        Test that attempting to create a unique constraint on a nonexistent field raises a FieldError with a descriptive message, ensuring the database correctly handles invalid field references.
+        """
         constraint = UniqueConstraint(Lower("nonexistent"), name="func_nonexistent_uq")
         msg = (
             "Cannot resolve keyword 'nonexistent' into field. Choices are: "
@@ -3650,6 +3988,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_nondeterministic(self):
+        """
+        Tests that a unique constraint cannot be created with a non-deterministic expression on databases that support expression indexes.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(Random(), name="func_random_uq")
@@ -3659,6 +4000,14 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_nulls_distinct_unique_constraints")
     def test_unique_constraint_index_nulls_distinct(self):
+        """
+
+        Tests the behavior of unique constraints with nulls_distinct option.
+
+        Verifies that null values are treated as distinct or non-distinct when creating
+        unique constraints, and that the constraints are correctly applied and removed.
+
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         nulls_distinct = UniqueConstraint(
@@ -3683,6 +4032,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_nulls_distinct_unique_constraints")
     def test_unique_constraint_nulls_distinct(self):
+        """
+        Tests the creation and enforcement of a unique constraint with nulls not considered distinct, ensuring that duplicate entries with null values are prevented.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(
@@ -3709,6 +4061,9 @@ class SchemaTests(TransactionTestCase):
         "supports_partial_indexes",
     )
     def test_unique_constraint_nulls_distinct_condition(self):
+        """
+        Tests the behavior of unique constraints with nulls distinct set to False in the database, ensuring that NULL values are treated as equal.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(
@@ -3740,6 +4095,10 @@ class SchemaTests(TransactionTestCase):
     def test_unique_constraint_nulls_distinct_unsupported(self):
         # UniqueConstraint is ignored on databases that don't support
         # NULLS [NOT] DISTINCT.
+        """
+        Tests that adding a unique constraint with nulls distinct is unsupported.\"\"\"
+        ```
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(
@@ -3751,7 +4110,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_index_together(self):
         """
-        Tests removing and adding index_together constraints on a model.
+        Tests the addition and removal of index_together constraints on a Django model, verifying the expected database schema changes after altering these constraints.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -3795,7 +4154,7 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     def test_db_table(self):
         """
-        Tests renaming of the table
+        Tests the renaming functionality of database tables, specifically verifying that table columns and foreign keys are correctly updated after a rename operation.
         """
 
         class Author(Model):
@@ -3844,7 +4203,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_add_remove_index(self):
         """
-        Tests index addition and removal
+        Verifies the successful addition and removal of a database index for a model, ensuring the index is correctly created and deleted.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -3863,7 +4222,9 @@ class SchemaTests(TransactionTestCase):
 
     def test_remove_db_index_doesnt_remove_custom_indexes(self):
         """
-        Changing db_index to False doesn't remove indexes from Meta.indexes.
+
+        Verifies that changing db_index to False for a model field does not remove custom indexes defined in the model's Meta.indexes.
+
         """
         with connection.schema_editor() as editor:
             editor.create_model(AuthorWithIndexedName)
@@ -3906,7 +4267,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_order_index(self):
         """
-        Indexes defined with ordering (ASC/DESC) defined on column
+        Tests the database index creation with ordered columns, ensuring that the index is correctly added and removed, and verifying column ordering when supported by the database backend.
         """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
@@ -3925,7 +4286,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_indexes(self):
         """
-        Tests creation/altering of indexes
+        Tests the creation, alteration, and removal of indexes and unique constraints in database models, verifying their correct application and modification through schema editing operations.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -3999,6 +4360,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_index_multiple_wrapper_references(self):
+        """
+        Tests that adding an index with multiple references to a wrapper expression raises a ValueError.
+        """
         index = Index(OrderBy(F("name").desc(), descending=True), name="name")
         msg = (
             "Multiple references to %s can't be used in an indexed expression."
@@ -4010,6 +4374,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_index_invalid_topmost_expressions(self):
+        """
+        Tests the invalidation of an index when its topmost expressions are not supported, verifying that a ValueError is raised with a descriptive message.
+        """
         index = Index(Upper(F("name").desc()), name="name")
         msg = (
             "%s must be topmost expressions in an indexed expression."
@@ -4021,6 +4388,15 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_index(self):
+        """
+        Tests the creation, verification, and removal of a functional index through the model schema editor.
+
+        Verifies that the index is created correctly with the specified ordering, 
+        that the generated SQL references the correct column and applies the expected function, 
+        and that the index is successfully removed after testing.
+
+        Requires database support for expression indexes.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         index = Index(Lower("name").desc(), name="func_lower_idx")
@@ -4041,6 +4417,11 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_index_f(self):
+        """
+        Tests the creation and removal of a function-based index on a model field, 
+        verifying that the index is correctly applied and that its SQL statement references 
+        the expected columns.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Tag)
         index = Index("slug", F("title").desc(), name="func_f_idx")
@@ -4062,6 +4443,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_index_lookups(self):
+        """
+        Tests the creation and removal of a database index with functional lookups, verifying that the index is correctly added and removed, and that it references the expected columns.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         with register_lookup(CharField, Lower), register_lookup(IntegerField, Abs):
@@ -4086,6 +4470,12 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_composite_func_index(self):
+        """
+        Tests the creation and removal of a composite functional index on a model's field.
+
+        The test ensures that the index is correctly created with the specified functions,
+        that the resulting SQL references the correct column, and that the index is properly removed.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         index = Index(Lower("name"), Upper("name"), name="func_lower_upper_idx")
@@ -4108,6 +4498,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_composite_func_index_field_and_expression(self):
+        """
+        Tests the creation of a composite index containing a field and an expression, verifying its correct definition, ordering, and removal.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
@@ -4140,6 +4533,9 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_expression_indexes")
     @isolate_apps("schema")
     def test_func_index_f_decimalfield(self):
+        """
+        Tests the creation and removal of a functional index on a DecimalField in a model, verifying the index is correctly added and referenced in the database schema without explicit casting.
+        """
         class Node(Model):
             value = DecimalField(max_digits=5, decimal_places=2)
 
@@ -4165,6 +4561,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_index_cast(self):
+        """
+        Tests the creation, addition, and removal of a database index that casts a field to a specific type, ensuring the index is correctly applied and referenced in the SQL queries.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         index = Index(Cast("weight", FloatField()), name="func_cast_idx")
@@ -4182,6 +4581,11 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_index_collate(self):
+        """
+        Tests the creation and removal of a functional index with collation on a model's field.\"\"\"
+
+        Note: This function tests the database's support for expression indexes and collations, specifically the ability to create an index with a non-default collation on a model's fields.
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("This backend does not support case-insensitive collations.")
@@ -4213,6 +4617,9 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_expression_indexes")
     @skipIfDBFeature("collate_as_index_expression")
     def test_func_index_collate_f_ordered(self):
+        """
+        Tests creating and removing a functional index with a collation and ordering on the Author model.
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("This backend does not support case-insensitive collations.")
@@ -4240,6 +4647,10 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_index_calc(self):
+        """
+        Tests the creation and removal of a functional index with a calculated expression, 
+        ensuring the database schema is correctly updated and the calculated columns are referenced as expected.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         index = Index(F("height") / (F("weight") + Value(5)), name="func_calc_idx")
@@ -4269,6 +4680,12 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_expression_indexes", "supports_json_field")
     @isolate_apps("schema")
     def test_func_index_json_key_transform(self):
+        """
+        Tests the creation and removal of a functional index on a JSON field key transform.
+
+        Verifies that the index can be created, appears in the database schema, and is correctly removed.
+
+        """
         class JSONModel(Model):
             field = JSONField()
 
@@ -4292,6 +4709,9 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_expression_indexes", "supports_json_field")
     @isolate_apps("schema")
     def test_func_index_json_key_transform_cast(self):
+        """
+        Tests the creation and removal of a functional index on a JSON field with a key transform and cast operation, ensuring database support for expression indexes and JSON fields.
+        """
         class JSONModel(Model):
             field = JSONField()
 
@@ -4319,6 +4739,9 @@ class SchemaTests(TransactionTestCase):
     def test_func_index_unsupported(self):
         # Index is ignored on databases that don't support indexes on
         # expressions.
+        """
+        Tests the unsupported case of adding and removing a functional index on a model.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         index = Index(F("name"), name="random_idx")
@@ -4328,6 +4751,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_index_nonexistent_field(self):
+        """
+        Tests that attempting to create an index on a nonexistent field raises a FieldError with a helpful error message, allowing for proper error handling in such scenarios.
+        """
         index = Index(Lower("nonexistent"), name="func_nonexistent_idx")
         msg = (
             "Cannot resolve keyword 'nonexistent' into field. Choices are: "
@@ -4339,6 +4765,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_index_nondeterministic(self):
+        """
+        Tests that adding a non-deterministic index, such as one that uses a random function, raises a DatabaseError.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         index = Index(Random(), name="func_random_idx")
@@ -4348,7 +4777,9 @@ class SchemaTests(TransactionTestCase):
 
     def test_primary_key(self):
         """
-        Tests altering of the primary key
+
+        Tests the process of altering a model's primary key by replacing the original primary key with a new field.
+
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -4372,6 +4803,9 @@ class SchemaTests(TransactionTestCase):
         self.assertEqual(self.get_primary_key(Tag._meta.db_table), "slug")
 
     def test_alter_primary_key_the_same_name(self):
+        """
+        Tests that altering a primary key to have the same name results in no change to the underlying database schema.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Thing)
 
@@ -4388,8 +4822,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_context_manager_exit(self):
         """
-        Ensures transaction is correctly closed when an error occurs
-        inside a SchemaEditor context.
+        Ensures that database transactions are properly closed when an exception occurs within a SchemaEditor context, maintaining data consistency.
         """
 
         class SomeError(Exception):
@@ -4416,8 +4849,13 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_foreign_keys", "indexes_foreign_keys")
     def test_foreign_key_index_long_names_regression(self):
         """
-        Regression test for #21497.
-        Only affects databases that supports foreign keys.
+
+        Tests foreign key indexing with long column names.
+
+        This regression test verifies that foreign key indexes are correctly created 
+        even when column names exceed typical length limits, specifically addressing 
+        issue #21497 on databases that support foreign keys and indexing.
+
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -4437,8 +4875,7 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_add_foreign_key_long_names(self):
         """
-        Regression test for #23009.
-        Only affects databases that supports foreign keys.
+        Tests the addition of a foreign key with a long name, ensuring it works correctly on databases that support foreign keys.
         """
         # Create the initial tables
         with connection.schema_editor() as editor:
@@ -4457,6 +4894,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_add_foreign_key_quoted_db_table(self):
+        """
+        Tests adding a foreign key to a model with a quoted database table, ensuring it works correctly across different database vendors. Verifies foreign key existence with the expected table name.
+        """
         class Author(Model):
             class Meta:
                 db_table = '"table_author_double_quoted"'
@@ -4480,6 +4920,9 @@ class SchemaTests(TransactionTestCase):
             self.assertForeignKeyExists(Book, "author_id", "table_author_double_quoted")
 
     def test_add_foreign_object(self):
+        """
+        Tests the addition of a foreign object relationship to a model, specifically adding an Author field to the BookForeignObj model, and verifies the successful creation and modification of the model schema.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(BookForeignObj)
         self.local_models = [BookForeignObj]
@@ -4493,8 +4936,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_creation_deletion_reserved_names(self):
         """
-        Tries creating a model's table, and then deleting it when it has a
-        SQL reserved name.
+        Tests the creation and deletion of a model's table when the table name is a SQL reserved word, ensuring that the operations complete without errors and that the table is properly removed afterwards.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -4516,7 +4958,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_remove_constraints_capital_letters(self):
         """
-        #23065 - Constraint names must be quoted if they contain capital letters.
+        Tests the removal of constraints with capital letters in their names, ensuring they are properly quoted and handled by the database backend, including index, unique, and foreign key constraints.
         """
 
         def get_field(*args, field_class=IntegerField, **kwargs):
@@ -4597,8 +5039,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_add_field_use_effective_default(self):
         """
-        #23987 - effective_default() should be used as the field default when
-        adding a new field.
+        Tests that a new field added to a model uses its effective default value.
         """
         # Create the table
         with connection.schema_editor() as editor:
@@ -4624,6 +5065,13 @@ class SchemaTests(TransactionTestCase):
 
     def test_add_field_default_dropped(self):
         # Create the table
+        """
+        Tests the addition of a field to a model when the default value is dropped.
+
+        Verifies that a new field with a default value can be added to an existing model,
+        and that the default value is correctly applied to new instances, but is not
+        stored in the database schema as a default value.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Ensure there's no surname field
@@ -4653,6 +5101,11 @@ class SchemaTests(TransactionTestCase):
                 self.assertIsNone(field.default)
 
     def test_add_field_default_nullable(self):
+        """
+        Tests adding a nullable field with a default value to a model.\"\"\"
+
+         \"\"\"Verifies that the field is created correctly, its default value is None, and its nullability is properly set in the database schema.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Add new nullable CharField with a default.
@@ -4680,6 +5133,9 @@ class SchemaTests(TransactionTestCase):
                 self.assertIn(field.default, ["NULL", None])
 
     def test_add_textfield_default_nullable(self):
+        """
+        Tests the addition of a nullable text field with a default value to a model, verifying that the field is created correctly and that the default value is properly set to null.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Add new nullable TextField with a default.
@@ -4708,6 +5164,9 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_field_default_dropped(self):
         # Create the table
+        """
+        Tests that altering a field's default value when the field's default constraint is dropped from the database schema results in the correct default value being applied to existing records.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Create a row
@@ -4734,8 +5193,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_field_default_doesnt_perform_queries(self):
         """
-        No queries are performed if a field default changes and the field's
-        not changing from null to non-null.
+        Tests that altering a field's default value does not trigger any database queries if the field's nullability is unchanged.
         """
         with connection.schema_editor() as editor:
             editor.create_model(AuthorWithDefaultHeight)
@@ -4751,8 +5209,7 @@ class SchemaTests(TransactionTestCase):
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_alter_field_fk_attributes_noop(self):
         """
-        No queries are performed when changing field attributes that don't
-        affect the schema.
+        Tests that changing field foreign key attributes which do not affect the database schema do not result in any database queries being executed.
         """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
@@ -4778,6 +5235,9 @@ class SchemaTests(TransactionTestCase):
             editor.alter_field(Book, new_field, old_field, strict=True)
 
     def test_alter_field_choices_noop(self):
+        """
+        Tests that altering a model field's choices with no actual change does not trigger any database queries.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         old_field = Author._meta.get_field("name")
@@ -4793,6 +5253,9 @@ class SchemaTests(TransactionTestCase):
 
     def test_add_textfield_unhashable_default(self):
         # Create the table
+        """
+        Tests the addition of a TextField with an unhashable default value to a model using the Django schema editor.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Create a row
@@ -4805,6 +5268,9 @@ class SchemaTests(TransactionTestCase):
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_add_indexed_charfield(self):
+        """
+        Checks that a CharField with db_index=True is correctly created with the corresponding index constraints in a PostgreSQL database.
+        """
         field = CharField(max_length=255, db_index=True)
         field.set_attributes_from_name("nom_de_plume")
         with connection.schema_editor() as editor:
@@ -4821,6 +5287,10 @@ class SchemaTests(TransactionTestCase):
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_add_unique_charfield(self):
+        """
+        Tests adding a unique CharField to a model in a PostgreSQL database, 
+        verifying that the correct constraints are created.
+        """
         field = CharField(max_length=255, unique=True)
         field.set_attributes_from_name("nom_de_plume")
         with connection.schema_editor() as editor:
@@ -4837,6 +5307,12 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_comments")
     def test_add_db_comment_charfield(self):
+        """
+
+        Tests the addition of a database comment to a CharField.
+        Verifies that the comment is successfully added to the database when creating a model field.
+
+        """
         comment = "Custom comment"
         field = CharField(max_length=255, db_comment=comment)
         field.set_attributes_from_name("name_with_comment")
@@ -4850,6 +5326,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_comments")
     def test_add_db_comment_and_default_charfield(self):
+        """
+        eget test case to ensure that database comments and default values are properly applied to CharField instances when adding them to a model. Specifically, it verifies that the comment is stored in the database and the default value is set correctly when the field is added to an existing model.
+        """
         comment = "Custom comment with default"
         field = CharField(max_length=255, default="Joe Doe", db_comment=comment)
         field.set_attributes_from_name("name_with_comment_default")
@@ -4871,6 +5350,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_comments")
     def test_alter_db_comment(self):
+        """
+        Tests the database's ability to alter column comments using the Django schema editor.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         # Add comment.
@@ -4906,6 +5388,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_comments", "supports_foreign_keys")
     def test_alter_db_comment_foreign_key(self):
+        """
+        Tests altering a database foreign key to include a custom comment
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
@@ -4923,6 +5408,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_comments")
     def test_alter_field_type_preserve_comment(self):
+        """
+        Tests that changing a model field's type with the alter_field method preserves any existing database comment.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
 
@@ -4953,6 +5441,12 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipUnlessDBFeature("supports_comments")
     def test_db_comment_table(self):
+        """
+        Tests the ability to create, alter, and remove comments on database tables.
+
+                Verifies that the comment is correctly set when a model is created and altered,
+                and that the comment is removed when set to None or an empty string.
+        """
         class ModelWithDbTableComment(Model):
             class Meta:
                 app_label = "schema"
@@ -4989,6 +5483,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipIfDBFeature("supports_comments")
     def test_db_comment_table_unsupported(self):
+        """
+        Tests that attempting to alter a database table comment is a no-op when the database backend does not support comments.
+        """
         class ModelWithDbTableComment(Model):
             class Meta:
                 app_label = "schema"
@@ -5006,6 +5503,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipUnlessDBFeature("supports_comments", "supports_foreign_keys")
     def test_db_comments_from_abstract_model(self):
+        """
+        Tests database comments for an abstract model, verifying that column and table comments are correctly applied to the database schema when an abstract model with custom comments is used as a base class for a concrete model.
+        """
         class AbstractModelWithDbComments(Model):
             name = CharField(
                 max_length=255, db_comment="Custom comment", null=True, blank=True
@@ -5035,6 +5535,15 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_field_add_index_to_charfield(self):
         # Create the table and verify no initial indexes.
+        """
+        Tests the addition of a database index to a CharField when altering a model field in PostgreSQL.
+
+        Verifies that a database index is correctly added and then removed from a CharField when the field's db_index attribute is modified.\"\"\"
+
+        However, it would be more accurate and in line with python docstring best practices to rephrase as follows:
+
+        \"\"\"Tests that adding a db_index to a CharField results in the creation of a corresponding database index in PostgreSQL, and that this index is properly removed when db_index is unset.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         self.assertEqual(self.get_constraints_for_column(Author, "name"), [])
@@ -5056,6 +5565,9 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_field_add_unique_to_charfield(self):
         # Create the table and verify no initial indexes.
+        """
+        Tests the addition and removal of a unique constraint to a CharField in a PostgreSQL database, verifying the constraint is correctly added and removed.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         self.assertEqual(self.get_constraints_for_column(Author, "name"), [])
@@ -5077,6 +5589,12 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_field_add_index_to_textfield(self):
         # Create the table and verify no initial indexes.
+        """
+        Test adding an index to a TextField in PostgreSQL by altering the field.
+
+        Verifies that altering a TextField to include a database index creates the 
+        necessary index constraints, and that reverting the change removes them.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Note)
         self.assertEqual(self.get_constraints_for_column(Note, "info"), [])
@@ -5098,6 +5616,9 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_field_add_unique_to_charfield_with_db_index(self):
         # Create the table and verify initial indexes.
+        """
+        Tests altering a CharField to add a unique constraint with a database index in a PostgreSQL database.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(BookWithoutAuthor)
         self.assertEqual(
@@ -5127,6 +5648,9 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_field_remove_unique_and_db_index_from_charfield(self):
         # Create the table and verify initial indexes.
+        """
+        Tests the removal of unique and database index constraints from a CharField in PostgreSQL when altering a model field, ensuring the correct modification of database constraints after the alteration.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(BookWithoutAuthor)
         self.assertEqual(
@@ -5155,6 +5679,9 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_field_swap_unique_and_db_index_with_charfield(self):
         # Create the table and verify initial indexes.
+        """
+        Tests the alteration of a model field by swapping unique and db_index constraints with a char field in a PostgreSQL database.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(BookWithoutAuthor)
         self.assertEqual(
@@ -5184,6 +5711,12 @@ class SchemaTests(TransactionTestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_alter_field_add_db_index_to_charfield_with_unique(self):
         # Create the table and verify initial indexes.
+        """
+
+        Tests the database alteration of a CharField to add a db index while maintaining uniqueness.
+        Verifies that the schema constraints are correctly updated after modifying the field.
+
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Tag)
         self.assertEqual(
@@ -5212,6 +5745,9 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_field_add_index_to_integerfield(self):
         # Create the table and verify no initial indexes.
+        """
+        Tests the database migration behavior when adding and removing an index from an IntegerField, verifying that the changes are correctly applied and then reverted.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         self.assertEqual(self.get_constraints_for_column(Author, "weight"), [])
@@ -5234,8 +5770,7 @@ class SchemaTests(TransactionTestCase):
 
     def test_alter_pk_with_self_referential_field(self):
         """
-        Changing the primary key field name of a model with a self-referential
-        foreign key (#26384).
+        Tests the alteration of a model's primary key field name when the model contains a self-referential foreign key, verifying the successful creation of the new primary key and the existence of the foreign key after the alteration.
         """
         with connection.schema_editor() as editor:
             editor.create_model(Node)
@@ -5252,8 +5787,7 @@ class SchemaTests(TransactionTestCase):
         self, mocked_datetime, mocked_tz
     ):
         """
-        effective_default() should be used for DateField, DateTimeField, and
-        TimeField if auto_now or auto_now_add is set (#25005).
+        Tests the behavior of DateField, DateTimeField, and TimeField when auto_now or auto_now_add is set, ensuring that effective_default() is used correctly to set the default value.
         """
         now = datetime.datetime(month=1, day=1, year=2000, hour=1, minute=1)
         now_tz = datetime.datetime(
@@ -5336,8 +5870,12 @@ class SchemaTests(TransactionTestCase):
 
     def test_namespaced_db_table_create_index_name(self):
         """
-        Table names are stripped of their namespace/schema before being used to
-        generate index names.
+
+            Tests the generation of index names for namespaced database tables.
+
+            Verifies that the namespace/schema is stripped from the table name before
+            being used to create an index name.
+
         """
         with connection.schema_editor() as editor:
             max_name_length = connection.ops.max_name_length() or 200
@@ -5353,6 +5891,14 @@ class SchemaTests(TransactionTestCase):
         connection.vendor == "oracle", "Oracle specific db_table syntax"
     )
     def test_creation_with_db_table_double_quotes(self):
+        """
+
+        Test the creation of Django models using Oracle-specific db_table syntax with double quotes.
+
+        This test verifies that models can be successfully created and related when using
+        double quotes in the db_table name, which is a requirement for Oracle databases.
+
+        """
         oracle_user = connection.creation._test_database_user()
 
         class Student(Model):
@@ -5387,6 +5933,9 @@ class SchemaTests(TransactionTestCase):
         connection.vendor == "postgresql", "PostgreSQL specific db_table syntax."
     )
     def test_namespaced_db_table_foreign_key_reference(self):
+        """
+        Tests the creation of a namespaced database table with a foreign key reference on PostgreSQL, ensuring correct syntax and schema management.
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE SCHEMA django_schema_tests")
 
@@ -5414,6 +5963,9 @@ class SchemaTests(TransactionTestCase):
             editor.add_field(Book, author)
 
     def test_rename_table_renames_deferred_sql_references(self):
+        """
+        Verifies that renaming a table updates deferred SQL references accordingly, ensuring they do not reference the original table name after the rename operation.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
@@ -5429,6 +5981,9 @@ class SchemaTests(TransactionTestCase):
                 editor.alter_db_table(Author, "schema_renamed_book", "schema_book")
 
     def test_rename_column_renames_deferred_sql_references(self):
+        """
+        Verifies that renaming a column also updates deferred SQL references to the old column name, ensuring that the new column name is used in subsequent database operations.
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
             editor.create_model(Book)
@@ -5448,8 +6003,7 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     def test_referenced_field_without_constraint_rename_inside_atomic_block(self):
         """
-        Foreign keys without database level constraint don't prevent the field
-        they reference from being renamed in an atomic block.
+        Tests that a referenced field without a database-level constraint can be renamed within an atomic block, even if it is referenced by a foreign key.
         """
 
         class Foo(Model):
@@ -5477,8 +6031,7 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     def test_referenced_table_without_constraint_rename_inside_atomic_block(self):
         """
-        Foreign keys without database level constraint don't prevent the table
-        they reference from being renamed in an atomic block.
+        Test that a table referenced by a foreign key without a database-level constraint can be renamed within an atomic block.
         """
 
         class Foo(Model):
@@ -5507,6 +6060,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_db_collation_charfield(self):
+        """
+        Tests database collation support on CharField by creating a temporary model with a CharField having a non-default collation, then verifies the actual database column collation matches the specified one.
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("Language collations are not supported.")
@@ -5529,6 +6085,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @skipUnlessDBFeature("supports_collation_on_textfield")
     def test_db_collation_textfield(self):
+        """
+        Tests the creation of a model with a TextField that uses a non-default database collation, verifying that the column is created with the correct collation.
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("Language collations are not supported.")
@@ -5550,6 +6109,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_add_field_db_collation(self):
+        """
+        Tests the addition of a CharField with a non-default database collation to a model, verifying that the column is created with the correct collation.
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("Language collations are not supported.")
@@ -5570,6 +6132,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_alter_field_db_collation(self):
+        """
+        Tests the ability to alter a CharField's database collation using the schema editor. Verifies that the collation is correctly updated and then reverted back to the default.
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("Language collations are not supported.")
@@ -5593,6 +6158,11 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_alter_field_type_preserve_db_collation(self):
+        """
+        Tests that the database collation is preserved when altering the type of a CharField.
+
+        Verifies that the collation is maintained after changing the field type, ensuring consistency in database schema modifications.
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("Language collations are not supported.")
@@ -5625,6 +6195,9 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_alter_primary_key_db_collation(self):
+        """
+        Tests altering a primary key's database collation on a CharField, verifying that the collation is correctly applied and reverted.
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("Language collations are not supported.")
@@ -5652,6 +6225,9 @@ class SchemaTests(TransactionTestCase):
         "supports_collation_on_charfield", "supports_collation_on_textfield"
     )
     def test_alter_field_type_and_db_collation(self):
+        """
+        Tests altering the type and database collation of a model field, specifically testing the transition from a TextField to a CharField with a non-default collation and back again.
+        """
         collation = connection.features.test_collations.get("non_default")
         if not collation:
             self.skipTest("Language collations are not supported.")
@@ -5682,6 +6258,9 @@ class SchemaTests(TransactionTestCase):
         "supports_non_deterministic_collations",
     )
     def test_ci_cs_db_collation(self):
+        """
+        Tests the behavior of case insensitive and case sensitive database collations on character fields, verifying that the correct collation is applied when filtering objects.
+        """
         cs_collation = connection.features.test_collations.get("cs")
         ci_collation = connection.features.test_collations.get("ci")
         try:

@@ -11,19 +11,8 @@ TEMPLATE_DIR = os.path.join(ROOT, "templates")
 
 def setup(templates, *args, test_once=False):
     """
-    Runs test method multiple times in the following order:
-
-    debug       cached      string_if_invalid
-    -----       ------      -----------------
-    False       False
-    False       True
-    False       False       INVALID
-    False       True        INVALID
-    True        False
-    True        True
-
-    Use test_once=True to test deprecation warnings since the message won't be
-    displayed multiple times.
+    香 
+    Setup a test environment to run a test method multiple times with different Django template settings. The test method is run under various conditions, including with and without caching, debug mode, and string_if_invalid. This allows for thorough testing of template rendering in different scenarios. The `test_once` parameter can be used to test deprecation warnings that are only displayed once.
     """
 
     for arg in args:
@@ -47,8 +36,18 @@ def setup(templates, *args, test_once=False):
         # are properly isolated from Django's global settings.
         @override_settings(TEMPLATES=None)
         @wraps(func)
+        """
+        A decorator to test a template engine function under different configurations.
+
+        It runs the decorated function multiple times with varying engine settings,
+        including invalid template handling and debug mode, to ensure proper functionality
+        in different scenarios.
+        """
         def inner(self):
             # Set up custom template tag libraries if specified
+            """
+            Runs the provided function multiple times with different Django template engine configurations to test template rendering behavior under various conditions.
+            """
             libraries = getattr(self, "libraries", {})
 
             self.engine = Engine(
@@ -116,6 +115,14 @@ class SomeClass:
         raise TypeError
 
     def __getitem__(self, key):
+        """
+        Custom dictionary accessor that raises exceptions for specific keys.
+
+        Raises:
+            SomeException: If the key is 'silent_fail_key'.
+            SomeOtherException: If the key is 'noisy_fail_key'.
+            KeyError: For all other keys.
+        """
         if key == "silent_fail_key":
             raise SomeException
         elif key == "noisy_fail_key":

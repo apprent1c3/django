@@ -8,6 +8,9 @@ from django.utils.timezone import get_fixed_timezone
 
 class DateTimeFieldTest(SimpleTestCase):
     def test_datetimefield_clean(self):
+        """
+        Tests the DateTimeField's clean method with various date and datetime inputs to ensure it correctly parses and returns a datetime object.
+        """
         tests = [
             (date(2006, 10, 25), datetime(2006, 10, 25, 0, 0)),
             (datetime(2006, 10, 25, 14, 30), datetime(2006, 10, 25, 14, 30)),
@@ -65,6 +68,9 @@ class DateTimeFieldTest(SimpleTestCase):
                 self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_clean_invalid(self):
+        """
+        Tests the DateTimeField's clean method for handling invalid input, ensuring that it raises a ValidationError with the expected message for various types of invalid date/time formats.
+        """
         f = DateTimeField()
         msg = "'Enter a valid date/time.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -80,6 +86,9 @@ class DateTimeFieldTest(SimpleTestCase):
             f.clean("2006.10.25 14:30:45")
 
     def test_datetimefield_clean_input_formats(self):
+        """
+        Verifies that DateTimeField correctly parses and converts various input formats into datetime objects. The function tests multiple input formats and corresponding expected datetime values to ensure that the DateTimeField's clean method behaves as expected.
+        """
         tests = [
             (
                 "%Y %m %d %I:%M %p",
@@ -116,6 +125,9 @@ class DateTimeFieldTest(SimpleTestCase):
                     self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_not_required(self):
+        """
+        Tests the functionality of a DateTimeField when it is not required, verifying that it correctly handles empty or null input values.
+        """
         f = DateTimeField(required=False)
         self.assertIsNone(f.clean(None))
         self.assertEqual("None", repr(f.clean(None)))

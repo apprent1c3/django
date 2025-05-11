@@ -13,10 +13,10 @@ class XViewMiddleware(MiddlewareMixin):
 
     def process_view(self, request, view_func, view_args, view_kwargs):
         """
-        If the request method is HEAD and either the IP is internal or the
-        user is a logged-in staff member, return a response with an x-view
-        header indicating the view function. This is used to lookup the view
-        function for an arbitrary page.
+
+        Handles HEAD requests by returning a response with an 'X-View' header containing the name of the view function, 
+        if the request originates from an internal IP or a logged-in staff member, facilitating view function lookup.
+
         """
         if not hasattr(request, "user"):
             raise ImproperlyConfigured(

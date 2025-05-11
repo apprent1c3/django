@@ -20,6 +20,10 @@ class GitHubLinkTests(SimpleTestCase):
         # is not part of the Django package. This means it cannot be imported
         # through standard means. Include its parent in the pythonpath for the
         # duration of the tests to allow the code to be imported.
+        """
+        .. classmethod:: setUpClass()
+            Sets up the class by adding a custom extension path to the system path and importing the necessary 'github_links' module, ensuring it can be used throughout the class.
+        """
         cls.ext_path = str((pathlib.Path(__file__).parents[2] / "docs/_ext").resolve())
         sys.path.insert(0, cls.ext_path)
         cls.addClassCleanup(sys.path.remove, cls.ext_path)
@@ -109,6 +113,13 @@ class I:
         self.assertEqual(line, 1)
 
     def test_get_path_and_line_wildcard_import(self):
+        """
+        Get the file path and line number of a class or mixin within a given module.
+
+        :param module: The module where the class or mixin is defined
+        :param fullname: The full name of the class or mixin
+        :return: A tuple containing the file path and line number of the class or mixin
+        """
         path, line = github_links.get_path_and_line(
             module="tests.sphinx.testdata.package.module", fullname="WildcardClass"
         )

@@ -82,6 +82,9 @@ class OperationsTests(TransactionTestCase):
         )
 
     def test_sql_flush_sequences(self):
+        """
+        Tests that sql_flush_sequences generates the correct SQL statements to flush sequences for the given tables, including disabling constraints, truncating tables, enabling constraints, and resetting sequences.
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],
@@ -111,6 +114,11 @@ class OperationsTests(TransactionTestCase):
         self.assertIn("BACKENDS_TAG_SQ", statements[5])
 
     def test_sql_flush_sequences_allow_cascade(self):
+        """
+        Tests the SQL statements generated for flushing database tables and resetting sequences, 
+        allowing cascading operations between tables. Verifies the correct ordering of TRUNCATE and 
+        ALTER TABLE statements, as well as the inclusion of sequence reset commands.
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],

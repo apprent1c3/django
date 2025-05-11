@@ -25,6 +25,21 @@ def resolve(path, urlconf=None):
 
 
 def reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None):
+    """
+    Reverses a URL pattern to form a URL.
+
+    This function takes a view name and returns the corresponding URL. It can handle
+    URL patterns with namespace prefixes and can resolve URLs in a specific application
+    or URL configuration.
+
+    :param viewname: The name of the view to reverse, potentially including namespace prefixes.
+    :param urlconf: The URL configuration to use for reversing (optional).
+    :param args: Optional positional arguments for the view.
+    :param kwargs: Optional keyword arguments for the view.
+    :param current_app: The current application to use for reversing (optional).
+
+    :returns: The reversed URL as a string.
+    """
     if urlconf is None:
         urlconf = get_urlconf()
     resolver = get_resolver(urlconf)
@@ -117,7 +132,7 @@ def get_script_prefix():
 
 def clear_script_prefix():
     """
-    Unset the script prefix for the current thread.
+    Unset the script prefix for the current thread, effectively removing any previously set prefix value.
     """
     try:
         del _prefixes.value
@@ -127,8 +142,8 @@ def clear_script_prefix():
 
 def set_urlconf(urlconf_name):
     """
-    Set the URLconf for the current thread (overriding the default one in
-    settings). If urlconf_name is None, revert back to the default.
+    Sets the URLconf for the current thread, overriding the default one specified in settings. 
+    Reverts back to the default URLconf if None is provided.
     """
     if urlconf_name:
         _urlconfs.value = urlconf_name
@@ -147,9 +162,7 @@ def get_urlconf(default=None):
 
 def is_valid_path(path, urlconf=None):
     """
-    Return the ResolverMatch if the given path resolves against the default URL
-    resolver, False otherwise. This is a convenience method to make working
-    with "is this a match?" cases easier, avoiding try...except blocks.
+    Checks if a given path resolves against the default URL resolver, returning the ResolverMatch if it does, or False otherwise, providing a convenient alternative to using exception handling for path validation.
     """
     try:
         return resolve(path, urlconf)
@@ -159,9 +172,15 @@ def is_valid_path(path, urlconf=None):
 
 def translate_url(url, lang_code):
     """
-    Given a URL (absolute or relative), try to get its translated version in
-    the `lang_code` language (either by i18n_patterns or by translated regex).
-    Return the original URL if no translated version is found.
+    Translates a given URL to the specified language code if a translation exists.
+
+        Args:
+            url (str): The URL to be translated, which can be absolute or relative.
+            lang_code (str): The language code to translate the URL into.
+
+        Returns:
+            str: The translated URL if found, otherwise the original URL.
+
     """
     parsed = urlsplit(url)
     try:

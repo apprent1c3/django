@@ -90,6 +90,16 @@ def data_create(pk, klass, data):
 
 
 def generic_create(pk, klass, data):
+    """
+    Creates an instance of a given class with the specified primary key and associates it with the provided data and tags.
+
+    :param pk: The primary key for the instance to be created.
+    :param klass: The class of the instance to be created.
+    :param data: A list containing the instance's data and tags.
+
+    :return: A list containing the newly created instance.
+
+    """
     instance = klass(id=pk)
     instance.data = data[0]
     models.Model.save_base(instance, raw=True)
@@ -119,6 +129,15 @@ def im2m_create(pk, klass, data):
 
 
 def im_create(pk, klass, data):
+    """
+    Creates a new instance of the given class with the specified primary key and data.
+
+    :param pk: The primary key of the instance to be created.
+    :param klass: The class of the instance to be created.
+    :param data: A dictionary containing the data to be used for the instance creation.
+
+    :return: A list containing the newly created instance.
+    """
     instance = klass(id=pk)
     instance.right_id = data["right"]
     instance.left_id = data["left"]
@@ -143,6 +162,9 @@ def pk_create(pk, klass, data):
 
 
 def inherited_create(pk, klass, data):
+    """
+    Creates an instance of a given model class, saves it to the database, and then retrieves and returns instances of all its inherited models.
+    """
     instance = klass(id=pk, **data)
     # This isn't a raw save because:
     #  1) we're testing inheritance, not field behavior, so none
@@ -161,6 +183,21 @@ def inherited_create(pk, klass, data):
 
 
 def data_compare(testcase, pk, klass, data):
+    """
+    Compares the provided data with the data of a database instance.
+
+    This function retrieves an instance of the specified class from the database based on its primary key,
+    and then compares the instance's data with the provided data, asserting they are equal for the test case.
+
+    Parameters:
+        testcase: The test case object to assert equality.
+        pk (int): The primary key of the database instance to retrieve.
+        klass: The class of the database instance to retrieve.
+        data: The data to compare with the instance's data.
+
+    The comparison is done differently for BinaryData instances, where data is compared as bytes.
+    For other classes, data is compared directly with the instance's data, with type information included in the assertion error message if the comparison fails.
+    """
     instance = klass.objects.get(id=pk)
     if klass == BinaryData and data is not None:
         testcase.assertEqual(
@@ -212,6 +249,18 @@ def im2m_compare(testcase, pk, klass, data):
 
 
 def im_compare(testcase, pk, klass, data):
+    """
+    Compares the attributes of a retrieved instance with the provided data.
+
+    Args:
+        testcase: The test case instance.
+        pk (int): The primary key of the instance to retrieve.
+        klass: The class of the instance to retrieve.
+        data (dict): A dictionary containing 'left', 'right', and optionally 'extra' values.
+
+    Verifies that the 'left' and 'right' attributes of the instance match the provided data, 
+    and checks the 'extra' attribute if it exists in the data.
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data["left"], instance.left_id)
     testcase.assertEqual(data["right"], instance.right_id)
@@ -436,6 +485,13 @@ def serializerTest(self, format):
     # FK to an object with PK of 0. This won't work on MySQL without the
     # NO_AUTO_VALUE_ON_ZERO SQL mode since it won't let you create an object
     # with an autoincrement primary key of 0.
+    """
+    Tests the serialization and deserialization of model instances in the specified format.
+
+    Verifies that the serialization and deserialization process does not create or delete any model instances,
+    by comparing the instance counts before and after the process.
+
+    """
     if connection.features.allows_auto_pk_0:
         test_data.extend(
             [

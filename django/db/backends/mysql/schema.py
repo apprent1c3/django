@@ -53,6 +53,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return super().sql_rename_column
 
     def quote_value(self, value):
+        """
+        Quotes a value to make it safe for use in a database query.
+
+        Ensures a connection to the database and uses its escape mechanism to prevent SQL injection. The quoted value is then returned as a string, regardless of its original type.
+        """
         self.connection.ensure_connection()
         # MySQLdb escapes to string, PyMySQL to bytes.
         quoted = self.connection.connection.escape(
@@ -74,6 +79,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return db_type and db_type.lower().endswith(("blob", "text"))
 
     def skip_default(self, field):
+        """
+        Determines whether a field should be skipped due to its default value.
+        Returns True if the field's default value is empty and its data type is text or blob,
+        or if the database does not support limited data type defaults and the field has a limited data type.
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -82,6 +92,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return False
 
     def skip_default_on_alter(self, field):
+        """
+        Determines whether a default value should be skipped when altering a field.
+
+        The decision to skip the default value depends on the field's effective default value and data type, as well as the database connection characteristics.
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -146,6 +161,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         super().remove_index(model, index)
 
     def _field_should_be_indexed(self, model, field):
+        """
+        Determines whether a given field in a model should be indexed. 
+        Considers the inherited behavior, storage engine, and field constraints. 
+        Specifically, excludes InnoDB Foreign Keys with db constraints and limited data types.
+        """
         if not super()._field_should_be_indexed(model, field):
             return False
 
@@ -171,13 +191,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         expressions=None,
     ):
         """
-        MySQL can remove an implicit FK index on a field when that field is
-        covered by another index like a unique_together. "covered" here means
-        that the more complex index has the FK field as its first field (see
-        https://bugs.mysql.com/bug.php?id=37910).
-
-        Manually create an implicit FK index to make it possible to remove the
-        composed index.
+        Creates an implicit foreign key index to prevent its removal when a more complex index, such as a unique_together index, covers the same field in MySQL, ensuring that the foreign key constraint can be dropped.
         """
         first_field_name = None
         if fields:
@@ -219,8 +233,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     def _set_field_new_type(self, field, new_type):
         """
-        Keep the NULL and DEFAULT properties of the old field. If it has
-        changed, it will be handled separately.
+        Modifies the given field's type while preserving its NULL and DEFAULT properties.
         """
         if field.db_default is not NOT_PROVIDED:
             default_sql, params = self.db_default_sql(field)
@@ -266,6 +279,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return f" COMMENT {comment_sql}"
 
     def _alter_column_null_sql(self, model, old_field, new_field):
+        """
+        Generate SQL to alter a column's nullability in the database.
+
+        This method is used when changing the nullability of a model field. It returns the SQL statement and parameters required to modify the column in the database schema. If the new field has a default value set, it generates the appropriate SQL to set the new type; otherwise, it defers to the parent class implementation.
+        """
         if new_field.db_default is NOT_PROVIDED:
             return super()._alter_column_null_sql(model, old_field, new_field)
 

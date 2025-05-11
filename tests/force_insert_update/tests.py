@@ -15,6 +15,15 @@ from .models import (
 
 class ForceTests(TestCase):
     def test_force_update(self):
+        """
+        Tests the force_update parameter in the save method of a model.
+
+        Verifies correct behavior when using force_update to update existing objects,
+        ensures errors are raised when attempting invalid operations such as forcing both
+        insert and update, or updating an object without a primary key. Also checks for
+        correct handling of custom primary keys and attempting to force an update on a
+        non-existent object.
+        """
         c = Counter.objects.create(name="one", value=1)
 
         # The normal case
@@ -68,8 +77,10 @@ class InheritanceTests(TestCase):
 
     def test_force_update_on_inherited_model_without_fields(self):
         """
-        Issue 13864: force_update fails on subclassed models, if they don't
-        specify custom fields.
+
+        Tests that force_update works correctly on a subclassed model without custom fields.
+        Ensures that a model instance can be successfully updated when using force_update=True.
+
         """
         a = SubCounter(name="count", value=1)
         a.save()
@@ -79,6 +90,9 @@ class InheritanceTests(TestCase):
 
 class ForceInsertInheritanceTests(TestCase):
     def test_force_insert_not_bool_or_tuple(self):
+        """
+        Tests that the `force_insert` parameter of a model's `save` method correctly raises a `TypeError` when passed a non-boolean or non-tuple value.
+        """
         msg = "force_insert must be a bool or tuple."
         with self.assertRaisesMessage(TypeError, msg), transaction.atomic():
             Counter().save(force_insert=1)
@@ -88,6 +102,9 @@ class ForceInsertInheritanceTests(TestCase):
             Counter().save(force_insert=[])
 
     def test_force_insert_not_model(self):
+        """
+        Tests that attempting to use a non-model object with the force_insert parameter when saving an instance raises a TypeError.
+        """
         msg = f"Invalid force_insert member. {object!r} must be a model subclass."
         with self.assertRaisesMessage(TypeError, msg), transaction.atomic():
             Counter().save(force_insert=(object,))
@@ -102,6 +119,9 @@ class ForceInsertInheritanceTests(TestCase):
             Counter().save(force_insert=(SubCounter,))
 
     def test_force_insert_false(self):
+        """
+        Tests the behavior of the save method when force_insert is set to False, ensuring that it correctly updates existing database records instead of attempting to insert new ones.
+        """
         with self.assertNumQueries(3):
             obj = SubCounter.objects.create(pk=1, value=0)
         with self.assertNumQueries(2):
@@ -123,6 +143,16 @@ class ForceInsertInheritanceTests(TestCase):
             SubCounter.objects.create(pk=parent.pk, value=2)
 
     def test_force_insert_parent(self):
+        """
+
+
+        Tests behavior of force_insert parameter on model save method.
+
+        Verifies that correct number of queries are executed when force_insert is set to True
+        or specific model classes, ensuring that insert operations are performed as expected.
+
+
+        """
         with self.assertNumQueries(3):
             SubCounter(pk=1, value=1).save(force_insert=True)
         # Force insert a new parent and don't UPDATE first.
@@ -132,6 +162,11 @@ class ForceInsertInheritanceTests(TestCase):
             SubCounter(pk=3, value=1).save(force_insert=(models.Model,))
 
     def test_force_insert_with_grandparent(self):
+        """
+        Tests the force_insert functionality when saving a SubSubCounter instance, 
+         covering various scenarios with different parent models to verify the correct 
+         number of database queries are executed.
+        """
         with self.assertNumQueries(4):
             SubSubCounter(pk=1, value=1).save(force_insert=True)
         # Force insert parents on all levels and don't UPDATE first.
@@ -145,6 +180,9 @@ class ForceInsertInheritanceTests(TestCase):
 
     def test_force_insert_with_existing_grandparent(self):
         # Force insert only the last child.
+        """
+        Tests the behavior of force_insert when saving an object with an existing grandparent in the database, ensuring the correct number of database queries are executed and that an IntegrityError is raised when attempting to force insert a grandparent that already exists.
+        """
         grandparent = Counter.objects.create(pk=1, value=1)
         with self.assertNumQueries(4):
             SubSubCounter(pk=grandparent.pk, value=1).save(force_insert=True)
@@ -159,6 +197,12 @@ class ForceInsertInheritanceTests(TestCase):
 
     def test_force_insert_diamond_mti(self):
         # Force insert all parents.
+        """
+        Tests the force_insert functionality on DiamondSubSubCounter models.
+
+        Verifies the correct number of database queries are made and that an IntegrityError
+        is raised when attempting to force insert a model that already exists in the database.
+        """
         with self.assertNumQueries(4):
             DiamondSubSubCounter(pk=1, value=1).save(
                 force_insert=(Counter, SubCounter, OtherSubCounter)

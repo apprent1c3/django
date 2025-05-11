@@ -45,6 +45,9 @@ class TagTestCase(SimpleTestCase):
 
 class SimpleTagTests(TagTestCase):
     def test_simple_tags(self):
+        """
+        Tests various custom template tags, including those with and without parameters, to verify correct rendering with a context object containing a 'value' of 42.
+        """
         c = Context({"value": 42})
 
         templates = [
@@ -130,6 +133,9 @@ class SimpleTagTests(TagTestCase):
             self.assertEqual(t.render(c), "Result: %s" % entry[1])
 
     def test_simple_tag_errors(self):
+        """
+        Tests that the template engine correctly raises TemplateSyntaxError for various invalid tag usage scenarios, including unexpected keyword arguments, too many positional arguments, missing required keyword arguments, multiple values for keyword arguments, and positional arguments after keyword arguments.
+        """
         errors = [
             (
                 "'simple_one_default' received unexpected keyword argument 'three'",
@@ -208,6 +214,9 @@ class SimpleTagTests(TagTestCase):
     def test_simple_tag_registration(self):
         # The decorators preserve the decorated function's docstring, name,
         # and attributes.
+        """
+        Tests the registration of various simple custom tags, verifying that they can be correctly registered and invoked.
+        """
         self.verify_tag(custom.no_params, "no_params")
         self.verify_tag(custom.one_param, "one_param")
         self.verify_tag(custom.explicit_no_context, "explicit_no_context")
@@ -245,6 +254,9 @@ class SimpleTagTests(TagTestCase):
 
 class InclusionTagTests(TagTestCase):
     def test_inclusion_tags(self):
+        """
+        Tests that various inclusion tags work as expected by rendering a series of templates and comparing the results to predefined expected outputs.
+        """
         c = Context({"value": 42})
 
         templates = [
@@ -396,6 +408,14 @@ class InclusionTagTests(TagTestCase):
             )
 
     def test_inclusion_tags_from_template(self):
+        """
+        Tests the usage of various inclusion tags within Django templates.
+
+        This function verifies that different inclusion tags are correctly rendered
+        from templates, passing different parameters and utilizing the context.
+        It checks for various scenarios, including tags with no parameters, 
+        single parameters, multiple parameters, default values, and unlimited arguments.
+        """
         c = Context({"value": 42})
 
         templates = [
@@ -465,6 +485,9 @@ class InclusionTagTests(TagTestCase):
     def test_inclusion_tag_registration(self):
         # The decorators preserve the decorated function's docstring, name,
         # and attributes.
+        """
+        Tests registration of various inclusion tags, covering different scenarios such as tags with and without parameters, context, and unlimited arguments.
+        """
         self.verify_tag(inclusion.inclusion_no_params, "inclusion_no_params")
         self.verify_tag(inclusion.inclusion_one_param, "inclusion_one_param")
         self.verify_tag(
@@ -494,8 +517,7 @@ class InclusionTagTests(TagTestCase):
 
     def test_15070_use_l10n(self):
         """
-        Inclusion tag passes down `use_l10n` of context to the
-        Context of the included/rendered template as well.
+        Tests that the inclusion tag properly propagates the `use_l10n` context variable to the rendered template.
         """
         c = Context({})
         t = self.engine.from_string("{% load inclusion %}{% inclusion_tag_use_l10n %}")
@@ -506,7 +528,7 @@ class InclusionTagTests(TagTestCase):
 
     def test_no_render_side_effect(self):
         """
-        #23441 -- InclusionNode shouldn't modify its nodelist at render time.
+        Tests that rendering an InclusionNode does not modify its internal nodelist, ensuring that the node's state remains consistent across render operations.
         """
         engine = Engine(app_dirs=True, libraries=LIBRARIES)
         template = engine.from_string("{% load inclusion %}{% inclusion_no_params %}")
@@ -543,6 +565,9 @@ class TemplateTagLoadingTests(SimpleTestCase):
             Engine(libraries={"broken_tag": "template_tests.broken_tag"})
 
     def test_load_error_egg(self):
+        """
+        Tests that an InvalidTemplateLibrary exception is raised when attempting to load a broken template library from an egg file.
+        """
         egg_name = "%s/tagsegg.egg" % self.egg_dir
         msg = (
             "Invalid template library specified. ImportError raised when "
@@ -554,6 +579,13 @@ class TemplateTagLoadingTests(SimpleTestCase):
                 Engine(libraries={"broken_egg": "tagsegg.templatetags.broken_egg"})
 
     def test_load_working_egg(self):
+        """
+
+        Tests the loading of a working egg template tag.
+
+        Verifies that the 'working_egg' template tag can be loaded and used in a template when the 'tagsegg' egg is available.
+
+        """
         ttext = "{% load working_egg %}"
         egg_name = "%s/tagsegg.egg" % self.egg_dir
         with extend_sys_path(egg_name):

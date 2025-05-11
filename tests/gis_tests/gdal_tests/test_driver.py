@@ -58,10 +58,15 @@ class DriverTest(unittest.TestCase):
     @mock.patch("django.contrib.gis.gdal.driver.capi.register_all")
     def test_registered(self, reg, count):
         """
-        Prototypes are registered only if the driver count is zero.
+        Tests that the Django GDAL Driver prototypes are registered with GDAL only when no drivers are currently registered.
         """
 
         def check(count_val):
+            """
+            Verifies the registration behavior of Driver based on the given count value.
+
+            Checks whether the registration function is called or not, depending on the value of count_val. If count_val is non-zero, ensures the registration function is not called. If count_val is zero, ensures the registration function is called exactly once.
+            """
             reg.reset_mock()
             count.return_value = count_val
             Driver.ensure_registered()

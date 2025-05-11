@@ -10,6 +10,9 @@ from django.core.checks import Error, Tags, Warning, register
 
 @register(Tags.models)
 def check_all_models(app_configs=None, **kwargs):
+    """
+    Checks all models in the application for potential issues, such as duplicate table names, indexes, and constraints, and returns a list of errors or warnings found. The function can be run on a specific set of app configurations or on all models by default.
+    """
     db_table_models = defaultdict(list)
     indexes = defaultdict(list)
     constraints = defaultdict(list)
@@ -92,14 +95,12 @@ def check_all_models(app_configs=None, **kwargs):
 
 def _check_lazy_references(apps, ignore=None):
     """
-    Ensure all lazy (i.e. string) model references have been resolved.
+    Ensure all lazy model references have been resolved.
 
-    Lazy references are used in various places throughout Django, primarily in
-    related fields and model signals. Identify those common cases and provide
-    more helpful error messages for them.
-
-    The ignore parameter is used by StateApps to exclude swappable models from
-    this check.
+    This function checks for any unresolved lazy references in the provided apps, 
+    typically used in related fields and model signals, and returns a list of 
+    Error objects for any issues found. It also accepts an ignore parameter to 
+    exclude swappable models from this check.
     """
     pending_models = set(apps._pending_operations) - (ignore or set())
 
@@ -117,13 +118,8 @@ def _check_lazy_references(apps, ignore=None):
 
     def extract_operation(obj):
         """
-        Take a callable found in Apps._pending_operations and identify the
-        original callable passed to Apps.lazy_model_operation(). If that
-        callable was a partial, return the inner, non-partial function and
-        any arguments and keyword arguments that were supplied with it.
-
-        obj is a callback defined locally in Apps.lazy_model_operation() and
-        annotated there with a `func` attribute so as to imitate a partial.
+        Extracts the original callable and its arguments from a wrapped operation, 
+        peeling away any layers of partial application to reveal the underlying function.
         """
         operation, args, keywords = obj, [], {}
         while hasattr(operation, "func"):
@@ -133,6 +129,14 @@ def _check_lazy_references(apps, ignore=None):
         return operation, args, keywords
 
     def app_model_error(model_key):
+        """
+        :param model_key: A tuple containing the app name and model name
+        :returns: A string describing the error encountered when trying to access the specified model
+        :raises: None
+
+        Determines the error that occurred when trying to access a model within a given Django app.
+        The error message indicates whether the app is not installed or does not provide the specified model.
+        """
         try:
             apps.get_app_config(model_key[0])
             model_error = "app '%s' doesn't provide model '%s'" % model_key
@@ -159,6 +163,18 @@ def _check_lazy_references(apps, ignore=None):
         return Error(error_msg % params, obj=keywords["field"], id="fields.E307")
 
     def signal_connect_error(model_key, func, args, keywords):
+        """
+        Create an error object for signal connection issues when using a lazy reference to the sender model.
+
+        Raises an error when a receiver is connected to a signal with an incorrect or missing model reference, 
+        providing information about the signal, receiver and the specific model error encountered.
+
+        :param model_key: Model key referencing the sender model
+        :param func: Function related to the signal connection
+        :param args: Arguments passed to the function, including the receiver
+        :param keywords: Keyword arguments passed to the function
+        :returns: An Error object with details about the signal connection issue
+        """
         error_msg = (
             "%(receiver)s was connected to the '%(signal)s' signal with a "
             "lazy reference to the sender '%(model)s', but %(model_error)s."

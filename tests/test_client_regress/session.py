@@ -25,6 +25,9 @@ class SessionStore(SessionBase):
         self._session_key = self.encode({})
 
     def load(self):
+        """
+        Loads a previously stored session data, returning a dictionary if successful, or an empty dictionary if an error occurs, indicating that the session needs to be reinitialized.
+        """
         try:
             return self.decode(self.session_key)
         except Exception:

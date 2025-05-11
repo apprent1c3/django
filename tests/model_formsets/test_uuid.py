@@ -28,8 +28,7 @@ class InlineFormsetTests(TestCase):
 
     def test_inlineformset_factory_ignores_default_pks_on_submit(self):
         """
-        #24377 - Inlines with a model field default should ignore that default
-        value to avoid triggering validation on empty forms.
+        Tests that inline formsets ignore default primary keys on form submission to prevent triggering validation on empty forms.
         """
         FormSet = inlineformset_factory(UUIDPKParent, UUIDPKChild, fields="__all__")
         formset = FormSet(
@@ -96,8 +95,7 @@ class InlineFormsetTests(TestCase):
 
     def test_inlineformset_factory_nulls_default_pks_alternate_key_relation_data(self):
         """
-        If form data is provided, a parent's auto-generated alternate key is
-        set.
+        Tests the functionality of inlineformset_factory with a parent model having an auto-generated alternate key, verifying that the parent's key is correctly set when form data is provided.
         """
         FormSet = inlineformset_factory(
             ParentWithUUIDAlternateKey, ChildRelatedViaAK, fields="__all__"

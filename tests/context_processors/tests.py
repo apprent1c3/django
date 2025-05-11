@@ -26,8 +26,7 @@ class RequestContextProcessorTests(SimpleTestCase):
 
     def test_request_attributes(self):
         """
-        The request object is available in the template and that its
-        attributes can't be overridden by GET and POST parameters (#3828).
+        Tests the request object's attributes are not overridden by GET and POST parameters and are correctly available in the template.
         """
         url = "/request_attrs/"
         # We should have the request object in the template.
@@ -73,6 +72,9 @@ class DebugContextProcessorTests(TestCase):
     databases = {"default", "other"}
 
     def test_debug(self):
+        """
+        Tests the /debug/ URL endpoint, verifying its content when debug mode is enabled and disabled.
+        """
         url = "/debug/"
         # We should have the debug flag in the template.
         response = self.client.get(url)
@@ -85,8 +87,7 @@ class DebugContextProcessorTests(TestCase):
 
     def test_sql_queries(self):
         """
-        Test whether sql_queries represents the actual amount
-        of queries executed. (#23364)
+        Test whether the number of SQL queries executed matches the expected amounts as represented in the debug page.
         """
         url = "/debug/"
         response = self.client.get(url)

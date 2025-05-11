@@ -29,15 +29,7 @@ from .models import (
 class SelectRelatedRegressTests(TestCase):
     def test_regression_7110(self):
         """
-        Regression test for bug #7110.
-
-        When using select_related(), we must query the
-        Device and Building tables using two different aliases (each) in order to
-        differentiate the start and end Connection fields. The net result is that
-        both the "connections = ..." queries here should give the same results
-        without pulling in more than the absolute minimum number of tables
-        (history has shown that it's easy to make a mistake in the implementation
-        and include some unnecessary bonus joins).
+        Verifies that `select_related()` is implemented correctly when querying connections that overlap between the \"start\" and \"end\" device fields, ensuring that the minimum number of tables are joined without including unnecessary ones.
         """
 
         b = Building.objects.create(name="101")
@@ -76,11 +68,8 @@ class SelectRelatedRegressTests(TestCase):
 
     def test_regression_8106(self):
         """
-        Regression test for bug #8106.
-
-        Same sort of problem as the previous test, but this time there are
-        more extra tables to pull in as part of the select_related() and some
-        of them could potentially clash (so need to be kept separate).
+        .Tests that select_related() properly handles multiple related tables, 
+        avoiding potential naming conflicts in the query results.
         """
 
         us = TUser.objects.create(name="std")
@@ -98,12 +87,12 @@ class SelectRelatedRegressTests(TestCase):
 
     def test_regression_8036(self):
         """
-        Regression test for bug #8036
 
-        the first related model in the tests below
-        ("state") is empty and we try to select the more remotely related
-        state__country. The regression here was not skipping the empty column results
-        for country before getting status.
+            Regression test for bug #8036.
+
+            Verifies that selecting related objects through empty intermediate models 
+            does not cause skipped results for further related models.
+
         """
 
         Country.objects.create(name="Australia")
@@ -125,7 +114,9 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(Client.objects.select_related("status")[0].status, active)
 
     def test_multi_table_inheritance(self):
-        """Exercising select_related() with multi-table model inheritance."""
+        """
+        Tests the use of select_related() in conjunction with multi-table model inheritance, verifying the correct ordering of related objects.
+        """
         c1 = Child.objects.create(name="child1", value=42)
         i1 = Item.objects.create(name="item1", child=c1)
         i2 = Item.objects.create(name="item2")
@@ -137,10 +128,7 @@ class SelectRelatedRegressTests(TestCase):
 
     def test_regression_12851(self):
         """
-        Regression for #12851
-
-        Deferred fields are used correctly if you select_related a subset
-        of fields.
+        Tests the correct usage of deferred fields when selecting a subset of related fields in database queries. Verifies that deferred fields are properly loaded when using select_related and defer methods.
         """
         australia = Country.objects.create(name="Australia")
         active = ClientStatus.objects.create(name="active")
@@ -193,6 +181,14 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(troy.state.name, "Western Australia")
 
     def test_null_join_promotion(self):
+        """
+
+        Tests the promotion of null joins in database queries.
+
+        Verifies that the correct join type (inner or left outer) is used when selecting
+        related objects, depending on the query filter conditions.
+
+        """
         australia = Country.objects.create(name="Australia")
         active = ClientStatus.objects.create(name="active")
 
@@ -223,6 +219,9 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(Chick.objects.select_related()[0].mother.name, "Hen")
 
     def test_regression_10733(self):
+        """
+        Tests the ability to use select_related with only to retrieve specific fields for an object and its related objects, while avoiding additional database queries.
+        """
         a = A.objects.create(name="a", lots_of_text="lots_of_text_a", a_field="a_field")
         b = B.objects.create(name="b", lots_of_text="lots_of_text_b", b_field="b_field")
         c = C.objects.create(
@@ -247,6 +246,9 @@ class SelectRelatedRegressTests(TestCase):
             self.assertEqual(qs_c.c_b.name, "b")
 
     def test_regression_22508(self):
+        """
+        Test optimization for regressing bug #22508 by verifying no additional database queries are made when accessing related objects through a prefetched relationship.
+        """
         building = Building.objects.create(name="101")
         device = Device.objects.create(name="router", building=building)
         Port.objects.create(port_number="1", device=device)

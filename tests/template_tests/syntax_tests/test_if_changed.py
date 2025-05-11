@@ -276,7 +276,7 @@ class IfChangedTests(SimpleTestCase):
 
     def test_ifchanged_concurrency(self):
         """
-        #15849 -- ifchanged should be thread-safe.
+        Verifies that the ifchanged template tag is thread-safe by testing its behavior in concurrent template rendering scenarios.
         """
         template = self.engine.from_string(
             "[0{% for x in foo %},{% with var=get_value %}{% ifchanged %}"
@@ -287,6 +287,9 @@ class IfChangedTests(SimpleTestCase):
         # The generator is not passed to the 'for' loop, because it does a list(values)
         # instead, call gen.next() in the template to control the generator.
         def gen():
+            """
+            Generate a sequence of numbers 1, 2, and 3, with the generator paused to render a template and assert its output in between yielding 2 and 3.
+            """
             yield 1
             yield 2
             # Simulate that another thread is now rendering.

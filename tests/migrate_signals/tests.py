@@ -74,6 +74,9 @@ class MigrateSignalTests(TransactionTestCase):
         self.assertEqual(post_migrate_receiver.call_counter, 1)
 
     def test_args(self):
+        """
+        Tests the arguments passed to pre_migrate and post_migrate signal receivers during a database migration. Verifies that the expected arguments, such as verbosity, interactive mode, and app configuration, are correctly passed to the receivers. Also checks that the stdout and plan arguments are as expected.
+        """
         pre_migrate_receiver = Receiver(signals.pre_migrate)
         post_migrate_receiver = Receiver(signals.post_migrate)
         management.call_command(
@@ -102,7 +105,9 @@ class MigrateSignalTests(TransactionTestCase):
     )
     def test_migrations_only(self):
         """
-        If all apps have migrations, migration signals should be sent.
+        Tests that migration signals are sent correctly when running database migrations. 
+        Verifies the signal receivers are called with the expected arguments and models. 
+        Also checks that signals are not sent when the `check_unapplied` flag is used.
         """
         pre_migrate_receiver = Receiver(signals.pre_migrate)
         post_migrate_receiver = Receiver(signals.post_migrate)

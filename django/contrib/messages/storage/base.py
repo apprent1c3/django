@@ -55,6 +55,9 @@ class BaseStorage:
     """
 
     def __init__(self, request, *args, **kwargs):
+        """
+        Initializes the object, setting up internal state for storing and processing messages.
+        """
         self.request = request
         self._queued_messages = []
         self.used = False
@@ -65,6 +68,9 @@ class BaseStorage:
         return len(self._loaded_messages) + len(self._queued_messages)
 
     def __iter__(self):
+        """
+        Returns an iterator over the loaded messages, ensuring any queued messages are first loaded into the list of loaded messages.
+        """
         self.used = True
         if self._queued_messages:
             self._loaded_messages.extend(self._queued_messages)
@@ -80,8 +86,7 @@ class BaseStorage:
     @property
     def _loaded_messages(self):
         """
-        Return a list of loaded messages, retrieving them first if they have
-        not been loaded yet.
+        Retrieves a list of loaded messages, loading them if necessary, and provides it as a property for access.
         """
         if not hasattr(self, "_loaded_data"):
             messages, all_retrieved = self._get()
@@ -127,10 +132,7 @@ class BaseStorage:
 
     def update(self, response):
         """
-        Store all unread messages.
-
-        If the backend has yet to be iterated, store previously stored messages
-        again. Otherwise, only store messages added after the last iteration.
+        Update the stored messages based on the current state of the backend, handling cases where the backend has been iterated or new messages have been added.
         """
         self._prepare_messages(self._queued_messages)
         if self.used:
@@ -141,10 +143,7 @@ class BaseStorage:
 
     def add(self, level, message, extra_tags=""):
         """
-        Queue a message to be stored.
-
-        The message is only queued if it contained something and its level is
-        not less than the recording level (``self.level``).
+        Queue a non-empty message to be stored if its log level meets or exceeds the current recording level.
         """
         if not message:
             return
@@ -170,10 +169,7 @@ class BaseStorage:
 
     def _set_level(self, value=None):
         """
-        Set a custom minimum recorded level.
-
-        If set to ``None``, the default level will be used (see the
-        ``_get_level`` method).
+        _sets a custom minimum recorded level, defaulting to the system default if set to None_
         """
         if value is None and hasattr(self, "_level"):
             del self._level

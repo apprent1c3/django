@@ -47,7 +47,11 @@ class GeoModelTest(TestCase):
         self.assertEqual(2, State.objects.count())
 
     def test_proxy(self):
-        "Testing Lazy-Geometry support (using the GeometryProxy)."
+        """
+        Tests the correctness of Lazy-Geometry support using GeometryProxy, 
+        ensuring that valid geometries can be set and saved, while invalid ones are properly rejected, 
+        and that geometry modifications are persisted to the database correctly.
+        """
         # Testing on a Point
         pnt = Point(0, 0)
         nullcity = City(name="NullCity", point=pnt)
@@ -118,7 +122,9 @@ class GeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_transform")
     def test_lookup_insert_transform(self):
-        "Testing automatic transform for lookups and inserts."
+        """
+        Tests the automatic transformation of geospatial data for lookups and inserts across different spatial reference systems.
+        """
         # San Antonio in 'WGS84' (SRID 4326)
         sa_4326 = "POINT (-98.493183 29.424170)"
         wgs_pnt = fromstr(sa_4326, srid=4326)  # Our reference point in WGS84
@@ -153,7 +159,9 @@ class GeoModelTest(TestCase):
         self.assertIsNone(c.point)
 
     def test_geometryfield(self):
-        "Testing the general GeometryField."
+        """
+        Tests the GeometryField by creating different geometric features, saving them to the database, and verifying their types and coordinates upon retrieval.
+        """
         Feature(name="Point", geom=Point(1, 1)).save()
         Feature(name="LineString", geom=LineString((0, 0), (1, 1), (5, 5))).save()
         Feature(
@@ -184,7 +192,10 @@ class GeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_transform")
     def test_inherited_geofields(self):
-        "Database functions on inherited Geometry fields."
+        """
+        Tests database functions on inherited Geometry fields, specifically the Transform function, 
+        to ensure correct transformation of spatial reference systems.
+        """
         # Creating a Pennsylvanian city.
         PennsylvaniaCity.objects.create(
             name="Mansfield", county="Tioga", point="POINT(-77.071445 41.823881)"
@@ -201,7 +212,9 @@ class GeoModelTest(TestCase):
             self.assertEqual(32128, pc.new_point.srid)
 
     def test_raw_sql_query(self):
-        "Testing raw SQL query."
+        """
+        Verifies that a raw SQL query can correctly retrieve and parse geographic points from the database, ensuring data integrity and type consistency.
+        """
         cities1 = City.objects.all()
         point_select = connection.ops.select % "point"
         cities2 = list(
@@ -223,7 +236,7 @@ class GeoModelTest(TestCase):
 
     def test_dumpdata_loaddata_cycle(self):
         """
-        Test a dumpdata/loaddata cycle with geographic data.
+        Verifies that geographic data is correctly dumped and loaded using the dumpdata and loaddata commands, ensuring data integrity throughout the process.
         """
         out = StringIO()
         original_data = list(City.objects.order_by("name"))
@@ -241,6 +254,9 @@ class GeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_empty_geometries")
     def test_empty_geometries(self):
+        """
+        Tests the creation and storage of empty geometries for various geometry classes, verifying that the geometry is correctly stored and retrieved from the database.
+        """
         geometry_classes = [
             Point,
             LineString,
@@ -273,7 +289,9 @@ class GeoLookupTest(TestCase):
     fixtures = ["initial"]
 
     def test_disjoint_lookup(self):
-        "Testing the `disjoint` lookup type."
+        """
+        Tests the disjoint lookup type by querying cities and states that do not intersect with a given city's point.
+        """
         ptown = City.objects.get(name="Pueblo")
         qs1 = City.objects.filter(point__disjoint=ptown.point)
         self.assertEqual(7, qs1.count())
@@ -282,7 +300,9 @@ class GeoLookupTest(TestCase):
         self.assertEqual("Kansas", qs2[0].name)
 
     def test_contains_contained_lookups(self):
-        "Testing the 'contained', 'contains', and 'bbcontains' lookup types."
+        """
+        Tests the 'contained', 'contains', and 'bbcontains' geographic lookup types for spatial relationships between countries, states, and cities, verifying that they correctly identify containment relationships between geographic entities.
+        """
         # Getting Texas, yes we were a country -- once ;)
         texas = Country.objects.get(name="Texas")
 
@@ -349,6 +369,11 @@ class GeoLookupTest(TestCase):
 
     @skipUnlessDBFeature("supports_isvalid_lookup")
     def test_isvalid_lookup(self):
+        """
+        Tests the 'isvalid' lookup for geographic database features.
+
+        Verifies that the 'isvalid' lookup correctly identifies valid and invalid geometric shapes in the database.
+        """
         invalid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 1 1, 1 0, 0 0))")
         State.objects.create(name="invalid", poly=invalid_geom)
         qs = State.objects.all()
@@ -364,7 +389,13 @@ class GeoLookupTest(TestCase):
 
     @skipUnlessGISLookup("left", "right")
     def test_left_right_lookups(self):
-        "Testing the 'left' and 'right' lookup types."
+        """
+
+        Tests the 'left' and 'right' lookup types in geographic queries.
+
+        Verifies that the lookups correctly identify cities that are to the left or right of a given state border.
+
+        """
         # Left: A << B => true if xmax(A) < xmin(B)
         # Right: A >> B => true if xmin(A) > xmax(B)
         # See: BOX2D_left() and BOX2D_right() in lwgeom_box2dfloat4.c in PostGIS source.
@@ -423,7 +454,9 @@ class GeoLookupTest(TestCase):
         )
 
     def test_equals_lookups(self):
-        "Testing the 'same_as' and 'equals' lookup types."
+        """
+        Checks the functionality of geographic lookups with 'same_as' and 'equals' types, ensuring correct retrieval of city objects based on their spatial coordinates.
+        """
         pnt = fromstr("POINT (-95.363151 29.763374)", srid=4326)
         c1 = City.objects.get(point=pnt)
         c2 = City.objects.get(point__same_as=pnt)
@@ -433,7 +466,9 @@ class GeoLookupTest(TestCase):
 
     @skipUnlessDBFeature("supports_null_geometries")
     def test_null_geometries(self):
-        "Testing NULL geometry support, and the `isnull` lookup type."
+        """
+        Tests the support for NULL geometries and the 'isnull' lookup type in the database, ensuring correct filtering, creation, and updating of geographic models with null or non-null geometric values.
+        """
         # Creating a state with a NULL boundary.
         State.objects.create(name="Puerto Rico")
 
@@ -468,7 +503,9 @@ class GeoLookupTest(TestCase):
         "supports_null_geometries", "supports_crosses_lookup", "supports_relate_lookup"
     )
     def test_null_geometries_excluded_in_lookups(self):
-        """NULL features are excluded in spatial lookup functions."""
+        """
+        Tests that spatial lookups excluding NULL geometries work correctly, verifying that NULL features are not returned in the query results for various spatial lookup functions.
+        """
         null = State.objects.create(name="NULL", poly=None)
         queries = [
             ("equals", Point(1, 1)),
@@ -498,7 +535,9 @@ class GeoLookupTest(TestCase):
 
     @skipUnlessDBFeature("supports_relate_lookup")
     def test_relate_lookup(self):
-        "Testing the 'relate' lookup type."
+        """
+        Tests the 'relate' lookup type in geographic queries, covering various scenarios such as invalid arguments, contains, within, and intersects operations, to ensure correct functionality across different database backends and spatial relationships.
+        """
         # To make things more interesting, we will have our Texas reference point in
         # different SRIDs.
         pnt1 = fromstr("POINT (649287.0363174 4177429.4494686)", srid=2847)
@@ -569,6 +608,9 @@ class GeoLookupTest(TestCase):
         )
 
     def test_gis_lookups_with_complex_expressions(self):
+        """
+        Checks the existence of GIS lookup types that take a single argument, ensuring they can be used with complex expressions in database queries.
+        """
         multiple_arg_lookups = {
             "dwithin",
             "relate",
@@ -606,7 +648,11 @@ class GeoQuerySetTest(TestCase):
     @skipUnlessDBFeature("supports_extent_aggr")
     def test_extent(self):
         """
-        Testing the `Extent` aggregate.
+
+        Tests the calculation of the extent (bounding box) of a set of geographic points using the Extent aggregate function.
+
+        It ensures that the function returns the correct extent for a given set of points and returns None for an empty set of points.
+
         """
         # Reference query:
         #  SELECT ST_extent(point)
@@ -641,7 +687,7 @@ class GeoQuerySetTest(TestCase):
 
     def test_make_line(self):
         """
-        Testing the `MakeLine` aggregate.
+        Tests the MakeLine aggregate function to ensure it correctly creates a LineString from a set of points. Verifies the function's behavior and raises an error when the database backend does not support the MakeLine aggregate.
         """
         if not connection.features.supports_make_line_aggr:
             with self.assertRaises(NotSupportedError):
@@ -666,7 +712,7 @@ class GeoQuerySetTest(TestCase):
     @skipUnlessDBFeature("supports_union_aggr")
     def test_unionagg(self):
         """
-        Testing the `Union` aggregate.
+        Tests the Union aggregate function, which combines multiple geometric objects into a single geometric object, ensuring it handles different queries and edge cases correctly.
         """
         tx = Country.objects.get(name="Texas").mpoly
         # Houston, Dallas -- Ordering may differ depending on backend or GEOS version.
@@ -686,6 +732,9 @@ class GeoQuerySetTest(TestCase):
 
     @skipUnlessDBFeature("supports_union_aggr")
     def test_geoagg_subquery(self):
+        """
+        Tests the usage of a subquery in a geographic aggregation operation, specifically a union of points within a country's boundary, to ensure that the resulting geometry is correctly computed.
+        """
         tx = Country.objects.get(name="Texas")
         union = GEOSGeometry("MULTIPOINT(-96.801611 32.782057,-95.363151 29.763374)")
         # Use distinct() to force the usage of a subquery for aggregation.

@@ -100,21 +100,8 @@ def set_rollback(rollback, using=None):
 @contextmanager
 def mark_for_rollback_on_error(using=None):
     """
-    Internal low-level utility to mark a transaction as "needs rollback" when
-    an exception is raised while not enforcing the enclosed block to be in a
-    transaction. This is needed by Model.save() and friends to avoid starting a
-    transaction when in autocommit mode and a single query is executed.
-
-    It's equivalent to:
-
-        connection = get_connection(using)
-        if connection.get_autocommit():
-            yield
-        else:
-            with transaction.atomic(using=using, savepoint=False):
-                yield
-
-    but it uses low-level utilities to avoid performance overhead.
+    Context manager to mark a transaction for rollback if an exception occurs, 
+    without enforcing the enclosed block to be in a transaction, for use in autocommit mode
     """
     try:
         yield
@@ -180,6 +167,11 @@ class Atomic(ContextDecorator):
         self._from_testcase = False
 
     def __enter__(self):
+        """
+        Enter an atomic block, acquiring a database connection if necessary and setting up the block to be committed or rolled back as needed.
+
+        This context manager is used to ensure atomicity of database operations, allowing either all or none of the operations within the block to be committed to the database. It handles nesting of atomic blocks and manages savepoints for durable blocks, while also taking care of autocommit mode and transaction state. 
+        """
         connection = get_connection(self.using)
 
         if (
@@ -222,6 +214,9 @@ class Atomic(ContextDecorator):
             connection.atomic_blocks.append(self)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exits a transaction, handling cleanup and potentially rolling back or committing changes based on the exit status and previous transaction state.
+        """
         connection = get_connection(self.using)
 
         if connection.in_atomic_block:
@@ -324,6 +319,9 @@ def atomic(using=None, savepoint=True, durable=False):
 
 
 def _non_atomic_requests(view, using):
+    """
+    Marks a view as having non-atomic requests for the specified database connection, ensuring it is added to a set of non-atomic requests for the view, creating the set if it does not already exist.
+    """
     try:
         view._non_atomic_requests.add(using)
     except AttributeError:
@@ -332,6 +330,16 @@ def _non_atomic_requests(view, using):
 
 
 def non_atomic_requests(using=None):
+    """
+    Decorator or context manager to provide non-atomic requests for a database connection.
+
+    Used to disable atomicity for a view function or block of code, allowing for
+    non-atomic database operations. Optionally takes a database alias to apply the
+    setting to a specific database connection.
+
+    If called with a callable, it will be wrapped with the non-atomic context.
+    Otherwise, it returns a decorator that can be applied to a view function.
+    """
     if callable(using):
         return _non_atomic_requests(using, DEFAULT_DB_ALIAS)
     else:

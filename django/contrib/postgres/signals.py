@@ -6,6 +6,13 @@ from django.db.backends.postgresql.psycopg_any import is_psycopg3
 
 
 def get_type_oids(connection_alias, type_name):
+    """
+    Retrieves the OIDs (object identifiers) for a given PostgreSQL type and its array type.
+
+    :param connection_alias: The alias of the database connection to use.
+    :param type_name: The name of the PostgreSQL type to retrieve the OID for.
+    :returns: A tuple containing the OID(s) of the type and the OID(s) of its array type.
+    """
     with connections[connection_alias].cursor() as cursor:
         cursor.execute(
             "SELECT oid, typarray FROM pg_type WHERE typname = %s", (type_name,)
@@ -34,6 +41,9 @@ if is_psycopg3:
     from psycopg.types import TypeInfo, hstore
 
     def register_type_handlers(connection, **kwargs):
+        """
+        Registers PostgreSQL-specific type handlers for hstore and citext data types on a given database connection.
+        """
         if connection.vendor != "postgresql" or connection.alias == NO_DB_ALIAS:
             return
 
@@ -52,6 +62,10 @@ else:
     from psycopg2.extras import register_hstore
 
     def register_type_handlers(connection, **kwargs):
+        """
+        Registers PostgreSQL-specific type handlers for hstore and citext data types on the given database connection. 
+        Enables support for these data types in the connection, allowing for proper handling and conversion between PostgreSQL and Python data types.
+        """
         if connection.vendor != "postgresql" or connection.alias == NO_DB_ALIAS:
             return
 

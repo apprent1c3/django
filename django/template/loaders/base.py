@@ -7,10 +7,8 @@ class Loader:
 
     def get_template(self, template_name, skip=None):
         """
-        Call self.get_template_sources() and return a Template object for
-        the first template matching template_name. If skip is provided, ignore
-        template origins in skip. This is used to avoid recursion during
-        template extending.
+        Retrieves a Template object for the first template matching the given template_name, 
+        while skipping specified template origins to prevent recursion during template extension.
         """
         tried = []
 

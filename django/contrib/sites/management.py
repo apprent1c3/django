@@ -16,6 +16,14 @@ def create_default_site(
     apps=global_apps,
     **kwargs,
 ):
+    """
+
+    Create a default site in the database if one does not already exist.
+
+    Creates a basic site object with example.com domain and name, and saves it to the database.
+    The site ID is set based on the SITE_ID setting, defaulting to 1. Reset database sequence after creation.
+
+    """
     try:
         Site = apps.get_model("sites", "Site")
     except LookupError:

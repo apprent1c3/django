@@ -7,6 +7,15 @@ register = Library()
 
 class CacheNode(Node):
     def __init__(self, nodelist, expire_time_var, fragment_name, vary_on, cache_name):
+        """
+        Initializes a cache fragment configuration.
+
+        :param nodelist: List of nodes to use for caching
+        :param expire_time_var: Variable to control expiration time
+        :param fragment_name: Name of the cache fragment
+        :param vary_on: Parameters to vary the cache on
+        :param cache_name: Name of the cache to use
+        """
         self.nodelist = nodelist
         self.expire_time_var = expire_time_var
         self.fragment_name = fragment_name
@@ -14,6 +23,17 @@ class CacheNode(Node):
         self.cache_name = cache_name
 
     def render(self, context):
+        """
+        Renders a template fragment, either from cache or by executing the fragment and storing the result in the cache. 
+
+        The fragment is cached with a key based on the fragment name and any specified vary-on variables. 
+
+        The cache expiration time can be specified, defaulting to none if not provided. 
+
+        The cache name can also be specified, falling back to a default cache if not provided or invalid. 
+
+        Raises a TemplateSyntaxError if any of the provided variables or cache name are unknown or invalid.
+        """
         try:
             expire_time = self.expire_time_var.resolve(context)
         except VariableDoesNotExist:
@@ -59,27 +79,11 @@ class CacheNode(Node):
 def do_cache(parser, token):
     """
     This will cache the contents of a template fragment for a given amount
-    of time.
-
-    Usage::
-
-        {% load cache %}
-        {% cache [expire_time] [fragment_name] %}
-            .. some expensive processing ..
-        {% endcache %}
-
-    This tag also supports varying by a list of arguments::
-
-        {% load cache %}
-        {% cache [expire_time] [fragment_name] [var1] [var2] .. %}
-            .. some expensive processing ..
-        {% endcache %}
-
-    Optionally the cache to use may be specified thus::
-
-        {% cache ....  using="cachename" %}
-
-    Each unique set of arguments will result in a unique cache entry.
+    of time, reducing the overhead of expensive computations by reusing the
+    cached result until it expires. The cache key can be customized to
+    depend on a list of arguments, allowing different cache entries for
+    different inputs. Optionally, a specific cache can be specified for
+    use.
     """
     nodelist = parser.parse(("endcache",))
     parser.delete_first_token()

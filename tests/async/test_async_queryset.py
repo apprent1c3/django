@@ -14,6 +14,9 @@ from .models import RelatedModel, SimpleModel
 class AsyncQuerySetTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating instances of SimpleModel and RelatedModel for use in subsequent tests.
+        """
         cls.s1 = SimpleModel.objects.create(
             field=1,
             created=datetime(2022, 1, 1, 0, 0, 0),
@@ -44,6 +47,9 @@ class AsyncQuerySetTest(TestCase):
         self.assertEqual(results, [self.s1, self.s2, self.s3])
 
     async def test_aiterator(self):
+        """
+        Tests the asynchronous iterator functionality of the SimpleModel queryset, verifying that it correctly yields all model instances.
+        """
         qs = SimpleModel.objects.aiterator()
         results = []
         async for m in qs:
@@ -59,6 +65,9 @@ class AsyncQuerySetTest(TestCase):
         self.assertCountEqual(results, [[self.r1], [self.r2], [self.r3]])
 
     async def test_aiterator_invalid_chunk_size(self):
+        """
+        Tests that :func:`~aiterator` raises a :class:`~ValueError` when the chunk size is not strictly positive.
+        """
         msg = "Chunk size must be strictly positive."
         for size in [0, -1]:
             qs = SimpleModel.objects.aiterator(chunk_size=size)
@@ -71,6 +80,10 @@ class AsyncQuerySetTest(TestCase):
         self.assertEqual(count, 3)
 
     async def test_acount_cached_result(self):
+        """
+        Verifies that the acount method returns a cached result, 
+        ignoring changes to the database after the initial query has been executed.
+        """
         qs = SimpleModel.objects.all()
         # Evaluate the queryset to populate the query cache.
         [x async for x in qs]
@@ -99,6 +112,14 @@ class AsyncQuerySetTest(TestCase):
         self.assertIs(created, True)
 
     async def test_aupdate_or_create(self):
+        """
+        Tests the aupdate_or_create method of the model manager.
+
+        Verifies that the method can update existing instances, create new ones if they do not exist,
+        and return the instance along with a boolean indicating whether it was created or not.
+        Also checks that the defaults and create_defaults parameters are applied correctly.
+
+        """
         instance, created = await SimpleModel.objects.aupdate_or_create(
             id=self.s1.id, defaults={"field": 2}
         )
@@ -139,6 +160,11 @@ class AsyncQuerySetTest(TestCase):
             )
 
     async def test_abulk_update(self):
+        """
+        Tests the functionality of asynchronously updating multiple objects in bulk using the abulk_update method.
+
+        Verifies that the updates are successfully applied to the database by comparing the expected values with the actual values retrieved after the update operation.
+        """
         instances = SimpleModel.objects.all()
         async for instance in instances:
             instance.field = instance.field * 10
@@ -152,6 +178,12 @@ class AsyncQuerySetTest(TestCase):
         )
 
     async def test_ain_bulk(self):
+        """
+        Tests the asynchronous bulk retrieval of SimpleModel objects.
+
+        Verifies that all objects or a specified subset can be retrieved using the 'ain_bulk' method, 
+        with optional filtering by a specific field name.
+        """
         res = await SimpleModel.objects.ain_bulk()
         self.assertEqual(
             res,
@@ -226,6 +258,12 @@ class AsyncQuerySetTest(TestCase):
     @skipUnlessDBFeature("supports_explaining_query_execution")
     @async_to_sync
     async def test_aexplain(self):
+        """
+        Tests the aexplain method of a QuerySet by executing a simple query and verifying the result format.
+
+        The test checks that the method returns a non-empty string for all supported explanation formats.
+        For XML and JSON formats, it also verifies that the result is a valid XML or JSON document, respectively.
+        """
         supported_formats = await sync_to_async(self._get_db_feature)(
             connection, "supported_explain_formats"
         )

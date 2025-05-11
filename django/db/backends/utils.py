@@ -28,6 +28,9 @@ class CursorWrapper:
     )
 
     def __getattr__(self, attr):
+        """
+        Delegates attribute access to the underlying cursor object, optionally wrapping database error handling around the accessed attribute.
+        """
         cursor_attr = getattr(self.cursor, attr)
         if attr in CursorWrapper.WRAP_ERROR_ATTRS:
             return self.db.wrap_database_errors(cursor_attr)
@@ -56,6 +59,19 @@ class CursorWrapper:
     def callproc(self, procname, params=None, kparams=None):
         # Keyword parameters for callproc aren't supported in PEP 249, but the
         # database driver may support them (e.g. oracledb).
+        """
+        Invokes a stored database procedure with optional positional and keyword parameters.
+
+        Args:
+            procname (str): Name of the stored procedure to call.
+            params (tuple, optional): Positional parameters to pass to the procedure. Defaults to None.
+            kparams (dict, optional): Keyword parameters to pass to the procedure. Defaults to None.
+
+        Note:
+            The support for keyword parameters depends on the database backend.
+            This method raises a warning if the Django application is not ready and no stored application configurations are available.
+
+        """
         if kparams is not None and not self.db.features.supports_callproc_kwargs:
             raise NotSupportedError(
                 "Keyword parameters for callproc are not supported on this "
@@ -94,6 +110,25 @@ class CursorWrapper:
     def _execute(self, sql, params, *ignored_wrapper_args):
         # Raise a warning during app initialization (stored_app_configs is only
         # ever set during testing).
+        """
+        Executes a SQL query on the database, handling potential errors and warnings.
+
+        Parameters
+        ----------
+        sql : str
+            The SQL query to be executed.
+        params : tuple or None
+            Parameters to be used in the SQL query, or None if no parameters are required.
+
+        Returns
+        -------
+        The result of the SQL query execution.
+
+        Notes
+        -----
+        If the Django application is not ready, a runtime warning is issued. The function also checks for broken database transactions and wraps database errors.
+
+        """
         if not apps.ready and not apps.stored_app_configs:
             warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
         self.db.validate_no_broken_transaction()
@@ -107,6 +142,14 @@ class CursorWrapper:
     def _executemany(self, sql, param_list, *ignored_wrapper_args):
         # Raise a warning during app initialization (stored_app_configs is only
         # ever set during testing).
+        """
+
+        Executes a single SQL query with multiple sets of parameters.
+
+        This method is used to efficiently execute the same SQL query with different parameters.
+        It checks for database readiness and validates that there are no broken transactions before execution.
+
+        """
         if not apps.ready and not apps.stored_app_configs:
             warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
         self.db.validate_no_broken_transaction()
@@ -129,6 +172,19 @@ class CursorDebugWrapper(CursorWrapper):
     def debug_sql(
         self, sql=None, params=None, use_last_executed_query=False, many=False
     ):
+        """
+
+        Context manager to measure and log the execution time of a SQL query.
+
+         Measures the time taken to execute the query and logs the query with its execution time and parameters.
+         The query is also added to the database's query log.
+
+         :param str sql: The SQL query to be executed
+         :param params: The parameters for the SQL query
+         :param bool use_last_executed_query: Whether to use the last executed query
+         :param bool many: Whether the query is executed multiple times
+
+        """
         start = time.monotonic()
         try:
             yield
@@ -165,6 +221,13 @@ class CursorDebugWrapper(CursorWrapper):
 
 @contextmanager
 def debug_transaction(connection, sql):
+    """
+    A context manager that measures the execution time of a transaction and logs the result.
+
+    Logs the SQL query, its execution time, and connection details for debugging purposes if query logging is enabled for the connection.
+
+    Calling this function creates a runtime context that ensures execution time is captured and logged when the block is exited, allowing for performance monitoring and debugging of database transactions.
+    """
     start = time.monotonic()
     try:
         yield
@@ -194,7 +257,7 @@ def debug_transaction(connection, sql):
 
 def split_tzname_delta(tzname):
     """
-    Split a time zone name into a 3-tuple of (name, sign, offset).
+    Split a time zone name into its components, including the base time zone name, offset sign and offset in hours and minutes. The function returns a tuple with three values: name, sign of the offset and the offset itself, or returns the original time zone name with None values if it cannot be parsed into the expected format.
     """
     for sign in ["+", "-"]:
         if sign in tzname:
@@ -218,6 +281,13 @@ def typecast_date(s):
 
 
 def typecast_time(s):  # does NOT store time zone information
+    """
+
+    Converts a time string in 'HH:MM:SS.SSSSSS' format to a datetime.time object.
+
+    Returns None for empty input string.
+
+    """
     if not s:
         return None
     hour, minutes, seconds = s.split(":")
@@ -233,6 +303,9 @@ def typecast_time(s):  # does NOT store time zone information
 def typecast_timestamp(s):  # does NOT store time zone information
     # "2005-07-29 15:48:00.590358-05"
     # "2005-07-29 09:56:00-05"
+    """
+    Converts a string representation of a timestamp into a datetime object, handling various input formats and time zones. Returns None for empty input strings.
+    """
     if not s:
         return None
     if " " not in s:
@@ -268,10 +341,7 @@ def typecast_timestamp(s):  # does NOT store time zone information
 
 def split_identifier(identifier):
     """
-    Split an SQL identifier into a two element tuple of (namespace, name).
-
-    The identifier could be a table, column, or sequence name might be prefixed
-    by a namespace.
+    Split an SQL identifier into its namespace and name components, handling both prefixed and unprefixed names.
     """
     try:
         namespace, name = identifier.split('"."')
@@ -282,11 +352,7 @@ def split_identifier(identifier):
 
 def truncate_name(identifier, length=None, hash_len=4):
     """
-    Shorten an SQL identifier to a repeatable mangled version with the given
-    length.
-
-    If a quote stripped name contains a namespace, e.g. USERNAME"."TABLE,
-    truncate the table portion only.
+    Shorten an SQL identifier to a consistent, mangled version with a specified length, truncating the table portion only if the identifier contains a namespace.
     """
     namespace, name = split_identifier(identifier)
 
@@ -303,8 +369,7 @@ def truncate_name(identifier, length=None, hash_len=4):
 
 def names_digest(*args, length):
     """
-    Generate a 32-bit digest of a set of arguments that can be used to shorten
-    identifying names.
+    Generate a condensed identifier from multiple input strings, producing a fixed-length hash digest that can be used to shorten identifying names, based on the provided arguments and desired output length.
     """
     h = md5(usedforsecurity=False)
     for arg in args:
@@ -314,8 +379,7 @@ def names_digest(*args, length):
 
 def format_number(value, max_digits, decimal_places):
     """
-    Format a number into a string with the requisite number of digits and
-    decimal places.
+    Format a number into a string, controlling the total number of digits and the number of decimal places, to ensure consistent numerical output.
     """
     if value is None:
         return None

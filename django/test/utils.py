@@ -77,6 +77,16 @@ class ContextList(list):
     """
 
     def __getitem__(self, key):
+        """
+        Retrieve a sub-context by name or behave as a dictionary for other key types.
+
+        Supports retrieving a sub-context by its name (string key) through recursive lookup.
+        For other key types, falls back to the superclass's key retrieval behavior.
+
+        Raises:
+            KeyError: If a sub-context with the given name is not found.
+
+        """
         if isinstance(key, str):
             for subcontext in self:
                 if key in subcontext:
@@ -92,6 +102,9 @@ class ContextList(list):
             return default
 
     def __contains__(self, key):
+        """
+        Checks if the given key exists in the object, returning True if it does and False otherwise.
+        """
         try:
             self[key]
         except KeyError:
@@ -120,8 +133,7 @@ class _TestState:
 
 def setup_test_environment(debug=None):
     """
-    Perform global pre-test setup, such as installing the instrumented template
-    renderer and setting the email backend to the locmem email backend.
+    Perform global pre-test setup, preparing the environment for testing by modifying settings and installing instrumented renderers, allowing for test isolation and controlled execution.
     """
     if hasattr(_TestState, "saved_data"):
         # Executing this function twice would overwrite the saved values.
@@ -156,8 +168,7 @@ def setup_test_environment(debug=None):
 
 def teardown_test_environment():
     """
-    Perform any global post-test teardown, such as restoring the original
-    template renderer and restoring the email sending functions.
+    Reverts the application settings and state to their original values after testing, restoring the template renderer, email sending functions, and other global configurations to ensure a clean environment for subsequent tests.
     """
     saved_data = _TestState.saved_data
 
@@ -182,7 +193,9 @@ def setup_databases(
     serialized_aliases=None,
     **kwargs,
 ):
-    """Create the test databases."""
+    """
+    Create test databases for use in testing, handling options such as verbosity, interactivity, database mirroring, parallelization, and SQL debugging.
+    """
     if time_keeper is None:
         time_keeper = NullTimeKeeper()
 
@@ -238,9 +251,11 @@ def setup_databases(
 
 def iter_test_cases(tests):
     """
+
     Return an iterator over a test suite's unittest.TestCase objects.
 
-    The tests argument can also be an iterable of TestCase objects.
+    The tests argument can also be an iterable of TestCase objects. If a string is encountered, it raises a TypeError as strings are not valid test cases. Recursively iterates over test suites to yield individual test cases.
+
     """
     for test in tests:
         if isinstance(test, str):
@@ -259,8 +274,7 @@ def iter_test_cases(tests):
 
 def dependency_ordered(test_databases, dependencies):
     """
-    Reorder test_databases into an order that honors the dependencies
-    described in TEST[DEPENDENCIES].
+    Reorders test databases to satisfy dependencies defined in the TEST[DEPENDENCIES] configuration, ensuring that a database is only executed after all its dependencies have been resolved. Raises an error if circular dependencies are detected.
     """
     ordered_test_databases = []
     resolved_databases = set()
@@ -301,15 +315,11 @@ def dependency_ordered(test_databases, dependencies):
 
 def get_unique_databases_and_mirrors(aliases=None):
     """
-    Figure out which databases actually need to be created.
+    Deduplicates database entries for test databases, accounting for mirrors and dependencies.
 
-    Deduplicate entries in DATABASES that correspond the same database or are
-    configured as test mirrors.
-
-    Return two values:
-    - test_databases: ordered mapping of signatures to (name, list of aliases)
-                      where all aliases share the same underlying database.
-    - mirrored_aliases: mapping of mirror aliases to original aliases.
+    Returns two mappings: 
+    - test_databases: a mapping of unique database signatures to their corresponding names and aliases.
+    - mirrored_aliases: a mapping of test mirror aliases to their original database aliases.
     """
     if aliases is None:
         aliases = connections
@@ -356,7 +366,16 @@ def get_unique_databases_and_mirrors(aliases=None):
 
 
 def teardown_databases(old_config, verbosity, parallel=0, keepdb=False):
-    """Destroy all the non-mirror databases."""
+    """
+
+    Destroys all non-mirror databases, removing test databases created during testing.
+
+    :param old_config: Configuration of databases to destroy
+    :param verbosity: Level of output detail
+    :param parallel: Number of parallel test databases to destroy (default: 0)
+    :param keepdb: Flag to preserve the test database (default: False)
+
+    """
     for connection, old_name, destroy in old_config:
         if destroy:
             if parallel > 1:
@@ -370,6 +389,19 @@ def teardown_databases(old_config, verbosity, parallel=0, keepdb=False):
 
 
 def get_runner(settings, test_runner_class=None):
+    """
+
+    Retrieves a test runner instance based on the provided settings.
+
+    The test runner class is either specified directly or looked up from the 
+    settings. The class is then imported and instantiated, allowing for 
+    custom test runners to be used.
+
+    :param settings: The application settings.
+    :param test_runner_class: The name of the test runner class to use.
+    :return: The test runner instance.
+
+    """
     test_runner_class = test_runner_class or settings.TEST_RUNNER
     test_path = test_runner_class.split(".")
     # Allow for relative paths
@@ -411,10 +443,22 @@ class TestContextDecorator:
         self.disable()
 
     def decorate_class(self, cls):
+        """
+        Modifies a unittest.TestCase subclass to set up and tear down a context in its setUp method.
+
+        Automatically enables a context at the start of each test and disables it when the test finishes, optionally assigning the context to an instance attribute.
+
+        Must be a subclass of unittest.TestCase to use this decorator.
+
+        :raises TypeError: if the class is not a subclass of unittest.TestCase
+        """
         if issubclass(cls, TestCase):
             decorated_setUp = cls.setUp
 
             def setUp(inner_self):
+                """
+                Sets up the test context by enabling a specific feature, scheduling its disablement after the test, and optionally assigning the context to an instance attribute, then proceeds with the original setup routine.
+                """
                 context = self.enable()
                 inner_self.addCleanup(self.disable)
                 if self.attr_name:
@@ -426,6 +470,14 @@ class TestContextDecorator:
         raise TypeError("Can only decorate subclasses of unittest.TestCase")
 
     def decorate_callable(self, func):
+        """
+        Decorates a callable function, making it execute within the scope of this context manager.
+
+        If the function is a coroutine, this decorator returns an async function, otherwise a regular function.
+        The decorated function will have the context automatically passed to it as a keyword argument if kwarg_name is set.
+
+        Returns the decorated function.
+        """
         if iscoroutinefunction(func):
             # If the inner function is an async function, we must execute async
             # as well so that the `with` statement executes at the right time.
@@ -448,6 +500,9 @@ class TestContextDecorator:
         return inner
 
     def __call__(self, decorated):
+        """
+        Applies decoration to the given object, which can be either a class or a callable function.
+        """
         if isinstance(decorated, type):
             return self.decorate_class(decorated)
         elif callable(decorated):
@@ -472,6 +527,15 @@ class override_settings(TestContextDecorator):
     def enable(self):
         # Keep this code at the beginning to leave the settings unchanged
         # in case it raises an exception because INSTALLED_APPS is invalid.
+        """
+
+        Temporarily modifies Django project settings to use custom values.
+
+        Overrides the installed apps and specific setting values specified in the options.
+        It also sends signals to notify other parts of the application about the changes.
+        In case of an error, it reverts all changes and raises an exception.
+
+        """
         if "INSTALLED_APPS" in self.options:
             try:
                 apps.set_installed_apps(self.options["INSTALLED_APPS"])
@@ -496,6 +560,13 @@ class override_settings(TestContextDecorator):
                 self.disable()
 
     def disable(self):
+        """
+        Disables the current settings override and notifies listeners of the change.
+
+        Restores the original settings and sends signals for each changed setting. If an exception occurred during the override, it is re-raised after the restore operation.
+
+        Any exceptions raised by listeners during the notification process are immediately re-raised, aborting the restore operation.
+        """
         if "INSTALLED_APPS" in self.options:
             apps.unset_installed_apps()
         settings._wrapped = self.wrapped
@@ -529,6 +600,16 @@ class override_settings(TestContextDecorator):
             }
 
     def decorate_class(self, cls):
+        """
+
+        Decorates a Django test case class with override settings functionality.
+
+        The class to be decorated must be a subclass of Django's SimpleTestCase.
+
+        :raises ValueError: if the class is not a SimpleTestCase subclass
+        :return: The decorated test case class
+
+        """
         from django.test import SimpleTestCase
 
         if not issubclass(cls, SimpleTestCase):
@@ -547,6 +628,9 @@ class modify_settings(override_settings):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        Initialize an override settings object, accepting either a single iterable of operations or keyword arguments that are converted into operations.
+        """
         if args:
             # Hack used when instantiating from SimpleTestCase.setUpClass.
             assert not kwargs
@@ -566,6 +650,12 @@ class modify_settings(override_settings):
             )
 
     def enable(self):
+        """
+        Enables the current object by initializing and updating its options based on predefined operations.
+
+        The function iterates through a set of operations, applying actions such as append, prepend, or remove to the corresponding options.
+        It ensures that the resulting options are updated correctly and then calls the parent class's enable method to complete the process.
+        """
         self.options = {}
         for name, operations in self.operations:
             try:
@@ -598,6 +688,9 @@ class override_system_checks(TestContextDecorator):
     """
 
     def __init__(self, new_checks, deployment_checks=None):
+        """
+        Initializes the object with custom checks and registers it with the Django checks registry, allowing for the execution of new and deployment-specific checks during the Django application lifecycle.
+        """
         from django.core.checks.registry import registry
 
         self.registry = registry
@@ -606,6 +699,13 @@ class override_system_checks(TestContextDecorator):
         super().__init__()
 
     def enable(self):
+        """
+        Enables a set of checks and deployment checks in the registry.
+
+        Temporarily replaces the existing registered checks with the new set of checks
+        and optionally updates the deployment checks. This allows for a specific set of
+        checks to be used, while preserving the original checks for later restoration.
+        """
         self.old_checks = self.registry.registered_checks
         self.registry.registered_checks = set()
         for check in self.new_checks:
@@ -623,12 +723,7 @@ class override_system_checks(TestContextDecorator):
 
 def compare_xml(want, got):
     """
-    Try to do a 'xml-comparison' of want and got. Plain string comparison
-    doesn't always work because, for example, attribute ordering should not be
-    important. Ignore comment nodes, processing instructions, document type
-    node, and leading and trailing whitespaces.
-
-    Based on https://github.com/lxml/lxml/blob/master/src/lxml/doctestcompare.py
+    Compares two XML strings, ignoring differences in attribute ordering, comment nodes, processing instructions, document type nodes, and leading/trailing whitespaces.
     """
     _norm_whitespace_re = re.compile(r"[ \t\n][ \t\n]+")
 
@@ -650,6 +745,14 @@ def compare_xml(want, got):
         return dict(element.attributes.items())
 
     def check_element(want_element, got_element):
+        """
+
+        Checks if two elements are identical.
+
+        Compares the tag name, normalized child text, attributes, and recursively checks all child elements.
+        Returns True if all aspects match, False otherwise.
+
+        """
         if want_element.tagName != got_element.tagName:
             return False
         if norm_child_text(want_element) != norm_child_text(got_element):
@@ -712,6 +815,11 @@ class CaptureQueriesContext:
         return self.connection.queries[self.initial_queries : self.final_queries]
 
     def __enter__(self):
+        """
+
+        Enters the runtime context for the object, enabling debug cursor mode and setting up query tracking.
+
+        """
         self.force_debug_cursor = self.connection.force_debug_cursor
         self.connection.force_debug_cursor = True
         # Run any initialization queries if needed so that they won't be
@@ -723,6 +831,9 @@ class CaptureQueriesContext:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exits the runtime context, updating the connection's debug cursor setting and resetting queries if an exception did not occur, and storing the final number of queries executed.
+        """
         self.connection.force_debug_cursor = self.force_debug_cursor
         request_started.connect(reset_queries)
         if exc_type is not None:
@@ -732,6 +843,9 @@ class CaptureQueriesContext:
 
 class ignore_warnings(TestContextDecorator):
     def __init__(self, **kwargs):
+        """
+        Initializes a warnings filter object, choosing between filterwarnings and simplefilter based on the presence of 'message' or 'module' in the provided keyword arguments.
+        """
         self.ignore_kwargs = kwargs
         if "message" in self.ignore_kwargs or "module" in self.ignore_kwargs:
             self.filter_func = warnings.filterwarnings
@@ -762,7 +876,14 @@ requires_tz_support = skipUnless(
 
 @contextmanager
 def extend_sys_path(*paths):
-    """Context manager to temporarily add paths to sys.path."""
+    """
+    Context manager to temporarily add paths to sys.path.
+
+    Temporarily modifies the system path to include the provided paths, 
+    allowing for easy import of modules not normally on the path. 
+    Restores the original system path when exiting the context.
+
+    """
     _orig_sys_path = sys.path[:]
     sys.path.extend(paths)
     try:
@@ -773,7 +894,9 @@ def extend_sys_path(*paths):
 
 @contextmanager
 def isolate_lru_cache(lru_cache_object):
-    """Clear the cache of an LRU cache object on entering and exiting."""
+    """
+    Provide a context in which the specified LRU cache object is cleared before and after execution, ensuring a clean cache state for isolated operations.
+    """
     lru_cache_object.cache_clear()
     try:
         yield
@@ -783,11 +906,12 @@ def isolate_lru_cache(lru_cache_object):
 
 @contextmanager
 def captured_output(stream_name):
-    """Return a context manager used by captured_stdout/stdin/stderr
-    that temporarily replaces the sys stream *stream_name* with a StringIO.
+    """
+    Provides a context manager that temporarily redirects a sys stream to a StringIO, allowing for capture of output. 
 
-    Note: This function and the following ``captured_std*`` are copied
-          from CPython's ``test.support`` module."""
+     :param stream_name: Name of the sys stream to be redirected (e.g. 'stdout', 'stdin', 'stderr') 
+     :return: A context manager that yields the captured stream
+    """
     orig_stdout = getattr(sys, stream_name)
     setattr(sys, stream_name, StringIO())
     try:
@@ -832,11 +956,13 @@ def captured_stdin():
 @contextmanager
 def freeze_time(t):
     """
-    Context manager to temporarily freeze time.time(). This temporarily
-    modifies the time function of the time module. Modules which import the
-    time function directly (e.g. `from time import time`) won't be affected
-    This isn't meant as a public API, but helps reduce some repetitive code in
-    Django's test suite.
+
+    Temporarily freezes time.time() to a specified value within a context.
+
+    This context manager modifies the time function in the time module to return a fixed value,
+    allowing for isolation of time-sensitive code during testing. Note that modules importing
+    time directly may not be affected.
+
     """
     _real_time = time.time
     time.time = lambda: t
@@ -935,6 +1061,9 @@ class TimeKeeper:
 
     @contextmanager
     def timed(self, name):
+        """
+        Context manager to time the execution of a block of code, storing the elapsed time in the records dictionary under the given name.
+        """
         self.records[name]
         start_time = time.perf_counter()
         try:
@@ -960,9 +1089,14 @@ class NullTimeKeeper:
 
 
 def tag(*tags):
-    """Decorator to add tags to a test class or method."""
+    """
+    Decorator to add tags to a test class or method, allowing for easy categorization and filtering of tests.
+    """
 
     def decorator(obj):
+        """
+        Adds default tags to the provided object if it does not already have them, or merges the default tags with the object's existing tags if they do exist.
+        """
         if hasattr(obj, "tags"):
             obj.tags = obj.tags.union(tags)
         else:
@@ -975,8 +1109,12 @@ def tag(*tags):
 @contextmanager
 def register_lookup(field, *lookups, lookup_name=None):
     """
-    Context manager to temporarily register lookups on a model field using
-    lookup_name (or the lookup's lookup_name if not provided).
+
+    Context manager to temporarily register lookups on a model field.
+
+    This context manager allows you to register one or more lookups on a field for a limited scope,
+    providing a way to encapsulate lookup registration and automatic deregistration.
+
     """
     try:
         for lookup in lookups:

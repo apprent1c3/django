@@ -21,8 +21,7 @@ class PasswordInputTest(WidgetTest):
 
     def test_render_value_true(self):
         """
-        The render_value argument lets you specify whether the widget should
-        render its value. For security reasons, this is off by default.
+        Tests the functionality of rendering a widget's value when the render_value argument is set to True, ensuring the widget behaves correctly with different input values.
         """
         widget = PasswordInput(render_value=True)
         self.check_html(
@@ -39,6 +38,9 @@ class PasswordInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests the rendering of a form field using the provided widget, ensuring it is not wrapped in a fieldset by default.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

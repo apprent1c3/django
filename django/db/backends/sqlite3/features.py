@@ -63,6 +63,14 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_skips(self):
+        """
+        Return a dictionary of Django tests to skip for SQLite databases.
+
+        The dictionary contains reasons for skipping tests as keys and sets of test
+        names as values. The set of skips depends on whether the database is in-memory
+        or not. This allows for consistent handling of SQLite-specific limitations
+        and edge cases in Django tests.
+        """
         skips = {
             "SQLite stores values rounded to 15 significant digits.": {
                 "model_fields.test_decimalfield.DecimalFieldTests."
@@ -136,6 +144,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def supports_json_field(self):
+        """
+        Checks if the database connection supports JSON fields, returning True if supported and False otherwise.
+        """
         with self.connection.cursor() as cursor:
             try:
                 with transaction.atomic(self.connection.alias):

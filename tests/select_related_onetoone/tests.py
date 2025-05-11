@@ -24,6 +24,13 @@ from .models import (
 class ReverseSelectRelatedTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application, creating sample users, user profiles, 
+        stat results, and stats, as well as relationships between them, and sample 
+        hierarchical data for demonstration purposes.
+
+        """
         user = User.objects.create(username="test")
         UserProfile.objects.create(user=user, state="KS", city="Lawrence")
         results = UserStatResult.objects.create(results="first results")
@@ -99,6 +106,12 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(stat.user.username, "bob")
 
     def test_follow_inheritance(self):
+        """
+        Tests that Sphinx's select_related() method follows inheritance correctly.
+
+        Verifies that related objects are properly loaded in a single query and that 
+        subsequent attribute accesses do not trigger additional database queries.
+        """
         with self.assertNumQueries(1):
             stat = UserStat.objects.select_related("user", "advanceduserstat").get(
                 posts=200
@@ -109,6 +122,15 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(stat.advanceduserstat.user.username, "bob")
 
     def test_nullable_relation(self):
+        """
+
+        Tests the nullable relation between Product and Image models.
+
+        Verifies that products with and without associated images can be retrieved
+        efficiently with a single database query, and that the image attribute is
+        correctly set to None for products without an image.
+
+        """
         im = Image.objects.create(name="imag1")
         p1 = Product.objects.create(name="Django Plushie", image=im)
         p2 = Product.objects.create(name="Talking Django Plushie")
@@ -127,8 +149,7 @@ class ReverseSelectRelatedTestCase(TestCase):
 
     def test_missing_reverse(self):
         """
-        Ticket #13839: select_related() should NOT cache None
-        for missing objects on a reverse 1-1 relation.
+        Tests select_related() query behavior on reverse 1-1 relations, ensuring that a missing related object does not cache None, instead raising a DoesNotExist exception as expected.
         """
         with self.assertNumQueries(1):
             user = User.objects.select_related("userprofile").get(username="bob")
@@ -137,8 +158,10 @@ class ReverseSelectRelatedTestCase(TestCase):
 
     def test_nullable_missing_reverse(self):
         """
-        Ticket #13839: select_related() should NOT cache None
-        for missing objects on a reverse 0-1 relation.
+
+        Tests the select_related() method to ensure it does not cache None 
+        for missing objects on a reverse zero-to-one relation, as per ticket #13839.
+
         """
         Image.objects.create(name="imag1")
 
@@ -148,6 +171,9 @@ class ReverseSelectRelatedTestCase(TestCase):
                 image.product
 
     def test_parent_only(self):
+        """
+        Tests that a parent object with no child can be retrieved with a single query and that attempting to access its child raises a DoesNotExist exception.
+        """
         with self.assertNumQueries(1):
             p = Parent1.objects.select_related("child1").get(name1="Only Parent1")
         with self.assertNumQueries(0):
@@ -165,6 +191,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child2.name1, "Child2 Parent1")
 
     def test_onetoone_with_two_subclasses(self):
+        """
+        Tests the one-to-one relationship with two subclasses, ensuring select_related correctly fetches related objects and handles cases where related objects do or do not exist.
+        """
         with self.assertNumQueries(1):
             p = Parent2.objects.select_related("child2", "child2__child3").get(
                 name2="Child2 Parent2"
@@ -186,6 +215,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child2.name1, p.child2.child3.name1)
 
     def test_multiinheritance_two_subclasses(self):
+        """
+        Tests the select_related method with multi-inheritance across two subclasses, verifying that related objects are correctly fetched and that DoesNotExist exceptions are raised as expected when querying non-existent related objects.
+        """
         with self.assertNumQueries(1):
             p = Parent1.objects.select_related("child1", "child1__child4").get(
                 name1="Child1 Parent1"
@@ -209,6 +241,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.child4.value4, 4)
 
     def test_inheritance_deferred(self):
+        """
+        Tests the deferred inheritance of related objects using select_related, ensuring a single database query is executed and verifying the correctness of retrieved attributes.
+        """
         c = Child4.objects.create(name1="n1", name2="n2", value=1, value4=4)
         with self.assertNumQueries(1):
             p = (
@@ -234,6 +269,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.name2, "n2")
 
     def test_inheritance_deferred2(self):
+        """
+        TESTS that deferred loading works correctly when using `select_related` and `only` with multiple levels of inheritance.
+        """
         c = Child4.objects.create(name1="n1", name2="n2", value=1, value4=4)
         qs = Parent2.objects.select_related("child1", "child1__child4").only(
             "id2", "child1__value", "child1__child4__value4"
@@ -256,6 +294,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.child4.name1, "n1")
 
     def test_self_relation(self):
+        """
+        Tests the functionality of selecting a self-referential relation in a single database query, ensuring that the 'next_item' is properly retrieved from the database for a LinkedList object without incurring additional database queries.
+        """
         item1 = LinkedList.objects.create(name="item1")
         LinkedList.objects.create(name="item2", previous_item=item1)
         with self.assertNumQueries(1):
@@ -277,6 +318,13 @@ class ReverseSelectRelatedValidationTests(SimpleTestCase):
     )
 
     def test_reverse_related_validation(self):
+        """
+
+        Tests the validation of invalid fields passed to select_related.
+
+        Verifies that attempting to select related fields that do not exist or are not relation fields raises the expected FieldError.
+
+        """
         fields = "userprofile, userstat"
 
         with self.assertRaisesMessage(

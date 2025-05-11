@@ -28,8 +28,7 @@ class IntegerFieldTests(TestCase):
 
     def test_documented_range(self):
         """
-        Values within the documented safe range pass validation, and can be
-        saved and retrieved without corruption.
+        Verifies that values within the documented safe range can be saved and retrieved without corruption, passing validation checks.
         """
         min_value, max_value = self.documented_range
 
@@ -49,7 +48,11 @@ class IntegerFieldTests(TestCase):
 
     def test_backend_range_save(self):
         """
-        Backend specific ranges can be saved without corruption.
+
+            Tests that backend-specific range values can be saved to the database without corruption.
+
+            Verifies that minimum and maximum values can be successfully saved, retrieved, and matched.
+
         """
         min_value, max_value = self.backend_range
 
@@ -71,8 +74,9 @@ class IntegerFieldTests(TestCase):
 
     def test_backend_range_validation(self):
         """
-        Backend specific ranges are enforced at the model validation level
-        (#12030).
+        Tests the enforcement of backend-specific value ranges at the model validation level. 
+        Verifies that values outside the specified range raise a validation error, 
+        while values within the range are accepted.
         """
         min_value, max_value = self.backend_range
 
@@ -97,6 +101,15 @@ class IntegerFieldTests(TestCase):
             instance.full_clean()
 
     def test_backend_range_min_value_lookups(self):
+        """
+        Checks that the minimum value of the backend range is correctly handled by lookups.
+
+        Verifies that lookups for values below the minimum raise a DoesNotExist exception and 
+        do not generate any database queries. Also checks that greater than and greater than 
+        or equal to lookups return the object at the minimum value with a single database query.
+
+        Skips the test if the backend does not define an integer minimum value.
+        """
         min_value = self.backend_range[0]
         if min_value is None:
             raise SkipTest("Backend doesn't define an integer min value.")
@@ -117,6 +130,9 @@ class IntegerFieldTests(TestCase):
             self.model.objects.get(value__lte=underflow_value)
 
     def test_backend_range_max_value_lookups(self):
+        """
+        Verifies that a backend properly handles range max value lookups when the maximum value is exceeded, ensuring queries for values greater than the maximum raise a DoesNotExist error and those for values less than or equal to the maximum return the correct object.
+        """
         max_value = self.backend_range[-1]
         if max_value is None:
             raise SkipTest("Backend doesn't define an integer max value.")
@@ -135,8 +151,7 @@ class IntegerFieldTests(TestCase):
 
     def test_redundant_backend_range_validators(self):
         """
-        If there are stricter validators than the ones from the database
-        backend then the backend validators aren't added.
+        Tests that redundant database backend range validators are not added when stricter custom validators are present.
         """
         min_backend_value, max_backend_value = self.backend_range
 
@@ -179,6 +194,12 @@ class IntegerFieldTests(TestCase):
                         ranged_value_field.run_validators(max_backend_value + 1)
 
     def test_types(self):
+        """
+
+        Verifies that the value attribute of the model instance remains an integer type 
+        throughout its lifecycle, including after saving and retrieval from the database.
+
+        """
         instance = self.model(value=1)
         self.assertIsInstance(instance.value, int)
         instance.save()
@@ -192,6 +213,15 @@ class IntegerFieldTests(TestCase):
         self.assertEqual(instance.value, 10)
 
     def test_invalid_value(self):
+        """
+
+        Checks that creating an object with a non-numeric value raises the expected exception.
+
+        Verifies that a ValueError or TypeError is raised when attempting to create an object
+        with a field value that cannot be interpreted as a number, including non-numeric strings,
+        byte-strings, and other invalid types. 
+
+        """
         tests = [
             (TypeError, ()),
             (TypeError, []),
@@ -297,6 +327,9 @@ class ValidationTests(SimpleTestCase):
         self.assertIsNone(f.clean(None, None))
 
     def test_integerfield_raises_error_on_empty_input(self):
+        """
+        Tests that an IntegerField with null=False validation raises a ValidationError when given empty input values, specifically None and an empty string.
+        """
         f = models.IntegerField(null=False)
         with self.assertRaises(ValidationError):
             f.clean(None, None)
@@ -313,6 +346,9 @@ class ValidationTests(SimpleTestCase):
         self.assertEqual(f.clean("1", None), 1)
 
     def test_enum_choices_invalid_input(self):
+        """
+        Tests that IntegerField with enum choices raises a ValidationError when given invalid input.
+        """
         f = models.IntegerField(choices=self.Choices)
         with self.assertRaises(ValidationError):
             f.clean("A", None)
@@ -320,6 +356,9 @@ class ValidationTests(SimpleTestCase):
             f.clean("3", None)
 
     def test_callable_choices(self):
+        """
+        Tests that the IntegerField with callable choices validates input correctly, ensuring that only values returned by the choices function are accepted.
+        """
         def get_choices():
             return {i: str(i) for i in range(3)}
 

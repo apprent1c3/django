@@ -32,6 +32,9 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(function(value), output)
 
     def test_escape(self):
+        """
+        Tests the escape function to ensure it correctly replaces special characters with their HTML equivalents.
+        """
         items = (
             ("&", "&amp;"),
             ("<", "&lt;"),
@@ -76,6 +79,9 @@ class TestUtilsHtml(SimpleTestCase):
             self.assertEqual(format_html(f"<i>{name}</i>"), "<i>Adam</i>")
 
     def test_linebreaks(self):
+        """
+        Checks the functionality of the linebreaks function, ensuring it correctly converts various line break characters and sequences into HTML paragraph and line break tags.
+        """
         items = (
             ("para1\n\npara2\r\rpara3", "<p>para1</p>\n\n<p>para2</p>\n\n<p>para3</p>"),
             (
@@ -94,6 +100,9 @@ class TestUtilsHtml(SimpleTestCase):
                 self.check_output(linebreaks, lazystr(value), output)
 
     def test_strip_tags(self):
+        """
+        Test the strip_tags function with various inputs, including HTML tags, entities, and edge cases, to ensure it correctly removes tags and leaves the contents intact.
+        """
         items = (
             (
                 "<p>See: &#39;&eacute; is an apostrophe followed by e acute</p>",
@@ -131,6 +140,13 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_strip_tags_files(self):
         # Test with more lengthy content (also catching performance regressions)
+        """
+
+        Tests the strip_tags function on a set of sample files to ensure it correctly removes HTML tags and executes within a reasonable time frame.
+
+        The test checks that the stripped content does not contain any HTML tags and includes expected text, while also verifying that the operation completes in less than one second.
+
+        """
         for filename in ("strip_tags1.html", "strip_tags2.txt"):
             with self.subTest(filename=filename):
                 path = os.path.join(os.path.dirname(__file__), "files", filename)
@@ -145,6 +161,9 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_strip_spaces_between_tags(self):
         # Strings that should come out untouched.
+        """
+        Tests the functionality of stripping spaces between XML tags, ensuring that input strings with and without surrounding spaces, as well as those containing newline characters, are correctly processed to remove extraneous whitespace between tags.
+        """
         items = (" <adf>", "<adf> ", " </adf> ", " <f> x</f>")
         for value in items:
             with self.subTest(value=value):
@@ -163,6 +182,9 @@ class TestUtilsHtml(SimpleTestCase):
                 self.check_output(strip_spaces_between_tags, lazystr(value), output)
 
     def test_escapejs(self):
+        """
+        Tests the escapejs function to ensure it correctly escapes special characters in JavaScript strings, including quotes, backslashes, whitespace, and HTML tags.
+        """
         items = (
             (
                 "\"double quotes\" and 'single quotes'",
@@ -223,6 +245,11 @@ class TestUtilsHtml(SimpleTestCase):
                 self.assertEqual(json_script(arg, "test_id"), expected)
 
     def test_json_script_custom_encoder(self):
+        """
+
+        Tests that the json_script function correctly uses a custom JSON encoder.
+
+        """
         class CustomDjangoJSONEncoder(DjangoJSONEncoder):
             def encode(self, o):
                 return '{"hello": "world"}'
@@ -277,6 +304,9 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_html_safe(self):
         @html_safe
+        """
+        Tests the functionality of the @html_safe decorator to ensure it properly assigns the __html__ method to both a class and its instances, verifying that string representations of html-safe objects are correctly reflected in their __html__ method outputs.
+        """
         class HtmlClass:
             def __str__(self):
                 return "<h1>I'm a html class!</h1>"
@@ -287,6 +317,13 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(str(html_obj), html_obj.__html__())
 
     def test_html_safe_subclass(self):
+        """
+
+        Tests the html_safe decorator's handling of subclassing classes with __html__ and __str__ methods.
+
+        Verifies that when a subclass overrides the __str__ method, the decorator ensures the return value is HTML safe and matches the __html__ method's return value.
+
+        """
         class BaseClass:
             def __html__(self):
                 # defines __html__ on its own
@@ -305,6 +342,9 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(str(subclass_obj), subclass_obj.__html__())
 
     def test_html_safe_defines_html_error(self):
+        """
+        Checks that applying the @html_safe decorator to a class that defines its own __html__ method raises a ValueError.
+        """
         msg = "can't apply @html_safe to HtmlClass because it defines __html__()."
         with self.assertRaisesMessage(ValueError, msg):
 
@@ -314,6 +354,9 @@ class TestUtilsHtml(SimpleTestCase):
                     return "<h1>I'm a html class!</h1>"
 
     def test_html_safe_doesnt_define_str(self):
+        """
+        Tests that the @html_safe decorator raises a ValueError when applied to a class that does not define a __str__() method.
+        """
         msg = "can't apply @html_safe to HtmlClass because it doesn't define __str__()."
         with self.assertRaisesMessage(ValueError, msg):
 

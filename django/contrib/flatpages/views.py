@@ -21,14 +21,13 @@ DEFAULT_TEMPLATE = "flatpages/default.html"
 
 def flatpage(request, url):
     """
-    Public interface to the flat page view.
 
-    Models: `flatpages.flatpages`
-    Templates: Uses the template defined by the ``template_name`` field,
-        or :template:`flatpages/default.html` if template_name is not defined.
-    Context:
-        flatpage
-            `flatpages.flatpages` object
+    Displays a flat page based on the provided URL.
+
+    This view retrieves a flat page from the database based on the given URL
+    and the current site, and renders it using a template specified by the flat page
+    or a default template if none is specified.
+
     """
     if not url.startswith("/"):
         url = "/" + url
@@ -48,7 +47,7 @@ def flatpage(request, url):
 @csrf_protect
 def render_flatpage(request, f):
     """
-    Internal interface to the flat page view.
+    Renders a flat page based on the provided request and flat page object, handling authentication and template selection as needed. Returns an HTTP response with the rendered flat page content.
     """
     # If registration is required for accessing this page, and the user isn't
     # logged in, redirect to the login page.

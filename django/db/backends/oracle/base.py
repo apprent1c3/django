@@ -25,6 +25,9 @@ from django.utils.version import get_version_tuple
 def _setup_environment(environ):
     # Cygwin requires some special voodoo to set the environment variables
     # properly so that Oracle will see them.
+    """
+    Sets up the environment variables for the application, handling differences between Cygwin and other platforms to ensure compatibility, particularly for the Oracle backend
+    """
     if platform.system().upper().startswith("CYGWIN"):
         try:
             import ctypes
@@ -66,6 +69,9 @@ from .validation import DatabaseValidation  # NOQA
 
 @contextmanager
 def wrap_oracle_errors():
+    """
+    Context manager that catches and re-raises Oracle database errors related to integrity constraints as IntegrityError exceptions, allowing for more specific error handling and propagation.
+    """
     try:
         yield
     except Database.DatabaseError as e:
@@ -258,6 +264,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         )
 
     def init_connection_state(self):
+        """
+        Initializes the connection state by setting up the session locale and date/time formats, and configuring the database operators and pattern operations. Additionally, it sets the statement cache size and commits the current transaction if autocommit is disabled.
+        """
         super().init_connection_state()
         cursor = self.create_cursor()
         # Set the territory first. The territory overrides NLS_DATE_FORMAT
@@ -334,6 +343,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             cursor.execute("SET CONSTRAINTS ALL DEFERRED")
 
     def is_usable(self):
+        """
+        Checks if the database connection is usable by attempting a ping operation.
+        """
         try:
             self.connection.ping()
         except Database.Error:
@@ -364,6 +376,9 @@ class OracleParam:
     def __init__(self, param, cursor, strings_only=False):
         # With raw SQL queries, datetimes can reach this function
         # without being converted by DateTimeField.get_db_prep_value.
+        """
+        Initializes a parameter binding for a database query, handling various data types and encoding conversions as needed to prepare the parameter for execution with the database cursor. The parameter's value is converted or wrapped to ensure compatibility with the database, considering factors such as boolean support, character encoding, and data type specificity.
+        """
         if settings.USE_TZ and (
             isinstance(param, datetime.datetime)
             and not isinstance(param, Oracle_datetime)
@@ -449,6 +464,11 @@ class FormatStylePlaceholderCursor:
 
     @staticmethod
     def _get_decimal_converter(precision, scale):
+        """
+        Returns a decimal converter function based on the specified precision and scale.
+        This converter function rounds input numbers to the specified scale, utilizing a decimal context defined by the given precision.
+        It returns an integer if the scale is zero, otherwise it returns a Decimal instance with the input value quantized to the specified scale.
+        """
         if scale == 0:
             return int
         context = decimal.Context(prec=precision)
@@ -458,8 +478,7 @@ class FormatStylePlaceholderCursor:
     @staticmethod
     def _output_type_handler(cursor, name, defaultType, length, precision, scale):
         """
-        Called for each db column fetched from cursors. Return numbers as the
-        appropriate Python type, and NCLOB with JSON as strings.
+        Handles database column output types, converting numbers to appropriate Python types and NCLOB with JSON to strings, to process data fetched from database cursors effectively.
         """
         if defaultType == Database.NUMBER:
             if scale == -127:
@@ -502,6 +521,13 @@ class FormatStylePlaceholderCursor:
 
     def _guess_input_sizes(self, params_list):
         # Try dict handling; if that fails, treat as sequence
+        """
+        Guesses the input sizes for a list of parameters and sets them accordingly.
+
+        Attempts to infer input sizes from the provided parameters and calls setinputsizes
+        to configure the input sizes. The function handles both dictionary and list-based
+        parameter representations.
+        """
         if hasattr(params_list[0], "keys"):
             sizes = {}
             for params in params_list:
@@ -532,6 +558,14 @@ class FormatStylePlaceholderCursor:
         # it does want a trailing ';' but not a trailing '/'.  However, these
         # characters must be included in the original query in case the query
         # is being passed to SQL*Plus.
+        """
+        Prepare a SQL query and parameters for execution by adjusting the query string and parameter format.
+
+        :param query: The SQL query string to modify
+        :param params: The parameters to bind to the query, as a list, dictionary, or None
+        :param unify_by_values: If True, unify parameters of the same type to the same placeholder
+        :return: A tuple containing the modified query string and formatted parameters
+        """
         if query.endswith(";") or query.endswith("/"):
             query = query[:-1]
         if params is None:
@@ -577,6 +611,18 @@ class FormatStylePlaceholderCursor:
             return self.cursor.execute(query, self._param_generator(params))
 
     def executemany(self, query, params=None):
+        """
+        Execute a single query multiple times with different parameters.
+
+        Executes a query using multiple sets of parameters, where each set is used
+        to replace placeholders in the query. The function requires at least one
+        set of parameters to be provided, otherwise it returns None.
+
+        :param query: The SQL query to be executed.
+        :param params: An iterable of parameter sets to be used with the query.
+        :return: The result of executing the query with all parameter sets.
+
+        """
         if not params:
             # No params given, nothing to do
             return None

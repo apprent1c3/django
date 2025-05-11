@@ -15,6 +15,11 @@ class EmailBackend(BaseEmailBackend):
         super().__init__(*args, **kwargs)
 
     def write_message(self, message):
+        """
+
+        Writes a message to the output stream, decoding it according to its charset and appending a separator line.
+
+        """
         msg = message.message()
         msg_data = msg.as_bytes()
         charset = (
@@ -26,7 +31,9 @@ class EmailBackend(BaseEmailBackend):
         self.stream.write("\n")
 
     def send_messages(self, email_messages):
-        """Write all messages to the stream in a thread-safe way."""
+        """
+        Sends a list of email messages to a stream in a thread-safe manner, preventing concurrent access and ensuring reliable message delivery. It manages the stream lifecycle, creating and closing it as necessary, and provides error handling to optionally re-raise exceptions if message sending fails.
+        """
         if not email_messages:
             return
         msg_count = 0

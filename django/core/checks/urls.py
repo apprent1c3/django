@@ -9,6 +9,10 @@ from . import Error, Tags, Warning, register
 
 @register(Tags.urls)
 def check_url_config(app_configs, **kwargs):
+    """
+    Checks the configuration of URL patterns in the application's root URL configuration. 
+    Returns any errors or warnings found in the URL configuration.
+    """
     if getattr(settings, "ROOT_URLCONF", None):
         from django.urls import get_resolver
 
@@ -19,7 +23,7 @@ def check_url_config(app_configs, **kwargs):
 
 def check_resolver(resolver):
     """
-    Recursively check the resolver.
+    Checks if a resolver is valid by attempting to call its 'check' method or verifying the existence of a 'resolve' method, returning warnings or an empty list accordingly.
     """
     check_method = getattr(resolver, "check", None)
     if check_method is not None:
@@ -33,7 +37,7 @@ def check_resolver(resolver):
 @register(Tags.urls)
 def check_url_namespaces_unique(app_configs, **kwargs):
     """
-    Warn if URL namespaces used in applications aren't unique.
+    Warns if URL namespaces used in applications aren't unique, providing warnings for duplicate namespaces that could lead to reversing issues.
     """
     if not getattr(settings, "ROOT_URLCONF", None):
         return []
@@ -58,7 +62,7 @@ def check_url_namespaces_unique(app_configs, **kwargs):
 
 def _load_all_namespaces(resolver, parents=()):
     """
-    Recursively load all namespaces from URL patterns.
+    Recursively loads and aggregates all unique namespaces from a given resolver's URL patterns, including nested patterns, allowing for a comprehensive collection of namespace identifiers.
     """
     url_patterns = getattr(resolver, "url_patterns", [])
     namespaces = [
@@ -77,10 +81,7 @@ def _load_all_namespaces(resolver, parents=()):
 
 def get_warning_for_invalid_pattern(pattern):
     """
-    Return a list containing a warning that the pattern is invalid.
-
-    describe_pattern() cannot be used here, because we cannot rely on the
-    urlpattern having regex or name attributes.
+    Returns a list containing a warning for an invalid URL pattern, including a hint for potential correction. This warning is generated when a pattern in the urlpatterns list is not a valid path() or re_path() instance.
     """
     if isinstance(pattern, str):
         hint = (
@@ -104,6 +105,9 @@ def get_warning_for_invalid_pattern(pattern):
 
 @register(Tags.urls)
 def check_url_settings(app_configs, **kwargs):
+    """
+    Checks the configuration of static and media URLs to ensure they end with a forward slash, returning any encountered errors.
+    """
     errors = []
     for name in ("STATIC_URL", "MEDIA_URL"):
         value = getattr(settings, name)
@@ -121,6 +125,12 @@ def E006(name):
 
 @register(Tags.urls)
 def check_custom_error_handlers(app_configs, **kwargs):
+    """
+    Check the custom error handlers for various HTTP status codes in a Django project.
+
+    Verifies that custom error handlers (e.g. 400, 403, 404, 500) are properly defined and that they accept the correct number of arguments.
+    Returns a list of errors if any issues are found with the custom error handlers.\"
+    """
     if not getattr(settings, "ROOT_URLCONF", None):
         return []
 

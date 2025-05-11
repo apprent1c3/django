@@ -48,6 +48,15 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     }
 
     def get_field_type(self, data_type, description):
+        """
+        Determines the field type based on the provided data type and description.
+
+        This function overrides the default field type determination to account for additional
+        attributes such as auto-incrementing, unsigned, and specialized data types like UUID and JSON.
+
+        It returns the most appropriate field type for the given data type and description, 
+        such as AutoField, PositiveIntegerField, or JSONField.
+        """
         field_type = super().get_field_type(data_type, description)
         if "auto_increment" in description.extra:
             if field_type == "IntegerField":
@@ -90,8 +99,10 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_table_description(self, cursor, table_name):
         """
-        Return a description of the table with the DB-API cursor.description
-        interface."
+        JScrollPane is not required here, hence 
+        Return a description of a database table. 
+        This includes information about each column's data type, length, default value, 
+        and other attributes, using the DB-API cursor.description interface.
         """
         json_constraints = {}
         if (
@@ -211,8 +222,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_storage_engine(self, cursor, table_name):
         """
-        Retrieve the storage engine for a given table. Return the default
-        storage engine if the table doesn't exist.
+        Retrieve the storage engine used by a specific database table, falling back to the default storage engine if the table does not exist.
         """
         cursor.execute(
             """
@@ -230,6 +240,13 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return result[0]
 
     def _parse_constraint_columns(self, check_clause, columns):
+        """
+        Extracts column names from a SQL check clause that match the provided columns, returning them as an OrderedSet.
+
+        :param check_clause: The SQL check clause to parse.
+        :param columns: The set of column names to match against.
+        :return: An OrderedSet of matched column names.
+        """
         check_columns = OrderedSet()
         statement = sqlparse.parse(check_clause)[0]
         tokens = (token for token in statement.flatten() if not token.is_whitespace)
@@ -244,8 +261,15 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
 
     def get_constraints(self, cursor, table_name):
         """
-        Retrieve any constraints or keys (unique, pk, fk, check, index) across
-        one or more columns.
+
+            Retrieve any constraints or keys (unique, pk, fk, check, index) across
+            one or more columns in a specified database table.
+
+            Returns a dictionary with constraint names as keys and dictionaries of
+            constraint properties as values. Properties include the columns involved,
+            whether the constraint is a primary key, unique, foreign key, check, or index,
+            and other relevant details.
+
         """
         constraints = {}
         # Get the actual constraint names and columns

@@ -215,6 +215,14 @@ class MiddlewareNotUsedTests(SimpleTestCase):
         ]
     )
     async def test_async_and_sync_middleware_chain_async_call(self):
+        """
+
+        Tests the execution of an asynchronous view through a middleware chain 
+        that includes both synchronous and asynchronous middlewares.
+        Verifies the correct adaptation of asynchronous handlers and logs the 
+        expected middleware usage or exceptions.
+
+        """
         with self.assertLogs("django.request", "DEBUG") as cm:
             response = await self.async_client.get("/middleware_exceptions/view/")
         self.assertEqual(response.content, b"OK")

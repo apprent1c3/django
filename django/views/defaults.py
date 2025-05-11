@@ -34,16 +34,7 @@ ERROR_PAGE_TEMPLATE = """
 @requires_csrf_token
 def page_not_found(request, exception, template_name=ERROR_404_TEMPLATE_NAME):
     """
-    Default 404 handler.
-
-    Templates: :template:`404.html`
-    Context:
-        request_path
-            The path of the requested URL (e.g., '/app/pages/bad_page/'). It's
-            quoted to prevent a content injection attack.
-        exception
-            The message from the exception which triggered the 404 (if one was
-            supplied), or the exception class name
+    Handles HTTP 404 errors, rendering a custom error page with details about the requested URL and the exception that triggered the error.
     """
     exception_repr = exception.__class__.__name__
     # Try to get an "interesting" exception message, if any (and not the ugly
@@ -82,10 +73,7 @@ def page_not_found(request, exception, template_name=ERROR_404_TEMPLATE_NAME):
 @requires_csrf_token
 def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
     """
-    500 error handler.
-
-    Templates: :template:`500.html`
-    Context: None
+    Handles server errors by rendering a custom 500 error template. The template is loaded by name, and if it does not exist, a default error response is returned.
     """
     try:
         template = loader.get_template(template_name)
@@ -102,10 +90,12 @@ def server_error(request, template_name=ERROR_500_TEMPLATE_NAME):
 @requires_csrf_token
 def bad_request(request, exception, template_name=ERROR_400_TEMPLATE_NAME):
     """
-    400 error handler.
 
-    Templates: :template:`400.html`
-    Context: None
+    Handles HTTP 400 Bad Request errors, rendering a custom error template.
+
+    The template used is configurable via the :attr:`template_name` parameter, defaulting to :data:`ERROR_400_TEMPLATE_NAME`.
+    If the specified template does not exist, a default error page is displayed.
+
     """
     try:
         template = loader.get_template(template_name)
@@ -125,16 +115,7 @@ def bad_request(request, exception, template_name=ERROR_400_TEMPLATE_NAME):
 @requires_csrf_token
 def permission_denied(request, exception, template_name=ERROR_403_TEMPLATE_NAME):
     """
-    Permission denied (403) handler.
-
-    Templates: :template:`403.html`
-    Context:
-        exception
-            The message from the exception which triggered the 403 (if one was
-            supplied).
-
-    If the template does not exist, an Http403 response containing the text
-    "403 Forbidden" (as per RFC 9110 Section 15.5.4) will be returned.
+    Permission denied (403) handler, rendering a template with the exception message when available, or returning a default Http403 response.
     """
     try:
         template = loader.get_template(template_name)

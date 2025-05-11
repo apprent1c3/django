@@ -18,6 +18,9 @@ class NumberInputTests(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests that a form field is properly rendered without a fieldset when the widget's use_fieldset attribute is False.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

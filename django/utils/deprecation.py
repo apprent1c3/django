@@ -53,6 +53,16 @@ class RenameMethodsBase(type):
     renamed_methods = ()
 
     def __new__(cls, name, bases, attrs):
+        """
+        A metaclass that automatically detects and handles method renames in a class hierarchy.
+
+        Provides warnings for deprecated methods and redirects calls to the new method names.
+        Automatically updates class methods to point to their renamed versions if available.
+
+        This metaclass simplifies the process of refactoring class methods, making it easier to rename methods without breaking existing code.
+        It integrates seamlessly with the class creation process, applying method renaming transformations at the time of class definition.
+
+        """
         new_class = super().__new__(cls, name, bases, attrs)
 
         for base in inspect.getmro(new_class):
@@ -88,6 +98,13 @@ class MiddlewareMixin:
     async_capable = True
 
     def __init__(self, get_response):
+        """
+        Initializes the object, setting up the response getter and determining its asynchronous mode.
+
+        :param get_response: A callable that retrieves a response; it cannot be None.
+        :raises ValueError: If get_response is not provided.
+
+        """
         if get_response is None:
             raise ValueError("get_response must be provided.")
         self.get_response = get_response
@@ -112,6 +129,15 @@ class MiddlewareMixin:
 
     def __call__(self, request):
         # Exit out to async mode, if needed
+        """
+
+        Handle a request and return a response.
+
+        This function acts as the main entry point for processing incoming requests.
+        It delegates the request processing to specific methods if they exist,
+        providing a flexible way to handle requests synchronously or asynchronously.
+
+        """
         if self.async_mode:
             return self.__acall__(request)
         response = None
@@ -124,8 +150,7 @@ class MiddlewareMixin:
 
     async def __acall__(self, request):
         """
-        Async version of __call__ that is swapped in when an async request
-        is running.
+        Asynchronous wrapper for handling requests, providing a asynchronous interface for request processing and response generation.
         """
         response = None
         if hasattr(self, "process_request"):

@@ -19,7 +19,19 @@ class ServerHandler(simple_server.ServerHandler):
     error_status = "500 INTERNAL SERVER ERROR"
 
     def write(self, data):
-        """'write()' callable as specified by PEP 3333"""
+        """
+        Writes response data to the output stream according to the WSGI interface.
+
+        This method takes a bytestring of data as input and sends it to the client, 
+        ensuring that headers are sent first if not already done so. The data is 
+        sent in chunks to prevent buffer overflows.
+
+        Args:
+            data (bytes): The response data to be sent to the client.
+
+        Raises:
+            AssertionError: If write is called before start_response or if data is not a bytestring.
+        """
 
         assert isinstance(data, bytes), "write() argument must be bytestring"
 
@@ -80,6 +92,9 @@ class WSGIFileWrapperTests(TestCase):
     """
 
     def test_file_wrapper_uses_sendfile(self):
+        """
+        Tests that the FileWrapperHandler uses the sendfile method when running a WSGI application with file wrapping enabled.
+        """
         env = {"SERVER_PROTOCOL": "HTTP/1.0"}
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
         handler.run(wsgi_app_file_wrapper)
@@ -88,6 +103,9 @@ class WSGIFileWrapperTests(TestCase):
         self.assertEqual(handler.stderr.getvalue(), b"")
 
     def test_file_wrapper_no_sendfile(self):
+        """
+        Tests that the FileWrapperHandler does not use sendfile when the server protocol is HTTP/1.0.
+        """
         env = {"SERVER_PROTOCOL": "HTTP/1.0"}
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
         handler.run(wsgi_app)
@@ -98,8 +116,7 @@ class WSGIFileWrapperTests(TestCase):
     @override_settings(ROOT_URLCONF="builtin_server.urls")
     def test_file_response_closing(self):
         """
-        View returning a FileResponse properly closes the file and http
-        response when file_wrapper is used.
+        Tests that a view returning a FileResponse properly closes the file and HTTP response when using a file wrapper.
         """
         env = RequestFactory().get("/fileresponse/").environ
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
@@ -118,6 +135,9 @@ class WSGIFileWrapperTests(TestCase):
 
     @override_settings(ROOT_URLCONF="builtin_server.urls")
     def test_file_response_call_request_finished(self):
+        """
+        Tests that the request_finished signal is emitted when a file response is served, ensuring the request is properly finalized after serving the file.
+        """
         env = RequestFactory().get("/fileresponse/").environ
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
         with mock.MagicMock() as signal_handler:

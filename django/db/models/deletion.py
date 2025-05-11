@@ -50,6 +50,15 @@ def RESTRICT(collector, field, sub_objs, using):
 
 
 def SET(value):
+    """
+
+    Specify a value to set on the model instance when the related object is deleted.
+
+    This function returns a callable that will be used by Django's ORM to update the
+    model instance's field when the related object is deleted. The value can be a
+    fixed value or a callable that returns the value to be set.
+
+    """
     if callable(value):
 
         def set_on_delete(collector, field, sub_objs, using):
@@ -93,6 +102,18 @@ def get_candidate_relations_to_delete(opts):
 
 class Collector:
     def __init__(self, using, origin=None):
+        """
+        \":param using: The database connection to use
+        :param origin: The optional origin of the data
+        :ivar using: The database connection
+        :ivar origin: The origin of the data
+        :ivar data: A dictionary mapping keys to sets of data
+        :ivar field_updates: A dictionary mapping keys to lists of updates
+        :ivar restricted_objects: A dictionary mapping keys to restricted objects
+        :ivar fast_deletes: A list of objects to delete quickly
+        :ivar dependencies: A dictionary mapping keys to sets of dependencies
+        Initializes an instance with the provided database connection and optional origin.\"
+        """
         self.using = using
         # A Model or QuerySet object.
         self.origin = origin
@@ -115,11 +136,7 @@ class Collector:
 
     def add(self, objs, source=None, nullable=False, reverse_dependency=False):
         """
-        Add 'objs' to the collection of objects to be deleted.  If the call is
-        the result of a cascade, 'source' should be the model that caused it,
-        and 'nullable' should be set to True if the relation can be null.
-
-        Return a list of all objects that were not already collected.
+        Adds objects to be deleted and tracks their dependencies, allowing for cascading deletions when necessary. Returns a list of newly added objects that were not previously collected.
         """
         if not objs:
             return []
@@ -184,14 +201,7 @@ class Collector:
 
     def can_fast_delete(self, objs, from_field=None):
         """
-        Determine if the objects in the given queryset-like or single object
-        can be fast-deleted. This can be done if there are no cascades, no
-        parents and no signal listeners for the object class.
-
-        The 'from_field' tells where we are coming from - we need this to
-        determine if the objects are in fact to be deleted. Allow also
-        skipping parent -> child -> parent chain preventing fast delete of
-        the child.
+        Determine if the given object(s) can be fast-deleted by checking for cascades, parents, and signal listeners, considering the origin field to prevent unnecessary deletions.
         """
         if from_field and from_field.remote_field.on_delete is not CASCADE:
             return False
@@ -228,7 +238,7 @@ class Collector:
 
     def get_del_batches(self, objs, fields):
         """
-        Return the objs in suitably sized batches for the used connection.
+        Divide a list of objects into batches suitable for bulk operations on the current database connection.
         """
         field_names = [field.name for field in fields]
         conn_batch_size = max(
@@ -254,27 +264,11 @@ class Collector:
         fail_on_restricted=True,
     ):
         """
-        Add 'objs' to the collection of objects to be deleted as well as all
-        parent instances.  'objs' must be a homogeneous iterable collection of
-        model instances (e.g. a QuerySet).  If 'collect_related' is True,
-        related objects will be handled by their respective on_delete handler.
+        Collects objects to be deleted along with their related instances and parent models, handling cascading deletions according to the specified model relationships and on_delete handlers. 
 
-        If the call is the result of a cascade, 'source' should be the model
-        that caused it and 'nullable' should be set to True, if the relation
-        can be null.
+        Accepts a homogeneous iterable collection of model instances, and returns without modifying the collection. 
 
-        If 'reverse_dependency' is True, 'source' will be deleted before the
-        current model, rather than after. (Needed for cascading to parent
-        models, the one case in which the cascade follows the forwards
-        direction of an FK rather than the reverse direction.)
-
-        If 'keep_parents' is True, data of parent model's will be not deleted.
-
-        If 'fail_on_restricted' is False, error won't be raised even if it's
-        prohibited to delete such objects due to RESTRICT, that defers
-        restricted object checking in recursive calls where the top-level call
-        may need to collect more objects to determine whether restricted ones
-        can be deleted.
+        Options are provided to customize the deletion behavior, including whether to collect related objects, handle reverse dependencies, keep parent models, and raise errors when encountering restricted objects.
         """
         if self.can_fast_delete(objs):
             self.fast_deletes.append(objs)
@@ -412,6 +406,9 @@ class Collector:
                 yield model, obj
 
     def sort(self):
+        """
+        Sorts the internal data models by their dependencies, ensuring that models without unmet dependencies appear first. This ordering helps to prevent dependency conflicts and ensures a stable processing sequence.
+        """
         sorted_models = []
         concrete_models = set()
         models = list(self.data)
@@ -431,6 +428,13 @@ class Collector:
 
     def delete(self):
         # sort instance collections
+        """
+        Deletes objects from the database, handling both fast and batch deletions, and updating related objects accordingly.
+
+        It sorts instances by primary key, sends pre- and post-delete signals, and then performs deletions in batches, while also updating fields as necessary.
+
+        Returns a tuple containing the total number of deleted objects and a dictionary with the number of deleted objects per model.
+        """
         for model, instances in self.data.items():
             self.data[model] = sorted(instances, key=attrgetter("pk"))
 

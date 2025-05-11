@@ -127,6 +127,9 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_bad_color(self):
+        """
+        Tests the parse_color_setting function with invalid, incomplete and fully specified color settings to ensure it correctly handles various input scenarios and returns the expected color palette configurations.
+        """
         self.assertIsNone(parse_color_setting("error="))
         self.assertEqual(
             parse_color_setting("error=;sql_field=blue"),

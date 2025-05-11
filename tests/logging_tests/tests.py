@@ -30,7 +30,7 @@ from .logconfig import MyEmailBackend
 class LoggingFiltersTest(SimpleTestCase):
     def test_require_debug_false_filter(self):
         """
-        Test the RequireDebugFalse filter class.
+        Tests that the RequireDebugFalse filter behaves correctly based on the DEBUG setting, allowing records to pass when DEBUG is False and blocking them when DEBUG is True.
         """
         filter_ = RequireDebugFalse()
 
@@ -42,7 +42,7 @@ class LoggingFiltersTest(SimpleTestCase):
 
     def test_require_debug_true_filter(self):
         """
-        Test the RequireDebugTrue filter class.
+        Tests the functionality of the RequireDebugTrue filter by verifying its behavior under different DEBUG settings.
         """
         filter_ = RequireDebugTrue()
 
@@ -66,7 +66,7 @@ class DefaultLoggingTests(
 ):
     def test_django_logger(self):
         """
-        The 'django' base logger only output anything when DEBUG=True.
+        Tests the behavior of the Django base logger in relation to the DEBUG setting.
         """
         self.logger.error("Hey, this is an error.")
         self.assertEqual(self.logger_output.getvalue(), "")
@@ -95,6 +95,21 @@ class LoggingAssertionMixin:
     def assertLogsRequest(
         self, url, level, msg, status_code, logger="django.request", exc_class=None
     ):
+        """
+
+        Checks that a GET request to the given URL logs the expected message.
+
+        Args:
+            url (str): The URL to make the GET request to.
+            level (int): The expected logging level of the message.
+            msg (str): The expected log message.
+            status_code (int): The expected status code of the request.
+            logger (str, optional): The name of the logger to check. Defaults to 'django.request'.
+            exc_class (type, optional): The expected exception class, if any.
+
+        Verifies that the request logs exactly one message with the specified level, message, status code, and exception class (if provided).
+
+        """
         with self.assertLogs(logger, level) as cm:
             try:
                 self.client.get(url)
@@ -219,6 +234,9 @@ class CallbackFilterTest(SimpleTestCase):
         self.assertTrue(f_true.filter("record"))
 
     def test_passes_on_record(self):
+        """
+        Tests that a CallbackFilter instance correctly passes records to its callback function when filtering.
+        """
         collector = []
 
         def _callback(record):
@@ -253,8 +271,7 @@ class AdminEmailHandlerTest(SimpleTestCase):
     )
     def test_accepts_args(self):
         """
-        User-supplied arguments and the EMAIL_SUBJECT_PREFIX setting are used
-        to compose the email subject (#16736).
+        Tests that email subject composition correctly incorporates user-supplied arguments and the EMAIL_SUBJECT_PREFIX setting when sending error emails to administrators.
         """
         message = "Custom message that says '%s' and '%s'"
         token1 = "ping"
@@ -286,7 +303,9 @@ class AdminEmailHandlerTest(SimpleTestCase):
     )
     def test_accepts_args_and_request(self):
         """
-        The subject is also handled if being passed a request object.
+
+        Test that admin email notifications are correctly handled when a request object is passed and custom arguments are provided.
+
         """
         message = "Custom message that says '%s' and '%s'"
         token1 = "ping"
@@ -325,8 +344,7 @@ class AdminEmailHandlerTest(SimpleTestCase):
     )
     def test_subject_accepts_newlines(self):
         """
-        Newlines in email reports' subjects are escaped to prevent
-        AdminErrorHandler from failing (#17281).
+        Tests that email report subjects with newlines are properly escaped to prevent errors in AdminErrorHandler, ensuring that the subject is correctly formatted and sent.
         """
         message = "Message \r\n with newlines"
         expected_subject = "ERROR: Message \\r\\n with newlines"
@@ -346,7 +364,7 @@ class AdminEmailHandlerTest(SimpleTestCase):
     )
     def test_uses_custom_email_backend(self):
         """
-        Refs #19325
+        Tests the use of a custom email backend for sending administrative emails when an error occurs. Verifies that the custom backend is used when logging an error message.
         """
         message = "All work and no play makes Jack a dull boy"
         admin_email_handler = self.get_admin_email_handler(self.logger)
@@ -376,8 +394,7 @@ class AdminEmailHandlerTest(SimpleTestCase):
     )
     def test_emit_non_ascii(self):
         """
-        #23593 - AdminEmailHandler should allow Unicode characters in the
-        request.
+        Tests AdminEmailHandler's ability to handle non-ASCII characters in the request path, ensuring it can send error emails with Unicode characters.
         """
         handler = self.get_admin_email_handler(self.logger)
         record = self.logger.makeRecord(
@@ -397,6 +414,9 @@ class AdminEmailHandlerTest(SimpleTestCase):
         DEBUG=False,
     )
     def test_customize_send_mail_method(self):
+        """
+        Tests that the customized send_mail method in AdminEmailHandler sends email to managers as expected.
+        """
         class ManagerEmailHandler(AdminEmailHandler):
             def send_mail(self, subject, message, *args, **kwargs):
                 mail.mail_managers(
@@ -414,6 +434,9 @@ class AdminEmailHandlerTest(SimpleTestCase):
 
     @override_settings(ALLOWED_HOSTS="example.com")
     def test_disallowed_host_doesnt_crash(self):
+        """
+        Tests that the application doesn't crash when a disallowed host makes a request, under different admin email handler configurations.
+        """
         admin_email_handler = self.get_admin_email_handler(self.logger)
         old_include_html = admin_email_handler.include_html
 
@@ -437,6 +460,11 @@ class AdminEmailHandlerTest(SimpleTestCase):
 
     @override_settings(ADMINS=[("A.N.Admin", "admin@example.com")])
     def test_custom_exception_reporter_is_used(self):
+        """
+        Tests that a custom exception reporter class is utilized when sending error emails to administrators.
+
+        Verifies that the custom reporter's formatting is applied to the email body, specifically including a custom traceback text.
+        """
         record = self.logger.makeRecord(
             "name", logging.ERROR, "function", "lno", "message", None, None
         )
@@ -451,7 +479,9 @@ class AdminEmailHandlerTest(SimpleTestCase):
 
     @override_settings(ADMINS=[("admin", "admin@example.com")])
     def test_emit_no_form_tag(self):
-        """HTML email doesn't contain forms."""
+        """
+        Verifies that HTML emails sent by the AdminEmailHandler do not contain forms, ensuring security and preventing potential abuse.
+        """
         handler = AdminEmailHandler(include_html=True)
         record = self.logger.makeRecord(
             "name",
@@ -473,6 +503,11 @@ class AdminEmailHandlerTest(SimpleTestCase):
 
     @override_settings(ADMINS=[])
     def test_emit_no_admins(self):
+        """
+
+        Test that AdminEmailHandler does not send an email when there are no admins configured.
+
+        """
         handler = AdminEmailHandler()
         record = self.logger.makeRecord(
             "name",
@@ -531,6 +566,9 @@ class SetupConfigureLogging(SimpleTestCase):
     """
 
     def test_configure_initializes_logging(self):
+        """
+        Tests that configuring the application initializes the logging system correctly.
+        """
         from django import setup
 
         try:
@@ -583,6 +621,9 @@ class SettingsCustomLoggingTest(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+        Sets up the logging configuration for the test environment by creating a temporary logging configuration file and updating the application settings to use this configuration.
+        """
         super().setUp()
         logging_conf = """
 [loggers]
@@ -620,6 +661,11 @@ format=%(message)s
 
 class LogFormattersTests(SimpleTestCase):
     def test_server_formatter_styles(self):
+        """
+
+        Tests that ServerFormatter applies the correct color styles to log messages based on HTTP status codes.
+
+        """
         color_style = color.make_style("")
         formatter = ServerFormatter()
         formatter.style = color_style
@@ -642,12 +688,22 @@ class LogFormattersTests(SimpleTestCase):
         self.assertEqual(formatter.format(record), log_msg)
 
     def test_server_formatter_default_format(self):
+        """
+        Tests the server formatter's default format by verifying the logged message format matches the expected output when a server time is provided and when it is not.
+        """
         server_time = "2016-09-25 10:20:30"
         log_msg = "log message"
         logger = logging.getLogger("django.server")
 
         @contextmanager
         def patch_django_server_logger():
+            """
+            A context manager that temporarily redirects the Django server logger output to a StringIO stream.
+
+            This allows capturing and testing of log output within a specific code block, returning the log output as a string.
+
+            Enables isolation and verification of expected logging behavior in test scenarios.
+            """
             old_stream = logger.handlers[0].stream
             new_stream = StringIO()
             logger.handlers[0].stream = new_stream

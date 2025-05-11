@@ -24,6 +24,14 @@ class CheckTestCase(SimpleTestCase):
         invalid_obj=None,
         admin_site=None,
     ):
+        """
+
+        Asserts that a model instance is invalid in the admin interface.
+
+        This method checks the validation of a model instance through the model admin and 
+        verifies that it returns the expected error message, hint, and object.
+
+        """
         if admin_site is None:
             admin_site = AdminSite()
         invalid_obj = invalid_obj or model_admin
@@ -36,7 +44,16 @@ class CheckTestCase(SimpleTestCase):
         self, model_admin, model, msg, id=None, hint=None, invalid_obj=None
     ):
         """
-        Same as assertIsInvalid but treats the given msg as a regexp.
+
+        Asserts that the given model is invalid, with an error message matching the provided regular expression pattern.
+
+        :param model_admin: The model admin instance to validate against
+        :param model: The model instance to check for validity
+        :param msg: The regular expression pattern to match against the error message
+        :param id: The expected ID of the invalid object (optional)
+        :param hint: The expected hint for the error (optional)
+        :param invalid_obj: The expected invalid object (optional, defaults to model_admin)
+
         """
         invalid_obj = invalid_obj or model_admin
         admin_obj = model_admin(model, AdminSite())
@@ -162,6 +179,9 @@ class FieldsetsCheckTests(CheckTestCase):
         )
 
     def test_missing_fields_key(self):
+        """
+        Verifies that the 'fields' key is present and correctly configured in the 'fieldsets' attribute of a ModelAdmin instance.
+        """
         class TestModelAdmin(ModelAdmin):
             fieldsets = (("General", {}),)
 
@@ -234,6 +254,9 @@ class FieldsCheckTests(CheckTestCase):
         )
 
     def test_inline(self):
+        """
+        Tests whether the ModelAdmin class correctly validates that the 'fields' attribute of an inline class is a list or tuple, raising an error if it is not.
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             fields = 10
@@ -252,6 +275,13 @@ class FieldsCheckTests(CheckTestCase):
 
 class FormCheckTests(CheckTestCase):
     def test_invalid_type(self):
+        """
+
+        Tests that the ModelAdmin's 'form' attribute is a valid type.
+
+        Verifies that the 'form' must be a class inheriting from BaseModelForm, and raises an error if it is not.
+
+        """
         class FakeForm:
             pass
 
@@ -277,6 +307,9 @@ class FormCheckTests(CheckTestCase):
         self.assertIsValid(BandAdmin, Band)
 
     def test_valid_case(self):
+        """
+        Tests that the BandAdmin form is valid for the Band model with all required fields included.
+        """
         class AdminBandForm(forms.ModelForm):
             delete = forms.BooleanField()
 
@@ -324,6 +357,9 @@ class FilterVerticalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_reverse_m2m_field_with_related_name(self):
+        """
+        Checks that a ModelAdmin with filter_vertical referencing a reverse many-to-many field raises an error when the related_name does not match a many-to-many field on the model.
+        """
         class Contact(Model):
             pass
 
@@ -342,6 +378,9 @@ class FilterVerticalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_m2m_field_with_through(self):
+        """
+        Tests that a ModelAdmin validation error is raised when a ManyToManyField with a through model is included in filter_vertical, which is not allowed.
+        """
         class Artist(Model):
             bands = ManyToManyField("Band", through="BandArtist")
 
@@ -404,6 +443,9 @@ class FilterHorizontalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_reverse_m2m_field_with_related_name(self):
+        """
+        Tests that using related_name in filter_horizontal on a ModelAdmin instance for a many-to-many field on the related model results in an invalid ModelAdmin configuration. The test verifies that the correct error message and code are returned when attempting to validate the ModelAdmin instance.
+        """
         class Contact(Model):
             pass
 
@@ -422,6 +464,9 @@ class FilterHorizontalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_m2m_field_with_through(self):
+        """
+        Tests the invalid usage of a ManyToManyField with a through model in a ModelAdmin's filter_horizontal attribute.
+        """
         class Artist(Model):
             bands = ManyToManyField("Band", through="BandArtist")
 
@@ -670,6 +715,9 @@ class ListDisplayTests(CheckTestCase):
 
     def test_valid_case(self):
         @admin.display
+        """
+        Tests the validation of a ModelAdmin instance with a valid case, ensuring that it can successfully register display methods and callables in the list_display attribute.
+        """
         def a_callable(obj):
             pass
 
@@ -683,6 +731,14 @@ class ListDisplayTests(CheckTestCase):
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_valid_field_accessible_via_instance(self):
+        """
+
+        Tests that a custom model field accessible only via instance is valid in ModelAdmin.
+
+        The test verifies that a field which raises an AttributeError when accessed via the class,
+        can still be successfully displayed in the ModelAdmin list view.
+
+        """
         class PositionField(Field):
             """Custom field accessible only via instance."""
 
@@ -743,6 +799,9 @@ class ListDisplayLinksCheckTests(CheckTestCase):
 
     def test_valid_case(self):
         @admin.display
+        """
+        Tests whether a valid case of ModelAdmin is correctly identified by the validation system, specifically checking the compatibility of list_display and list_display_links when they contain both model methods and callables decorated with @admin.display.
+        """
         def a_callable(obj):
             pass
 
@@ -764,7 +823,7 @@ class ListDisplayLinksCheckTests(CheckTestCase):
 
     def test_list_display_links_check_skipped_if_get_list_display_overridden(self):
         """
-        list_display_links check is skipped if get_list_display() is overridden.
+        Tests that the list_display_links validation check is bypassed when the get_list_display method is overridden in a ModelAdmin subclass.
         """
 
         class TestModelAdmin(ModelAdmin):
@@ -779,8 +838,7 @@ class ListDisplayLinksCheckTests(CheckTestCase):
         self,
     ):
         """
-        list_display_links is checked for list/tuple/None even if
-        get_list_display() is overridden.
+        Verify that list_display_links is validated as a list, tuple, or None, even when get_list_display is overridden.
         """
 
         class TestModelAdmin(ModelAdmin):
@@ -822,6 +880,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_callable(self):
+        """
+        Checks if a list filter in the ModelAdmin inherits from ListFilter, raising an error if it does not, specifically targeting the case where a callable does not meet this requirement.
+        """
         def random_callable():
             pass
 
@@ -859,6 +920,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_filter(self):
+        """
+        Tests that the list_filter attribute of ModelAdmin instances only contains classes that inherit from ListFilter.
+        """
         class RandomClass:
             pass
 
@@ -873,6 +937,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_filter_again(self):
+        """
+        Tests that the list_filter attribute in ModelAdmin does not accept a value that does not inherit from FieldListFilter.
+        """
         class RandomClass:
             pass
 
@@ -887,6 +954,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_filter_again_again(self):
+        """
+        Tests that a custom list filter in the ModelAdmin must inherit from FieldListFilter, not SimpleListFilter, to be valid.
+        """
         class AwesomeFilter(SimpleListFilter):
             def get_title(self):
                 return "awesomeness"
@@ -908,6 +978,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_list_filter_is_func(self):
+        """
+        Tests that the list_filter attribute of ModelAdmin instances contains only values that inherit from ListFilter.
+        """
         def get_filter():
             pass
 
@@ -933,6 +1006,12 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        Tests the validity of a ModelAdmin instance with a custom SimpleListFilter. 
+
+        The test ensures that the ModelAdmin is properly configured and functions as expected 
+        when using a combination of built-in and custom list filters.
+        """
         class AwesomeFilter(SimpleListFilter):
             def get_title(self):
                 return "awesomeness"
@@ -1055,6 +1134,12 @@ class DateHierarchyCheckTests(CheckTestCase):
 
 class OrderingCheckTests(CheckTestCase):
     def test_not_iterable(self):
+        """
+
+        Tests that the 'ordering' attribute in ModelAdmin is properly validated.
+        Ensures the value is a list or tuple and references existing model fields.
+
+        """
         class TestModelAdmin(ModelAdmin):
             ordering = 10
 
@@ -1207,6 +1292,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_not_model_admin(self):
+        """
+        Tests that a model admin's inlines must inherit from InlineModelAdmin.
+        """
         class ValidationTestInline:
             pass
 
@@ -1221,6 +1309,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_missing_model_field(self):
+        """
+        Tests that an inline model admin validation error is raised when the 'model' attribute is missing from an inline class
+        """
         class ValidationTestInline(TabularInline):
             pass
 
@@ -1235,6 +1326,11 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_invalid_model_type(self):
+        """
+
+        Tests that a ModelAdmin instance is invalid when its inline model is not a subclass of Model.
+
+        """
         class SomethingBad:
             pass
 
@@ -1252,6 +1348,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_invalid_model(self):
+        """
+        Verifies that an invalid model specified in a TabularInline raises the correct validation error.
+        """
         class ValidationTestInline(TabularInline):
             model = "Not a class"
 
@@ -1266,6 +1365,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_invalid_callable(self):
+        """
+        Tests that an error is raised when an inline model admin is not a callable that inherits from InlineModelAdmin.
+        """
         def random_obj():
             pass
 
@@ -1280,6 +1382,9 @@ class InlinesCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        Tests the validity of a model admin configuration when a tabular inline model is used with a validation test model.
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
 
@@ -1291,6 +1396,9 @@ class InlinesCheckTests(CheckTestCase):
 
 class FkNameCheckTests(CheckTestCase):
     def test_missing_field(self):
+        """
+        Test that an error is raised when an inline model admin has a foreign key referencing a non-existent field.
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             fk_name = "non_existent_field"
@@ -1308,6 +1416,9 @@ class FkNameCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        Tests that a ModelAdmin with an inline validation test model is valid.
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             fk_name = "parent"
@@ -1318,6 +1429,9 @@ class FkNameCheckTests(CheckTestCase):
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_proxy_model(self):
+        """
+        Tests the usage of a proxy model in a Django admin interface, ensuring that the admin validation succeeds when using a proxy model as a foreign key reference.
+        """
         class Reporter(Model):
             pass
 
@@ -1337,6 +1451,9 @@ class FkNameCheckTests(CheckTestCase):
         self.assertIsValid(ReporterAdmin, Reporter)
 
     def test_proxy_model_fk_name(self):
+        """
+        Tests that a foreign key to a proxy model works correctly in admin inlines.
+        """
         class ReporterFkName(Model):
             pass
 
@@ -1357,6 +1474,9 @@ class FkNameCheckTests(CheckTestCase):
         self.assertIsValid(ReporterAdmin, ReporterFkName)
 
     def test_proxy_model_parent(self):
+        """
+        Tests validation of a ModelAdmin instance with inlines for a proxy model with multiple levels of inheritance.
+        """
         class Parent(Model):
             pass
 
@@ -1386,6 +1506,9 @@ class FkNameCheckTests(CheckTestCase):
 
 class ExtraCheckTests(CheckTestCase):
     def test_not_integer(self):
+        """
+        Tests that the 'extra' attribute in a TabularInline model admin class must be an integer, ensuring proper validation and raising an error if a non-integer value is provided.
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             extra = "hello"
@@ -1402,6 +1525,9 @@ class ExtraCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        Tests that a valid case of ValidationTestModel with inline validation tests passes validation checks.
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             extra = 2
@@ -1414,6 +1540,9 @@ class ExtraCheckTests(CheckTestCase):
 
 class MaxNumCheckTests(CheckTestCase):
     def test_not_integer(self):
+        """
+        Tests that the 'max_num' attribute in a TabularInline class must be an integer, validating ModelAdmin inline configuration.
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             max_num = "hello"
@@ -1430,6 +1559,12 @@ class MaxNumCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+
+        Verifies that the ValidationTestModel is valid when associated with the TestModelAdmin.
+        Tests the inline validation of ValidationTestInlineModel within the TestModelAdmin.
+
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             max_num = 2
@@ -1442,6 +1577,9 @@ class MaxNumCheckTests(CheckTestCase):
 
 class MinNumCheckTests(CheckTestCase):
     def test_not_integer(self):
+        """
+        Checks that the 'min_num' attribute in a TabularInline class is an integer, raising an error if it's not, to ensure proper validation of the model admin configuration.
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             min_num = "hello"
@@ -1458,6 +1596,9 @@ class MinNumCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        Verifies the validity of a TestModelAdmin instance with inlines when configured with a minimum required number of ValidationTestInline instances.
+        """
         class ValidationTestInline(TabularInline):
             model = ValidationTestInlineModel
             min_num = 2
@@ -1470,6 +1611,9 @@ class MinNumCheckTests(CheckTestCase):
 
 class FormsetCheckTests(CheckTestCase):
     def test_invalid_type(self):
+        """
+        Tests the validation of an inline's formset to ensure it inherits from BaseModelFormSet.
+        """
         class FakeFormSet:
             pass
 
@@ -1489,6 +1633,9 @@ class FormsetCheckTests(CheckTestCase):
         )
 
     def test_inline_without_formset_class(self):
+        """
+        Tests that a ModelAdmin instance with an inline that does not specify a valid formset class raises an error, specifically when the 'formset' attribute does not inherit from 'BaseModelFormSet'.
+        """
         class ValidationTestInlineWithoutFormsetClass(TabularInline):
             model = ValidationTestInlineModel
             formset = "Not a FormSet Class"
@@ -1505,6 +1652,9 @@ class FormsetCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+        Tests that a valid case of inline formsets in the admin interface is properly validated, checking that a ModelAdmin instance with a TabularInline containing a BaseModelFormSet is correctly associated with its corresponding model.
+        """
         class RealModelFormSet(BaseModelFormSet):
             pass
 
@@ -1521,8 +1671,7 @@ class FormsetCheckTests(CheckTestCase):
 class ListDisplayEditableTests(CheckTestCase):
     def test_list_display_links_is_none(self):
         """
-        list_display and list_editable can contain the same values
-        when list_display_links is None
+        Tests that when list_display_links is None, the same fields can be used in both list_display and list_editable without causing validation errors.
         """
 
         class ProductAdmin(ModelAdmin):
@@ -1534,8 +1683,7 @@ class ListDisplayEditableTests(CheckTestCase):
 
     def test_list_display_first_item_same_as_list_editable_first_item(self):
         """
-        The first item in list_display can be the same as the first in
-        list_editable.
+        The first item in list_display can be the same as the first in list_editable. This test verifies that having duplicate attributes in both list_display and list_editable does not cause any validation errors when creating a ModelAdmin instance.
         """
 
         class ProductAdmin(ModelAdmin):
@@ -1547,8 +1695,7 @@ class ListDisplayEditableTests(CheckTestCase):
 
     def test_list_display_first_item_in_list_editable(self):
         """
-        The first item in list_display can be in list_editable as long as
-        list_display_links is defined.
+        Verifies that the first item in list_display can also be included in list_editable when list_display_links is defined, ensuring valid admin configuration.
         """
 
         class ProductAdmin(ModelAdmin):
@@ -1560,8 +1707,7 @@ class ListDisplayEditableTests(CheckTestCase):
 
     def test_list_display_first_item_same_as_list_editable_no_list_display_links(self):
         """
-        The first item in list_display cannot be the same as the first item
-        in list_editable if list_display_links is not defined.
+        Checks that the first item in list_display is not the same as the first item in list_editable when list_display_links is not defined.
         """
 
         class ProductAdmin(ModelAdmin):
@@ -1579,8 +1725,7 @@ class ListDisplayEditableTests(CheckTestCase):
 
     def test_list_display_first_item_in_list_editable_no_list_display_links(self):
         """
-        The first item in list_display cannot be in list_editable if
-        list_display_links isn't defined.
+        Tests that the first item in list_display cannot be included in list_editable unless list_display_links is defined, ensuring proper handling of editable fields in admin interfaces.
         """
 
         class ProductAdmin(ModelAdmin):
@@ -1597,6 +1742,9 @@ class ListDisplayEditableTests(CheckTestCase):
         )
 
     def test_both_list_editable_and_list_display_links(self):
+        """
+        Tests that an admin interface validation error is raised when a field is specified in both 'list_editable' and 'list_display_links'.
+        """
         class ProductAdmin(ModelAdmin):
             list_editable = ("name",)
             list_display = ("name",)
@@ -1670,6 +1818,9 @@ class AutocompleteFieldsTests(CheckTestCase):
         )
 
     def test_autocomplete_e040(self):
+        """
+        Tests that defining autocomplete fields in a ModelAdmin requires the referenced model admin to define search fields.
+        """
         class NoSearchFieldsAdmin(ModelAdmin):
             pass
 
@@ -1691,6 +1842,13 @@ class AutocompleteFieldsTests(CheckTestCase):
         )
 
     def test_autocomplete_is_valid(self):
+        """
+
+        Verifies that an autocomplete field is valid in the context of a model admin class.
+
+        This test checks that the autocomplete functionality works correctly when used in conjunction with a model that has a search field defined.
+
+        """
         class SearchFieldsAdmin(ModelAdmin):
             search_fields = "name"
 
@@ -1702,6 +1860,9 @@ class AutocompleteFieldsTests(CheckTestCase):
         self.assertIsValid(AutocompleteAdmin, Song, admin_site=site)
 
     def test_autocomplete_is_onetoone(self):
+        """
+        Tests that autocomplete fields behave as one-to-one relationships, ensuring that the model admin's autocomplete functionality correctly references the related model instances.
+        """
         class UserAdmin(ModelAdmin):
             search_fields = ("name",)
 
@@ -1716,6 +1877,9 @@ class AutocompleteFieldsTests(CheckTestCase):
 class ActionsCheckTests(CheckTestCase):
     def test_custom_permissions_require_matching_has_method(self):
         @admin.action(permissions=["custom"])
+        """
+        Tests that custom permissions in admin actions require a matching 'has_*' method to be defined in the ModelAdmin class.
+        """
         def custom_permission_action(modeladmin, request, queryset):
             pass
 
@@ -1732,6 +1896,9 @@ class ActionsCheckTests(CheckTestCase):
 
     def test_actions_not_unique(self):
         @admin.action
+        """
+        Tests that actions in a ModelAdmin class have unique names to prevent conflicts and ensure proper functionality. This check is necessary to comply with Django's admin interface validation requirements.
+        """
         def action(modeladmin, request, queryset):
             pass
 
@@ -1748,6 +1915,9 @@ class ActionsCheckTests(CheckTestCase):
 
     def test_actions_unique(self):
         @admin.action
+        """
+        Tests that multiple administrative actions assigned to a model admin are unique and valid.
+        """
         def action1(modeladmin, request, queryset):
             pass
 

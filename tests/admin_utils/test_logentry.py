@@ -18,6 +18,9 @@ from .models import Article, ArticleProxy, Car, InheritedLogEntryManager, Site
 class LogEntryTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up initial test data, including a superuser, a site, and several articles, to be shared across all tests in the class, with an associated log entry for one of the articles.
+        """
         cls.user = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -50,8 +53,7 @@ class LogEntryTests(TestCase):
 
     def test_logentry_save(self):
         """
-        LogEntry.action_time is a timestamp of the date when the entry was
-        created. It shouldn't be updated on a subsequent save().
+        Tests that saving a LogEntry does not update its action_time timestamp.
         """
         logentry = LogEntry.objects.get(content_type__model__iexact="article")
         action_time = logentry.action_time
@@ -60,8 +62,11 @@ class LogEntryTests(TestCase):
 
     def test_logentry_change_message(self):
         """
-        LogEntry.change_message is stored as a dumped JSON structure to be able
-        to get the message dynamically translated at display time.
+
+        Tests the functionality of LogEntry's change_message method, 
+        verifying that it returns correctly translated change messages 
+        for adding and modifying articles in the admin interface.
+
         """
         post_data = {
             "site": self.site.pk,
@@ -102,7 +107,7 @@ class LogEntryTests(TestCase):
 
     def test_logentry_change_message_localized_datetime_input(self):
         """
-        Localized date/time inputs shouldn't affect changed form data detection.
+        Tests that a log entry's change message is correctly generated when the form data contains localized date/time inputs, verifying that the detection of changed form data is not affected by the localized input format.
         """
         post_data = {
             "site": self.site.pk,
@@ -126,7 +131,7 @@ class LogEntryTests(TestCase):
 
     def test_logentry_change_message_formsets(self):
         """
-        All messages for changed formsets are logged in a change message.
+        Test that changes to formsets are correctly logged in a change message, including additions, deletions, and modifications, and that the change message is properly formatted and translated.
         """
         a2 = Article.objects.create(
             site=self.site,
@@ -203,8 +208,7 @@ class LogEntryTests(TestCase):
 
     def test_logentry_get_admin_url(self):
         """
-        LogEntry.get_admin_url returns a URL to edit the entry's object or
-        None for nonexistent (possibly deleted) models.
+        Tests that LogEntry.get_admin_url correctly returns the admin edit URL for an existing object's model, and None for a nonexistent model.
         """
         logentry = LogEntry.objects.get(content_type__model__iexact="article")
         expected_url = reverse(
@@ -217,6 +221,10 @@ class LogEntryTests(TestCase):
         self.assertIsNone(logentry.get_admin_url())
 
     def test_logentry_unicode(self):
+        """
+        Tests the string representation of a LogEntry object, 
+        ensuring it correctly prefixes the string with action type (Added, Changed, Deleted) or defaults to 'LogEntry Object' for unknown actions.
+        """
         log_entry = LogEntry()
 
         log_entry.action_flag = ADDITION
@@ -238,6 +246,11 @@ class LogEntryTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_action(self):
+        """
+
+        Tests the deprecated log_action method of LogEntryManager, ensuring it correctly logs an action and triggers a deprecation warning.
+
+        """
         msg = "LogEntryManager.log_action() is deprecated. Use log_actions() instead."
         content_type_val = ContentType.objects.get_for_model(Article).pk
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):
@@ -252,6 +265,14 @@ class LogEntryTests(TestCase):
         self.assertEqual(log_entry, LogEntry.objects.latest("id"))
 
     def test_log_actions(self):
+        """
+
+        Tests that log actions for a queryset are recorded correctly when deleting objects.
+
+        Verifies that log entries are created as expected, with the correct user, content type,
+        object ID, object representation, action flag, and change message.
+
+        """
         queryset = Article.objects.all().order_by("-id")
         msg = "Deleted Something"
         content_type = ContentType.objects.get_for_model(self.a1)
@@ -290,6 +311,11 @@ class LogEntryTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_action_fallback(self):
+        """
+        Tests the fallback behavior of log_action() when log_actions() is not implemented.
+
+        Verifies that a deprecation warning is raised and the correct log entries are created when using log_action() on a queryset of objects to be deleted.
+        """
         LogEntry.objects2 = InheritedLogEntryManager()
         queryset = Article.objects.all().order_by("-id")
         content_type = ContentType.objects.get_for_model(self.a1)
@@ -327,8 +353,7 @@ class LogEntryTests(TestCase):
 
     def test_recentactions_without_content_type(self):
         """
-        If a LogEntry is missing content_type it will not display it in span
-        tag under the hyperlink.
+        Tests that the admin interface correctly handles LogEntry instances with missing content_type by not displaying them in the span tag under the hyperlink. Verifies that the LogEntry is no longer displayed after its content_type is set to None.
         """
         response = self.client.get(reverse("admin:index"))
         link = reverse("admin:admin_utils_article_change", args=(quote(self.a1.pk),))
@@ -353,8 +378,7 @@ class LogEntryTests(TestCase):
 
     def test_proxy_model_content_type_is_used_for_log_entries(self):
         """
-        Log entries for proxy models should have the proxy model's contenttype
-        (#21084).
+        Verify that log entries for proxy models utilize the correct content type.
         """
         proxy_content_type = ContentType.objects.get_for_model(
             ArticleProxy, for_concrete_model=False
@@ -399,6 +423,9 @@ class LogEntryTests(TestCase):
         self.assertEqual(proxy_delete_log.content_type, proxy_content_type)
 
     def test_action_flag_choices(self):
+        """
+        Tests the display names for action flags in LogEntry instances, ensuring they match the expected values for addition, change, and deletion actions.
+        """
         tests = ((1, "Addition"), (2, "Change"), (3, "Deletion"))
         for action_flag, display_name in tests:
             with self.subTest(action_flag=action_flag):
@@ -406,6 +433,13 @@ class LogEntryTests(TestCase):
                 self.assertEqual(log.get_action_flag_display(), display_name)
 
     def test_hook_get_log_entries(self):
+        """
+        Tests that log entries are correctly displayed on the admin index pages.
+
+            Verifies that log entries for article and car objects are visible on the default 
+            admin index page and that only the article log entry is visible on the custom 
+            admin index page, as expected by the custom admin configuration.
+        """
         LogEntry.objects.log_actions(
             self.user.pk,
             [self.a1],

@@ -47,6 +47,10 @@ class BaseRangeField(forms.MultiValueField):
     hidden_widget = HiddenRangeWidget
 
     def __init__(self, **kwargs):
+        """
+        Initializes a field with a range widget, providing default settings for widget, fields, and requirement settings. 
+        It also sets up the range widget's bounds if default bounds are provided.
+        """
         if "widget" not in kwargs:
             kwargs["widget"] = RangeWidget(self.base_field.widget)
         if "fields" not in kwargs:
@@ -62,6 +66,9 @@ class BaseRangeField(forms.MultiValueField):
         super().__init__(**kwargs)
 
     def prepare_value(self, value):
+        """
+        Prepares a given value to be used by the object, wrapping ranges and handling null values according to the configured lower and upper base fields.
+        """
         lower_base, upper_base = self.fields
         if isinstance(value, self.range_type):
             return [
@@ -76,6 +83,9 @@ class BaseRangeField(forms.MultiValueField):
         return value
 
     def compress(self, values):
+        """
+        Compresses a pair of values into a single range object, validating that the lower bound is not greater than the upper bound. If the input is invalid, raises a ValidationError; otherwise, returns the compressed range.
+        """
         if not values:
             return None
         lower, upper = values

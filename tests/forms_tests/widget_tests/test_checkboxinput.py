@@ -60,8 +60,7 @@ class CheckboxInputTest(WidgetTest):
 
     def test_render_check_test(self):
         """
-        You can pass 'check_test' to the constructor. This is a callable that
-        takes the value and returns True if the box should be checked.
+        Tests the functionality of the CheckboxInput widget when a custom check_test function is provided, ensuring the checkbox is correctly checked or unchecked based on the given input value.
         """
         widget = CheckboxInput(check_test=lambda value: value.startswith("hello"))
         self.check_html(
@@ -126,6 +125,9 @@ class CheckboxInputTest(WidgetTest):
         self.assertIs(attrs["checked"], False)
 
     def test_fieldset(self):
+        """
+        なんだ verifier for proper rendering of form fields without fieldsets.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = BooleanField(widget=self.widget)

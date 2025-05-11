@@ -23,7 +23,15 @@ class SampleTestCase(TestCase):
 
 class FixtureTestCase(TestCase):
     def test_loaddata(self):
-        "Fixtures can load data into models defined in packages"
+        """
+
+        Tests the loading of data into models using fixtures.
+
+        Verifies that data can be successfully loaded from files and that the 
+        correct data is present in the database after loading.
+        Also checks that an error is raised when attempting to load a non-existent fixture.
+
+        """
         # Load fixture 1. Single JSON file, with two objects
         management.call_command("loaddata", "model_package_fixture1.json", verbosity=0)
         self.assertQuerySetEqual(

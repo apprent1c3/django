@@ -27,6 +27,9 @@ class CachedLoaderTests(SimpleTestCase):
         )
 
     def test_get_template(self):
+        """
+        Tests the retrieval of a template from the engine, verifying its origin, name, loader, and cache.
+        """
         template = self.engine.get_template("index.html")
         self.assertEqual(template.origin.name, os.path.join(TEMPLATE_DIR, "index.html"))
         self.assertEqual(template.origin.template_name, "index.html")
@@ -47,9 +50,7 @@ class CachedLoaderTests(SimpleTestCase):
 
     def test_get_template_missing_debug_off(self):
         """
-        With template debugging disabled, the raw TemplateDoesNotExist class
-        should be cached when a template is missing. See ticket #26306 and
-        docstrings in the cached loader for details.
+        With template debugging disabled, tests if a missing template caches the TemplateDoesNotExist exception.
         """
         self.engine.debug = False
         with self.assertRaises(TemplateDoesNotExist):
@@ -61,8 +62,7 @@ class CachedLoaderTests(SimpleTestCase):
 
     def test_get_template_missing_debug_on(self):
         """
-        With template debugging enabled, a TemplateDoesNotExist instance
-        should be cached when a template is missing.
+        With template debugging enabled, tests that a missing template results in a cached TemplateDoesNotExist instance.
         """
         self.engine.debug = True
         with self.assertRaises(TemplateDoesNotExist):
@@ -75,9 +75,11 @@ class CachedLoaderTests(SimpleTestCase):
 
     def test_cached_exception_no_traceback(self):
         """
-        When a TemplateDoesNotExist instance is cached, the cached instance
-        should not contain the __traceback__, __context__, or __cause__
-        attributes that Python sets when raising exceptions.
+
+        Verifies that a cached TemplateDoesNotExist exception does not contain 
+        __traceback__, __context__, or __cause__ attributes, as set by Python when 
+        raising exceptions.
+
         """
         self.engine.debug = True
         with self.assertRaises(TemplateDoesNotExist):
@@ -128,6 +130,9 @@ class FileSystemLoaderTests(SimpleTestCase):
 
     @contextmanager
     def set_dirs(self, dirs):
+        """
+        Temporarily changes the engine directories to the specified dirs within a context, restoring the original directories after the context exits.
+        """
         original_dirs = self.engine.dirs
         self.engine.dirs = dirs
         try:
@@ -137,6 +142,14 @@ class FileSystemLoaderTests(SimpleTestCase):
 
     @contextmanager
     def source_checker(self, dirs):
+        """
+        Context manager for verifying template sources.
+
+        Provides a `check_sources` function to assert that the expected template sources match the actual sources loaded by the template loader.
+
+        :arg dirs: directories to set for the context
+        :returns: a `check_sources` function to verify template sources
+        """
         loader = self.engine.template_loaders[0]
 
         def check_sources(path, expected_sources):
@@ -150,6 +163,9 @@ class FileSystemLoaderTests(SimpleTestCase):
             yield check_sources
 
     def test_get_template(self):
+        """
+        Tests that the get_template method of the engine returns the expected template object with correct origin properties.
+        """
         template = self.engine.get_template("index.html")
         self.assertEqual(template.origin.name, os.path.join(TEMPLATE_DIR, "index.html"))
         self.assertEqual(template.origin.template_name, "index.html")
@@ -175,6 +191,10 @@ class FileSystemLoaderTests(SimpleTestCase):
             engine.get_template("index.html")
 
     def test_directory_security(self):
+        """
+        #: Tests the security of directory access by attempting to retrieve various file paths 
+        #: and verifying that only allowed files are accessible.
+        """
         with self.source_checker(["/dir1", "/dir2"]) as check_sources:
             check_sources("index.html", ["/dir1/index.html", "/dir2/index.html"])
             check_sources("/etc/passwd", [])
@@ -218,6 +238,9 @@ class FileSystemLoaderTests(SimpleTestCase):
         "Python on Windows doesn't have working os.chmod().",
     )
     def test_permissions_error(self):
+        """
+        Tests that a PermissionError is raised when attempting to access a template file with insufficient permissions.
+        """
         with tempfile.NamedTemporaryFile() as tmpfile:
             tmpdir = os.path.dirname(tmpfile.name)
             tmppath = os.path.join(tmpdir, tmpfile.name)

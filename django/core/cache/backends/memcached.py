@@ -14,6 +14,9 @@ from django.utils.functional import cached_property
 
 class BaseMemcachedCache(BaseCache):
     def __init__(self, server, params, library, value_not_found_exception):
+        """
+        Initializes a client instance with the provided server, parameters, library, and exception handler for missing values, setting up the necessary attributes for further interactions.
+        """
         super().__init__(params)
         if isinstance(server, str):
             self._servers = re.split("[;,]", server)
@@ -41,8 +44,7 @@ class BaseMemcachedCache(BaseCache):
 
     def get_backend_timeout(self, timeout=DEFAULT_TIMEOUT):
         """
-        Memcached deals with long (> 30 days) timeouts in a special
-        way. Call this function to obtain a safe value for your timeout.
+        Return a safe timeout value for the backend, accounting for Memcached's handling of long timeouts. The provided timeout is adjusted as necessary to ensure compatibility and correct behavior.
         """
         if timeout == DEFAULT_TIMEOUT:
             timeout = self.default_timeout
@@ -101,6 +103,18 @@ class BaseMemcachedCache(BaseCache):
         self._cache.disconnect_all()
 
     def incr(self, key, delta=1, version=None):
+        """
+        Increment a value associated with the given key in the cache.
+
+        :param key: The key of the value to increment.
+        :param delta: The amount to increment the value by (default is 1).
+        :param version: The version of the key (optional).
+
+        :raises ValueError: If the key is not found in the cache.
+
+        :returns: The new value after incrementing.
+
+        """
         key = self.make_and_validate_key(key, version=version)
         try:
             # Memcached doesn't support negative delta.
@@ -118,6 +132,14 @@ class BaseMemcachedCache(BaseCache):
         return val
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Sets multiple key-value pairs in the cache, returning a list of keys that failed to be set.
+
+        :param data: Dictionary of key-value pairs to be set in the cache
+        :param timeout: Timeout for the operation, defaults to DEFAULT_TIMEOUT
+        :param version: Version of the cache, optional
+        :return: List of original keys that were not set successfully
+        """
         safe_data = {}
         original_keys = {}
         for key, value in data.items():

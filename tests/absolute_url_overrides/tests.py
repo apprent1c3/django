@@ -7,7 +7,7 @@ from django.test.utils import isolate_apps
 class AbsoluteUrlOverrideTests(SimpleTestCase):
     def test_get_absolute_url(self):
         """
-        get_absolute_url() functions as a normal method.
+        Tests that the get_absolute_url method is correctly defined and returns the expected URL for an object, ensuring it functions as intended by providing an absolute URL for the object.
         """
 
         def get_absolute_url(o):
@@ -21,7 +21,7 @@ class AbsoluteUrlOverrideTests(SimpleTestCase):
 
     def test_override_get_absolute_url(self):
         """
-        ABSOLUTE_URL_OVERRIDES should override get_absolute_url().
+        Tests that ABSOLUTE_URL_OVERRIDES dictionary correctly overrides the get_absolute_url method of a model.
         """
 
         def get_absolute_url(o):
@@ -39,8 +39,7 @@ class AbsoluteUrlOverrideTests(SimpleTestCase):
 
     def test_insert_get_absolute_url(self):
         """
-        ABSOLUTE_URL_OVERRIDES should work even if the model doesn't have a
-        get_absolute_url() method.
+        Tests that ABSOLUTE_URL_OVERRIDES works correctly for models without a get_absolute_url method, ensuring a default absolute URL can be defined and retrieved.
         """
         with self.settings(
             ABSOLUTE_URL_OVERRIDES={

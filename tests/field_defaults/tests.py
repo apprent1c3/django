@@ -29,6 +29,9 @@ from .models import (
 
 class DefaultTests(TestCase):
     def test_field_defaults(self):
+        """
+        Verify that an Article instance has default field values set correctly after saving, including a unique integer id, default headline, and publication date close to the current time.
+        """
         a = Article()
         now = datetime.now()
         a.save()
@@ -41,6 +44,14 @@ class DefaultTests(TestCase):
         "can_return_columns_from_insert", "supports_expression_defaults"
     )
     def test_field_db_defaults_returning(self):
+        """
+
+        Tests that a model instance's fields are populated with database defaults after saving.
+
+        Verifies that the database can return columns from an insert operation, and that
+        the model instance's fields are correctly set to their default values.
+
+        """
         a = DBArticle()
         a.save()
         self.assertIsInstance(a.id, int)
@@ -51,6 +62,13 @@ class DefaultTests(TestCase):
     @skipIfDBFeature("can_return_columns_from_insert")
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_field_db_defaults_refresh(self):
+        """
+        Tests if the model instance is properly refreshed from the database with default field values.
+
+        Verifies that the instance attributes are populated with expected default values 
+        after saving and refreshing from the database, specifically checking for 
+        auto-incrementing primary key, string, date and decimal fields.
+        """
         a = DBArticle()
         a.save()
         a.refresh_from_db()
@@ -60,6 +78,12 @@ class DefaultTests(TestCase):
         self.assertEqual(a.cost, Decimal("3.33"))
 
     def test_null_db_default(self):
+        """
+        Tests the default value of a null field in the DBDefaults model.
+
+        Verifies that the default value is correctly set when not explicitly provided,
+        and that passing None as a value results in a null value in the database.
+        """
         obj1 = DBDefaults.objects.create()
         if not connection.features.can_return_columns_from_insert:
             obj1.refresh_from_db()
@@ -70,6 +94,14 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_db_default_function(self):
+        """
+
+        Tests the functionality of database default functions.
+
+        Verifies that database default functions are correctly applied to model fields,
+        and that the results match the expected values.
+
+        """
         m = DBDefaultsFunction.objects.create()
         if not connection.features.can_return_columns_from_insert:
             m.refresh_from_db()
@@ -80,6 +112,10 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("insert_test_table_with_defaults")
     def test_both_default(self):
+        """
+        Tests that the 'both' field on the DBDefaults model behaves correctly with default values, 
+        ensuring that the field's default value is correctly applied when inserting data into the database.
+        """
         create_sql = connection.features.insert_test_table_with_defaults
         with connection.cursor() as cursor:
             cursor.execute(create_sql.format(DBDefaults._meta.db_table))
@@ -90,6 +126,12 @@ class DefaultTests(TestCase):
         self.assertEqual(obj2.both, 1)
 
     def test_pk_db_default(self):
+        """
+        Tests the default primary key behavior for the DBDefaultsPK model.
+
+        Verifies that the primary key is correctly set to the language code when creating
+        new objects, both with and without specifying a language code explicitly.
+        """
         obj1 = DBDefaultsPK.objects.create()
         if not connection.features.can_return_columns_from_insert:
             # refresh_from_db() cannot be used because that needs the pk to
@@ -103,6 +145,13 @@ class DefaultTests(TestCase):
         self.assertEqual(obj2.language_code, "de")
 
     def test_foreign_key_db_default(self):
+        """
+        Tests the foreign key database defaults functionality.
+
+        Verifies that a child object's foreign key is correctly set to the default
+        parent object value when not explicitly specified, and also ensures explicit
+        specification of a parent object is correctly respected.
+        """
         parent1 = DBDefaultsPK.objects.create(language_code="fr")
         child1 = DBDefaultsFK.objects.create()
         if not connection.features.can_return_columns_from_insert:
@@ -141,6 +190,9 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_bulk_create_all_db_defaults_one_field(self):
+        """
+        Tests that bulk creation of objects with expression-based default values works as expected, verifying that the resulting objects have the correct default values applied.
+        """
         pub_date = datetime.now()
         articles = [DBArticle(pub_date=pub_date), DBArticle(pub_date=pub_date)]
         DBArticle.objects.bulk_create(articles)
@@ -171,6 +223,9 @@ class DefaultTests(TestCase):
         self.assertCountEqual(years, [2000, datetime.now().year])
 
     def test_full_clean(self):
+        """
+        Tests the `full_clean` method of a DBArticle instance to ensure it sets the default headline and raises a ValidationError when the headline is empty.
+        """
         obj = DBArticle()
         obj.full_clean()
         obj.save()
@@ -190,6 +245,9 @@ class DefaultTests(TestCase):
 
 class AllowedDefaultTests(SimpleTestCase):
     def test_allowed(self):
+        """
+        Tests that various database expressions can be used as default values.
+        """
         class Max(Func):
             function = "MAX"
 
@@ -207,6 +265,9 @@ class AllowedDefaultTests(SimpleTestCase):
                 self.assertIs(expression.allowed_default, True)
 
     def test_disallowed(self):
+        """
+        Tests that disallowed database expressions are correctly marked as not allowed for use as default values.
+        """
         class Max(Func):
             function = "MAX"
 

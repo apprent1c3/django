@@ -6,6 +6,9 @@ from django.core.exceptions import ValidationError
 
 class TestValidationError(unittest.TestCase):
     def test_messages_concatenates_error_dict_values(self):
+        """
+        Verifies that ValidationError correctly concatenates error messages from the error dictionary into a list of messages.
+        """
         message_dict = {}
         exception = ValidationError(message_dict)
         self.assertEqual(sorted(exception.messages), [])
@@ -17,6 +20,14 @@ class TestValidationError(unittest.TestCase):
         self.assertEqual(sorted(exception.messages), ["E1", "E2", "E3", "E4"])
 
     def test_eq(self):
+        """
+        :brief: Tests the equality of ValidationError objects.
+        :doctype: 
+            This test case checks various scenarios for the equality of :class:`ValidationError` objects, 
+            ensuring that the :meth:`__eq__` method correctly handles different parameters such as message, 
+            code, and params. The test compares ValidationErrors with the same and different parameters 
+            and checks for equality, ensuring that the comparison logic works as expected.
+        """
         error1 = ValidationError("message")
         error2 = ValidationError("message", code="my_code1")
         error3 = ValidationError("message", code="my_code2")
@@ -135,6 +146,11 @@ class TestValidationError(unittest.TestCase):
         self.assertNotEqual(ValidationError({"field1": error4}), error4)
 
     def test_eq_nested(self):
+        """
+        Tests the equality of ValidationError instances with nested error dictionaries, 
+        ensuring that the equality check is order-agnostic for parameters and fails 
+        when the error messages or error codes differ.
+        """
         error_dict = {
             "field1": ValidationError(
                 "error %(parm1)s %(parm2)s",
@@ -179,6 +195,14 @@ class TestValidationError(unittest.TestCase):
         )
 
     def test_hash(self):
+        """
+        Tests the hash functionality of ValidationError objects.
+
+                Verifies that the hash value of ValidationError objects is consistent and depends on the
+                error message, error code and parameters. Also checks that different types of error messages
+                (e.g. strings, dictionaries, lists) are handled correctly and that the order of items in
+                dictionaries and lists does not affect the hash value.
+        """
         error1 = ValidationError("message")
         error2 = ValidationError("message", code="my_code1")
         error3 = ValidationError("message", code="my_code2")
@@ -319,6 +343,9 @@ class TestValidationError(unittest.TestCase):
         )
 
     def test_hash_nested(self):
+        """
+        Tests that hashing of ValidationErrors with nested fields is done correctly, specifically when field parameters change or when dictionary keys are reordered.
+        """
         error_dict = {
             "field1": ValidationError(
                 "error %(parm1)s %(parm2)s",

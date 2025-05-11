@@ -16,11 +16,13 @@ from django.utils.functional import SimpleLazyObject, lazy
 
 def csrf(request):
     """
-    Context processor that provides a CSRF token, or the string 'NOTPROVIDED' if
-    it has not been provided by either a view decorator or the middleware
+    Context processor that provides a CSRF token for a given request, returning 'NOTPROVIDED' if no token has been set by a view decorator or middleware.
     """
 
     def _get_val():
+        """
+        Retrieve a token from the current request, returning 'NOTPROVIDED' if no token is available.
+        """
         token = get_token(request)
         if token is None:
             # In order to be able to provide debugging info in the
@@ -35,7 +37,10 @@ def csrf(request):
 
 def debug(request):
     """
-    Return context variables helpful for debugging.
+
+    Return context variables helpful for debugging, including SQL queries when 
+    the request originates from an internal IP address and debug mode is enabled.
+
     """
     context_extras = {}
     if settings.DEBUG and request.META.get("REMOTE_ADDR") in settings.INTERNAL_IPS:

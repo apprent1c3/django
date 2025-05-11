@@ -23,8 +23,7 @@ register = template.Library()
 @register.filter(is_safe=True)
 def ordinal(value):
     """
-    Convert an integer to its ordinal as a string. 1 is '1st', 2 is '2nd',
-    3 is '3rd', etc. Works for any non-negative integer.
+    Convert an integer to its ordinal as a string, handling non-negative integers and special cases for numbers ending in 11, 12, or 13.
     """
     try:
         value = int(value)
@@ -66,8 +65,7 @@ def ordinal(value):
 @register.filter(is_safe=True)
 def intcomma(value, use_l10n=True):
     """
-    Convert an integer to a string containing commas every three digits.
-    For example, 3000 becomes '3,000' and 45000 becomes '45,000'.
+    Converts an integer to a string containing commas every three digits, optionally using locale-based formatting.
     """
     if use_l10n:
         try:
@@ -123,9 +121,7 @@ intword_converters = (
 @register.filter(is_safe=False)
 def intword(value):
     """
-    Convert a large integer to a friendly text representation. Works best
-    for numbers over 1 million. For example, 1000000 becomes '1.0 million',
-    1200000 becomes '1.2 million' and '1200000000' becomes '1.2 billion'.
+    Convert a large integer to a friendly text representation, suitable for numbers over 1 million, such as millions or billions.
     """
     try:
         value = int(value)
@@ -150,8 +146,7 @@ def intword(value):
 @register.filter(is_safe=True)
 def apnumber(value):
     """
-    For numbers 1-9, return the number spelled out. Otherwise, return the
-    number. This follows Associated Press style.
+    Converts a numeric value to its written-out equivalent following the Associated Press style, where numbers 1-9 are spelled out and others are left unchanged.
     """
     try:
         value = int(value)
@@ -177,9 +172,11 @@ def apnumber(value):
 @register.filter(expects_localtime=True)
 def naturalday(value, arg=None):
     """
-    For date values that are tomorrow, today or yesterday compared to
-    present day return representing string. Otherwise, return a string
-    formatted according to settings.DATE_FORMAT.
+
+    Returns a human-readable representation of a date, with special handling for dates that are yesterday, today, or tomorrow compared to the current date.
+
+    For dates that fall within these ranges, the function returns a localized string ('today', 'tomorrow', or 'yesterday'). Otherwise, it returns a string formatted according to the default date format.
+
     """
     tzinfo = getattr(value, "tzinfo", None)
     try:
@@ -285,6 +282,9 @@ class NaturalTimeFormatter:
 
     @classmethod
     def string_for(cls, value):
+        """
+        ِك діяльностіReturns a human-readable string representation of a given date or value, indicating how long ago or in the future the date is from the current time, or returns the original value if it's not a date.
+        """
         if not isinstance(value, date):  # datetime is a subclass of date
             return value
 

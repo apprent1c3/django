@@ -17,6 +17,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
 
     def test_context_has_priority_over_template_context_processors(self):
         # See ticket #23789.
+        """
+        Tests that the template context takes priority over context processors when rendering a template with DjangoTemplates engine.
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -40,7 +43,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
         self.assertEqual(content, "no")
 
     def test_render_requires_dict(self):
-        """django.Template.render() requires a dict."""
+        """
+        Tests that django Template.render() correctly raises a TypeError when the context is not a dict.
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -61,6 +66,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
 
     @override_settings(INSTALLED_APPS=["template_backends.apps.good"])
     def test_templatetag_discovery(self):
+        """
+        Tests the discovery of Django template tags when using custom template engines and libraries, ensuring that tags are correctly resolved and overridden.
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -176,7 +184,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
         )
 
     def test_default_template_loaders(self):
-        """The cached template loader is always enabled by default."""
+        """
+        Tests that the cached template loader is enabled by default, regardless of the DEBUG setting.
+        """
         for debug in (True, False):
             with self.subTest(DEBUG=debug), self.settings(DEBUG=debug):
                 engine = DjangoTemplates(

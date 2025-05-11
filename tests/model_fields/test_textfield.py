@@ -8,8 +8,7 @@ from .models import Post
 class TextFieldTests(TestCase):
     def test_max_length_passed_to_formfield(self):
         """
-        TextField passes its max_length attribute to form fields created using
-        their formfield() method.
+        Verifies that the TextField passes its max_length attribute to form fields created with the formfield() method.
         """
         tf1 = models.TextField()
         tf2 = models.TextField(max_length=2345)
@@ -37,6 +36,9 @@ class TextFieldTests(TestCase):
 
 class TestMethods(SimpleTestCase):
     def test_deconstruct(self):
+        """
+        Tests the deconstruction of a TextField model field, ensuring that its keyword arguments are correctly extracted and returned as expected.
+        """
         field = models.TextField()
         *_, kwargs = field.deconstruct()
         self.assertEqual(kwargs, {})

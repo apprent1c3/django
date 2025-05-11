@@ -8,7 +8,9 @@ from django.utils.crypto import InvalidAlgorithm
 
 class TestSigner(SimpleTestCase):
     def test_signature(self):
-        "signature() method should generate a signature"
+        """
+        Tests the signature generation functionality of the Signer class, verifying that signatures are correctly calculated using the provided secret key and that different keys produce different signatures.
+        """
         signer = signing.Signer(key="predictable-secret")
         signer2 = signing.Signer(key="predictable-secret2")
         for s in (
@@ -58,7 +60,9 @@ class TestSigner(SimpleTestCase):
             signer.sign("hello")
 
     def test_sign_unsign(self):
-        "sign/unsign should be reversible"
+        """
+        Verifies that the sign and unsign operations are reversible, ensuring data integrity by checking that the original input can be recovered after signing and then unsigning.
+        """
         signer = signing.Signer(key="predictable-secret")
         examples = [
             "q;wjmbk;wkmb",
@@ -74,6 +78,14 @@ class TestSigner(SimpleTestCase):
             self.assertEqual(example, signer.unsign(signed))
 
     def test_sign_unsign_non_string(self):
+        """
+
+        Verifies that the Signer class can correctly sign and unsign non-string values.
+
+        The test checks that signing various types of non-string values (e.g. integers, floats, booleans, dates) 
+        produces a string signature, and that the original value can be recovered by unsigning this signature.
+
+        """
         signer = signing.Signer(key="predictable-secret")
         values = [
             123,
@@ -89,7 +101,9 @@ class TestSigner(SimpleTestCase):
                 self.assertEqual(signer.unsign(signed), str(value))
 
     def test_unsign_detects_tampering(self):
-        "unsign should raise an exception if the value has been tampered with"
+        """
+        Tests that the unsign function correctly detects and raises an exception when the signed value has been tampered with.
+        """
         signer = signing.Signer(key="predictable-secret")
         value = "Another string"
         signed_value = signer.sign(value)
@@ -105,6 +119,15 @@ class TestSigner(SimpleTestCase):
                 signer.unsign(transform(signed_value))
 
     def test_sign_unsign_object(self):
+        """
+
+        Verifies the correct signing and un-signing of various object types using a signer.
+
+        The function tests that signing an object produces a different result, 
+        and that the original object can be recovered using the unsign method, 
+        with and without compression.
+
+        """
         signer = signing.Signer(key="predictable-secret")
         tests = [
             ["a", "list"],
@@ -121,7 +144,11 @@ class TestSigner(SimpleTestCase):
                 self.assertEqual(obj, signer.unsign_object(signed_obj))
 
     def test_dumps_loads(self):
-        "dumps and loads be reversible for any JSON serializable object"
+        """
+        Tests the reversibility of dumps and loads operations on JSON serializable objects, 
+        ensuring that signing and loading the data results in the original object, 
+        with and without compression.
+        """
         objects = [
             ["a", "list"],
             "a string \u2019",
@@ -134,7 +161,9 @@ class TestSigner(SimpleTestCase):
             self.assertEqual(o, signing.loads(signing.dumps(o, compress=True)))
 
     def test_decode_detects_tampering(self):
-        "loads should raise exception for tampered objects"
+        """
+        Tests that decoding with signing loads raises an exception when the encoded object has been tampered with.
+        """
         transforms = (
             lambda s: s.upper(),
             lambda s: s + "a",
@@ -170,7 +199,9 @@ class TestSigner(SimpleTestCase):
             )
 
     def test_invalid_sep(self):
-        """should warn on invalid separator"""
+        """
+        Tests that the Signer class raises a ValueError when initialized with an invalid separator, such as an empty string, a single hyphen, or a string containing only alphanumeric characters, hyphens, or underscores.
+        """
         msg = (
             "Unsafe Signer separator: %r (cannot be empty or consist of only A-z0-9-_=)"
         )
@@ -198,6 +229,12 @@ class TestSigner(SimpleTestCase):
         SECRET_KEY_FALLBACKS=["oldsecret"],
     )
     def test_sign_unsign_ignore_secret_key_fallbacks(self):
+        """
+        Tests that signing and verifying ignores secret key fallbacks when explicitly disabled.
+
+         Verifies that a signature created with an old secret key cannot be verified with a signer
+         that has no fallback keys, resulting in a BadSignature exception.
+        """
         old_signer = signing.Signer(key="oldsecret")
         signed = old_signer.sign("abc")
         signer = signing.Signer(fallback_keys=[])
@@ -217,6 +254,10 @@ class TestSigner(SimpleTestCase):
 
 class TestTimestampSigner(SimpleTestCase):
     def test_timestamp_signer(self):
+        """
+        Tests the TimestampSigner class to ensure it correctly signs and unsigns values 
+        with a timestamp, and handles signature expiration based on the max_age parameter.
+        """
         value = "hello"
         with freeze_time(123456789):
             signer = signing.TimestampSigner(key="predictable-key")

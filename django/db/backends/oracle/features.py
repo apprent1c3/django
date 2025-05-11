@@ -94,6 +94,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_skips(self):
+        """
+        Returns a dictionary of skips for Django tests that are known to fail on Oracle databases due to various compatibility issues. The skips are categorized by the reason for the failure, and the dictionary keys contain a brief description of the issue. The dictionary values are sets of test names that should be skipped. Additional skips are conditionally added based on the Oracle database version and the version of the oracledb library.
+        """
         skips = {
             "Oracle doesn't support SHA224.": {
                 "db_functions.text.test_sha224.SHA224Tests.test_basic",
@@ -174,6 +177,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def supports_collation_on_charfield(self):
+        """
+        Checks if the database supports collation on CharField, by attempting to execute a SQL query that tests this capability.
+        """
         sql = "SELECT CAST('a' AS VARCHAR2(4001))" + self.bare_select_suffix
         with self.connection.cursor() as cursor:
             try:

@@ -18,6 +18,10 @@ class I18nFiltersTests(SimpleTestCase):
         }
     )
     def test_i18n32(self):
+        """
+        Tests i18n template tags for language name, local name, and bidirectional support, 
+        verifying the output with and without a translation override.
+        """
         output = self.engine.render_to_string("i18n32")
         self.assertEqual(output, "Hungarian Magyar False Hungarian")
 
@@ -33,6 +37,9 @@ class I18nFiltersTests(SimpleTestCase):
         }
     )
     def test_i18n33(self):
+        """
+        Tests rendering of language-related variables in a templating engine, specifically language codes translated to their full names, local names, and names in a target language.
+        """
         output = self.engine.render_to_string("i18n33", {"langcode": "nl"})
         self.assertEqual(output, "Dutch Nederlands False Dutch")
 

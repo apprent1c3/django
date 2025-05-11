@@ -26,6 +26,11 @@ if HAS_POSTGRES:
             self.connection = FakeConnection()
 
         def _get_postgis_func(self, func):
+            """
+            Helper function to retrieve the version of the PostGIS library.
+
+            Currently supported functions are 'postgis_lib_version'. Raises an error if the version is not available or if an unsupported function is requested.
+            """
             if func == "postgis_lib_version":
                 if self.version is None:
                     raise ProgrammingError
@@ -68,6 +73,25 @@ class TestPostGISVersionCheck(unittest.TestCase):
         self.assertEqual(expect, actual)
 
     def test_valid_version_numbers(self):
+        """
+        Tests that the spatial version is correctly parsed from a PostGIS version string.\"\"\"
+
+         Args:
+
+             None
+
+         Returns:
+
+             None
+
+         Raises:
+
+             AssertionError: If the spatial version does not match the expected version components. 
+
+         Note:
+
+             This test case covers various valid PostGIS version numbers to ensure the spatial version parsing is accurate.
+        """
         versions = [
             ("1.3.0", 1, 3, 0),
             ("2.1.1", 2, 1, 1),
@@ -89,6 +113,9 @@ class TestPostGISVersionCheck(unittest.TestCase):
 @unittest.skipUnless(HAS_POSTGRES, "PostGIS-specific tests.")
 class TestPostGISBackend(unittest.TestCase):
     def test_non_db_connection_classes(self):
+        """
+        Tests non-database connection classes, specifically the assignment of features, operations, and introspection classes to a DatabaseWrapper instance when not connected to a database.
+        """
         from django.contrib.gis.db.backends.postgis.base import DatabaseWrapper
         from django.db.backends.postgresql.features import DatabaseFeatures
         from django.db.backends.postgresql.introspection import DatabaseIntrospection

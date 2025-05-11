@@ -15,6 +15,9 @@ class Jinja2(BaseEngine):
     app_dirname = "jinja2"
 
     def __init__(self, params):
+        """
+        Initializes a templating engine instance with the given parameters and options, configuring the environment and template loading settings.
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         super().__init__(params)
@@ -38,6 +41,14 @@ class Jinja2(BaseEngine):
         return Template(self.env.from_string(template_code), self)
 
     def get_template(self, template_name):
+        """
+        Retrieves a template by name, handling cases where the template is not found or contains syntax errors.
+
+        :param template_name: Name of the template to retrieve
+        :raises TemplateDoesNotExist: If the template is not found
+        :raises TemplateSyntaxError: If the template contains syntax errors
+        :return: The requested template instance
+        """
         try:
             return Template(self.env.get_template(template_name), self)
         except jinja2.TemplateNotFound as exc:
@@ -62,6 +73,16 @@ class Template:
         )
 
     def render(self, context=None, request=None):
+        """
+
+        Render the template using the provided context and request.
+
+        :param context: A dictionary of values to populate the template with.
+        :param request: The current request, used to populate the context with request-specific values.
+        :return: The rendered template.
+        :raises TemplateSyntaxError: If there is an error in the template syntax.
+
+        """
         if context is None:
             context = {}
         if request is not None:
@@ -91,8 +112,7 @@ class Origin:
 
 def get_exception_info(exception):
     """
-    Format exception information for display on the debug page using the
-    structure described in the template API documentation.
+    Format exception information into a structured format suitable for display on a debug page, extracting relevant details such as filename, error message, and source code lines surrounding the error location.
     """
     context_lines = 10
     lineno = exception.lineno

@@ -52,6 +52,9 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         )
 
     def test_prepare_join_on_clause_same_type(self):
+        """
+        Tests the preparation of a join on clause where both tables have the same type, specifically verifying that the left and right expressions are correctly generated for the join condition.
+        """
         author_table = Author._meta.db_table
         author_id_field = Author._meta.get_field("id")
         lhs_expr, rhs_expr = connection.ops.prepare_join_on_clause(
@@ -64,6 +67,9 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         self.assertEqual(rhs_expr, Col(author_table, author_id_field))
 
     def test_prepare_join_on_clause_different_types(self):
+        """
+        Tests the preparation of a join on clause when the fields being joined have different data types, ensuring that the resulting expressions are correctly formatted with proper casting.
+        """
         author_table = Author._meta.db_table
         author_id_field = Author._meta.get_field("id")
         book_table = Book._meta.db_table

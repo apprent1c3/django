@@ -41,8 +41,17 @@ RFC3986_SUBDELIMS = "!$&'()*+,;="
 
 def urlencode(query, doseq=False):
     """
-    A version of Python's urllib.parse.urlencode() function that can operate on
-    MultiValueDict and non-string values.
+    Encodes a query dictionary into a URL query string, supporting MultiValueDict and non-string values.
+
+    Handles cases where query values are empty, None, or contain multiple values.
+    Raises a TypeError if a None value is attempted to be encoded.
+
+    The doseq parameter controls whether sequence values are encoded as a sequence of values
+    or as a single value. If doseq is False, sequence values are encoded as a single value.
+    If doseq is True, sequence values are encoded as multiple values with the same key.
+
+    Returns the encoded query string.
+
     """
     if isinstance(query, MultiValueDict):
         query = query.lists()
@@ -96,12 +105,9 @@ def http_date(epoch_seconds=None):
 
 def parse_http_date(date):
     """
-    Parse a date format as specified by HTTP RFC 9110 Section 5.6.7.
-
-    The three formats allowed by the RFC are accepted, even if only the first
-    one is still in widespread use.
-
-    Return an integer expressed in seconds since the epoch, in UTC.
+    Parse a date string as specified by HTTP RFC 9110 Section 5.6.7 into a UTC epoch timestamp. 
+    The function accepts three date formats and returns the number of seconds since the epoch. 
+    It raises a ValueError if the input date string is not in a valid HTTP date format or represents an invalid date.
     """
     # email.utils.parsedate() does the job for RFC 1123 dates; unfortunately
     # RFC 9110 makes it mandatory to support RFC 850 dates too. So we roll
@@ -136,7 +142,7 @@ def parse_http_date(date):
 
 def parse_http_date_safe(date):
     """
-    Same as parse_http_date, but return None if the input is invalid.
+    Parses an HTTP date string, returning the parsed date or None if the input is invalid, providing a safe alternative to parsing dates.
     """
     try:
         return parse_http_date(date)
@@ -161,7 +167,9 @@ def base36_to_int(s):
 
 
 def int_to_base36(i):
-    """Convert an integer to a base36 string."""
+    """
+    Convert an integer to a base36 string, using digits 0-9 and letters a-z. Raises a ValueError if the input is negative.
+    """
     char_set = "0123456789abcdefghijklmnopqrstuvwxyz"
     if i < 0:
         raise ValueError("Negative base36 conversion input.")
@@ -184,8 +192,7 @@ def urlsafe_base64_encode(s):
 
 def urlsafe_base64_decode(s):
     """
-    Decode a base64 encoded string. Add back any trailing equal signs that
-    might have been stripped.
+    Decode a URL-safe base64 encoded string, restoring any missing padding characters.
     """
     s = s.encode()
     try:
@@ -196,9 +203,7 @@ def urlsafe_base64_decode(s):
 
 def parse_etags(etag_str):
     """
-    Parse a string of ETags given in an If-None-Match or If-Match header as
-    defined by RFC 9110. Return a list of quoted ETags, or ['*'] if all ETags
-    should be matched.
+    Parse a string of ETags from HTTP If-None-Match or If-Match headers, returning a list of quoted ETags or ['*'] if all ETags should be matched.
     """
     if etag_str.strip() == "*":
         return ["*"]
@@ -210,8 +215,7 @@ def parse_etags(etag_str):
 
 def quote_etag(etag_str):
     """
-    If the provided string is already a quoted ETag, return it. Otherwise, wrap
-    the string in quotes, making it a strong ETag.
+    If the provided string is already a quoted ETag, returns it unchanged; otherwise, converts it to a strong ETag by wrapping it in quotes.
     """
     if ETAG_MATCH.match(etag_str):
         return etag_str
@@ -221,12 +225,7 @@ def quote_etag(etag_str):
 
 def is_same_domain(host, pattern):
     """
-    Return ``True`` if the host is either an exact match or a match
-    to the wildcard pattern.
-
-    Any pattern beginning with a period matches a domain and all of its
-    subdomains. (e.g. ``.example.com`` matches ``example.com`` and
-    ``foo.example.com``). Anything else is an exact string match.
+    Checks if a host matches a given domain pattern, allowing for exact matches and wildcard matches that include subdomains.
     """
     if not pattern:
         return False
@@ -241,16 +240,7 @@ def is_same_domain(host, pattern):
 
 def url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
     """
-    Return ``True`` if the url uses an allowed host and a safe scheme.
-
-    Always return ``False`` on an empty url.
-
-    If ``require_https`` is ``True``, only 'https' will be considered a valid
-    scheme, as opposed to 'http' and 'https' with the default, ``False``.
-
-    Note: "True" doesn't entail that a URL is "safe". It may still be e.g.
-    quoted incorrectly. Ensure to also use django.utils.encoding.iri_to_uri()
-    on the path component of untrusted URLs.
+    Checks if a given URL has a valid host and scheme, allowing for a list of permitted hosts and optional HTTPS requirement.
     """
     if url is not None:
         url = url.strip()
@@ -272,6 +262,14 @@ def url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
 def _url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
     # Chrome considers any URL with more than two slashes to be absolute, but
     # urlsplit is not so flexible. Treat any url with three slashes as unsafe.
+    """
+    Checks if a given URL has an allowed host and scheme, according to the provided configuration.
+
+    :param url: The URL to be validated
+    :param allowed_hosts: List of allowed hostnames
+    :param require_https: Whether to require the URL to use HTTPS scheme (default: False)
+    :return: True if the URL is valid, False otherwise
+    """
     if url.startswith("///"):
         return False
     try:
@@ -311,6 +309,9 @@ def escape_leading_slashes(url):
 
 
 def _parseparam(s):
+    """
+    Splits a string into parameters by semicolon, handling quoted substrings and escaped quotes.
+    """
     while s[:1] == ";":
         s = s[1:]
         end = s.find(";")
@@ -325,8 +326,7 @@ def _parseparam(s):
 
 def parse_header_parameters(line):
     """
-    Parse a Content-type like header.
-    Return the main content-type and a dictionary of options.
+    Parse a Content-type like header, returning a tuple containing the main content-type and a dictionary of options.
     """
     parts = _parseparam(";" + line)
     key = parts.__next__().lower()
@@ -355,8 +355,9 @@ def parse_header_parameters(line):
 
 def content_disposition_header(as_attachment, filename):
     """
-    Construct a Content-Disposition HTTP header value from the given filename
-    as specified by RFC 6266.
+    Constructs a Content-Disposition HTTP header value according to RFC 6266, 
+    allowing specification of a filename and whether to force the file to be 
+    downloaded as an attachment or displayed inline.
     """
     if filename:
         disposition = "attachment" if as_attachment else "inline"

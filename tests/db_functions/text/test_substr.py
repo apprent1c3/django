@@ -7,6 +7,9 @@ from ..models import Author
 
 class SubstrTests(TestCase):
     def test_basic(self):
+        """
+        Tests basic operations with the Author model, including data creation, substring annotation, and updating alias fields based on name substrings.
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(name_part=Substr("name", 5, 3))
@@ -39,6 +42,9 @@ class SubstrTests(TestCase):
             Author.objects.annotate(raises=Substr("name", 0))
 
     def test_expressions(self):
+        """
+        Tests the usage of string expressions in database queries, specifically extracting a substring from a field based on the index of a specific character, and verifies the correctness of the resulting annotated values.
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         substr = Substr(Upper("name"), StrIndex("name", V("h")), 5)

@@ -22,6 +22,14 @@ class AsyncRelatedManagersOperationTest(TestCase):
         self.assertEqual(new_relatedmodel.simple, self.s1)
 
     async def test_aget_or_create(self):
+        """
+        Tests the asynchronous get or create functionality for many-to-many relationships.
+
+        Ensures that the function can correctly create a new instance when it does not exist,
+        and retrieve an existing instance when it does, without creating duplicates.
+
+        Also verifies that the through_defaults parameter is ignored when an instance is retrieved.
+        """
         new_simple, created = await self.mtm1.simples.aget_or_create(field=2)
         self.assertIs(created, True)
         self.assertEqual(await self.mtm1.simples.acount(), 1)
@@ -40,6 +48,13 @@ class AsyncRelatedManagersOperationTest(TestCase):
         self.assertEqual(new_relatedmodel.simple, self.s1)
 
     async def test_aupdate_or_create(self):
+        """
+        Tests the functionality of the aupdate_or_create method, which updates an existing object or creates a new one if no matching object exists.
+
+        The method is tested with various scenarios, including creating a new object, updating an existing object, and creating a new object with default values.
+
+        This test ensures the aupdate_or_create method behaves as expected in different situations, verifying the creation and update of objects, and the return of the created or updated object and a boolean indicating whether a new object was created.
+        """
         new_simple, created = await self.mtm1.simples.aupdate_or_create(field=2)
         self.assertIs(created, True)
         self.assertEqual(await self.mtm1.simples.acount(), 1)
@@ -84,6 +99,9 @@ class AsyncRelatedManagersOperationTest(TestCase):
         self.assertEqual(await self.s1.relatedmodel_set.acount(), 0)
 
     async def test_aset(self):
+        """
+        Tests the aset method of simples by setting and verifying different values, including clearing the set.
+        """
         await self.mtm1.simples.aset([self.s1])
         self.assertEqual(await self.mtm1.simples.aget(), self.s1)
         await self.mtm1.simples.aset([])
@@ -92,6 +110,9 @@ class AsyncRelatedManagersOperationTest(TestCase):
         self.assertEqual(await self.mtm1.simples.aget(), self.s1)
 
     async def test_aset_reverse(self):
+        """
+        Tests the functionality of setting and clearing a related model set using the aset method, including bulk and non-bulk operations.
+        """
         r1 = await RelatedModel.objects.acreate()
         await self.s1.relatedmodel_set.aset([r1])
         self.assertEqual(await self.s1.relatedmodel_set.aget(), r1)

@@ -42,6 +42,9 @@ class Paginator:
         allow_empty_first_page=True,
         error_messages=None,
     ):
+        """
+        Initializes a paginator instance, dividing a list of objects into pages of a specified size. It also sets options for handling edge cases such as orphaned items and empty first pages, and customizes error messages.
+        """
         self.object_list = object_list
         self._check_object_list_is_ordered()
         self.per_page = int(per_page)
@@ -58,7 +61,9 @@ class Paginator:
             yield self.page(page_number)
 
     def validate_number(self, number):
-        """Validate the given 1-based page number."""
+        """
+        Validate the given 1-based page number to ensure it's an integer greater than 0 and within the available range of pages.
+        """
         try:
             if isinstance(number, float) and not number.is_integer():
                 raise ValueError
@@ -73,8 +78,10 @@ class Paginator:
 
     def get_page(self, number):
         """
-        Return a valid page, even if the page argument isn't a number or isn't
-        in range.
+
+        Return a valid page object, handling cases where the provided page number is invalid,
+        such as a non-numeric input or an out-of-range value. The function ensures a default
+        page (first or last) is returned when necessary.
         """
         try:
             number = self.validate_number(number)
@@ -85,7 +92,9 @@ class Paginator:
         return self.page(number)
 
     def page(self, number):
-        """Return a Page object for the given 1-based page number."""
+        """
+        Return a Page object for the given 1-based page number, representing a subset of items from a larger list, taking into account pagination settings and orphan items.
+        """
         number = self.validate_number(number)
         bottom = (number - 1) * self.per_page
         top = bottom + self.per_page
@@ -104,7 +113,9 @@ class Paginator:
 
     @cached_property
     def count(self):
-        """Return the total number of objects, across all pages."""
+        """
+        Return the total number of objects, across all pages, using the object list's count method if available or falling back to iterating over the list.
+        """
         c = getattr(self.object_list, "count", None)
         if callable(c) and not inspect.isbuiltin(c) and method_has_no_args(c):
             return c()
@@ -112,7 +123,9 @@ class Paginator:
 
     @cached_property
     def num_pages(self):
-        """Return the total number of pages."""
+        """
+        Calculates the total number of pages required to display all items, taking into account pagination settings and the presence of orphan items.
+        """
         if self.count == 0 and not self.allow_empty_first_page:
             return 0
         hits = max(1, self.count - self.orphans)
@@ -128,7 +141,7 @@ class Paginator:
 
     def _check_object_list_is_ordered(self):
         """
-        Warn if self.object_list is unordered (typically a QuerySet).
+        Warns if the object list is unordered, potentially causing inconsistent pagination results.
         """
         ordered = getattr(self.object_list, "ordered", None)
         if ordered is not None and not ordered:
@@ -148,14 +161,12 @@ class Paginator:
 
     def get_elided_page_range(self, number=1, *, on_each_side=3, on_ends=2):
         """
-        Return a 1-based range of pages with some values elided.
 
-        If the page range is larger than a given size, the whole range is not
-        provided and a compact form is returned instead, e.g. for a paginator
-        with 50 pages, if page 43 were the current page, the output, with the
-        default arguments, would be:
+            Return a compact 1-based range of pages with elided values, suitable for pagination.
 
-            1, 2, …, 40, 41, 42, 43, 44, 45, 46, …, 49, 50.
+            The function balances page range completeness with a compact representation,
+            omitting intermediate pages if the total page count exceeds a certain threshold.
+
         """
         number = self.validate_number(number)
 
@@ -191,6 +202,14 @@ class Page(collections.abc.Sequence):
         return len(self.object_list)
 
     def __getitem__(self, index):
+        """
+        Returns the item or slice of items at the specified index.
+
+        This method allows for list-like indexing of the object list, with support for integers and slices. It raises a TypeError if the index is not of a valid type.
+
+        :raises TypeError: If the index is not an integer or slice.
+        :rtype: object or list of objects
+        """
         if not isinstance(index, (int, slice)):
             raise TypeError(
                 "Page indices must be integers or slices, not %s."

@@ -20,6 +20,18 @@ class DateHierarchyTests(TestCase):
         )
 
     def assertDateParams(self, query, expected_from_date, expected_to_date):
+        """
+
+        Verifies that date filters in a query are correctly processed by the EventAdmin changelist.
+
+        Args:
+            query (dict): A dictionary of date query parameters.
+            expected_from_date (str): The expected 'from' date value after filtering.
+            expected_to_date (str): The expected 'to' date value after filtering.
+
+        Checks that the 'date__gte' and 'date__lt' lookup parameters are set to the provided expected values.
+
+        """
         query = {"date__%s" % field: val for field, val in query.items()}
         request = self.factory.get("/", query)
         request.user = self.superuser
@@ -62,6 +74,21 @@ class DateHierarchyTests(TestCase):
             )
 
     def test_bounded_params_with_dst_time_zone(self):
+        """
+        Tests whether date parameters are correctly bounded when using different time zones with daylight saving time.\"\"\"
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        This test case covers various time zones and months to ensure correct date parameter handling when daylight saving time is in effect.
+        """
         tests = [
             # Northern hemisphere.
             ("Asia/Jerusalem", 3),

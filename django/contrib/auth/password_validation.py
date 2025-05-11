@@ -23,6 +23,14 @@ def get_default_password_validators():
 
 
 def get_password_validators(validator_config):
+    """
+
+    Returns a list of initialized password validator objects based on the provided configuration.
+
+    The function takes a list of validator configurations, imports the corresponding classes,
+    and instantiates them with the given options. It raises an error if a validator module cannot be imported.
+
+    """
     validators = []
     for validator in validator_config:
         try:
@@ -40,10 +48,16 @@ def get_password_validators(validator_config):
 
 def validate_password(password, user=None, password_validators=None):
     """
-    Validate that the password meets all validator requirements.
 
-    If the password is valid, return ``None``.
-    If the password is invalid, raise ValidationError with all error messages.
+    Validate that a password meets all password validator requirements.
+
+    Checks the password against a series of validation rules, and if the password is valid, returns None.
+    If the password is invalid, raises a ValidationError with a list of error messages.
+
+    :param password: The password to be validated.
+    :param user: The user associated with the password (optional).
+    :param password_validators: A list of password validation rules (optional).
+
     """
     errors = []
     if password_validators is None:
@@ -59,8 +73,7 @@ def validate_password(password, user=None, password_validators=None):
 
 def password_changed(password, user=None, password_validators=None):
     """
-    Inform all validators that have implemented a password_changed() method
-    that the password has been changed.
+    Inform all registered validators that a user's password has been updated, allowing them to perform any necessary post-password-change actions. The function takes the new password, an optional user object, and a list of password validators as input, defaulting to the system's default password validators if not provided.
     """
     if password_validators is None:
         password_validators = get_default_password_validators()
@@ -71,7 +84,7 @@ def password_changed(password, user=None, password_validators=None):
 
 def password_validators_help_texts(password_validators=None):
     """
-    Return a list of all help texts of all configured validators.
+    Returns a list of help texts for all configured password validators, allowing users to understand the validation criteria for passwords. If no password validators are provided, it defaults to the list of default validators.
     """
     help_texts = []
     if password_validators is None:
@@ -128,27 +141,9 @@ class MinimumLengthValidator:
 
 def exceeds_maximum_length_ratio(password, max_similarity, value):
     """
-    Test that value is within a reasonable range of password.
-
-    The following ratio calculations are based on testing SequenceMatcher like
-    this:
-
-    for i in range(0,6):
-      print(10**i, SequenceMatcher(a='A', b='A'*(10**i)).quick_ratio())
-
-    which yields:
-
-    1 1.0
-    10 0.18181818181818182
-    100 0.019801980198019802
-    1000 0.001998001998001998
-    10000 0.00019998000199980003
-    100000 1.999980000199998e-05
-
-    This means a length_ratio of 10 should never yield a similarity higher than
-    0.2, for 100 this is down to 0.02 and for 1000 it is 0.002. This can be
-    calculated via 2 / length_ratio. As a result we avoid the potentially
-    expensive sequence matching.
+    Exceeds a maximum allowed length ratio between a password and a given value, 
+    preventing potentially expensive sequence matching by setting a threshold 
+    based on the length of the password and a provided maximum similarity.
     """
     pwd_len = len(password)
     length_bound_similarity = max_similarity / 2 * pwd_len
@@ -177,6 +172,13 @@ class UserAttributeSimilarityValidator:
         self.max_similarity = max_similarity
 
     def validate(self, password, user=None):
+        """
+
+        Checks if the provided password is too similar to any of the specified user attributes.
+
+        Raises a ValidationError if the password similarity ratio exceeds the maximum allowed threshold.
+
+        """
         if not user:
             return
 
@@ -230,6 +232,18 @@ class CommonPasswordValidator:
         return Path(__file__).resolve().parent / "common-passwords.txt.gz"
 
     def __init__(self, password_list_path=DEFAULT_PASSWORD_LIST_PATH):
+        """
+
+        Initializes a CommonPasswordValidator instance.
+
+        Loads a list of common passwords from a file specified by password_list_path.
+        The file can be either a plain text file or a gzip-compressed file, and its contents
+        are expected to be one password per line. The passwords are stored as a set for efficient lookups.
+
+        :param password_list_path: Path to the file containing the list of common passwords.
+                                    Defaults to DEFAULT_PASSWORD_LIST_PATH if not specified.
+
+        """
         if password_list_path is CommonPasswordValidator.DEFAULT_PASSWORD_LIST_PATH:
             password_list_path = self.DEFAULT_PASSWORD_LIST_PATH
         try:

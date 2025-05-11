@@ -26,7 +26,9 @@ class GeographyTest(TestCase):
 
     @skipUnlessDBFeature("supports_distances_lookups", "supports_distance_geodetic")
     def test02_distance_lookup(self):
-        "Testing distance lookup support on non-point geography fields."
+        """
+        Tests the database's support for distance lookups on non-point geography fields by verifying that cities within a certain distance from a given zipcode are correctly retrieved.
+        """
         z = Zipcode.objects.get(code="77002")
         cities1 = list(
             City.objects.filter(point__distance_lte=(z.poly, D(mi=500)))
@@ -44,8 +46,7 @@ class GeographyTest(TestCase):
     @skipUnlessDBFeature("supports_geography", "supports_geometry_field_unique_index")
     def test_geography_unique(self):
         """
-        Cast geography fields to geometry type when validating uniqueness to
-        remove the reliance on unavailable ~= operator.
+        Tests the enforcement of a unique index on a geography field by creating a duplicate point and verifying a ValidationError is raised.
         """
         htown = City.objects.get(name="Houston")
         CityUnique.objects.create(point=htown.point)
@@ -57,8 +58,14 @@ class GeographyTest(TestCase):
     @skipUnlessDBFeature("supports_geography")
     def test_operators_functions_unavailable_for_geography(self):
         """
-        Geography fields are cast to geometry if the relevant operators or
-        functions are not available.
+
+        Test that geography fields are correctly cast to geometry when using 
+        operators or functions that are unavailable for geography fields.
+
+        Verifies that queries using spatial operators like within, contained, and 
+        exact work as expected when the relevant geography operators or functions 
+        are not supported by the database.
+
         """
         z = Zipcode.objects.get(code="77002")
         point_field = "%s.%s::geometry" % (
@@ -83,7 +90,9 @@ class GeographyTest(TestCase):
         self.assertIn(f"{point_field} ~=", ctx.captured_queries[0]["sql"])
 
     def test05_geography_layermapping(self):
-        "Testing LayerMapping support on models with geography fields."
+        """
+        Tests the LayerMapping functionality for models containing geography fields by mapping a shapefile to a County model, saving the data, and verifying the accuracy of the imported geography data.
+        """
         # There is a similar test in `layermap` that uses the same data set,
         # but the County model here is a bit different.
         from django.contrib.gis.utils import LayerMapping
@@ -121,8 +130,7 @@ class GeographyFunctionTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("supports_extent_aggr")
     def test_cast_aggregate(self):
         """
-        Cast a geography to a geometry field for an aggregate function that
-        expects a geometry input.
+        Tests the cast of a geography field to a geometry field for use in an aggregate function.
         """
         if not connection.features.supports_geography:
             self.skipTest("This test needs geography support")
@@ -141,7 +149,7 @@ class GeographyFunctionTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Distance_function", "supports_distance_geodetic")
     def test_distance_function(self):
         """
-        Testing Distance() support on non-point geography fields.
+        Testing the Distance() function on non-point geography fields to verify accurate calculation of distances between different types of geographic data.
         """
         if connection.ops.oracle:
             ref_dists = [0, 4899.68, 8081.30, 9115.15]
@@ -176,7 +184,7 @@ class GeographyFunctionTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Area_function", "supports_area_geodetic")
     def test_geography_area(self):
         """
-        Testing that Area calculations work on geography columns.
+        Tests the calculation of geographic areas for geography columns. Verifies that the Area function correctly computes the area of a geography object, using a specific example of a zipcode's polygon area.
         """
         # SELECT ST_Area(poly) FROM geogapp_zipcode WHERE code='77002';
         z = Zipcode.objects.annotate(area=Area("poly")).get(code="77002")

@@ -42,6 +42,9 @@ class BaseEmailBackend:
         pass
 
     def __enter__(self):
+        """
+        Sets up the runtime context for the object, ensuring it is properly opened and handling any exceptions that may occur during initialization. Returns the object itself to support use as a context manager.
+        """
         try:
             self.open()
         except Exception:

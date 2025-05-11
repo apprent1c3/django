@@ -9,6 +9,10 @@ from .client import DatabaseClient
 
 class DatabaseCreation(BaseDatabaseCreation):
     def sql_table_creation_suffix(self):
+        """
+        Returns a database table creation suffix based on test settings, 
+        including character set and collation definitions if specified.
+        """
         suffix = []
         test_settings = self.connection.settings_dict["TEST"]
         if test_settings["CHARSET"]:
@@ -18,6 +22,13 @@ class DatabaseCreation(BaseDatabaseCreation):
         return " ".join(suffix)
 
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
+        """
+        Overrides the base implementation to handle test database creation errors.
+
+        Wraps the creation of a test database, catching and handling exceptions that occur during the process.
+        If the exception is a database already exists error (1007), it is re-raised; otherwise, an error message is logged and the process exits.
+
+        """
         try:
             super()._execute_create_test_db(cursor, parameters, keepdb)
         except Exception as e:
@@ -29,6 +40,17 @@ class DatabaseCreation(BaseDatabaseCreation):
                 raise
 
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
+        """
+        Creates a clone of the test database.
+
+        Clones the source database to a target database for testing purposes. The target
+        database name is generated based on the provided suffix. If the target database
+        already exists, it will be dropped and recreated, unless keepdb is True.
+
+        :param suffix: The suffix to append to the target database name.
+        :param verbosity: The level of verbosity for logging.
+        :param keepdb: Whether to keep the existing test database, defaults to False.
+        """
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
         test_db_params = {
@@ -60,6 +82,12 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._clone_db(source_database_name, target_database_name)
 
     def _clone_db(self, source_database_name, target_database_name):
+        """
+        Clone a database by creating a copy of the source database into a new target database.
+
+        :param source_database_name: The name of the database to be cloned.
+        :param target_database_name: The name of the new database that will be created as a copy of the source database.
+        """
         cmd_args, cmd_env = DatabaseClient.settings_to_cmd_args_env(
             self.connection.settings_dict, []
         )

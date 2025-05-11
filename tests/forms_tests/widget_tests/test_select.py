@@ -160,8 +160,7 @@ class SelectTest(ChoiceWidgetTest):
 
     def test_choices_constructor_generator(self):
         """
-        If choices is passed to the constructor and is a generator, it can be
-        iterated over multiple times without getting consumed.
+        Tests that a generator passed as the choices argument to a constructor can be iterated over multiple times without being consumed, ensuring consistent rendering of HTML select elements.
         """
 
         def get_choices():
@@ -233,7 +232,7 @@ class SelectTest(ChoiceWidgetTest):
 
     def test_choices_optgroup(self):
         """
-        Choices can be nested one level in order to create HTML optgroups.
+        Tests rendering of HTML select fields with nested options, specifically optgroups. Verifies that widgets correctly create optgroup elements with corresponding labels and option elements.
         """
         html = """
         <select name="nestchoice">
@@ -278,6 +277,9 @@ class SelectTest(ChoiceWidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_option_value(self):
+        """
+        Tests that the widget does not localize option values when rendering the HTML select element.
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -305,6 +307,9 @@ class SelectTest(ChoiceWidgetTest):
         self.check_html(self.widget(choices=choices), "time", None, html=html)
 
     def _test_optgroups(self, choices):
+        """
+        Tests the rendering of optgroups in a select widget, ensuring that groups are correctly separated and options are properly populated with expected attributes and values.
+        """
         groups = list(
             self.widget(choices=choices).optgroups(
                 "name",
@@ -394,6 +399,9 @@ class SelectTest(ChoiceWidgetTest):
         self.assertEqual(index, 2)
 
     def test_optgroups(self):
+        """
+        Tests the functionality of rendering optgroups with different input formats, ensuring compatibility and robustness across various data structures.
+        """
         choices_dict = {
             "Audio": [
                 ("vinyl", "Vinyl"),
@@ -444,6 +452,9 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Checks that a ChoiceField widget renders correctly without using a fieldset.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(widget=self.widget, choices=self.beatles)

@@ -34,6 +34,20 @@ class ModelBackend(BaseBackend):
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
+        """
+
+        Authenticate a user based on the provided username and password.
+
+        Attempts to retrieve a user with the given credentials and checks their existence and password validity.
+        If the user exists and the password is correct, returns the authenticated user instance.
+
+        :param request: The current request object
+        :param username: The username to authenticate with
+        :param password: The password to authenticate with
+        :param **kwargs: Additional keyword arguments
+        :return: The authenticated user instance or None if authentication fails
+
+        """
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         if username is None or password is None:
@@ -65,9 +79,8 @@ class ModelBackend(BaseBackend):
 
     def _get_permissions(self, user_obj, obj, from_name):
         """
-        Return the permissions of `user_obj` from `from_name`. `from_name` can
-        be either "group" or "user" to return permissions from
-        `_get_group_permissions` or `_get_user_permissions` respectively.
+        Return a set of permissions for a given user, retrieved from either group or user permissions, 
+        cached for efficiency and filtered based on the user's status and object context.
         """
         if not user_obj.is_active or user_obj.is_anonymous or obj is not None:
             return set()
@@ -99,6 +112,9 @@ class ModelBackend(BaseBackend):
         return self._get_permissions(user_obj, obj, "group")
 
     def get_all_permissions(self, user_obj, obj=None):
+        """
+        Returns a set of all permissions for a given user, utilizing caching for active, non-anonymous users to improve performance. If the user is inactive, anonymous, or an object is specified, an empty set is returned.
+        """
         if not user_obj.is_active or user_obj.is_anonymous or obj is not None:
             return set()
         if not hasattr(user_obj, "_perm_cache"):
@@ -119,8 +135,15 @@ class ModelBackend(BaseBackend):
 
     def with_perm(self, perm, is_active=True, include_superusers=True, obj=None):
         """
-        Return users that have permission "perm". By default, filter out
-        inactive users and include superusers.
+
+            Retrieves users that possess a specific permission.
+
+            :param perm: The permission to filter by, either as a string or a Permission instance.
+            :param is_active: Whether to filter by active users, defaults to True.
+            :param include_superusers: Whether to include superusers in the results, defaults to True.
+            :param obj: If provided, returns an empty set; otherwise filters users based on the given permission.
+            :return: A queryset of users with the specified permission.
+
         """
         if isinstance(perm, str):
             try:
@@ -153,6 +176,9 @@ class ModelBackend(BaseBackend):
         return UserModel._default_manager.filter(user_q)
 
     def get_user(self, user_id):
+        """
+        Retrieves a user by ID if they exist and can be authenticated by the current system, otherwise returns None.
+        """
         try:
             user = UserModel._default_manager.get(pk=user_id)
         except UserModel.DoesNotExist:
@@ -182,12 +208,10 @@ class RemoteUserBackend(ModelBackend):
 
     def authenticate(self, request, remote_user):
         """
-        The username passed as ``remote_user`` is considered trusted. Return
-        the ``User`` object with the given username. Create a new ``User``
-        object if ``create_unknown_user`` is ``True``.
+        Authenticate a user based on a trusted remote username.
 
-        Return None if ``create_unknown_user`` is ``False`` and a ``User``
-        object with the given username is not found in the database.
+        Returns the User object associated with the given username, creating a new one if specified.
+        If no matching user exists and creation is disabled, returns None.
         """
         if not remote_user:
             return

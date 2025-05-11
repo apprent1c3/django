@@ -29,6 +29,9 @@ class TimezoneMixin:
         # applying a function. 2015-12-31 23:00:00 -02:00 is stored in the
         # database as 2016-01-01 01:00:00 +00:00. Any results should be
         # based on the input datetime not the stored datetime.
+        """
+        Returns the timezone name associated with the current object, taking into account the project's timezone settings and the object's own timezone information.
+        """
         tzname = None
         if settings.USE_TZ:
             if self.tzinfo is None:
@@ -43,6 +46,10 @@ class Extract(TimezoneMixin, Transform):
     output_field = IntegerField()
 
     def __init__(self, expression, lookup_name=None, tzinfo=None, **extra):
+        """
+        Initializes an object with a date/time expression, an optional lookup name, and timezone information. 
+        The lookup name is required and is used to identify the object, while the timezone information can be optionally provided.
+        """
         if self.lookup_name is None:
             self.lookup_name = lookup_name
         if self.lookup_name is None:
@@ -51,6 +58,15 @@ class Extract(TimezoneMixin, Transform):
         super().__init__(expression, **extra)
 
     def as_sql(self, compiler, connection):
+        """
+        Generates SQL for extracting a component from a datetime or duration field.
+
+        The component to be extracted is determined by the lookup name, and the 
+        result is adapted to the field type (e.g., DateTimeField, DateField, etc.) 
+        for compatibility with the underlying database. 
+
+        Returns a tuple containing the generated SQL and parameters.
+        """
         sql, params = compiler.compile(self.lhs)
         lhs_output_field = self.lhs.output_field
         if isinstance(lhs_output_field, DateTimeField):
@@ -85,6 +101,17 @@ class Extract(TimezoneMixin, Transform):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        Resolves an expression for extracting date and time components, validating the input field type and ensuring compatibility with the specified lookup. 
+
+        :param query: Optional query to resolve
+        :param allow_joins: Whether to allow joining of models
+        :param reuse: Optional reuse parameter
+        :param summarize: Whether to summarize the result
+        :param for_save: Whether the resolution is for saving
+        :return: The resolved expression 
+        :raises ValueError: If the input expression is not a valid date or time field, or if an incompatible lookup is requested
+        """
         copy = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -257,6 +284,17 @@ class TruncBase(TimezoneMixin, Transform):
         super().__init__(expression, output_field=output_field, **extra)
 
     def as_sql(self, compiler, connection):
+        """
+
+        Truncates a date, time, or datetime value to a specified precision.
+
+        Returns the SQL string and parameters required to perform the truncation.
+
+        The operation is database-backend dependent and takes into account the time zone
+        information if the output field is a DateTimeField or if the tzinfo parameter is
+        provided.
+
+        """
         sql, params = compiler.compile(self.lhs)
         tzname = None
         if isinstance(self.lhs.output_field, DateTimeField):
@@ -284,6 +322,9 @@ class TruncBase(TimezoneMixin, Transform):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        Resolve an expression, specifically handling date and time fields, to ensure correct output and prevent invalid truncations.
+        """
         copy = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -343,6 +384,9 @@ class TruncBase(TimezoneMixin, Transform):
         return copy
 
     def convert_value(self, value, expression, connection):
+        """
+        Converts the given value to a format suitable for the output field, handling datetime conversions and timezone awareness as necessary.
+        """
         if isinstance(self.output_field, DateTimeField):
             if not settings.USE_TZ:
                 pass

@@ -13,6 +13,9 @@ from ..models import Article, Author, DecimalModel, Fan
 
 class GreatestTests(TestCase):
     def test_basic(self):
+        """
+        Tests the basic functionality of annotating articles with their last updated timestamp.
+        """
         now = timezone.now()
         before = now - timedelta(hours=1)
         Article.objects.create(
@@ -41,6 +44,9 @@ class GreatestTests(TestCase):
         self.assertIsNone(articles.first().last_updated)
 
     def test_coalesce_workaround(self):
+        """
+        Verifies the Coalesce workaround for correctly determining the last updated date of an article, ensuring the greatest of the published and written dates is returned.
+        """
         past = datetime(1900, 1, 1)
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
@@ -54,6 +60,9 @@ class GreatestTests(TestCase):
 
     @skipUnless(connection.vendor == "mysql", "MySQL-specific workaround")
     def test_coalesce_workaround_mysql(self):
+        """
+        Tests a MySQL-specific workaround for the Coalesce function when used in conjunction with the Greatest function, ensuring that NULL dates are correctly replaced with a default value.
+        """
         past = datetime(1900, 1, 1)
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)

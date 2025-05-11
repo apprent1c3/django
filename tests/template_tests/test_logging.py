@@ -8,6 +8,9 @@ class VariableResolveLoggingTests(SimpleTestCase):
     loglevel = logging.DEBUG
 
     def test_log_on_variable_does_not_exist_silent(self):
+        """
+        Tests that a logging message is generated when attempting to log on a variable that does not exist, without raising an exception, when the attribute's exception is marked as silent.
+        """
         class TestObject:
             class SilentDoesNotExist(Exception):
                 silent_variable_failure = True
@@ -44,6 +47,9 @@ class VariableResolveLoggingTests(SimpleTestCase):
         self.assertEqual(str(raised_exception), "Attribute does not exist.")
 
     def test_log_on_variable_does_not_exist_not_silent(self):
+        """
+        Tests that logging a variable that does not exist raises a VariableDoesNotExist exception and produces an expected log message.
+        """
         with self.assertLogs("django.template", self.loglevel) as cm:
             with self.assertRaises(VariableDoesNotExist):
                 Variable("article.author").resolve({"article": {"section": "News"}})

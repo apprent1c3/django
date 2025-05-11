@@ -5,6 +5,9 @@ from django.test import SimpleTestCase
 
 class MultipleChoiceFieldTest(SimpleTestCase):
     def test_multiplechoicefield_1(self):
+        """
+        Tests the behavior of MultipleChoiceField, verifying that it raises validation errors for empty, invalid, or non-existent choices, and correctly parses valid choices.
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two")])
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -26,6 +29,11 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["3"])
 
     def test_multiplechoicefield_2(self):
+        """
+        .Tests a MultipleChoiceField to ensure it properly cleans and validates input, 
+        including empty values, valid choices, invalid choices, and ensures it raises 
+        the correct ValidationError messages for invalid inputs.
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two")], required=False)
         self.assertEqual([], f.clean(""))
         self.assertEqual([], f.clean(None))
@@ -43,6 +51,9 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["3"])
 
     def test_multiplechoicefield_3(self):
+        """
+        Tests the MultipleChoiceField's clean method to validate input choices.
+        """
         f = MultipleChoiceField(
             choices=[
                 ("Numbers", (("1", "One"), ("2", "Two"))),
@@ -64,6 +75,9 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["1", "6"])
 
     def test_multiplechoicefield_changed(self):
+        """
+        Checks if the value of a MultipleChoiceField has changed between two different states, considering both initial and current selections.
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two"), ("3", "Three")])
         self.assertFalse(f.has_changed(None, None))
         self.assertFalse(f.has_changed([], None))

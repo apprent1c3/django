@@ -22,6 +22,18 @@ class PostgresIndex(Index):
         return Index.max_name_length - len(Index.suffix) + len(self.suffix)
 
     def create_sql(self, model, schema_editor, using="", **kwargs):
+        """
+
+        Generates SQL to create an index, with optional support for Common Table Expressions (CTEs) via the 'WITH' clause.
+
+        :param model: The model to create the index for
+        :param schema_editor: The schema editor to use for creating the index
+        :param using: The database to use for the index creation
+        :param **kwargs: Additional keyword arguments
+
+        :return: The generated SQL statement
+
+        """
         self.check_supported(schema_editor)
         statement = super().create_sql(
             model, schema_editor, using=" USING %s" % (using or self.suffix), **kwargs
@@ -45,6 +57,9 @@ class BloomIndex(PostgresIndex):
     suffix = "bloom"
 
     def __init__(self, *expressions, length=None, columns=(), **kwargs):
+        """
+        Initializes a BloomIndex instance, validating input parameters and configuring the index with the specified expressions, length, and columns. The length must be between 1 and 4096 (or None), and columns must be a list or tuple of integers from 1 to 4095, with a maximum of 32 fields supported.
+        """
         super().__init__(*expressions, **kwargs)
         if len(self.fields) > 32:
             raise ValueError("Bloom indexes support a maximum of 32 fields.")
@@ -64,6 +79,9 @@ class BloomIndex(PostgresIndex):
         self.columns = columns
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into a tuple of path, arguments, and keyword arguments, incorporating the object's length and columns if they are defined.
+        """
         path, args, kwargs = super().deconstruct()
         if self.length is not None:
             kwargs["length"] = self.length
@@ -72,6 +90,12 @@ class BloomIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of string parameters based on the object's properties.
+
+        These parameters are in the format of 'key = value' and include 'length' and 'colX' where X is the column index.
+
+        """
         with_params = []
         if self.length is not None:
             with_params.append("length = %d" % self.length)
@@ -88,6 +112,13 @@ class BrinIndex(PostgresIndex):
     def __init__(
         self, *expressions, autosummarize=None, pages_per_range=None, **kwargs
     ):
+        """
+        Initializes a new instance with the given expressions, optionally configuring auto summarization and pagination settings.
+
+        :param autosummarize: Enables or disables auto summarization.
+        :param pages_per_range: Sets the number of pages per range, must be a positive integer or None.
+        :raises ValueError: If pages_per_range is a non-positive integer.
+        """
         if pages_per_range is not None and pages_per_range <= 0:
             raise ValueError("pages_per_range must be None or a positive integer")
         self.autosummarize = autosummarize
@@ -95,6 +126,9 @@ class BrinIndex(PostgresIndex):
         super().__init__(*expressions, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, including the path and arguments, while preserving custom pagination settings.
+        """
         path, args, kwargs = super().deconstruct()
         if self.autosummarize is not None:
             kwargs["autosummarize"] = self.autosummarize
@@ -103,6 +137,9 @@ class BrinIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of parameter strings for the current object, including autosummarize and pages_per_range if they are set.
+        """
         with_params = []
         if self.autosummarize is not None:
             with_params.append(
@@ -122,6 +159,9 @@ class BTreeIndex(PostgresIndex):
         super().__init__(*expressions, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into a tuple containing the path, arguments, and keyword arguments, adding fillfactor and deduplicate_items if they have been specified.
+        """
         path, args, kwargs = super().deconstruct()
         if self.fillfactor is not None:
             kwargs["fillfactor"] = self.fillfactor
@@ -130,6 +170,13 @@ class BTreeIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of parameters to be used in a SQL query's WITH clause.
+
+         Parameters are derived from the instance's fillfactor and deduplicate_items settings.
+
+         :return: A list of strings representing the parameters, or an empty list if neither fillfactor nor deduplicate_items are set.
+        """
         with_params = []
         if self.fillfactor is not None:
             with_params.append("fillfactor = %d" % self.fillfactor)
@@ -151,6 +198,9 @@ class GinIndex(PostgresIndex):
         super().__init__(*expressions, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, including path, arguments, and keyword arguments, and incorporates custom settings such as fast update and GIN pending list limit into the keyword arguments.
+        """
         path, args, kwargs = super().deconstruct()
         if self.fastupdate is not None:
             kwargs["fastupdate"] = self.fastupdate
@@ -159,6 +209,12 @@ class GinIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of Gin index parameters as strings, based on the current state of the object.
+
+        The returned parameters include 'gin_pending_list_limit' and 'fastupdate' if they have been set.
+
+        """
         with_params = []
         if self.gin_pending_list_limit is not None:
             with_params.append(
@@ -178,6 +234,9 @@ class GistIndex(PostgresIndex):
         super().__init__(*expressions, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into a tuple that can be used for reconstruction, including any additional keyword arguments.
+        """
         path, args, kwargs = super().deconstruct()
         if self.buffering is not None:
             kwargs["buffering"] = self.buffering
@@ -186,6 +245,9 @@ class GistIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of WITH parameter strings based on the object's buffering and fillfactor settings.
+        """
         with_params = []
         if self.buffering is not None:
             with_params.append("buffering = %s" % ("on" if self.buffering else "off"))

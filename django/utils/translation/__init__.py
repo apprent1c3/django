@@ -61,6 +61,15 @@ class Trans:
     """
 
     def __getattr__(self, real_name):
+        """
+
+        Handles attribute access that is not explicitly defined in this class,
+        providing support for translation functionality from Django.
+        It delegates attribute access to Django's translation module, 
+        either using the actual translation module if internationalization is enabled,
+        or a dummy translation module if it's not.
+
+        """
         from django.conf import settings
 
         if settings.USE_I18N:
@@ -113,6 +122,27 @@ pgettext_lazy = lazy(pgettext, str)
 
 
 def lazy_number(func, resultclass, number=None, **kwargs):
+    """
+
+    Create a lazily-translated string that is aware of the number it is being translated for.
+
+    Parameters
+    ----------
+    func : callable
+        The translation function.
+    resultclass : type
+        The class of the translated result.
+    number : str, optional
+        The key to look up in the format arguments to determine the number.
+    kwargs : dict
+        Keyword arguments to pass to the translation function.
+
+    Returns
+    -------
+    proxy : object
+        A lazily-translated string that can be formatted with the number.
+
+    """
     if isinstance(number, int):
         kwargs["number"] = number
         proxy = lazy(func, resultclass)(**kwargs)
@@ -144,6 +174,13 @@ def lazy_number(func, resultclass, number=None, **kwargs):
                 return self._translate(number_value).format(*args, **kwargs)
 
             def __mod__(self, rhs):
+                """
+                Supports the modulo operation.
+
+                Applies the modulo operator to the object's value with the provided operand, handling different types of operands.
+                Returns the result of the modulo operation if the operand is compatible, otherwise returns the translated object's value.
+
+                """
                 if isinstance(rhs, dict) and number:
                     number_value = self._get_number_value(rhs)
                 else:
@@ -192,6 +229,14 @@ class override(ContextDecorator):
         self.deactivate = deactivate
 
     def __enter__(self):
+        """
+
+        Enters a runtime context where the language setup is adjusted.
+
+        On entry, the current language setting is stored and then modified to either
+        the specified language, if provided, or completely deactivated.
+
+        """
         self.old_language = get_language()
         if self.language is not None:
             activate(self.language)
@@ -199,6 +244,9 @@ class override(ContextDecorator):
             deactivate_all()
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Handles cleanup upon exiting a context, restoring the original language state if necessary.
+        """
         if self.old_language is None:
             deactivate_all()
         elif self.deactivate:
@@ -220,7 +268,9 @@ def check_for_language(lang_code):
 
 
 def to_language(locale):
-    """Turn a locale name (en_US) into a language name (en-us)."""
+    """
+    Converts a locale name to a language name, mapping formats like 'en_US' to 'en-us'.
+    """
     p = locale.find("_")
     if p >= 0:
         return locale[:p].lower() + "-" + locale[p + 1 :].lower()
@@ -229,7 +279,9 @@ def to_language(locale):
 
 
 def to_locale(language):
-    """Turn a language name (en-us) into a locale name (en_US)."""
+    """
+    Converts a language name in the format 'en-us' to the equivalent locale name 'en_US'.
+    """
     lang, _, country = language.lower().partition("-")
     if not country:
         return language[:3].lower() + language[3:]
@@ -267,6 +319,21 @@ def deactivate_all():
 
 
 def get_language_info(lang_code):
+    """
+
+    Returns language information for the given language code.
+
+    The function retrieves language details from Django's locale settings.
+    If the language code is not found, it attempts to find the language information
+    for the generic language code (without the variant) or raises a KeyError.
+
+    The returned dictionary contains language information, with the 'name' translated
+    using gettext_lazy.
+
+    :param lang_code: The language code (e.g. 'en', 'en-us', 'fr')
+    :rtype: dict
+
+    """
     from django.conf.locale import LANG_INFO
 
     try:

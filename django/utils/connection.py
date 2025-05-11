@@ -54,6 +54,9 @@ class BaseConnectionHandler:
         raise NotImplementedError("Subclasses must implement create_connection().")
 
     def __getitem__(self, alias):
+        """
+        Retrieves a connection instance by its alias, creating it if necessary, and caches it for future lookups. If the alias is unknown, raises an exception indicating that the connection does not exist.
+        """
         try:
             return getattr(self._connections, alias)
         except AttributeError:

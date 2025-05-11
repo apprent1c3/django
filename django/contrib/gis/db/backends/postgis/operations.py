@@ -43,6 +43,17 @@ class PostGISOperator(SpatialOperator):
         return super().as_sql(connection, lookup, template_params, *args)
 
     def check_raster(self, lookup, template_params):
+        """
+
+        Checks and modifies the lookup and template parameters for raster operations.
+
+        Prepares the lookup object and template parameters for spatial operations involving rasters.
+        It handles cases where the left-hand side (LHS) or right-hand side (RHS) of the lookup is a raster,
+        and applies transformations as needed to ensure compatibility with the desired operation.
+
+        Raises a ValueError if band indices are used with an operator that only works on bounding boxes.
+
+        """
         spheroid = lookup.rhs_params and lookup.rhs_params[-1] == "spheroid"
 
         # Check which input is a raster.
@@ -182,7 +193,10 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def spatial_version(self):
-        """Determine the version of the PostGIS library."""
+        """
+        Determines the version of the PostGIS library in use by the database, 
+        either from the settings or by querying the database directly.
+        """
         # Trying to get the PostGIS version because the function
         # signatures will depend on the version used.  The cost
         # here is a database query to determine the version, which
@@ -212,9 +226,7 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
 
     def convert_extent(self, box):
         """
-        Return a 4-tuple extent for the `Extent` aggregate by converting
-        the bounding box text returned by PostGIS (`box` argument), for
-        example: "BOX(-90.0 30.0, -85.0 40.0)".
+        Return a 4-tuple extent by converting a PostGIS bounding box string into a numerical format, consisting of the minimum and maximum x and y coordinates.
         """
         if box is None:
             return None
@@ -225,9 +237,15 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
 
     def convert_extent3d(self, box3d):
         """
-        Return a 6-tuple extent for the `Extent3D` aggregate by converting
-        the 3d bounding-box text returned by PostGIS (`box3d` argument), for
-        example: "BOX3D(-90.0 30.0 1, -85.0 40.0 2)".
+
+            Converts a 3D bounding-box from PostGIS format to a 6-tuple extent.
+
+            This conversion takes a string representation of a 3D box and returns
+            the equivalent extent as a tuple of six values: xmin, ymin, zmin, xmax, ymax, zmax.
+
+            :return: 6-tuple extent or None if input is None
+            :rtype: tuple or None
+
         """
         if box3d is None:
             return None
@@ -238,7 +256,7 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
 
     def geo_db_type(self, f):
         """
-        Return the database field type for the given spatial field.
+        Determines the database field type for a given spatial field, considering factors such as geometry type, dimensionality, and spatial reference system. Returns a string representing the database type, either 'raster', 'geometry', or 'geography', with additional type and SRID details as applicable.
         """
         if f.geom_type == "RASTER":
             return "raster"
@@ -261,13 +279,7 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
 
     def get_distance(self, f, dist_val, lookup_type):
         """
-        Retrieve the distance parameters for the given geometry field,
-        distance lookup value, and the distance lookup type.
-
-        This is the most complex implementation of the spatial backends due to
-        what is supported on geodetic geometry columns vs. what's available on
-        projected geometry columns.  In addition, it has to take into account
-        the geography column type.
+        Retrieve the distance parameters for a given geometry field, distance lookup value, and the distance lookup type, handling geodetic and projected geometry columns, as well as geography column types.
         """
         # Getting the distance parameter
         value = dist_val[0]
@@ -298,9 +310,7 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
 
     def get_geom_placeholder(self, f, value, compiler):
         """
-        Provide a proper substitution value for Geometries or rasters that are
-        not in the SRID of the field. Specifically, this routine will
-        substitute in the ST_Transform() function call.
+        Provide a proper substitution value for Geometries or rasters not in the SRID of the field, returning a placeholder that applies the ST_Transform() function if necessary to match field's SRID.
         """
         transform_func = self.spatial_function_name("Transform")
         if hasattr(value, "as_sql"):
@@ -364,8 +374,7 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
 
     def proj_version_tuple(self):
         """
-        Return the version of PROJ used by PostGIS as a tuple of the
-        major, minor, and subminor release numbers.
+        Return the version of PROJ used by PostGIS as a tuple of major, minor, and subminor release numbers.
         """
         proj_regex = re.compile(r"(\d+)\.(\d+)\.(\d+)")
         proj_ver_str = self.postgis_proj_version()
@@ -409,6 +418,9 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
         return ST_Polygon(arg) if is_raster else arg
 
     def get_geometry_converter(self, expression):
+        """
+        Returns a converter function for database geometry values, transforming them into GEOSGeometry instances based on the provided database expression and connection. The converter handles string input by encoding it as ASCII and supports null values.
+        """
         read = wkb_r().read
         geom_class = expression.output_field.geom_class
 

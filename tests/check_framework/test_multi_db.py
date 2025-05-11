@@ -21,6 +21,11 @@ class TestMultiDBChecks(SimpleTestCase):
         return mock.patch.object(connections[db].validation, "check_field")
 
     def test_checks_called_on_the_default_database(self):
+        """
+
+        Verify that model check routines are executed against the default database.
+
+        """
         class Model(models.Model):
             field = models.CharField(max_length=100)
 
@@ -32,6 +37,9 @@ class TestMultiDBChecks(SimpleTestCase):
                 self.assertFalse(mock_check_field_other.called)
 
     def test_checks_called_on_the_other_database(self):
+        """
+        Tests that model checks are called on the specified database, ignoring the default database.
+        """
         class OtherModel(models.Model):
             field = models.CharField(max_length=100)
 

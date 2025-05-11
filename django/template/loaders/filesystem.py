@@ -18,6 +18,13 @@ class Loader(BaseLoader):
         return self.dirs if self.dirs is not None else self.engine.dirs
 
     def get_contents(self, origin):
+        """
+        Retrieves the contents of a template file.
+
+        :param origin: The template origin object to read from.
+        :raises TemplateDoesNotExist: If the template file does not exist.
+        :return: The contents of the template file as a string.
+        """
         try:
             with open(origin.name, encoding=self.engine.file_charset) as fp:
                 return fp.read()
@@ -26,9 +33,9 @@ class Loader(BaseLoader):
 
     def get_template_sources(self, template_name):
         """
-        Return an Origin object pointing to an absolute path in each directory
-        in template_dirs. For security reasons, if a path doesn't lie inside
-        one of the template_dirs it is excluded from the result set.
+        Return a sequence of Origin objects, each representing an absolute path 
+        where the specified template can be found, filtered by the whitelisted 
+        template directories for security.
         """
         for template_dir in self.get_dirs():
             try:

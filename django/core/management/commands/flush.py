@@ -30,6 +30,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        Handles flushing of the database by dropping all data and resetting each table to an empty state. 
+        The command accepts various options such as database, verbosity, interactivity, and flags to control sequence reset and cascade behavior. 
+        It provides an interactive confirmation prompt before proceeding with the flush operation, ensuring the user is aware of the irreversible consequences.
+        """
         database = options["database"]
         connection = connections[database]
         verbosity = options["verbosity"]

@@ -16,6 +16,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_use_skip_link_to_content(self):
+        """
+        Tests the skip-to-content link functionality in the admin interface, ensuring it becomes visible after pressing the tab key and navigates to the content area when activated, allowing keyboard-only navigation to access admin functionality.
+        """
         from selenium.webdriver.common.action_chains import ActionChains
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
@@ -68,6 +71,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(self.selenium.switch_to.active_element, first_input)
 
     def test_dont_use_skip_link_to_content(self):
+        """
+        Tests that the skip link to content is not visible by default, becomes visible when the user tabs through the page, and correctly directs focus to the first interactive element.
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
 
@@ -97,6 +103,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_skip_link_with_RTL_language_doesnt_create_horizontal_scrolling(self):
+        """
+        Tests that the skip link functionality works correctly in a right-to-left (RTL) language environment, specifically ensuring that it doesn't introduce horizontal scrolling.
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
 

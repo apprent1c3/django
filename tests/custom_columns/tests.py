@@ -7,6 +7,11 @@ from .models import Article, Author
 class CustomColumnsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Setup test data for the application, creating test authors and an article with associated authors.
+
+        """
         cls.a1 = Author.objects.create(first_name="John", last_name="Smith")
         cls.a2 = Author.objects.create(first_name="Peter", last_name="Jones")
         cls.authors = [cls.a1, cls.a2]
@@ -87,6 +92,11 @@ class CustomColumnsTests(TestCase):
             Author.objects.filter(firstname__exact="John")
 
     def test_author_get_attributes(self):
+        """
+
+        Tests the retrieval and validation of attributes for an Author object, including attribute existence and expected values for first and last names.
+
+        """
         a = Author.objects.get(last_name__exact="Smith")
         self.assertEqual("John", a.first_name)
         self.assertEqual("Smith", a.last_name)

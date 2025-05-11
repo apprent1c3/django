@@ -9,6 +9,9 @@ from .urls import ContactFormViewWithMsg, DeleteFormViewWithMsg
 @override_settings(ROOT_URLCONF="messages_tests.urls")
 class SuccessMessageMixinTests(TestCase):
     def test_set_messages_success(self):
+        """
+        Tests if setting a success message is correctly handled
+        """
         author = {"name": "John Doe", "slug": "success-msg"}
         add_url = reverse("add_success_msg")
         req = self.client.post(add_url, author)

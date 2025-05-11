@@ -51,7 +51,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_slashless_resource(self):
         """
-        Matches to explicit slashless URLs should go unmolested.
+        Tests that a slashless URL is not modified when APPEND_SLASH is True, ensuring the developers' explicit routing decisions are respected.
         """
 
         def get_response(req):
@@ -76,7 +76,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_redirect(self):
         """
-        APPEND_SLASH should redirect slashless URLs to a valid pattern.
+        Tests whether the APPEND_SLASH setting correctly redirects URLs without a trailing slash to their canonical URL with a slash.
         """
         request = self.rf.get("/slash")
         r = CommonMiddleware(get_response_empty).process_request(request)
@@ -98,8 +98,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_redirect_querystring_have_slash(self):
         """
-        APPEND_SLASH should append slash to path when redirecting a request
-        with a querystring ending with slash.
+        Tests that the APPEND_SLASH setting correctly appends a slash to a URL path when redirecting a request with a query string that ends with a slash.
         """
         request = self.rf.get("/slash?test=slash/")
         resp = CommonMiddleware(get_response_404)(request)
@@ -109,9 +108,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True, DEBUG=True)
     def test_append_slash_no_redirect_in_DEBUG(self):
         """
-        While in debug mode, an exception is raised with a warning
-        when a failed attempt is made to DELETE, POST, PUT, or PATCH to an URL
-        which would normally be redirected to a slashed version.
+        Tests that the CommonMiddleware raises an exception when attempting to make a POST, PUT, PATCH, or DELETE request to a URL without a trailing slash in debug mode, instead of silently redirecting to the slashed version.
         """
         msg = "maintaining %s data. Change your form to point to testserver/slash/"
         request = self.rf.get("/slash")
@@ -141,7 +138,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_opt_out(self):
         """
-        Views marked with @no_append_slash should be left alone.
+        Tests that views marked with a decorator to opt out of the APPEND_SLASH feature are not modified.
         """
         request = self.rf.get("/sensitive_fbv")
         self.assertEqual(CommonMiddleware(get_response_404)(request).status_code, 404)
@@ -152,7 +149,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_quoted(self):
         """
-        URLs which require quoting should be redirected to their slash version.
+        Tests that URLs requiring quoting are correctly redirected to their slash version when APPEND_SLASH is True.
         """
         request = self.rf.get(quote("/needsquoting#"))
         r = CommonMiddleware(get_response_404)(request)
@@ -162,11 +159,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_leading_slashes(self):
         """
-        Paths starting with two slashes are escaped to prevent open redirects.
-        If there's a URL pattern that allows paths to start with two slashes, a
-        request with path //evil.com must not redirect to //evil.com/ (appended
-        slash) which is a schemaless absolute URL. The browser would navigate
-        to evil.com/.
+        Tests that the CommonMiddleware correctly handles and escapes paths starting with multiple slashes to prevent open redirects when APPEND_SLASH is enabled.
         """
         # Use 4 slashes because of RequestFactory behavior.
         request = self.rf.get("////evil.com/security")
@@ -207,7 +200,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_have_slash_custom_urlconf(self):
         """
-        URLs with slashes should go unmolested.
+        Tests whether URLs containing a trailing slash are handled correctly and left unmodified by the CommonMiddleware when a custom URL configuration is in use.
         """
         request = self.rf.get("/customurlconf/slash/")
         request.urlconf = "middleware.extra_urls"
@@ -217,7 +210,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_slashless_resource_custom_urlconf(self):
         """
-        Matches to explicit slashless URLs should go unmolested.
+        Tests that the CommonMiddleware does not append a slash to a slashless URL when a custom URL configuration is in use.
         """
 
         def get_response(req):
@@ -233,7 +226,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_slashless_unknown_custom_urlconf(self):
         """
-        APPEND_SLASH should not redirect to unknown resources.
+        Tests whether APPEND_SLASH functionality correctly handles unknown resources in a custom URL configuration, ensuring it does not redirect and instead returns a 404 status code.
         """
         request = self.rf.get("/customurlconf/unknown")
         request.urlconf = "middleware.extra_urls"
@@ -243,7 +236,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_redirect_custom_urlconf(self):
         """
-        APPEND_SLASH should redirect slashless URLs to a valid pattern.
+        Tests that APPEND_SLASH setting correctly redirects URLs without a trailing slash to a valid pattern when a custom URL configuration is used.
         """
         request = self.rf.get("/customurlconf/slash")
         request.urlconf = "middleware.extra_urls"
@@ -259,9 +252,11 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True, DEBUG=True)
     def test_append_slash_no_redirect_on_POST_in_DEBUG_custom_urlconf(self):
         """
-        While in debug mode, an exception is raised with a warning
-        when a failed attempt is made to POST to an URL which would normally be
-        redirected to a slashed version.
+
+        Tests that a POST request to a URL that would normally be redirected to 
+        its slashed version raises an exception in DEBUG mode, rather than 
+        redirecting, when using a custom URL configuration.
+
         """
         request = self.rf.get("/customurlconf/slash")
         request.urlconf = "middleware.extra_urls"
@@ -272,7 +267,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=False)
     def test_append_slash_disabled_custom_urlconf(self):
         """
-        Disabling append slash functionality should leave slashless URLs alone.
+        Tests the behavior of the CommonMiddleware when the APPEND_SLASH setting is disabled, ensuring that URLs without a trailing slash are not modified and return a 404 status code.
         """
         request = self.rf.get("/customurlconf/slash")
         request.urlconf = "middleware.extra_urls"
@@ -282,7 +277,7 @@ class CommonMiddlewareTest(SimpleTestCase):
     @override_settings(APPEND_SLASH=True)
     def test_append_slash_quoted_custom_urlconf(self):
         """
-        URLs which require quoting should be redirected to their slash version.
+        Tests if the CommonMiddleware properly appends a slash to custom URL confs that require quoting, verifying the redirect response.
         """
         request = self.rf.get(quote("/customurlconf/needsquoting#"))
         request.urlconf = "middleware.extra_urls"
@@ -297,6 +292,9 @@ class CommonMiddlewareTest(SimpleTestCase):
 
     @override_settings(APPEND_SLASH=False, PREPEND_WWW=True)
     def test_prepend_www_custom_urlconf(self):
+        """
+        Tests that the CommonMiddleware correctly prepends 'www' to a custom URL configuration when the PREPEND_WWW setting is enabled.
+        """
         request = self.rf.get("/customurlconf/path/")
         request.urlconf = "middleware.extra_urls"
         r = CommonMiddleware(get_response_empty).process_request(request)
@@ -305,6 +303,9 @@ class CommonMiddlewareTest(SimpleTestCase):
 
     @override_settings(APPEND_SLASH=True, PREPEND_WWW=True)
     def test_prepend_www_append_slash_have_slash_custom_urlconf(self):
+        """
+        Tests that the CommonMiddleware correctly prepends 'www' to the URL and appends a slash when the URL already has a trailing slash and a custom URL configuration is in use, resulting in a 301 redirect to the modified URL.
+        """
         request = self.rf.get("/customurlconf/slash/")
         request.urlconf = "middleware.extra_urls"
         r = CommonMiddleware(get_response_empty).process_request(request)
@@ -313,6 +314,9 @@ class CommonMiddlewareTest(SimpleTestCase):
 
     @override_settings(APPEND_SLASH=True, PREPEND_WWW=True)
     def test_prepend_www_append_slash_slashless_custom_urlconf(self):
+        """
+        Tests the behavior of the CommonMiddleware when the APPEND_SLASH and PREPEND_WWW settings are enabled and a custom URL configuration is used, ensuring that a slash is appended to the URL and 'www' is prepended to the domain in a 301 redirect response.
+        """
         request = self.rf.get("/customurlconf/slash")
         request.urlconf = "middleware.extra_urls"
         r = CommonMiddleware(get_response_empty).process_request(request)
@@ -322,6 +326,14 @@ class CommonMiddlewareTest(SimpleTestCase):
     # Tests for the Content-Length header
 
     def test_content_length_header_added(self):
+        """
+
+        Verifies that the Content-Length header is added to an HTTP response when using the CommonMiddleware.
+
+        Tests that the middleware correctly calculates and includes the Content-Length header in the response,
+        ensuring that the length matches the actual content length.
+
+        """
         def get_response(req):
             response = HttpResponse("content")
             self.assertNotIn("Content-Length", response)
@@ -331,6 +343,9 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertEqual(int(response.headers["Content-Length"]), len(response.content))
 
     def test_content_length_header_not_added_for_streaming_response(self):
+        """
+        Ensures the 'Content-Length' header is not added to responses when using a streaming HTTP response.
+        """
         def get_response(req):
             response = StreamingHttpResponse("content")
             self.assertNotIn("Content-Length", response)
@@ -340,6 +355,9 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertNotIn("Content-Length", response)
 
     def test_content_length_header_not_changed(self):
+        """
+        Tests that the Content-Length header set by the application is not modified by the CommonMiddleware.
+        """
         bad_content_length = 500
 
         def get_response(req):
@@ -360,7 +378,9 @@ class CommonMiddlewareTest(SimpleTestCase):
             CommonMiddleware(get_response_empty).process_request(request)
 
     def test_non_ascii_query_string_does_not_crash(self):
-        """Regression test for #15152"""
+        """
+        Tests that the application correctly handles non-ASCII characters in query strings, verifying a fix for a previous crash issue.
+        """
         request = self.rf.get("/slash")
         request.META["QUERY_STRING"] = "drink=café"
         r = CommonMiddleware(get_response_empty).process_request(request)
@@ -370,6 +390,9 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertEqual(r.status_code, 301)
 
     def test_response_redirect_class(self):
+        """
+        Tests that a GET request to a URL without a trailing slash receives a permanent redirect to the same URL with a trailing slash.
+        """
         request = self.rf.get("/slash")
         r = CommonMiddleware(get_response_404)(request)
         self.assertEqual(r.status_code, 301)
@@ -377,6 +400,14 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertIsInstance(r, HttpResponsePermanentRedirect)
 
     def test_response_redirect_class_subclass(self):
+        """
+
+        Tests that a subclass of CommonMiddleware correctly redirects to a URL with a trailing slash.
+
+        This test case verifies that the response_redirect_class attribute can be overridden
+        to return an instance of the specified redirect class.
+
+        """
         class MyCommonMiddleware(CommonMiddleware):
             response_redirect_class = HttpResponseRedirect
 
@@ -416,6 +447,9 @@ class BrokenLinkEmailsMiddlewareTest(SimpleTestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_custom_request_checker(self):
+        """
+        Tests the custom request checking functionality of the BrokenLinkEmailsMiddleware by subclassing it with additional user-agent patterns, simulating ignorable and non-ignorable requests, and verifying the expected email sending behavior.
+        """
         class SubclassedMiddleware(BrokenLinkEmailsMiddleware):
             ignored_user_agent_patterns = (
                 re.compile(r"Spider.*"),
@@ -423,7 +457,9 @@ class BrokenLinkEmailsMiddlewareTest(SimpleTestCase):
             )
 
             def is_ignorable_request(self, request, uri, domain, referer):
-                """Check user-agent in addition to normal checks."""
+                """
+                Determines whether an incoming request should be ignored based on the user's user-agent, in addition to standard ignorable request checks.
+                """
                 if super().is_ignorable_request(request, uri, domain, referer):
                     return True
                 user_agent = request.META["HTTP_USER_AGENT"]
@@ -442,8 +478,7 @@ class BrokenLinkEmailsMiddlewareTest(SimpleTestCase):
 
     def test_referer_equal_to_requested_url(self):
         """
-        Some bots set the referer to the current URL to avoid being blocked by
-        an referer check (#25302).
+        Tests that BrokenLinkEmailsMiddleware does not send emails when the referer is equal to the requested URL, even when the request is made over HTTPS via a proxy.
         """
         self.req.META["HTTP_REFERER"] = self.req.path
         BrokenLinkEmailsMiddleware(self.get_response)(self.req)
@@ -564,7 +599,17 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_if_none_match_and_redirect(self):
+        """
+        Tests the ConditionalGetMiddleware when the If-None-Match header matches the ETag and a redirect is returned. 
+        Verifies that the middleware correctly handles this scenario and returns a 301 status code.
+        """
         def get_response(req):
+            """
+            Generate a redirect response by sending a request to the client.
+
+             The function builds a response object, applies a custom ETag, redirects the user to the root page,
+             and returns the response object with a 301 status code (Moved Permanently).
+            """
             resp = self.client.get(req.path_info)
             resp["ETag"] = "spam"
             resp["Location"] = "/"
@@ -576,6 +621,9 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(resp.status_code, 301)
 
     def test_if_none_match_and_client_error(self):
+        """
+        Tests if ConditionalGetMiddleware returns a 400 status code when the If-None-Match header matches the ETag, but the underlying response is a client error.
+        """
         def get_response(req):
             resp = self.client.get(req.path_info)
             resp["ETag"] = "spam"
@@ -617,7 +665,15 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(self.resp.status_code, 200)
 
     def test_if_modified_since_and_redirect(self):
+        """
+        Tests the ConditionalGetMiddleware when 'If-Modified-Since' header is present, 
+        verifying it honors the 301 redirect even if the requested resource has not been modified since the specified date.
+        """
         def get_response(req):
+            """
+            Return a HTTP response object with a 301 redirect status code, 
+            redirecting to the root URL and specifying a fixed Last-Modified header.
+            """
             resp = self.client.get(req.path_info)
             resp["Last-Modified"] = "Sat, 12 Feb 2011 17:35:44 GMT"
             resp["Location"] = "/"
@@ -629,6 +685,12 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(resp.status_code, 301)
 
     def test_if_modified_since_and_client_error(self):
+        """
+
+        Tests if the ConditionalGetMiddleware handles the 'If-Modified-Since' header correctly 
+        when the client makes an invalid request, resulting in a 400 error response.
+
+        """
         def get_response(req):
             resp = self.client.get(req.path_info)
             resp["Last-Modified"] = "Sat, 12 Feb 2011 17:35:44 GMT"
@@ -641,11 +703,16 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
 
     def test_not_modified_headers(self):
         """
-        The 304 Not Modified response should include only the headers required
-        by RFC 9110 Section 15.4.5, Last-Modified, and the cookies.
+        Tests that a 304 Not Modified response from the ConditionalGetMiddleware includes only the required headers and cookies, as specified by RFC 9110.
         """
 
         def get_response(req):
+            """
+            Returns a response object with predefined HTTP headers for a given request.
+
+            The response includes various headers such as Date, Last-Modified, Expires, and Cache-Control,
+            as well as a set cookie. It appears to be a mocked or standardized response for testing purposes.
+            """
             resp = self.client.get(req.path_info)
             resp["Date"] = "Sat, 12 Feb 2011 17:35:44 GMT"
             resp["Last-Modified"] = "Sat, 12 Feb 2011 17:35:44 GMT"
@@ -680,10 +747,8 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
 
     def test_no_unsafe(self):
         """
-        ConditionalGetMiddleware shouldn't return a conditional response on an
-        unsafe request. A response has already been generated by the time
-        ConditionalGetMiddleware is called, so it's too late to return a 412
-        Precondition Failed.
+        Tests that ConditionalGetMiddleware does not return a conditional response 
+        for an unsafe request, returning a standard 200 response instead.
         """
 
         def get_200_response(req):
@@ -701,9 +766,7 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
 
     def test_no_head(self):
         """
-        ConditionalGetMiddleware shouldn't compute and return an ETag on a
-        HEAD request since it can't do so accurately without access to the
-        response body of the corresponding GET.
+        Tests that ConditionalGetMiddleware does not compute an ETag for a HEAD request, as it cannot be determined accurately without the corresponding GET response body.
         """
 
         def get_200_response(req):
@@ -721,8 +784,7 @@ class XFrameOptionsMiddlewareTest(SimpleTestCase):
 
     def test_same_origin(self):
         """
-        The X_FRAME_OPTIONS setting can be set to SAMEORIGIN to have the
-        middleware use that value for the HTTP header.
+        Tests that the XFrameOptionsMiddleware correctly sets the X-Frame-Options HTTP header to 'SAMEORIGIN' when the X_FRAME_OPTIONS setting is set to 'SAMEORIGIN' or 'sameorigin'.
         """
         with override_settings(X_FRAME_OPTIONS="SAMEORIGIN"):
             r = XFrameOptionsMiddleware(get_response_empty)(HttpRequest())
@@ -734,8 +796,7 @@ class XFrameOptionsMiddlewareTest(SimpleTestCase):
 
     def test_deny(self):
         """
-        The X_FRAME_OPTIONS setting can be set to DENY to have the middleware
-        use that value for the HTTP header.
+        Tests the XFrameOptionsMiddleware with the X_FRAME_OPTIONS setting set to 'DENY', verifying the middleware correctly sets the 'X-Frame-Options' HTTP header to 'DENY' in a case-insensitive manner.
         """
         with override_settings(X_FRAME_OPTIONS="DENY"):
             r = XFrameOptionsMiddleware(get_response_empty)(HttpRequest())
@@ -747,8 +808,7 @@ class XFrameOptionsMiddlewareTest(SimpleTestCase):
 
     def test_defaults_sameorigin(self):
         """
-        If the X_FRAME_OPTIONS setting is not set then it defaults to
-        DENY.
+        Tests that the X_FRAME_OPTIONS header defaults to 'DENY' when the setting is not explicitly configured.
         """
         with override_settings(X_FRAME_OPTIONS=None):
             del settings.X_FRAME_OPTIONS  # restored by override_settings
@@ -757,8 +817,7 @@ class XFrameOptionsMiddlewareTest(SimpleTestCase):
 
     def test_dont_set_if_set(self):
         """
-        If the X-Frame-Options header is already set then the middleware does
-        not attempt to override it.
+        Tests that the XFrameOptionsMiddleware does not override the X-Frame-Options header if it has already been set.
         """
 
         def same_origin_response(request):
@@ -781,8 +840,7 @@ class XFrameOptionsMiddlewareTest(SimpleTestCase):
 
     def test_response_exempt(self):
         """
-        If the response has an xframe_options_exempt attribute set to False
-        then it still sets the header, but if it's set to True then it doesn't.
+        Tests that the X-Frame-Options header is correctly set or absent based on the xframe_options_exempt attribute of the response.
         """
 
         def xframe_exempt_response(request):
@@ -804,14 +862,17 @@ class XFrameOptionsMiddlewareTest(SimpleTestCase):
 
     def test_is_extendable(self):
         """
-        The XFrameOptionsMiddleware method that determines the X-Frame-Options
-        header value can be overridden based on something in the request or
-        response.
+        Tests that the X-Frame-Options header value can be dynamically overridden based on attributes of the request or response.
         """
 
         class OtherXFrameOptionsMiddleware(XFrameOptionsMiddleware):
             # This is just an example for testing purposes...
             def get_xframe_options_value(self, request, response):
+                """
+                Determines the X-Frame-Options header value based on the request and response.
+                Returns 'SAMEORIGIN' if either the request or response has the sameorigin attribute set,
+                otherwise returns 'DENY'.
+                """
                 if getattr(request, "sameorigin", False):
                     return "SAMEORIGIN"
                 if getattr(response, "sameorigin", False):
@@ -852,6 +913,9 @@ class GZipMiddlewareTest(SimpleTestCase):
     request_factory = RequestFactory()
 
     def setUp(self):
+        """
+        Sets up a test request and response with default metadata and content for testing purposes.
+        """
         self.req = self.request_factory.get("/")
         self.req.META["HTTP_ACCEPT_ENCODING"] = "gzip, deflate"
         self.req.META["HTTP_USER_AGENT"] = (
@@ -878,7 +942,12 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     def test_compress_response(self):
         """
-        Compression is performed on responses with compressible content.
+
+        Tests that HTTP responses with compressible content are properly compressed using gzip.
+
+        Verifies that the compressed response content matches the original string after decompression,
+        and that the correct 'Content-Encoding' and 'Content-Length' headers are set.
+
         """
         r = GZipMiddleware(self.get_response)(self.req)
         self.assertEqual(self.decompress(r.content), self.compressible_string)
@@ -887,7 +956,10 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     def test_compress_streaming_response(self):
         """
-        Compression is performed on responses with streaming content.
+
+        Tests that a streaming response is successfully compressed by the GZip middleware.
+        Verifies that the compressed response is correctly decompressed and that the 'Content-Encoding' header is set to 'gzip'.
+
         """
 
         def get_stream_response(request):
@@ -902,10 +974,17 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     async def test_compress_async_streaming_response(self):
         """
-        Compression is performed on responses with async streaming content.
+
+        Tests that the GZipMiddleware correctly compresses async streaming responses.
+        Verifies that the compressed response is decompressible and that the correct headers are set.
+
         """
 
         async def get_stream_response(request):
+            """
+            Returns a StreamingHttpResponse object that iterates over a sequence of chunks, 
+            delivered as a text/html response with UTF-8 encoding.
+            """
             async def iterator():
                 for chunk in self.sequence:
                     yield chunk
@@ -924,7 +1003,7 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     def test_compress_streaming_response_unicode(self):
         """
-        Compression is performed on responses with streaming Unicode content.
+        Tests that GZipMiddleware correctly compresses HTTP responses with streaming Unicode content.
         """
 
         def get_stream_response_unicode(request):
@@ -942,7 +1021,9 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     def test_compress_file_response(self):
         """
-        Compression is performed on FileResponse.
+        Tests that the GZipMiddleware correctly compresses a FileResponse, 
+         verifying the response content is properly decompressed and the 
+         'Content-Encoding' header is set to 'gzip'.
         """
         with open(__file__, "rb") as file1:
 
@@ -959,8 +1040,7 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     def test_compress_non_200_response(self):
         """
-        Compression is performed on responses with a status other than 200
-        (#10762).
+        Tests that the compression middleware compresses responses with non-200 status codes, such as 404 errors, and verifies that the compressed content is correct and the Content-Encoding header is set to 'gzip'.
         """
         self.resp.status_code = 404
         r = GZipMiddleware(self.get_response)(self.req)
@@ -969,7 +1049,7 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     def test_no_compress_short_response(self):
         """
-        Compression isn't performed on responses with short content.
+        Tests that the GZip middleware does not compress responses with short content, ensuring that the response remains unchanged and no Content-Encoding header is added.
         """
         self.resp.content = self.short_string
         r = GZipMiddleware(self.get_response)(self.req)
@@ -978,7 +1058,7 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     def test_no_compress_compressed_response(self):
         """
-        Compression isn't performed on responses that are already compressed.
+        Tests that a response that is already compressed is not re-compressed by the GZipMiddleware.
         """
         self.resp["Content-Encoding"] = "deflate"
         r = GZipMiddleware(self.get_response)(self.req)
@@ -987,7 +1067,7 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     def test_no_compress_incompressible_response(self):
         """
-        Compression isn't performed on responses with incompressible content.
+        Tests that the response content is not compressed when it contains incompressible data, and that the Content-Encoding header is not set.
         """
         self.resp.content = self.incompressible_string
         r = GZipMiddleware(self.get_response)(self.req)
@@ -996,11 +1076,7 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     def test_compress_deterministic(self):
         """
-        Compression results are the same for the same content and don't
-        include a modification time (since that would make the results
-        of compression non-deterministic and prevent
-        ConditionalGetMiddleware from recognizing conditional matches
-        on gzipped content).
+        Verifies that compression results are deterministic and do not include a modification time, ensuring compatibility with ConditionalGetMiddleware for gzipped content.
         """
 
         class DeterministicGZipMiddleware(GZipMiddleware):
@@ -1013,7 +1089,9 @@ class GZipMiddlewareTest(SimpleTestCase):
         self.assertEqual(self.get_mtime(r2.content), 0)
 
     def test_random_bytes(self):
-        """A random number of bytes is added to mitigate the BREACH attack."""
+        """
+        Tests the GZipMiddleware's response to mitigate the BREACH attack by verifying that a random number of bytes is added to the response and that the compressed content is correct.
+        """
         with mock.patch(
             "django.utils.text.secrets.randbelow", autospec=True, return_value=3
         ):
@@ -1025,7 +1103,9 @@ class GZipMiddlewareTest(SimpleTestCase):
         self.assertEqual(self.decompress(r.content), self.compressible_string)
 
     def test_random_bytes_streaming_response(self):
-        """A random number of bytes is added to mitigate the BREACH attack."""
+        """
+        测试中间件对HTTP响应进行GZip压缩的功能，特别是在使用流媒体方式发送响应时。该测试确保对带有随机字节的响应进行正确压缩和解压缩，确保中间件正常工作并能够抵御BREACH攻击。
+        """
 
         def get_stream_response(request):
             resp = StreamingHttpResponse(self.sequence)
@@ -1054,7 +1134,7 @@ class ETagGZipMiddlewareTest(SimpleTestCase):
 
     def test_strong_etag_modified(self):
         """
-        GZipMiddleware makes a strong ETag weak.
+        Tests that GZipMiddleware correctly converts a strong ETag to a weak ETag when gzip compression is enabled.
         """
 
         def get_response(req):
@@ -1068,7 +1148,7 @@ class ETagGZipMiddlewareTest(SimpleTestCase):
 
     def test_weak_etag_not_modified(self):
         """
-        GZipMiddleware doesn't modify a weak ETag.
+        Tests that GZipMiddleware preserves a weak ETag header in the response, ensuring it remains unchanged after compression.
         """
 
         def get_response(req):
@@ -1082,7 +1162,7 @@ class ETagGZipMiddlewareTest(SimpleTestCase):
 
     def test_etag_match(self):
         """
-        GZipMiddleware allows 304 Not Modified responses.
+        Tests that the ETag header generated by the GZipMiddleware is properly used to trigger a 304 Not Modified response when the client's request includes an If-None-Match header with the same ETag.
         """
 
         def get_response(req):

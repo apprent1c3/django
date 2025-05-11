@@ -32,9 +32,7 @@ def get_func_args(func):
 
 def get_func_full_args(func):
     """
-    Return a list of (argument name, default value) tuples. If the argument
-    does not have a default value, omit it in the tuple. Arguments such as
-    *args and **kwargs are also included.
+    Return a list of function argument details, including names and default values for all arguments, excluding 'self' for instance methods. Handles variable positional and keyword arguments.
     """
     params = _get_callable_parameters(func)
     args = []

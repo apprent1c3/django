@@ -147,6 +147,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     ops_class = DatabaseOperations
 
     def get_connection_params(self):
+        """
+        Retrieves the connection parameters for the database, validating and processing the settings dictionary to ensure proper configuration. It returns a dictionary of keyword arguments to be used for establishing a database connection, while also storing transaction mode and initialization commands for later use.
+        """
         settings_dict = self.settings_dict
         if not settings_dict["NAME"]:
             raise ImproperlyConfigured(
@@ -197,6 +200,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def get_new_connection(self, conn_params):
+        """
+        Establishes a new database connection based on the provided connection parameters, sets up the connection for use, and applies any defined initialization commands.
+        """
         conn = Database.connect(**conn_params)
         register_functions(conn)
 
@@ -230,6 +236,11 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self.in_atomic_block
 
     def _set_autocommit(self, autocommit):
+        """
+        Sets the autocommit mode for the database connection. 
+
+         :param autocommit: A boolean indicating whether to enable or disable autocommit mode.
+        """
         if autocommit:
             level = None
         else:
@@ -256,11 +267,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     def check_constraints(self, table_names=None):
         """
-        Check each table name in `table_names` for rows with invalid foreign
-        key references. This method is intended to be used in conjunction with
-        `disable_constraint_checking()` and `enable_constraint_checking()`, to
-        determine if rows with invalid references were entered while constraint
-        checks were off.
+        Check each table for rows with invalid foreign key references, allowing validation of data after constraint checks have been temporarily disabled.
         """
         with self.cursor() as cursor:
             if table_names is None:
@@ -315,10 +322,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     def _start_transaction_under_autocommit(self):
         """
-        Start a transaction explicitly in autocommit mode.
-
-        Staying in autocommit mode works around a bug of sqlite3 that breaks
-        savepoints when autocommit is disabled.
+        Start a database transaction while maintaining autocommit mode to avoid compatibility issues with SQLite savepoints.
         """
         if self.transaction_mode is None:
             self.cursor().execute("BEGIN")
@@ -346,6 +350,15 @@ class SQLiteCursorWrapper(Database.Cursor):
     """
 
     def execute(self, query, params=None):
+        """
+        Executes a query, optionally substituting parameters.
+
+        Queries can be executed directly, or with parameters which are substituted into
+        the query string. The parameters can be provided as a mapping or other iterable,
+        and are used to replace placeholders in the query.
+
+        Returns the result of the query execution.
+        """
         if params is None:
             return super().execute(query)
         # Extract names if params is a mapping, i.e. "pyformat" style is used.
@@ -356,6 +369,17 @@ class SQLiteCursorWrapper(Database.Cursor):
     def executemany(self, query, param_list):
         # Extract names if params is a mapping, i.e. "pyformat" style is used.
         # Peek carefully as a generator can be passed instead of a list/tuple.
+        """
+
+        Executes a query with multiple sets of parameters.
+
+        This method takes a query string and a list of parameter sets, converts the query to use named parameters if the first parameter set is a mapping, and then executes the query for each parameter set.
+
+        :param query: The query string to execute.
+        :param param_list: A list of parameter sets to use when executing the query.
+        :return: The result of executing the query for each parameter set.
+
+        """
         peekable, param_list = tee(iter(param_list))
         if (params := next(peekable, None)) and isinstance(params, Mapping):
             param_names = list(params)

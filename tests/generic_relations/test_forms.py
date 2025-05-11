@@ -28,6 +28,15 @@ class TaggedItemForm(forms.ModelForm):
 
 class GenericInlineFormsetTests(TestCase):
     def test_output(self):
+        """
+        Tests the HTML output of the inline formset for TaggedItem instances.
+
+        Verifies that the formset is rendered correctly in various scenarios, including
+        when there are no instances, when there are existing instances, and with different
+        prefixes. Ensures that the rendered HTML matches the expected structure and
+        contents, including labels, input fields, and hidden fields for instance IDs
+        and deletion flags.
+        """
         GenericFormSet = generic_inlineformset_factory(TaggedItem, extra=1)
         formset = GenericFormSet()
         self.assertHTMLEqual(
@@ -134,6 +143,10 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_options(self):
+        """
+        Tests the functionality of TaggedItemFormSet, specifically its initialization, 
+        instance assignment, and filtering capabilities when used with a specific instance and queryset.
+        """
         TaggedItemFormSet = generic_inlineformset_factory(
             TaggedItem,
             can_delete=False,
@@ -186,6 +199,9 @@ class GenericInlineFormsetTests(TestCase):
         self.assertIs(formset.get_queryset().ordered, True)
 
     def test_initial(self):
+        """
+        Tests the initialization of a generic inline formset with initial data, verifying that the initial data is correctly applied to the first form in the formset.
+        """
         quartz = Mineral.objects.create(name="Quartz", hardness=7)
         GenericFormSet = generic_inlineformset_factory(TaggedItem, extra=1)
         ctype = ContentType.objects.get_for_model(quartz)
@@ -207,6 +223,9 @@ class GenericInlineFormsetTests(TestCase):
 
     @isolate_apps("generic_relations")
     def test_incorrect_content_type(self):
+        """
+        Tests that an exception is raised when attempting to create a generic inline formset factory with a model that does not have a foreign key to ContentType.
+        """
         class BadModel(models.Model):
             content_type = models.PositiveIntegerField()
 
@@ -218,6 +237,9 @@ class GenericInlineFormsetTests(TestCase):
             generic_inlineformset_factory(BadModel, TaggedItemForm)
 
     def test_save_new_uses_form_save(self):
+        """
+        Tests that a new instance's form save method is called when using a formset to save a new object, allowing for custom save logic to be executed.
+        """
         class SaveTestForm(forms.ModelForm):
             def save(self, *args, **kwargs):
                 self.instance.saved_by = "custom method"
@@ -239,6 +261,9 @@ class GenericInlineFormsetTests(TestCase):
         self.assertEqual(new_obj.saved_by, "custom method")
 
     def test_save_new_for_proxy(self):
+        """
+        Tests that saving a new formset instance for a proxy model establishes the correct relationship between the saved object and its related instance.
+        """
         Formset = generic_inlineformset_factory(
             ForProxyModelModel, fields="__all__", for_concrete_model=False
         )
@@ -255,6 +280,9 @@ class GenericInlineFormsetTests(TestCase):
         self.assertEqual(new_obj.obj, instance)
 
     def test_save_new_for_concrete(self):
+        """
+        Tests saving a new inline formset to ensure the resulting object is not an instance of the proxy related model when using a for_concrete_model formset.
+        """
         Formset = generic_inlineformset_factory(
             ForProxyModelModel, fields="__all__", for_concrete_model=True
         )
@@ -271,6 +299,9 @@ class GenericInlineFormsetTests(TestCase):
         self.assertNotIsInstance(new_obj.obj, ProxyRelatedModel)
 
     def test_initial_count(self):
+        """
+        Tests that initial form count is calculated correctly in a generic formset.
+        """
         GenericFormSet = generic_inlineformset_factory(TaggedItem)
         data = {
             "form-TOTAL_FORMS": "3",
@@ -284,8 +315,7 @@ class GenericInlineFormsetTests(TestCase):
 
     def test_save_as_new(self):
         """
-        The save_as_new parameter creates new items that are associated with
-        the object.
+        Tests saving a formset as new items associated with an object, verifying that existing items are preserved and new items are correctly saved and associated with the object.
         """
         lion = Animal.objects.create(common_name="Lion", latin_name="Panthera leo")
         yellow = lion.tags.create(tag="yellow")
@@ -310,6 +340,10 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_absolute_max(self):
+        """
+        Tests that the absolute_max parameter limits the number of forms in a formset.\"\"\"
+        \"\"\"Verifies that more forms than the specified maximum are rejected and a corresponding error message is displayed.
+        """
         GenericFormSet = generic_inlineformset_factory(TaggedItem, absolute_max=1500)
         data = {
             "form-TOTAL_FORMS": "1501",
@@ -325,6 +359,9 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_absolute_max_with_max_num(self):
+        """
+        Tests that a formset with a maximum number of forms (max_num) and an absolute maximum number of forms (absolute_max) correctly validates when the total number of forms exceeds max_num but not absolute_max, resulting in an error indicating the maximum allowed number of forms.
+        """
         GenericFormSet = generic_inlineformset_factory(
             TaggedItem,
             max_num=20,
@@ -344,6 +381,13 @@ class GenericInlineFormsetTests(TestCase):
         )
 
     def test_can_delete_extra(self):
+        """
+
+        Tests the ability to add and delete extra forms in a formset.
+
+        Verifies that the formset has the correct number of extra forms and that each form has a delete checkbox.
+
+        """
         GenericFormSet = generic_inlineformset_factory(
             TaggedItem,
             can_delete=True,
@@ -356,6 +400,9 @@ class GenericInlineFormsetTests(TestCase):
         self.assertIn("DELETE", formset.forms[1].fields)
 
     def test_disable_delete_extra(self):
+        """
+        Tests the behavior of a formset when the ability to delete extra forms is disabled, ensuring that delete checkboxes are not rendered.
+        """
         GenericFormSet = generic_inlineformset_factory(
             TaggedItem,
             can_delete=True,

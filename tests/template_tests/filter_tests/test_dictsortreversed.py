@@ -42,8 +42,7 @@ class FunctionTests(SimpleTestCase):
 
     def test_invalid_values(self):
         """
-        If dictsortreversed is passed something other than a list of
-        dictionaries, fail silently.
+        Tests that the dictsortreversed function handles invalid input values, such as non-lists and non-dictionary lists, by returning an empty string without raising an error.
         """
         self.assertEqual(dictsortreversed([1, 2, 3], "age"), "")
         self.assertEqual(dictsortreversed("Hello!", "age"), "")

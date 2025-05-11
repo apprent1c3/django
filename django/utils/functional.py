@@ -27,6 +27,13 @@ class cached_property:
         self.__doc__ = getattr(func, "__doc__")
 
     def __set_name__(self, owner, name):
+        """
+        Sets the name of the cached property and checks for conflicting assignments.
+
+        This method is called when the cached property is assigned to an attribute of a class.
+        It ensures that the same cached property is not assigned to multiple names,
+        preventing potential bugs and inconsistencies in the cached values.
+        """
         if self.name is None:
             self.name = name
             self.func = self.real_func
@@ -38,9 +45,8 @@ class cached_property:
 
     def __get__(self, instance, cls=None):
         """
-        Call the function and put the return value in instance.__dict__ so that
-        subsequent attribute access on the instance returns the cached value
-        instead of calling cached_property.__get__().
+        Decorator to implement a cached property, storing the result of the first call 
+        so subsequent accesses return the cached value instead of recalculating it.
         """
         if instance is None:
             return self
@@ -76,10 +82,7 @@ class Promise:
 
 def lazy(func, *resultclasses):
     """
-    Turn any callable into a lazy evaluated callable. result classes or types
-    is required -- at least one is needed so that the automatic forcing of
-    the lazy evaluation code is triggered. Results are not memoized; the
-    function is evaluated on every access.
+    Turn any callable into a lazy evaluated callable. The result of the callable is only evaluated when a method is called on it, and it is re-evaluated on every access. At least one result class or type must be specified to trigger the lazy evaluation.
     """
 
     class __proxy__(Promise):
@@ -210,15 +213,25 @@ def lazystr(text):
 
 def keep_lazy(*resultclasses):
     """
-    A decorator that allows a function to be called with one or more lazy
-    arguments. If none of the args are lazy, the function is evaluated
-    immediately, otherwise a __proxy__ is returned that will evaluate the
-    function when needed.
+    '''Decorates a function to work seamlessly with lazy arguments, deferring evaluation until the results are actually needed.
+
+    The decorator wraps the target function with a proxy that checks for lazy arguments. If none are found, the function is evaluated immediately, otherwise a proxy object is returned that will evaluate the function when its results are requested.
+
+    Accepts one or more result classes as arguments, specifying the types that the decorated function should return when dealing with lazy arguments.
+
+    Raises a TypeError if no result classes are provided.'''
     """
     if not resultclasses:
         raise TypeError("You must pass at least one argument to keep_lazy().")
 
     def decorator(func):
+        """
+
+        A decorator that conditionally applies lazy loading to a function.
+
+        This decorator wraps the original function and checks its arguments. If any arguments are Promises, it applies lazy loading using the lazy function. Otherwise, it calls the original function directly.
+
+        """
         lazy_func = lazy(func, *resultclasses)
 
         @wraps(func)
@@ -246,6 +259,14 @@ empty = object()
 
 
 def new_method_proxy(func):
+    """
+
+
+    Proxy method that delays setting up an object until it's actually needed.
+
+    Wraps the given function to ensure that the object is set up before delegating to it.
+
+    """
     def inner(self, *args):
         if (_wrapped := self._wrapped) is empty:
             self._setup()
@@ -274,6 +295,9 @@ class LazyObject:
         self._wrapped = empty
 
     def __getattribute__(self, name):
+        """
+        Overrides attribute access to control access to wrapped attributes, hiding them unless they are explicitly marked as accessible.
+        """
         if name == "_wrapped":
             # Avoid recursion when getting wrapped object.
             return super().__getattribute__(name)
@@ -287,6 +311,9 @@ class LazyObject:
     __getattr__ = new_method_proxy(getattr)
 
     def __setattr__(self, name, value):
+        """
+        Overloads attribute setting to redirect assignments to the wrapped object, initializing it if necessary.
+        """
         if name == "_wrapped":
             # Assign to __dict__ to avoid infinite __setattr__ loops.
             self.__dict__["_wrapped"] = value
@@ -296,6 +323,13 @@ class LazyObject:
             setattr(self._wrapped, name, value)
 
     def __delattr__(self, name):
+        """
+        Deletes an attribute from the wrapped object, preventing deletion of the '_wrapped' attribute.
+
+        Raises:
+            TypeError: If the '_wrapped' attribute is attempted to be deleted.
+
+        """
         if name == "_wrapped":
             raise TypeError("can't delete _wrapped.")
         if self._wrapped is empty:
@@ -339,6 +373,17 @@ class LazyObject:
             return copy.copy(self._wrapped)
 
     def __deepcopy__(self, memo):
+        """
+
+        Create a deep copy of the wrapped object.
+
+        This method is used to ensure that the wrapped object is properly duplicated
+        when the main object is copied, rather than just copying a reference to it.
+
+        :param memo: A dictionary to store the results of deep copies for memoization.
+        :return: A deep copy of the wrapped object.
+
+        """
         if self._wrapped is empty:
             # We have to use type(self), not self.__class__, because the
             # latter is proxied.
@@ -406,6 +451,9 @@ class SimpleLazyObject(LazyObject):
     # Return a meaningful representation of the lazy object for debugging
     # without evaluating the wrapped object.
     def __repr__(self):
+        """
+        Returns a string representation of the object, indicating its type and content, either the setup function if the object is empty or its wrapped value otherwise.
+        """
         if self._wrapped is empty:
             repr_attr = self._setupfunc
         else:
@@ -422,6 +470,9 @@ class SimpleLazyObject(LazyObject):
             return copy.copy(self._wrapped)
 
     def __deepcopy__(self, memo):
+        """
+        Implements deep copying for lazy objects, handling empty and non-empty wrapped objects.
+        """
         if self._wrapped is empty:
             # We have to use SimpleLazyObject, not self.__class__, because the
             # latter is proxied.
@@ -439,11 +490,7 @@ class SimpleLazyObject(LazyObject):
 
 def partition(predicate, values):
     """
-    Split the values into two sets, based on the return value of the function
-    (True/False). e.g.:
-
-        >>> partition(lambda x: x > 3, range(5))
-        [0, 1, 2, 3], [4]
+    Splits a collection of values into two sets based on a given predicate function, returning a tuple of two lists: one containing items for which the predicate returns False, and another for which it returns True.
     """
     results = ([], [])
     for item in values:

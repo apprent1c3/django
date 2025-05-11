@@ -21,6 +21,9 @@ class SchemaIndexesTests(TransactionTestCase):
             }
 
     def has_spatial_indexes(self, table):
+        """
+        Checks if the specified database table has support for spatial indexes, returning True if supported and False otherwise, depending on the current database backend.
+        """
         if connection.ops.mysql:
             with connection.cursor() as cursor:
                 return connection.introspection.supports_spatial_index(cursor, table)
@@ -31,6 +34,9 @@ class SchemaIndexesTests(TransactionTestCase):
         return True
 
     def test_using_sql(self):
+        """
+        Tests that a spatial index is correctly created using SQL with the 'USING' clause specific to PostGIS, skipping the test if PostGIS is not available.
+        """
         if not connection.ops.postgis:
             self.skipTest("This is a PostGIS-specific test.")
         index = Index(fields=["point"])
@@ -42,6 +48,12 @@ class SchemaIndexesTests(TransactionTestCase):
 
     @isolate_apps("gis_tests.geoapp")
     def test_namespaced_db_table(self):
+        """
+        Tests the creation of a namespaced database table index in a PostGIS-specific environment.
+
+        Verifies that the generated SQL for creating an index on a model's PointField
+        includes the correct reference to the namespaced table name and the expected index name.
+        """
         if not connection.ops.postgis:
             self.skipTest("PostGIS-specific test.")
 
@@ -65,6 +77,14 @@ class SchemaIndexesTests(TransactionTestCase):
         )
 
     def test_index_name(self):
+        """
+
+        Tests the adding and removing of custom spatial indexes on a model.
+
+        Verifies that a custom index can be successfully created and removed,
+        and that its name and fields are correctly recorded in the database.
+
+        """
         if not self.has_spatial_indexes(City._meta.db_table):
             self.skipTest("Spatial indexes in Meta.indexes are not supported.")
         index_name = "custom_point_index_name"

@@ -20,8 +20,7 @@ class ModWsgiHandlerTestCase(TransactionTestCase):
 
     def test_check_password(self):
         """
-        check_password() returns the correct values as per
-        https://modwsgi.readthedocs.io/en/develop/user-guides/access-control-mechanisms.html#apache-authentication-provider
+        Tests the check_password function to ensure it correctly authenticates users based on the provided credentials and user status, following Apache authentication provider guidelines.
         """
         User.objects.create_user("test", "test@example.com", "test")
 
@@ -41,9 +40,7 @@ class ModWsgiHandlerTestCase(TransactionTestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUser")
     def test_check_password_custom_user(self):
         """
-        check_password() returns the correct values as per
-        https://modwsgi.readthedocs.io/en/develop/user-guides/access-control-mechanisms.html#apache-authentication-provider
-        with a custom user installed.
+        Tests the functionality of the check_password function with a custom user model, verifying that it correctly authenticates users and handles unknown credentials.
         """
         CustomUser._default_manager.create_user(
             "test@example.com", "1990-01-01", "test"
@@ -60,8 +57,11 @@ class ModWsgiHandlerTestCase(TransactionTestCase):
 
     def test_groups_for_user(self):
         """
-        groups_for_user() returns correct values as per
-        https://modwsgi.readthedocs.io/en/develop/user-guides/access-control-mechanisms.html#apache-group-authorisation
+
+        Verifies the correctness of the groups_for_user function, 
+        which returns a list of groups a user is a member of, 
+        according to Apache group authorization specifications.
+
         """
         user1 = User.objects.create_user("test", "test@example.com", "test")
         User.objects.create_user("test1", "test1@example.com", "test1")

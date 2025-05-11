@@ -14,6 +14,9 @@ class Tests(MigrationTestBase):
     )
     def test_migrate(self):
         # Make sure no tables are created
+        """
+        Tests the migration of the IPAddressField, ensuring it is correctly created and deleted during the migration process.
+        """
         self.assertTableNotExists("migrations_ipaddressfield")
         # Run migration
         call_command("migrate", verbosity=0)

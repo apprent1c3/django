@@ -17,7 +17,7 @@ from .uploadhandler import (
 
 def file_upload_view(request):
     """
-    A file upload can be updated into the POST dictionary.
+    Handle file uploads, validating the upload and filename to prevent potential security issues. Returns a successful response if the upload is valid, otherwise returns an error response.
     """
     form_data = request.POST.copy()
     form_data.update(request.FILES)
@@ -35,7 +35,7 @@ def file_upload_view(request):
 
 def file_upload_view_verify(request):
     """
-    Use the sha digest hash to verify the uploaded contents.
+    Verifies the integrity of uploaded files by comparing the SHA-1 hashes of the file contents with the submitted hashes, and saves the uploaded file to a database model if verification succeeds.
     """
     form_data = request.POST.copy()
     form_data.update(request.FILES)
@@ -63,6 +63,15 @@ def file_upload_view_verify(request):
 
 def file_upload_unicode_name(request):
     # Check to see if Unicode name came through properly.
+    """
+    Handles file upload with unicode name in the request.
+
+    Verifies that the uploaded file has a unicode filename, 
+    saves it using the FileModel, and checks if the file was stored successfully.
+
+    Returns an HTTP success response if the file was stored, 
+    otherwise returns an HTTP server error response.
+    """
     if not request.FILES["file_unicode"].name.endswith(UNICODE_FILENAME):
         return HttpResponseServerError()
     # Check to make sure the exotic characters are preserved even
@@ -87,7 +96,9 @@ def file_upload_echo(request):
 
 def file_upload_echo_content(request):
     """
-    Simple view to echo back the content of uploaded files for tests.
+    Simple view to echo back the content of uploaded files for tests. 
+
+    It reads the content of all files provided in the request, decodes them, and returns a JSON response containing the file names as keys and their respective content as values.
     """
 
     def read_and_close(f):
@@ -135,7 +146,7 @@ def file_upload_interrupted_temporary_file(request):
 
 def file_upload_getlist_count(request):
     """
-    Check the .getlist() function to ensure we receive the correct number of files.
+    Returns a JSON response containing the count of files uploaded for each file input field in the request.
     """
     file_counts = {}
 
@@ -151,7 +162,9 @@ def file_upload_errors(request):
 
 def file_upload_filename_case_view(request):
     """
-    Check adding the file to the database will preserve the filename case.
+
+    Checks if uploading a file preserves the original filename case by simulating the upload process and storing the file in the database.
+
     """
     file = request.FILES["file_field"]
     obj = FileModel()
@@ -161,7 +174,7 @@ def file_upload_filename_case_view(request):
 
 def file_upload_content_type_extra(request):
     """
-    Simple view to echo back extra content-type parameters.
+    Echos back extra content-type parameters for uploaded files in the request. Returns a JSON response containing the extra parameters for each uploaded file.
     """
     params = {}
     for file_name, uploadedfile in request.FILES.items():

@@ -14,13 +14,22 @@ def user_passes_test(
     test_func, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME
 ):
     """
-    Decorator for views that checks that the user passes the given test,
-    redirecting to the log-in page if necessary. The test should be a callable
-    that takes the user object and returns True if the user passes.
+    Checks if a user passes a specified test and redirects them to the login page if necessary, allowing for customizable login URLs and redirect fields.
     """
 
     def decorator(view_func):
+        """
+        Decorator that checks if a user passes a test function, redirecting to the login page if the test fails.
+
+        :param view_func: The view function to decorate.
+        :param login_url: The URL to redirect to if the test fails, defaults to settings.LOGIN_URL.
+        :param redirect_field_name: The name of the field to store the redirect URL in the login form.
+        :returns: The decorated view function, or a redirect to the login page if the test fails.
+        """
         def _redirect_to_login(request):
+            """
+            Redirects an unauthenticated user to the login page, preserving the original request path if the login URL is on the same domain.
+            """
             path = request.build_absolute_uri()
             resolved_login_url = resolve_url(login_url or settings.LOGIN_URL)
             # If the login url is the same scheme and net location then just
@@ -38,6 +47,15 @@ def user_passes_test(
         if asyncio.iscoroutinefunction(view_func):
 
             async def _view_wrapper(request, *args, **kwargs):
+                """
+
+                Wraps a view function to require user authentication and test function validation.
+
+                Checks if the user is authenticated and then runs a test function to validate
+                the user's access. If the test passes, the wrapped view function is executed.
+                If the test fails or the user is not authenticated, redirects the user to the login page.
+
+                """
                 auser = await request.auser()
                 if asyncio.iscoroutinefunction(test_func):
                     test_pass = await test_func(auser)
@@ -51,6 +69,9 @@ def user_passes_test(
         else:
 
             def _view_wrapper(request, *args, **kwargs):
+                """
+                Checks user access rights by applying a test function and conditionally redirects to the login page if access is denied, otherwise calls the original view function.
+                """
                 if asyncio.iscoroutinefunction(test_func):
                     test_pass = async_to_sync(test_func)(request.user)
                 else:
@@ -73,8 +94,7 @@ def login_required(
     function=None, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None
 ):
     """
-    Decorator for views that checks that the user is logged in, redirecting
-    to the log-in page if necessary.
+    A decorator that ensures a view function can only be accessed by authenticated users, redirecting unauthenticated users to the login page.
     """
     actual_decorator = user_passes_test(
         lambda u: u.is_authenticated,
@@ -96,10 +116,7 @@ def login_not_required(view_func):
 
 def permission_required(perm, login_url=None, raise_exception=False):
     """
-    Decorator for views that checks whether a user has a particular permission
-    enabled, redirecting to the log-in page if necessary.
-    If the raise_exception parameter is given the PermissionDenied exception
-    is raised.
+    _checks whether a user has a particular permission, redirects to the log-in page if necessary, or raises a PermissionDenied exception if configured to do so_
     """
     if isinstance(perm, str):
         perms = (perm,)
@@ -107,10 +124,20 @@ def permission_required(perm, login_url=None, raise_exception=False):
         perms = perm
 
     def decorator(view_func):
+        """
+        Decorator that checks whether a user has the required permissions to access a view.
+
+        This decorator supports both synchronous and asynchronous view functions, and allows
+        for customizing the behavior when a user lacks the necessary permissions, including
+        raising an exception or redirecting to a specified login URL.
+        """
         if asyncio.iscoroutinefunction(view_func):
 
             async def check_perms(user):
                 # First check if the user has the permission (even anon users).
+                """
+                Checks if a user has the required permissions, returning True if they do and False otherwise. If permission is denied and configured to do so, it raises a PermissionDenied exception.
+                """
                 if await sync_to_async(user.has_perms)(perms):
                     return True
                 # In case the 403 handler should be called raise the exception.
@@ -123,6 +150,9 @@ def permission_required(perm, login_url=None, raise_exception=False):
 
             def check_perms(user):
                 # First check if the user has the permission (even anon users).
+                """
+                Checks if a user has the required permissions, raising a PermissionDenied exception if configured to do so.
+                """
                 if user.has_perms(perms):
                     return True
                 # In case the 403 handler should be called raise the exception.

@@ -29,6 +29,12 @@ class LocalizeNode(Node):
         return "<%s>" % self.__class__.__name__
 
     def render(self, context):
+        """
+        Renders the node list using the given context, temporarily overriding locale formatting settings if necessary.
+
+        :returns: The rendered output string
+        :rtype: str
+        """
         old_setting = context.use_l10n
         context.use_l10n = self.use_l10n
         output = self.nodelist.render(context)
@@ -39,13 +45,7 @@ class LocalizeNode(Node):
 @register.tag("localize")
 def localize_tag(parser, token):
     """
-    Force or prevents localization of values.
-
-    Sample usage::
-
-        {% localize off %}
-            var pi = {{ 3.1415 }};
-        {% endlocalize %}
+    Force or prevent localization of values within a templating context, allowing control over the formatting of numbers and other data types according to locale settings.
     """
     use_l10n = None
     bits = list(token.split_contents())

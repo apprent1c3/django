@@ -44,7 +44,7 @@ class Serializer(base.Serializer):
 
     def start_object(self, obj):
         """
-        Called as each object is handled.
+        Outputs an XML representation for a given object, checking it's a model instance and handling its primary key or natural key.
         """
         if not hasattr(obj, "_meta"):
             raise base.SerializationError(
@@ -69,8 +69,10 @@ class Serializer(base.Serializer):
 
     def handle_field(self, obj, field):
         """
-        Handle each field on an object (except for ForeignKeys and
-        ManyToManyFields).
+
+        Handles the serialization of an object's field to XML, excluding ForeignKeys and ManyToManyFields.
+        Processes the field value and writes it to the XML output, handling JSONField values and potential unserializable content errors.
+
         """
         self.indent(2)
         self.xml.startElement(
@@ -102,8 +104,11 @@ class Serializer(base.Serializer):
 
     def handle_fk_field(self, obj, field):
         """
-        Handle a ForeignKey (they need to be treated slightly
-        differently from regular fields).
+
+        Handles a ForeignKey field by treating it as a relational field and 
+        rendering its value as either a natural key or a numeric key, 
+        depending on the configuration of the use_natural_foreign_keys flag.
+
         """
         self._start_relational_field(field)
         related_att = getattr(obj, field.attname)
@@ -127,9 +132,7 @@ class Serializer(base.Serializer):
 
     def handle_m2m_field(self, obj, field):
         """
-        Handle a ManyToManyField. Related objects are only serialized as
-        references to the object's PK (i.e. the related *data* is not dumped,
-        just the relation).
+        Handle a ManyToManyField relation, serializing related objects as references to their primary keys, either using natural keys or simple primary keys, depending on the field's configuration.
         """
         if field.remote_field.through._meta.auto_created:
             self._start_relational_field(field)
@@ -138,6 +141,9 @@ class Serializer(base.Serializer):
             ):
                 # If the objects in the m2m have a natural key, use it
                 def handle_m2m(value):
+                    """
+                    Writes a many-to-many object relationship to XML, using the object's natural key for identification.
+                    """
                     natural = value.natural_key()
                     # Iterable natural keys are rolled out as subelements
                     self.xml.startElement("object", {})
@@ -196,6 +202,9 @@ class Deserializer(base.Deserializer):
         ignorenonexistent=False,
         **options,
     ):
+        """
+        Initializes a database parser instance, setting up the event stream and database connection for parsing a given XML stream or string, with optional configuration for handling forward references and non-existent database tables.
+        """
         super().__init__(stream_or_string, **options)
         self.handle_forward_references = options.pop("handle_forward_references", False)
         self.event_stream = pulldom.parse(self.stream, self._make_parser())
@@ -207,6 +216,10 @@ class Deserializer(base.Deserializer):
         return DefusedExpatParser()
 
     def __next__(self):
+        """
+        Returns the next object by iterating through an event stream, 
+        expanding the node and parsing its contents when an 'object' element is encountered.
+        """
         for event, node in self.event_stream:
             if event == "START_ELEMENT" and node.nodeName == "object":
                 self.event_stream.expandNode(node)
@@ -214,7 +227,9 @@ class Deserializer(base.Deserializer):
         raise StopIteration
 
     def _handle_object(self, node):
-        """Convert an <object> node to a DeserializedObject."""
+        """
+        Convert an XML `<object>` node into a DeserializedObject instance, parsing and mapping its attributes and fields to a corresponding model instance, handling foreign keys, many-to-many relationships, and deferred fields.
+        """
         # Look up the model using the model loading mechanism. If this fails,
         # bail.
         Model = self._get_model_from_node(node, "model")
@@ -292,7 +307,11 @@ class Deserializer(base.Deserializer):
 
     def _handle_fk_field_node(self, node, field):
         """
-        Handle a <field> node for a ForeignKey
+
+        Handle a node representing a ForeignKey field, parsing its value and returning the corresponding object's primary key.
+
+        Resolves the value to an object reference, either by using the model's natural key or by directly converting the value to the foreign key field's data type.
+
         """
         # Check if there is a child node named 'None', returning None if so.
         if node.getElementsByTagName("None"):
@@ -333,13 +352,16 @@ class Deserializer(base.Deserializer):
 
     def _handle_m2m_field_node(self, node, field):
         """
-        Handle a <field> node for a ManyToManyField.
+        Handle a Many-To-Many field node, extracting and converting related object IDs. If the model has a natural key defined, it uses the natural key to retrieve the IDs; otherwise, it uses the primary key. Returns a list of IDs or defers the field if forward references are enabled and an ObjectDoesNotExist exception occurs.
         """
         model = field.remote_field.model
         default_manager = model._default_manager
         if hasattr(default_manager, "get_by_natural_key"):
 
             def m2m_convert(n):
+                """
+                Retrieves the primary key of an object from an XML node, using either a natural key if available or the object's primary key attribute.
+                """
                 keys = n.getElementsByTagName("natural")
                 if keys:
                     # If there are 'natural' subelements, it must be a natural key
@@ -373,8 +395,7 @@ class Deserializer(base.Deserializer):
 
     def _get_model_from_node(self, node, attr):
         """
-        Look up a model from a <object model=...> or a <field rel=... to=...>
-        node.
+        Retrieves a model instance based on the model identifier specified in the provided node's attribute. The function supports both object and field nodes with 'model' or 'to' attributes, respectively. It raises an error if the attribute is missing or the model identifier is invalid.
         """
         model_identifier = node.getAttribute(attr)
         if not model_identifier:
@@ -392,7 +413,10 @@ class Deserializer(base.Deserializer):
 
 
 def getInnerText(node):
-    """Get all the inner text of a DOM node (recursively)."""
+    """
+    Retrieve the combined text content of a DOM node and its descendants, 
+    including text nodes and CDATA sections, with recursive traversal of child elements.
+    """
     # inspired by https://mail.python.org/pipermail/xml-sig/2005-March/011022.html
     inner_text = []
     for child in node.childNodes:
@@ -439,6 +463,9 @@ class DefusedExpatParser(_ExpatParser):
         raise ExternalReferenceForbidden(context, base, sysid, pubid)
 
     def reset(self):
+        """
+        Resets the parser to its initial state, re-establishing event handlers for doctype declarations, entity declarations, unparsed entity declarations, and external entity references.
+        """
         _ExpatParser.reset(self)
         parser = self._parser
         parser.StartDoctypeDeclHandler = self.start_doctype_decl
@@ -472,6 +499,18 @@ class EntitiesForbidden(DefusedXmlException):
     """Entity definition is forbidden."""
 
     def __init__(self, name, value, base, sysid, pubid, notation_name):
+        """
+
+        Initialize an instance of the class with the given name, value, and other metadata.
+
+        :param name: Name of the instance
+        :param value: Value associated with the instance
+        :param base: Base of the instance
+        :param sysid: System identifier
+        :param pubid: Public identifier
+        :param notation_name: Notation name
+
+        """
         super().__init__()
         self.name = name
         self.value = value
@@ -489,6 +528,9 @@ class ExternalReferenceForbidden(DefusedXmlException):
     """Resolving an external reference is forbidden."""
 
     def __init__(self, context, base, sysid, pubid):
+        """
+        Initializes an instance of the class, setting the context, base, system identifier, and public identifier used for its operation.
+        """
         super().__init__()
         self.context = context
         self.base = base

@@ -16,6 +16,9 @@ from django.test import SimpleTestCase
 class GEOSIOTest(SimpleTestCase):
     def test01_wktreader(self):
         # Creating a WKTReader instance
+        """
+        Tests the functionality of a WKTReader by reading a well-known text representation of a geometric point, both as a byte string and a regular string, and verifying the resulting geometry matches a reference geometry. Additionally, validates that the reader correctly raises TypeErrors when provided with invalid input types.
+        """
         wkt_r = WKTReader()
         wkt = "POINT (5 23)"
 
@@ -35,6 +38,9 @@ class GEOSIOTest(SimpleTestCase):
 
     def test02_wktwriter(self):
         # Creating a WKTWriter instance, testing its ptr property.
+        """
+        Tests the WKTWriter class to ensure it properly writes a geometry object to WKT format and raises a TypeError when assigned an incorrect pointer type.
+        """
         wkt_w = WKTWriter()
         with self.assertRaises(TypeError):
             wkt_w.ptr = WKTReader.ptr_type()
@@ -44,6 +50,14 @@ class GEOSIOTest(SimpleTestCase):
         self.assertEqual(ref_wkt, wkt_w.write(ref).decode())
 
     def test_wktwriter_constructor_arguments(self):
+        """
+
+        Tests the WKTWriter constructor with given arguments.
+
+        Verifies that the WKTWriter instance correctly converts a GEOSGeometry object
+        to a WKT string based on the specified dimension, trimming, and precision settings.
+
+        """
         wkt_w = WKTWriter(dim=3, trim=True, precision=3)
         ref = GEOSGeometry("POINT (5.34562 23 1.5)")
         if geos_version_tuple() > (3, 10):
@@ -54,6 +68,9 @@ class GEOSIOTest(SimpleTestCase):
 
     def test03_wkbreader(self):
         # Creating a WKBReader instance
+        """
+        Tests the WKBReader class for reading WKB (Well-Known Binary) geometry data from various input formats, including bytes, byte strings and hexadecimal strings, and validates the returned geometry against a reference geometry. Also checks that the reader correctly raises an error for invalid input types.
+        """
         wkb_r = WKBReader()
 
         hex_bin = b"000000000140140000000000004037000000000000"
@@ -75,6 +92,14 @@ class GEOSIOTest(SimpleTestCase):
                 wkb_r.read(bad_wkb)
 
     def test04_wkbwriter(self):
+        """
+        Tests the functionality of the WKBWriter class.
+
+        Verifies that the class correctly writes GEOSGeometry objects to Well-Known Binary (WKB) format,
+        handles different byte orders, and supports output dimensions and SRID inclusion.
+
+        Validates error handling for invalid byte orders, output dimensions, and SRID settings.
+        """
         wkb_w = WKBWriter()
 
         # Representations of 'POINT (5 23)' in hex -- one normal and
@@ -132,6 +157,9 @@ class GEOSIOTest(SimpleTestCase):
         self.assertEqual(wkb3d_srid, wkb_w.write(g))
 
     def test_wkt_writer_trim(self):
+        """
+        Tests the WKT writer's trim functionality, verifying that it correctly trims or preserves decimal places when writing geometric data in WKT format.
+        """
         wkt_w = WKTWriter()
         self.assertFalse(wkt_w.trim)
         self.assertEqual(
@@ -153,6 +181,9 @@ class GEOSIOTest(SimpleTestCase):
         )
 
     def test_wkt_writer_precision(self):
+        """
+        Tests the precision attribute of the WKTWriter class, ensuring it correctly rounds coordinates in WKT output when set and resets to default behavior when set to None. Also verifies that invalid precision values raise an AttributeError.
+        """
         wkt_w = WKTWriter()
         self.assertIsNone(wkt_w.precision)
         self.assertEqual(
@@ -181,6 +212,15 @@ class GEOSIOTest(SimpleTestCase):
             wkt_w.precision = "potato"
 
     def test_empty_point_wkb(self):
+        """
+        Tests the serialization of an empty geometric point to WKB (Well-Known Binary) format.
+
+        Verifies that attempting to serialize an empty point raises a ValueError, and that setting the SRID (Spatial Reference System Identifier) affects the output. 
+
+        Also checks that the point can be correctly deserialized back to its original form using the GEOSGeometry class, with and without SRID information.
+
+        Ensures correct WKB output in both big-endian and little-endian byte orders.
+        """
         p = Point(srid=4326)
         wkb_w = WKBWriter()
 
@@ -208,6 +248,9 @@ class GEOSIOTest(SimpleTestCase):
             self.assertEqual(GEOSGeometry(wkb_w.write(p)), p)
 
     def test_empty_polygon_wkb(self):
+        """
+        Tests the serialization of an empty polygon into WKB format, verifying the output for different byte orders and SRID settings.
+        """
         p = Polygon(srid=4326)
         p_no_srid = Polygon()
         wkb_w = WKBWriter()

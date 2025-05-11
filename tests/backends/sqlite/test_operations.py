@@ -55,6 +55,9 @@ class SQLiteOperationsTests(TestCase):
         )
 
     def test_sql_flush_sequences_allow_cascade(self):
+        """
+        Tests the flushing of SQL sequences with cascade allowed, verifying that the correct delete statements are generated and the sequence is reset for the specified tables.
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],

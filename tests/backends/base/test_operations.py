@@ -156,6 +156,11 @@ class SimpleDatabaseOperationTests(SimpleTestCase):
             self.ops.datetime_extract_sql(None, None, None, None)
 
     def test_prepare_join_on_clause(self):
+        """
+        Tests the preparation of a join on clause for a many-to-one relationship, 
+        ensuring the correct SQL expressions are generated for the left and right 
+        hand sides of the join condition.
+        """
         author_table = Author._meta.db_table
         author_id_field = Author._meta.get_field("id")
         book_table = Book._meta.db_table
@@ -188,6 +193,9 @@ class DatabaseOperationTests(TestCase):
 
     @skipIfDBFeature("supports_temporal_subtraction")
     def test_subtract_temporals(self):
+        """
+        Tests that a NotSupportedError is raised when subtracting temporals on a database backend that does not support temporal subtraction.
+        """
         duration_field = DurationField()
         duration_field_internal_type = duration_field.get_internal_type()
         msg = (
@@ -205,6 +213,10 @@ class SqlFlushTests(TransactionTestCase):
         self.assertEqual(connection.ops.sql_flush(no_style(), []), [])
 
     def test_execute_sql_flush_statements(self):
+        """
+        Tests that SQL flush statements can be successfully executed to clear data from the database. 
+        It verifies that data is deleted and sequence counters are reset after flushing, if supported by the database backend.
+        """
         with transaction.atomic():
             author = Author.objects.create(name="George Orwell")
             Book.objects.create(author=author)
@@ -243,6 +255,9 @@ class DeprecationTests(TestCase):
             base_ops.field_cast_sql("integer", "IntegerField")
 
     def test_field_cast_sql_usage_warning(self):
+        """
+        Tests that using `DatabaseOperations.field_cast_sql()` in SQL lookup generation raises a deprecation warning, encouraging replacement with `DatabaseOperations.lookup_cast()`.
+        """
         compiler = Author.objects.all().query.get_compiler(connection.alias)
         msg = (
             "The usage of DatabaseOperations.field_cast_sql() is deprecated. Implement "

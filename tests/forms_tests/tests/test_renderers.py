@@ -22,7 +22,9 @@ class SharedTests:
     expected_widget_dir = "templates"
 
     def test_installed_apps_template_found(self):
-        """Can find a custom template in INSTALLED_APPS."""
+        """
+        Tests that a custom template defined within an INSTALLED_APP can be successfully located and loaded by the application's template renderer.
+        """
         renderer = self.renderer()
         # Found because forms_tests is .
         tpl = renderer.get_template("forms_tests/custom_widget.html")
@@ -77,6 +79,9 @@ class DeprecationTests(SimpleTestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_deprecation_renderers_can_be_instantiated(self):
+        """
+        Tests that deprecated form renderers can be instantiated successfully, ensuring backwards compatibility.
+        """
         tests = [DjangoDivFormRenderer, Jinja2DivFormRenderer]
         for cls in tests:
             with self.subTest(renderer_class=cls):

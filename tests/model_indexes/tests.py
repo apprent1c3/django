@@ -14,6 +14,9 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertEqual(models.Index.suffix, "idx")
 
     def test_repr(self):
+        """
+        Tests the string representation of Index objects with various parameters, including fields, name, condition, include, opclasses, and db_tablespace, to ensure that they are correctly formatted as expected.
+        """
         index = models.Index(fields=["title"])
         named_index = models.Index(fields=["title"], name="title_idx")
         multi_col_index = models.Index(fields=["title", "author"])
@@ -69,6 +72,9 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_eq(self):
+        """
+        Tests the equality of Index instances based on their fields and model assignments.
+        """
         index = models.Index(fields=["title"])
         same_index = models.Index(fields=["title"])
         another_index = models.Index(fields=["title", "author"])
@@ -80,6 +86,9 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertNotEqual(index, another_index)
 
     def test_eq_func(self):
+        """
+        Tests the equality comparison of Index instances, ensuring that equivalent indexes with functions or fields are correctly identified as equal, while differing indexes are recognized as unequal.
+        """
         index = models.Index(Lower("title"), models.F("author"), name="book_func_idx")
         same_index = models.Index(Lower("title"), "author", name="book_func_idx")
         another_index = models.Index(Lower("title"), name="book_func_idx")
@@ -174,6 +183,9 @@ class SimpleIndexesTests(SimpleTestCase):
             models.Index(fields=["field"], include=["other"])
 
     def test_name_auto_generation(self):
+        """
+        Verify that index names are automatically generated based on the model and fields, following database naming conventions and handling special cases such as descending fields and long field names.
+        """
         index = models.Index(fields=["author"])
         index.set_name_with_model(Book)
         self.assertEqual(index.name, "model_index_author_0f5565_idx")
@@ -199,6 +211,14 @@ class SimpleIndexesTests(SimpleTestCase):
 
     @isolate_apps("model_indexes")
     def test_name_auto_generation_with_quoted_db_table(self):
+        """
+
+        Tests the automatic generation of index names when using quoted database table names.
+
+        Verifies that the name of an index created on a model with a quoted table name
+        is generated correctly, taking into account the quoted table name.
+
+        """
         class QuotedDbTable(models.Model):
             name = models.CharField(max_length=50)
 
@@ -210,6 +230,9 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertEqual(index.name, "t_quoted_name_e4ed1b_idx")
 
     def test_deconstruction(self):
+        """
+        Tests the deconstruction of a database index, ensuring it correctly breaks down into its path, arguments, and keyword arguments.
+        """
         index = models.Index(fields=["title"], db_tablespace="idx_tbls")
         index.set_name_with_model(Book)
         path, args, kwargs = index.deconstruct()
@@ -225,6 +248,11 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_deconstruct_with_condition(self):
+        """
+        ```\"\"\"
+        Tests the deconstruction of an Index instance with a condition applied.
+        \"\"\"```
+        """
         index = models.Index(
             name="big_book_index",
             fields=["title"],
@@ -244,6 +272,9 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_deconstruct_with_include(self):
+        """
+        Tests if a model index can be correctly deconstructed when it includes additional fields, verifying the resulting path, arguments, and keyword arguments.
+        """
         index = models.Index(
             name="book_include_idx",
             fields=["title"],
@@ -263,6 +294,9 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_deconstruct_with_expressions(self):
+        """
+        Tests the deconstruction of a database index with functional expressions. Verifies that the deconstructed index's path, arguments, and keyword arguments match the expected values.
+        """
         index = models.Index(Upper("title"), name="book_func_idx")
         path, args, kwargs = index.deconstruct()
         self.assertEqual(path, "django.db.models.Index")
@@ -309,6 +343,14 @@ class SimpleIndexesTests(SimpleTestCase):
 class IndexesTests(TestCase):
     @skipUnlessDBFeature("supports_tablespaces")
     def test_db_tablespace(self):
+        """
+
+         Tests the creation of database indexes with and without specifying a tablespace.
+
+        Verifies that the tablespace is correctly included in the SQL statement
+        when specified, and that the default tablespace from settings is used when not specified.
+
+        """
         editor = connection.schema_editor()
         # Index with db_tablespace attribute.
         for fields in [
@@ -348,6 +390,9 @@ class IndexesTests(TestCase):
     @skipUnlessDBFeature("supports_tablespaces")
     def test_func_with_tablespace(self):
         # Functional index with db_tablespace attribute.
+        """
+        Tests the creation of a database index with a specified tablespace, verifying that the tablespace is correctly included in the generated SQL.
+        """
         index = models.Index(
             Lower("shortcut").desc(),
             name="functional_tbls",

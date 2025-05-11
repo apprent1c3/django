@@ -20,6 +20,9 @@ class ContainsTests(TestCase):
             DumbCategory.objects.contains(object())
 
     def test_values(self):
+        """
+        Tests that QuerySet.contains() cannot be called after.values() or.values_list().
+        """
         msg = "Cannot call QuerySet.contains() after .values() or .values_list()."
         with self.assertRaisesMessage(TypeError, msg):
             DumbCategory.objects.values_list("pk").contains(self.category)
@@ -34,6 +37,10 @@ class ContainsTests(TestCase):
             self.assertIs(DumbCategory.objects.contains(self.category), True)
 
     def test_evaluated_queryset(self):
+        """
+        Tests whether evaluated querysets cache their results, ensuring 
+        that subsequent contains() method calls do not trigger additional database queries.
+        """
         qs = DumbCategory.objects.all()
         proxy_qs = ProxyCategory.objects.all()
         # Evaluate querysets.
@@ -52,6 +59,11 @@ class ContainsTests(TestCase):
             self.assertIs(ProxyCategory.objects.contains(self.category), True)
 
     def test_wrong_model(self):
+        """
+        Tests that a query set does not contain an incorrect model instance, 
+        both before and after the query set has been evaluated, 
+        without triggering additional database queries.
+        """
         qs = DumbCategory.objects.all()
         named_category = NamedCategory(name="category")
         with self.assertNumQueries(0):

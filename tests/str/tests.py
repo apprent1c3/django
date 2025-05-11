@@ -18,8 +18,7 @@ class SimpleTests(TestCase):
     @isolate_apps("str")
     def test_defaults(self):
         """
-        The default implementation of __str__ and __repr__ should return
-        instances of str.
+        Verifies that the default string representations of a model instance are correctly implemented, checking the types and values returned by __str__ and __repr__.
         """
 
         class Default(models.Model):

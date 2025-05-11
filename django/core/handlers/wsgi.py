@@ -27,6 +27,11 @@ class LimitedStream(IOBase):
         self.limit = limit
 
     def read(self, size=-1, /):
+        """
+        Reads data from the current position up to a specified size, returning the data as bytes. 
+        If no size is specified, all remaining data will be read. 
+        Returns an empty bytes object if there is no more data to read.
+        """
         _pos = self._pos
         limit = self.limit
         if _pos >= limit:
@@ -40,6 +45,13 @@ class LimitedStream(IOBase):
         return data
 
     def readline(self, size=-1, /):
+        """
+        Reads a line of data from the current position up to the given size.
+
+        :param size: Maximum number of bytes to read (-1 or None to read until the end of the data)
+        :rtype: bytes
+        :return: The read line of data as bytes, or an empty byte string if no data is available
+        """
         _pos = self._pos
         limit = self.limit
         if _pos >= limit:
@@ -55,6 +67,12 @@ class LimitedStream(IOBase):
 
 class WSGIRequest(HttpRequest):
     def __init__(self, environ):
+        """
+        Initializes a request object with data from the WSGI environment.
+
+        Sets up the request's path, method, and metadata, and prepares the input stream for reading.
+
+        """
         script_name = get_script_name(environ)
         # If PATH_INFO is empty (e.g. accessing the SCRIPT_NAME URL without a
         # trailing slash), operate as if '/' was requested.
@@ -118,6 +136,14 @@ class WSGIHandler(base.BaseHandler):
         self.load_middleware()
 
     def __call__(self, environ, start_response):
+        """
+        Entry point for the WSGI application, responsible for processing incoming requests.
+
+        Invoked for every incoming request, this method creates a request object, 
+        dispatches it to the application for processing, and sends the response 
+        back to the client, handling any relevant signals and setting necessary 
+        response headers along the way.
+        """
         set_script_prefix(get_script_name(environ))
         signals.request_started.send(sender=self.__class__, environ=environ)
         request = self.request_class(environ)
@@ -153,11 +179,8 @@ def get_path_info(environ):
 
 def get_script_name(environ):
     """
-    Return the equivalent of the HTTP request's SCRIPT_NAME environment
-    variable. If Apache mod_rewrite is used, return what would have been
-    the script name prior to any rewriting (so it's the script name as seen
-    from the client's perspective), unless the FORCE_SCRIPT_NAME setting is
-    set (to anything).
+    Returns the equivalent of the HTTP request's SCRIPT_NAME environment variable, 
+    taking into account any Apache mod_rewrite rules and the FORCE_SCRIPT_NAME setting.
     """
     if settings.FORCE_SCRIPT_NAME is not None:
         return settings.FORCE_SCRIPT_NAME

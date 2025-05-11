@@ -65,7 +65,10 @@ class ProxyModelTests(TestCase):
 
     def test_basic_proxy(self):
         """
-        Creating a Person makes them accessible through the MyPerson proxy.
+
+        Verifies that creating a Person instance makes it accessible through the MyPerson proxy, 
+        while also testing the consistency of data between the two and a specific property of the MyPerson instance.
+
         """
         person = Person.objects.create(name="Foo McBar")
         self.assertEqual(len(Person.objects.all()), 1)
@@ -82,7 +85,11 @@ class ProxyModelTests(TestCase):
 
     def test_basic_proxy_reverse(self):
         """
-        A new MyPerson also shows up as a standard Person.
+
+            Verifies that proxy models are correctly reflected in the database,
+            ensuring that instances of a proxy model are also accessible as instances
+            of the original model.
+
         """
         MyPerson.objects.create(name="Bazza del Frob")
         self.assertEqual(len(MyPerson.objects.all()), 1)
@@ -94,7 +101,7 @@ class ProxyModelTests(TestCase):
 
     def test_correct_type_proxy_of_proxy(self):
         """
-        Correct type when querying a proxy of proxy
+        Tests that proxy models return results of the correct type when querying a proxy of a proxy, ensuring proper data retrieval and sorting.
         """
         Person.objects.create(name="Foo McBar")
         MyPerson.objects.create(name="Bazza del Frob")
@@ -104,8 +111,9 @@ class ProxyModelTests(TestCase):
 
     def test_proxy_included_in_ancestors(self):
         """
-        Proxy models are included in the ancestors for a model's DoesNotExist
-        and MultipleObjectsReturned
+        Tests that proxy models are properly included in the ancestors for a model, 
+        ensuring that exceptions such as DoesNotExist and MultipleObjectsReturned are 
+        raised correctly when querying the proxy models.
         """
         Person.objects.create(name="Foo McBar")
         MyPerson.objects.create(name="Bazza del Frob")
@@ -127,6 +135,9 @@ class ProxyModelTests(TestCase):
             StatusPerson.objects.get(id__lt=max_id + 1)
 
     def test_abstract_base_with_model_fields(self):
+        """
+        Tests that defining an abstract base class with model fields is not allowed for proxy models, ensuring that a TypeError is raised with a descriptive error message.
+        """
         msg = (
             "Abstract base class containing model fields not permitted for proxy model "
             "'NoAbstract'."
@@ -138,6 +149,9 @@ class ProxyModelTests(TestCase):
                     proxy = True
 
     def test_too_many_concrete_classes(self):
+        """
+        Tests that a proxy model cannot have more than one non-abstract model base class, ensuring proper inheritance configuration.
+        """
         msg = (
             "Proxy model 'TooManyBases' has more than one non-abstract model base "
             "class."
@@ -149,6 +163,9 @@ class ProxyModelTests(TestCase):
                     proxy = True
 
     def test_no_base_classes(self):
+        """
+        Tests that a ``TypeError`` is raised when creating a proxy model without a non-abstract model base class.
+        """
         msg = "Proxy model 'NoBaseClasses' has no non-abstract model base class."
         with self.assertRaisesMessage(TypeError, msg):
 
@@ -158,6 +175,9 @@ class ProxyModelTests(TestCase):
 
     @isolate_apps("proxy_models")
     def test_new_fields(self):
+        """
+        Tests that a model proxy cannot contain new model fields. Verifies that Django's model check for proxy models correctly identifies and reports the presence of new fields.
+        """
         class NoNewFields(Person):
             newfield = models.BooleanField()
 
@@ -176,6 +196,9 @@ class ProxyModelTests(TestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="proxy_models.AlternateModel")
     @isolate_apps("proxy_models")
     def test_swappable(self):
+        """
+        Tests that using a swappable model as a base class for a proxy model raises an error.
+        """
         class SwappableModel(models.Model):
             class Meta:
                 swappable = "TEST_SWAPPABLE_MODEL"
@@ -191,6 +214,9 @@ class ProxyModelTests(TestCase):
                     proxy = True
 
     def test_myperson_manager(self):
+        """
+        Tests the MyPerson manager to ensure it returns a filtered list of Person objects, excluding 'wilma'. Verifies the consistency of the custom manager and the default manager.
+        """
         Person.objects.create(name="fred")
         Person.objects.create(name="wilma")
         Person.objects.create(name="barney")
@@ -202,6 +228,9 @@ class ProxyModelTests(TestCase):
         self.assertEqual(resp, ["barney", "fred"])
 
     def test_otherperson_manager(self):
+        """
+        Tests the OtherPerson manager to ensure it correctly filters and excludes Person objects based on specific conditions, verifying that the default manager, custom manager, and exclusion manager return the expected sets of people.
+        """
         Person.objects.create(name="fred")
         Person.objects.create(name="wilma")
         Person.objects.create(name="barney")
@@ -222,7 +251,13 @@ class ProxyModelTests(TestCase):
 
     def test_proxy_model_signals(self):
         """
-        Test save signals for proxy models
+
+            Verifies the correctness of save signals for proxy models.
+
+            This test checks that pre and post save signals are emitted correctly 
+            for both regular and proxy models, ensuring that the signals are 
+            triggered as expected when instances of these models are saved.
+
         """
         output = []
 
@@ -269,6 +304,11 @@ class ProxyModelTests(TestCase):
         self.assertIs(ctype(Person), ctype(OtherPerson))
 
     def test_user_proxy_models(self):
+        """
+        Tests the correctness of user proxy models by creating a user, 
+        then verifying that the user's name is correctly retrieved through 
+        the User, UserProxy, UserProxyProxy, and MultiUserProxy models.
+        """
         User.objects.create(name="Bruce")
 
         resp = [u.name for u in User.objects.all()]
@@ -290,7 +330,7 @@ class ProxyModelTests(TestCase):
 
     def test_proxy_delete(self):
         """
-        Proxy objects can be deleted
+        Verifies that proxy objects can be deleted from the database, ensuring the deletion operation successfully removes the object without affecting other related records.
         """
         User.objects.create(name="Bruce")
         u2 = UserProxy.objects.create(name="George")
@@ -304,6 +344,12 @@ class ProxyModelTests(TestCase):
         self.assertEqual(resp, ["Bruce"])
 
     def test_proxy_update(self):
+        """
+
+        Tests that updating a user's information through the UserProxy model 
+        successfully updates the underlying User object in a single database query.
+
+        """
         user = User.objects.create(name="Bruce")
         with self.assertNumQueries(1):
             UserProxy.objects.filter(id=user.id).update(name="George")
@@ -312,8 +358,7 @@ class ProxyModelTests(TestCase):
 
     def test_select_related(self):
         """
-        We can still use `select_related()` to include related models in our
-        querysets.
+        Tests that select_related() can be used to include related models in querysets for both the original State model and the StateProxy model, ensuring correct results are returned.
         """
         country = Country.objects.create(name="Australia")
         State.objects.create(name="New South Wales", country=country)
@@ -332,6 +377,10 @@ class ProxyModelTests(TestCase):
         self.assertEqual(resp.name, "New South Wales")
 
     def test_filter_proxy_relation_reverse(self):
+        """
+        Tests the relationship between trackers, users and proxy users through issues, verifying that 
+        filter operations on the proxy and actual user models produce the expected results.
+        """
         tu = TrackerUser.objects.create(name="Contributor", status="contrib")
         ptu = ProxyTrackerUser.objects.get()
         issue = Issue.objects.create(assignee=tu)
@@ -341,6 +390,13 @@ class ProxyModelTests(TestCase):
         self.assertSequenceEqual(ProxyTrackerUser.objects.filter(issues=issue), [ptu])
 
     def test_proxy_bug(self):
+        """
+        Tests the correct functioning of proxy objects for bugs, including their ability to load related objects and represent themselves correctly. 
+
+        Verifies that ProxyBug, ProxyProxyBug, and ProxyImprovement instances are properly retrieved and their string representations match the expected format. 
+
+        Covers various retrieval scenarios, such as filtering by version and selecting related objects, and ensures the integrity of associated data, including bug assignments and improvement associations.
+        """
         contributor = ProxyTrackerUser.objects.create(
             name="Contributor", status="contrib"
         )
@@ -415,8 +471,10 @@ class ProxyModelAdminTests(TestCase):
 
     def test_cascade_delete_proxy_model_admin_warning(self):
         """
-        Test if admin gives warning about cascade deleting models referenced
-        to concrete model by deleting proxy object.
+
+        Tests whether the admin interface correctly issues a warning when attempting to delete a proxy model instance 
+        that has cascade delete relationships, specifically referencing concrete models and related objects.
+
         """
         tracker_user = TrackerUser.objects.all()[0]
         base_user = BaseUser.objects.all()[0]
@@ -430,8 +488,7 @@ class ProxyModelAdminTests(TestCase):
 
     def test_delete_str_in_model_admin(self):
         """
-        Test if the admin delete page shows the correct string representation
-        for a proxy model.
+        Tests the string representation of a model instance shown on the admin delete page, ensuring it correctly displays for both regular and proxy models.
         """
         user = TrackerUser.objects.get(name="Django Pony")
         proxy = ProxyTrackerUser.objects.get(name="Django Pony")

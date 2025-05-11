@@ -13,6 +13,18 @@ class ModelSignal(Signal):
     """
 
     def _lazy_method(self, method, apps, receiver, sender, **kwargs):
+        """
+        :Adds support for lazy operations on Django models by invoking a given method.
+
+        :This method allows for delayed execution of a model operation, which can be 
+        :particularly useful when dealing with model operations that need to be 
+        :performed in a specific context, such as during model initialization or 
+        :when the models themselves are not yet fully loaded.
+
+        :It takes a method to be invoked, the apps and receiver, the sender which 
+        :can be either a string representing a model or an instance of a model, 
+        :and additional keyword arguments to be passed to the method.
+        """
         from django.db.models.options import Options
 
         # This partial takes a single optional argument named "sender".

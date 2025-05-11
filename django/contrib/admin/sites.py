@@ -63,6 +63,9 @@ class AdminSite:
     final_catch_all_view = True
 
     def __init__(self, name="admin"):
+        """
+        Initializes an instance of a management site, setting up its registry, name, and a set of built-in actions.
+        """
         self._registry = {}  # model_class class -> admin_class instance
         self.name = name
         self._actions = {"delete_selected": actions.delete_selected}
@@ -74,8 +77,14 @@ class AdminSite:
 
     def check(self, app_configs):
         """
-        Run the system checks on all ModelAdmins, except if they aren't
-        customized at all.
+
+        Perform system checks on customized ModelAdmin instances.
+
+        This function iterates over registered ModelAdmins, excluding those that are not customized,
+        and runs checks on the ones that belong to the provided application configurations.
+
+        It returns a list of errors found during the checks.
+
         """
         if app_configs is None:
             app_configs = apps.get_app_configs()
@@ -92,17 +101,8 @@ class AdminSite:
 
     def register(self, model_or_iterable, admin_class=None, **options):
         """
-        Register the given model(s) with the given admin class.
-
-        The model(s) should be Model classes, not instances.
-
-        If an admin class isn't given, use ModelAdmin (the default admin
-        options). If keyword arguments are given -- e.g., list_display --
-        apply them as options to the admin class.
-
-        If a model is already registered, raise AlreadyRegistered.
-
-        If a model is abstract, raise ImproperlyConfigured.
+        Registers one or more models with an admin class, allowing for customization through options. 
+        Raises an exception if a model is abstract or already registered.
         """
         admin_class = admin_class or ModelAdmin
         if isinstance(model_or_iterable, ModelBase):
@@ -143,9 +143,7 @@ class AdminSite:
 
     def unregister(self, model_or_iterable):
         """
-        Unregister the given model(s).
-
-        If a model isn't already registered, raise NotRegistered.
+        Deregisters a model or a collection of models, removing them from the registry. If a model is not currently registered, a NotRegistered exception is raised.
         """
         if isinstance(model_or_iterable, ModelBase):
             model_or_iterable = [model_or_iterable]
@@ -203,29 +201,20 @@ class AdminSite:
 
     def admin_view(self, view, cacheable=False):
         """
-        Decorator to create an admin view attached to this ``AdminSite``. This
-        wraps the view and provides permission checking by calling
-        ``self.has_permission``.
 
-        You'll want to use this from within ``AdminSite.get_urls()``:
+            Decorator to create an admin view with permission checking, attaching it to the current AdminSite.
 
-            class MyAdminSite(AdminSite):
+            The decorated view will check if the user has permission to access it, and if not, it will redirect to the login page.
+            By default, views are marked as non-cacheable; to allow caching, set cacheable=True.
 
-                def get_urls(self):
-                    from django.urls import path
+            Typically used within AdminSite.get_urls() to define custom admin views.
 
-                    urls = super().get_urls()
-                    urls += [
-                        path('my_view/', self.admin_view(some_view))
-                    ]
-                    return urls
-
-        By default, admin_views are marked non-cacheable using the
-        ``never_cache`` decorator. If the view can be safely cached, set
-        cacheable=True.
         """
 
         def inner(request, *args, **kwargs):
+            """
+            Checks if the user has permission to access the view, redirecting to the login page if not, while allowing logout requests to proceed to the admin index page.
+            """
             if not self.has_permission(request):
                 if request.path == reverse("admin:logout", current_app=self.name):
                     index_path = reverse("admin:index", current_app=self.name)
@@ -252,10 +241,22 @@ class AdminSite:
         # Since this module gets imported in the application's root package,
         # it cannot import models from other applications at the module level,
         # and django.contrib.contenttypes.views imports ContentType.
+        """
+        Returns a list of URLs that define the structure of the admin interface, 
+        including URLs for the index page, login, logout, password change, and more.
+        The function also includes URLs for registered models and a catch-all view.
+        """
         from django.contrib.contenttypes import views as contenttype_views
         from django.urls import include, path, re_path
 
         def wrap(view, cacheable=False):
+            """
+            Decorates a view function to enable admin site functionality.
+
+            :param view: The view function to be decorated
+            :param cacheable: Whether the view should be cacheable (default: False)
+            :return: The decorated view function with added admin site attributes
+            """
             def wrapper(*args, **kwargs):
                 return self.admin_view(view, cacheable)(*args, **kwargs)
 
@@ -343,7 +344,7 @@ class AdminSite:
 
     def password_change(self, request, extra_context=None):
         """
-        Handle the "change password" task -- both form display and validation.
+        Handle the \"change password\" task, displaying the form and validating user input, then redirecting to a success page upon completion.
         """
         from django.contrib.admin.forms import AdminPasswordChangeForm
         from django.contrib.auth.views import PasswordChangeView
@@ -361,7 +362,7 @@ class AdminSite:
 
     def password_change_done(self, request, extra_context=None):
         """
-        Display the "success" page after a password change.
+        Displays the success page after a password change operation, providing a customized context and template if needed.
         """
         from django.contrib.auth.views import PasswordChangeDoneView
 
@@ -384,9 +385,11 @@ class AdminSite:
 
     def logout(self, request, extra_context=None):
         """
-        Log out the user for the given HttpRequest.
 
-        This should *not* assume the user is already logged in.
+        Handles user logout for the given HttpRequest, regardless of the user's current login status.
+
+        It provides a flexible logout mechanism by allowing additional context to be passed and customizing the logout template.
+
         """
         from django.contrib.auth.views import LogoutView
 
@@ -408,7 +411,7 @@ class AdminSite:
     @login_not_required
     def login(self, request, extra_context=None):
         """
-        Display the login form for the given HttpRequest.
+        Display the login form for the given HttpRequest, handling both GET and POST requests, and redirecting authorized users to the admin index page.
         """
         if request.method == "GET" and self.has_permission(request):
             # Already logged-in, redirect to admin index
@@ -448,6 +451,14 @@ class AdminSite:
 
     @no_append_slash
     def catch_all_view(self, request, url):
+        """
+        Redirects to a URL with a trailing slash if necessary, otherwise raises a 404 error.
+
+        This view is used to handle cases where the APPEND_SLASH setting is enabled, 
+        and the requested URL does not have a trailing slash. It checks if the URL 
+        with a trailing slash is resolvable, and if so, redirects to it. If not, 
+        it raises a 404 error.
+        """
         if settings.APPEND_SLASH and not url.endswith("/"):
             urlconf = getattr(request, "urlconf", None)
             try:
@@ -463,8 +474,7 @@ class AdminSite:
 
     def _build_app_dict(self, request, label=None):
         """
-        Build the app dictionary. The optional `label` parameter filters models
-        of a specific app.
+        Builds a dictionary representing the application structure, populated with model information and permissions for the given request. The optional `label` parameter filters the models to only include those from a specific application.
         """
         app_dict = {}
 
@@ -535,8 +545,12 @@ class AdminSite:
 
     def get_app_list(self, request, app_label=None):
         """
-        Return a sorted list of all the installed apps that have been
-        registered in this site.
+
+        Return a sorted list of all the installed apps that have been registered in this site.
+
+        The list is ordered alphabetically by app name, with each app's models also sorted alphabetically.
+        If an app_label is provided, only the specified app is returned, otherwise all registered apps are included.
+
         """
         app_dict = self._build_app_dict(request, app_label)
 
@@ -551,8 +565,9 @@ class AdminSite:
 
     def index(self, request, extra_context=None):
         """
-        Display the main admin index page, which lists all of the installed
-        apps that have been registered in this site.
+
+            Displays the main admin index page, listing all installed and registered apps.
+
         """
         app_list = self.get_app_list(request)
 
@@ -571,6 +586,18 @@ class AdminSite:
         )
 
     def app_index(self, request, app_label, extra_context=None):
+        """
+        Renders the administration index page for the specified application.
+
+        This view generates a list of models available for the application and renders an HTML template to display them,
+        optionally including additional context provided by the caller.
+
+        Raises:
+            Http404: If the requested admin page does not exist.
+
+        Returns:
+            TemplateResponse: The rendered administration index page.
+        """
         app_list = self.get_app_list(request, app_label)
 
         if not app_list:

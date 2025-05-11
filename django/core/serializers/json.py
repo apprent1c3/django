@@ -21,6 +21,12 @@ class Serializer(PythonSerializer):
     internal_use_only = False
 
     def _init_options(self):
+        """
+        Initialize JSON serialization options.
+
+        Sets up the JSON kwargs by copying the instance options, removing unnecessary keys,
+        and configuring pretty-printing and encoding settings.
+        """
         self._current = None
         self.json_kwargs = self.options.copy()
         self.json_kwargs.pop("stream", None)
@@ -36,6 +42,9 @@ class Serializer(PythonSerializer):
         self.stream.write("[")
 
     def end_serialization(self):
+        """
+        Completion of serialization process, appending the final closing bracket to the output stream and adding newlines if indentation is enabled.
+        """
         if self.options.get("indent"):
             self.stream.write("\n")
         self.stream.write("]")
@@ -44,6 +53,14 @@ class Serializer(PythonSerializer):
 
     def end_object(self, obj):
         # self._current has the field data
+        """
+
+        Finish writing a JSON object to the output stream.
+
+        This method is responsible for properly closing a JSON object and preparing
+        the stream for the next object, including adding commas and whitespace as needed.
+
+        """
         indent = self.options.get("indent")
         if not self.first:
             self.stream.write(",")
@@ -60,7 +77,16 @@ class Serializer(PythonSerializer):
 
 
 def Deserializer(stream_or_string, **options):
-    """Deserialize a stream or string of JSON data."""
+    """
+    Deserialize a stream or string of JSON data into Python objects.
+
+    This function takes a stream or string of JSON data and converts it into a series of Python objects.
+    It accepts additional options to customize the deserialization process.
+
+    :raises DeserializationError: If an error occurs during deserialization.
+    :yield: The deserialized Python objects.
+
+    """
     if not isinstance(stream_or_string, (bytes, str)):
         stream_or_string = stream_or_string.read()
     if isinstance(stream_or_string, bytes):
@@ -82,6 +108,12 @@ class DjangoJSONEncoder(json.JSONEncoder):
 
     def default(self, o):
         # See "Date Time String Format" in the ECMA-262 specification.
+        """
+        Converts Python datetime and other special objects to a JSON-compatible string format.
+
+        Handles datetime.datetime, datetime.date, datetime.time, datetime.timedelta, decimal.Decimal, uuid.UUID, and Promise objects.
+        Returns a string representation of the object that can be serialized to JSON, or delegates to the superclass for other types.
+        """
         if isinstance(o, datetime.datetime):
             r = o.isoformat()
             if o.microsecond:

@@ -33,8 +33,13 @@ class CommonMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         """
-        Check for denied User-Agents and rewrite the URL based on
-        settings.APPEND_SLASH and settings.PREPEND_WWW
+
+        Processes an incoming HTTP request by checking if the User-Agent is allowed and 
+        rewriting the URL according to the application settings, specifically 
+        APPEND_SLASH and PREPEND_WWW. If the User-Agent is forbidden, it raises a 
+        PermissionDenied exception. If necessary, it redirects the request to the 
+        rewritten URL.
+
         """
 
         # Check for denied User-Agents
@@ -61,8 +66,9 @@ class CommonMiddleware(MiddlewareMixin):
 
     def should_redirect_with_slash(self, request):
         """
-        Return True if settings.APPEND_SLASH is True and appending a slash to
-        the request path turns an invalid path into a valid one.
+        Determines whether a URL redirect should be performed by appending a slash to the request path. 
+
+        This decision is based on the APPEND_SLASH setting and whether the resulting path matches a valid URL pattern.
         """
         if settings.APPEND_SLASH and not request.path_info.endswith("/"):
             urlconf = getattr(request, "urlconf", None)
@@ -75,10 +81,12 @@ class CommonMiddleware(MiddlewareMixin):
 
     def get_full_path_with_slash(self, request):
         """
+
         Return the full path of the request with a trailing slash appended.
 
-        Raise a RuntimeError if settings.DEBUG is True and request.method is
-        DELETE, POST, PUT, or PATCH.
+        In debug mode, raises an error for non-GET requests if the URL does not end with a slash, 
+        to prevent data loss due to Django's redirects.
+
         """
         new_path = request.get_full_path(force_append_slash=True)
         # Prevent construction of scheme relative urls.
@@ -99,8 +107,13 @@ class CommonMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         """
-        When the status code of the response is 404, it may redirect to a path
-        with an appended slash if should_redirect_with_slash() returns True.
+
+        Handle HTTP response processing.
+
+        Checks for 404 status code and redirects to a path with an appended slash if 
+        necessary. Also, sets the Content-Length header if it's missing for non-streaming 
+        responses. Returns the processed response object.
+
         """
         # If the given URL is "Not Found", then check if we should redirect to
         # a path with a slash appended.
@@ -117,7 +130,11 @@ class CommonMiddleware(MiddlewareMixin):
 
 class BrokenLinkEmailsMiddleware(MiddlewareMixin):
     def process_response(self, request, response):
-        """Send broken link emails for relevant 404 NOT FOUND responses."""
+        """
+        Handles a response from the server, sending an email notification to managers 
+        when a 404 NOT FOUND response is encountered in a non-debug environment, 
+        providing details of the request that triggered the error.
+        """
         if response.status_code == 404 and not settings.DEBUG:
             domain = request.get_host()
             path = request.get_full_path()
@@ -152,9 +169,11 @@ class BrokenLinkEmailsMiddleware(MiddlewareMixin):
 
     def is_ignorable_request(self, request, uri, domain, referer):
         """
-        Return True if the given request *shouldn't* notify the site managers
-        according to project settings or in situations outlined by the inline
-        comments.
+
+        Determine whether a given HTTP request can be ignored and should not trigger notifications for site managers.
+
+        This function considers project settings and various conditions such as the referer URL, query parameters, and internal requests to make this determination.
+
         """
         # The referer is empty.
         if not referer:

@@ -12,6 +12,9 @@ class TestDbType(SimpleTestCase):
 
 class DescriptorClassTest(SimpleTestCase):
     def test_descriptor_class(self):
+        """
+        Tests the behavior of a custom descriptor class, verifying that it correctly tracks the number of times a field is set and retrieved.
+        """
         class CustomDescriptorModel(models.Model):
             name = CustomDescriptorField(max_length=32)
 

@@ -17,6 +17,11 @@ from .models import SimpleModel
 class CacheTest(SimpleTestCase):
     def test_caches_local(self):
         @async_to_sync
+        """
+
+        Verifies that caches with the default alias are cached locally, returning the same instance across multiple requests.
+
+        """
         async def async_cache():
             return caches[DEFAULT_CACHE_ALIAS]
 
@@ -76,6 +81,11 @@ class AsyncView(View):
 
 class ViewTests(SimpleTestCase):
     def test_views_are_correctly_marked(self):
+        """
+        -tests if views are correctly marked as asynchronous or synchronous. 
+
+        It checks the `view_is_async` attribute and the nature of the view's callback function for both synchronous and asynchronous view classes.
+        """
         tests = [
             (SyncView, False),
             (AsyncView, True),
@@ -87,6 +97,9 @@ class ViewTests(SimpleTestCase):
                 self.assertIs(iscoroutinefunction(callback), is_async)
 
     def test_mixed_views_raise_error(self):
+        """
+        Tests that defining a view class with a mix of synchronous and asynchronous HTTP handlers raises an ImproperlyConfigured error, ensuring that all handlers within a view must be either synchronous or asynchronous.
+        """
         class MixedView(View):
             def get(self, request, *args, **kwargs):
                 return HttpResponse("Hello (mixed) world!")
@@ -102,6 +115,9 @@ class ViewTests(SimpleTestCase):
             MixedView.as_view()
 
     def test_options_handler_responds_correctly(self):
+        """
+        Tests that views respond correctly to HTTP OPTIONS requests, verifying that synchronous and asynchronous views return the expected type of response.
+        """
         tests = [
             (SyncView, False),
             (AsyncView, True),
@@ -120,6 +136,9 @@ class ViewTests(SimpleTestCase):
                 self.assertIsInstance(response, HttpResponse)
 
     def test_http_method_not_allowed_responds_correctly(self):
+        """
+        Tests that views correctly respond to HTTP method not allowed requests, verifying that both synchronous and asynchronous views return the expected HttpResponseNotAllowed response, with the async views being properly run as coroutines.
+        """
         request_factory = RequestFactory()
         tests = [
             (SyncView, False),

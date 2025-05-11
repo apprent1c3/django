@@ -25,7 +25,7 @@ from .models import (
 class InlineFormsetTests(TestCase):
     def test_formset_over_to_field(self):
         """
-        A formset over a ForeignKey with a to_field can be saved.
+        Tests that a formset over a ForeignKey with a to_field can be saved, including adding, updating, and validating formset instances.
         """
         Form = modelform_factory(User, fields="__all__")
         FormSet = inlineformset_factory(User, UserSite, fields="__all__")
@@ -103,7 +103,7 @@ class InlineFormsetTests(TestCase):
 
     def test_formset_over_inherited_model(self):
         """
-        A formset over a ForeignKey with a to_field can be saved.
+        Tests that a formset over a model inherited from another with a ForeignKey and a specified to_field can be successfully saved to the database. Verifies that form data is correctly validated and saved for various scenarios, including creating new instances, updating existing instances, and adding multiple related objects.
         """
         Form = modelform_factory(Restaurant, fields="__all__")
         FormSet = inlineformset_factory(Restaurant, Manager, fields="__all__")
@@ -172,8 +172,7 @@ class InlineFormsetTests(TestCase):
 
     def test_inline_model_with_to_field(self):
         """
-        #13794 --- An inline model with a to_field of a formset with instance
-        has working relations.
+        Verifies that an inline model with a to_field in a formset functions correctly when bound to an instance, ensuring working relationships between the models.
         """
         FormSet = inlineformset_factory(User, UserSite, exclude=("is_superuser",))
 
@@ -185,7 +184,9 @@ class InlineFormsetTests(TestCase):
         self.assertEqual(formset[0].instance.user_id, "guido")
 
     def test_inline_model_with_primary_to_field(self):
-        """An inline model with a OneToOneField with to_field & primary key."""
+        """
+        Tests that an inline model using a OneToOneField with a specified to_field and primary key correctly populates the formset with the associated instance data.
+        """
         FormSet = inlineformset_factory(
             User, UserPreferences, exclude=("is_superuser",)
         )
@@ -196,8 +197,7 @@ class InlineFormsetTests(TestCase):
 
     def test_inline_model_with_to_field_to_rel(self):
         """
-        #13794 --- An inline model with a to_field to a related field of a
-        formset with instance has working relations.
+        Tests that an inline model with a to_field to a related field of a formset instance has working relations.
         """
         FormSet = inlineformset_factory(UserProfile, ProfileNetwork, exclude=[])
 
@@ -212,7 +212,9 @@ class InlineFormsetTests(TestCase):
         self.assertEqual(formset[0].instance.profile_id, 1)
 
     def test_formset_with_none_instance(self):
-        "A formset with instance=None can be created. Regression for #11872"
+        """
+        Tests that a formset can be created with instance=None, addressing a regression issue.
+        """
         Form = modelform_factory(User, fields="__all__")
         FormSet = inlineformset_factory(User, UserSite, fields="__all__")
 
@@ -223,8 +225,8 @@ class InlineFormsetTests(TestCase):
 
     def test_empty_fields_on_modelformset(self):
         """
-        No fields passed to modelformset_factory() should result in no fields
-        on returned forms except for the id (#14119).
+        Tests that an empty fields argument to modelformset_factory results in a formset 
+        with forms containing only the 'id' field.
         """
         UserFormSet = modelformset_factory(User, fields=())
         formset = UserFormSet()
@@ -234,9 +236,7 @@ class InlineFormsetTests(TestCase):
 
     def test_save_as_new_with_new_inlines(self):
         """
-        Existing and new inlines are saved with save_as_new.
-
-        Regression for #14938.
+        Tests the behavior of saving new and existing inlines with the save_as_new option, ensuring that both are properly saved and associated with the correct instance. This test case is a regression for issue #14938, verifying that inlines are correctly handled when saving as new.
         """
         efnet = Network.objects.create(name="EFNet")
         host1 = Host.objects.create(hostname="irc.he.net", network=efnet)
@@ -270,6 +270,9 @@ class InlineFormsetTests(TestCase):
         )
 
     def test_initial_data(self):
+        """
+        Verifies the initial data for an inline formset of UserSite instances associated with a User instance, ensuring that existing data is correctly retrieved and initial data is properly set for extra forms.
+        """
         user = User.objects.create(username="bibi", serial=1)
         UserSite.objects.create(user=user, data=7)
         FormSet = inlineformset_factory(User, UserSite, extra=2, fields="__all__")
@@ -283,7 +286,8 @@ class InlineFormsetTests(TestCase):
 class FormsetTests(TestCase):
     def test_error_class(self):
         """
-        Test the type of Formset and Form error attributes
+        Checks the type of error attributes in a formset and its forms, 
+        ensuring they are correctly classified as lists, dictionaries, or error lists.
         """
         Formset = modelformset_factory(User, fields="__all__")
         data = {
@@ -307,6 +311,12 @@ class FormsetTests(TestCase):
             self.assertIsInstance(form.non_field_errors(), ErrorList)
 
     def test_initial_data(self):
+        """
+        Tests that initial data is correctly set for a formset with extra forms.
+
+        Verifies that the initial data for the first form is taken from an existing object,
+        and that initial data for extra forms is taken from the provided initial data list.
+        """
         User.objects.create(username="bibi", serial=1)
         Formset = modelformset_factory(User, fields="__all__", extra=2)
         formset = Formset(initial=[{"username": "apollo11"}, {"username": "apollo12"}])
@@ -315,6 +325,9 @@ class FormsetTests(TestCase):
         self.assertIn('value="apollo12"', formset.extra_forms[1].as_p())
 
     def test_extraneous_query_is_not_run(self):
+        """
+        Tests that an extraneous database query is not executed when saving a formset with no existing instances.
+        """
         Formset = modelformset_factory(Network, fields="__all__")
         data = {
             "test-TOTAL_FORMS": "1",
@@ -359,6 +372,9 @@ class FormfieldCallbackTests(TestCase):
     """
 
     def test_inlineformset_factory_default(self):
+        """
+        Tests that the inline formset factory correctly creates forms with custom widgets and proper field localization settings for UserSite model.
+        """
         Formset = inlineformset_factory(
             User, UserSite, form=UserSiteForm, fields="__all__"
         )
@@ -369,6 +385,12 @@ class FormfieldCallbackTests(TestCase):
         self.assertTrue(form.fields["data"].localize)
 
     def test_modelformset_factory_default(self):
+        """
+        Tests the default behavior of the model formset factory for UserSite.
+
+        Verifies that the correct widgets are used for the 'id' and 'data' fields, and that
+        localization is correctly applied to the 'data' field.
+        """
         Formset = modelformset_factory(UserSite, form=UserSiteForm)
         form = Formset().forms[0]
         self.assertIsInstance(form["id"].field.widget, CustomWidget)
@@ -474,7 +496,9 @@ class FormfieldShouldDeleteFormTests(TestCase):
         self.assertEqual(len(formset.save()), 4)
 
     def test_no_delete(self):
-        """Verify base formset doesn't modify database"""
+        """
+        Tests that the base formset does not delete any existing records in the database.
+        """
         # reload database
         self.test_init_database()
 
@@ -493,7 +517,9 @@ class FormfieldShouldDeleteFormTests(TestCase):
         self.assertEqual(len(User.objects.all()), 4)
 
     def test_all_delete(self):
-        """Verify base formset honors DELETE field"""
+        """
+        Verifies that a formset correctly handles deletion of all instances when the DELETE field is present, ensuring that all objects are removed from the database.
+        """
         # reload database
         self.test_init_database()
 
@@ -510,7 +536,9 @@ class FormfieldShouldDeleteFormTests(TestCase):
         self.assertEqual(len(User.objects.all()), 0)
 
     def test_custom_delete(self):
-        """Verify DeleteFormset ignores DELETE field and uses form method"""
+        """
+        Tests that the DeleteFormset correctly ignores the DELETE field and uses the form's method to delete objects, ensuring that only the intended objects are removed from the database.
+        """
         # reload database
         self.test_init_database()
 
@@ -539,6 +567,10 @@ class FormfieldShouldDeleteFormTests(TestCase):
 
 class RedeleteTests(TestCase):
     def test_resubmit(self):
+        """
+        Tests that the formset correctly handles resubmitting a form with a deleted object, 
+        ensuring that the deleted object is not recreated and the database state remains consistent.
+        """
         u = User.objects.create(username="foo", serial=1)
         us = UserSite.objects.create(user=u, data=7)
         formset_cls = inlineformset_factory(User, UserSite, fields="__all__")
@@ -565,6 +597,9 @@ class RedeleteTests(TestCase):
         self.assertEqual(UserSite.objects.count(), 0)
 
     def test_delete_already_deleted(self):
+        """
+        Tests that deleting a UserSite instance via an inline formset works correctly even if the instance has already been deleted from the database.
+        """
         u = User.objects.create(username="foo", serial=1)
         us = UserSite.objects.create(user=u, data=7)
         formset_cls = inlineformset_factory(User, UserSite, fields="__all__")

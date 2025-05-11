@@ -30,6 +30,11 @@ class DeferRegressionTest(TestCase):
         # Deferred fields should really be deferred and not accidentally use
         # the field's default value just because they aren't passed to __init__
 
+        """
+        Test basic ORM functionality, including query optimization, deferred and only loading, 
+        select related, annotations, and content type caching. Verifies that queries are executed 
+        as expected and that results are correctly retrieved and loaded from the database.
+        """
         Item.objects.create(name="first", value=42)
         obj = Item.objects.only("name", "other_value").get(name="first")
         # Accessing "name" doesn't trigger a new database query. Accessing
@@ -114,6 +119,13 @@ class DeferRegressionTest(TestCase):
         )
 
     def test_ticket_23270(self):
+        """
+
+        Tests the lazy loading and deferred fields functionality for a derived model
+        in a select_related query, ensuring only one database query is executed and
+        that the desired fields are loaded and deferred as expected.
+
+        """
         d = Derived.objects.create(text="foo", other_text="bar")
         with self.assertNumQueries(1):
             obj = Base.objects.select_related("derived").defer("text")[0]
@@ -124,6 +136,9 @@ class DeferRegressionTest(TestCase):
 
     def test_only_and_defer_usage_on_proxy_models(self):
         # Regression for #15790 - only() broken for proxy models
+        """
+        Tests the usage of :meth:`~django.db.models.query.QuerySet.only` and :meth:`~django.db.models.query.QuerySet.defer` methods on proxy models, ensuring that they return the correct results.
+        """
         proxy = Proxy.objects.create(name="proxy", value=42)
 
         msg = "QuerySet.only() return bogus results with proxy models"
@@ -146,6 +161,9 @@ class DeferRegressionTest(TestCase):
     def test_reverse_one_to_one_relations(self):
         # Refs #14694. Test reverse relations which are known unique (reverse
         # side has o2ofield or unique FK) - the o2o case
+        """
+        Tests the behavior of Django ORM's select_related, defer, and only methods when working with one-to-one relationships, ensuring they fetch related objects correctly and optimize database queries.
+        """
         item = Item.objects.create(name="first", value=42)
         o2o = OneToOneItem.objects.create(item=item, name="second")
         self.assertEqual(len(Item.objects.defer("one_to_one_item__name")), 1)
@@ -190,6 +208,9 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(i.value, 42)
 
     def test_defer_with_select_related(self):
+        """
+        Provide a test case for deferred fields in conjunction with select_related to ensure correct behavior when retrieving and updating related objects.
+        """
         item1 = Item.objects.create(name="first", value=47)
         item2 = Item.objects.create(name="second", value=42)
         simple = SimpleItem.objects.create(name="simple", value="23")
@@ -208,6 +229,9 @@ class DeferRegressionTest(TestCase):
 
     def test_proxy_model_defer_with_select_related(self):
         # Regression for #22050
+        """
+        Tests that a proxy model with select_related defer loads the related model fields correctly.
+        """
         item = Item.objects.create(name="first", value=47)
         RelatedItem.objects.create(item=item)
         # Defer fields with only()
@@ -219,6 +243,9 @@ class DeferRegressionTest(TestCase):
 
     def test_only_with_select_related(self):
         # Test for #17485.
+        """
+        Verifies that the only() and select_related() query methods can be used together to fetch specific fields from related models, while also ensuring related objects are prefetched to prevent additional database queries.
+        """
         item = SimpleItem.objects.create(name="first", value=47)
         feature = Feature.objects.create(item=item)
         SpecialFeature.objects.create(feature=feature)
@@ -232,6 +259,9 @@ class DeferRegressionTest(TestCase):
         self.assertEqual(len(qs), 1)
 
     def test_defer_annotate_select_related(self):
+        """
+        Tests that the `annotate`, `select_related`, `only`, and `defer` methods work correctly together on the Request model's QuerySet, ensuring they return instances as expected and allowing for efficient querying with aggregated annotations and selective field retrieval.
+        """
         location = Location.objects.create()
         Request.objects.create(location=location)
         self.assertIsInstance(
@@ -260,6 +290,11 @@ class DeferRegressionTest(TestCase):
         )
 
     def test_common_model_different_mask(self):
+        """
+        Tests that using select_related and defer together can load related models with some fields deferred, 
+        verifying that deferred fields are loaded when accessed and only one query is made for loading the related models 
+        and additional queries are made when accessing the deferred fields.
+        """
         child = Child.objects.create(name="Child", value=42)
         second_child = Child.objects.create(name="Second", value=64)
         Leaf.objects.create(child=child, second_child=second_child)
@@ -294,6 +329,9 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(Request.objects.only("items").get(), request)
 
     def test_defer_reverse_many_to_many_ignored(self):
+        """
+        Tests that deferring the 'request' field on an Item object with a many-to-many relationship does not cause additional database queries when retrieving the item.
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         item = Item.objects.create(value=1)
@@ -302,6 +340,11 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(Item.objects.defer("request").get(), item)
 
     def test_only_reverse_many_to_many_ignored(self):
+        """
+        Tests that the 'only' method ignores many-to-many fields when retrieving an object, 
+        ensuring a single database query is performed.\"\"\"
+        ```
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         item = Item.objects.create(value=1)
@@ -310,6 +353,10 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(Item.objects.only("request").get(), item)
 
     def test_self_referential_one_to_one(self):
+        """
+        Tests a self-referential one-to-one relationship between items, 
+        ensuring efficient database queries when accessing related attributes.
+        """
         first = Item.objects.create(name="first", value=1)
         second = Item.objects.create(name="second", value=2, source=first)
         with self.assertNumQueries(1):
@@ -339,6 +386,12 @@ class DeferDeletionSignalsTests(TestCase):
         cls.item_pk = Item.objects.create(value=1).pk
 
     def setUp(self):
+        """
+
+        Sets up event handlers for model deletion events.
+        Connects pre_delete and post_delete signals to the respective receivers for all senders and schedules their disconnection after test completion.
+
+        """
         self.pre_delete_senders = []
         self.post_delete_senders = []
         for sender in self.senders:

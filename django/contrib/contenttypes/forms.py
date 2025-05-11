@@ -19,6 +19,14 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
         queryset=None,
         **kwargs,
     ):
+        """
+        Initializes the form for generic inline editing of a related model instance.
+
+        This constructor sets up the form with a queryset and optional instance, data, files, and prefix. 
+        It handles the case where the related instance is new or existing, and optionally saves the 
+        related instance as new. The form's queryset is filtered by the content type and primary key 
+        of the related instance, if one is provided.
+        """
         opts = self.model._meta
         self.instance = instance
         self.rel_name = (
@@ -95,10 +103,29 @@ def generic_inlineformset_factory(
     can_delete_extra=True,
 ):
     """
-    Return a ``GenericInlineFormSet`` for the given kwargs.
+    Creates a GenericInlineFormSet class for the given model, 
+    enabling the creation of forms for generic foreign keys.
 
-    You must provide ``ct_field`` and ``fk_field`` if they are different from
-    the defaults ``content_type`` and ``object_id`` respectively.
+    :param model: The model that the formset will be for.
+    :param form: The form class to use (defaults to ModelForm).
+    :param formset: The formset class to use (defaults to BaseGenericInlineFormSet).
+    :param ct_field: The field on the model that represents the content type.
+    :param fk_field: The field on the model that represents the object ID.
+    :param fields: A list of field names to include in the form. Defaults to None.
+    :param exclude: A list of field names to exclude from the form. Defaults to None.
+    :param extra: The number of extra forms to display. Defaults to 3.
+    :param can_order: Whether the forms can be ordered. Defaults to False.
+    :param can_delete: Whether the forms can be deleted. Defaults to True.
+    :param max_num: The maximum number of forms. Defaults to None.
+    :param formfield_callback: A callback function to modify form fields. Defaults to None.
+    :param validate_max: Whether to validate the maximum number of forms. Defaults to False.
+    :param for_concrete_model: Whether the formset is for a concrete model. Defaults to True.
+    :param min_num: The minimum number of forms. Defaults to None.
+    :param validate_min: Whether to validate the minimum number of forms. Defaults to False.
+    :param absolute_max: The absolute maximum number of forms. Defaults to None.
+    :param can_delete_extra: Whether extra forms can be deleted. Defaults to True.
+
+    :return: A GenericInlineFormSet class for the given model and options.
     """
     opts = model._meta
     # if there is no field called `ct_field` let the exception propagate

@@ -18,7 +18,7 @@ class ListIndexTests(SimpleTestCase):
     @setup({"list-index02": "{{ var.5 }}"})
     def test_list_index02(self):
         """
-        Fail silently when the list index is out of range.
+        Tests the behavior of the templating engine when a list index is out of range, verifying that it fails silently by rendering either an 'INVALID' string or an empty string.
         """
         output = self.engine.render_to_string(
             "list-index02", {"var": ["first item", "second item"]}
@@ -31,7 +31,7 @@ class ListIndexTests(SimpleTestCase):
     @setup({"list-index03": "{{ var.1 }}"})
     def test_list_index03(self):
         """
-        Fail silently when the list index is out of range.
+        Tests the template engine's behavior when a list index is out of range, verifying that it fails silently by rendering an empty string or the engine's invalid string indicator.
         """
         output = self.engine.render_to_string("list-index03", {"var": None})
         if self.engine.string_if_invalid:
@@ -42,7 +42,7 @@ class ListIndexTests(SimpleTestCase):
     @setup({"list-index04": "{{ var.1 }}"})
     def test_list_index04(self):
         """
-        Fail silently when variable is a dict without the specified key.
+        Tests the behavior of the templating engine when trying to access a key in a dictionary variable that does not exist, verifying that it fails silently by either rendering 'INVALID' or an empty string, depending on the engine's configuration.
         """
         output = self.engine.render_to_string("list-index04", {"var": {}})
         if self.engine.string_if_invalid:

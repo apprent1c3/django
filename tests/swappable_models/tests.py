@@ -16,7 +16,9 @@ class SwappableModelTests(TestCase):
 
     @override_settings(TEST_ARTICLE_MODEL="swappable_models.AlternateArticle")
     def test_generated_data(self):
-        "Permissions and content types are not created for a swapped model"
+        """
+        Tests that content types and permissions are correctly created or removed when a model is swapped, ensuring that the swapped model's permissions and content types are generated, while the original model's are not.
+        """
 
         # Delete all permissions and content_types
         Permission.objects.filter(content_type__app_label="swappable_models").delete()

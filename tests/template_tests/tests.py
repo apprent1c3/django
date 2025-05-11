@@ -21,8 +21,7 @@ class TemplateTestMixin:
     @override_settings(SETTINGS_MODULE=None)
     def test_url_reverse_no_settings_module(self):
         """
-        #9005 -- url tag shouldn't require settings.SETTINGS_MODULE to
-        be set.
+        Tests that the url tag in a template can be used without a SETTINGS_MODULE setting defined, ensuring that it correctly raises a NoReverseMatch exception when there is no matching URL pattern.
         """
         t = self._engine().from_string("{% url will_not_match %}")
         c = Context()
@@ -31,8 +30,7 @@ class TemplateTestMixin:
 
     def test_url_reverse_view_name(self):
         """
-        #19827 -- url tag should keep original stack trace when reraising
-        exception.
+        Tests that the url tag preserves the original stack trace when reraising a NoReverseMatch exception. Verifies that the exception's traceback is not lost by checking its depth.
         """
         t = self._engine().from_string("{% url will_not_match %}")
         c = Context()
@@ -50,8 +48,7 @@ class TemplateTestMixin:
 
     def test_no_wrapped_exception(self):
         """
-        # 16770 -- The template system doesn't wrap exceptions, but annotates
-        them.
+        Tests that template rendering does not wrap exceptions, but instead annotates them with debug information when an error occurs during template execution, such as a ZeroDivisionError in this case.
         """
         engine = self._engine()
         c = Context({"coconuts": lambda: 42 / 0})
@@ -67,8 +64,7 @@ class TemplateTestMixin:
 
     def test_invalid_block_suggestion(self):
         """
-        Error messages should include the unexpected block name and be in all
-        English.
+        Verifies that the template engine raises a TemplateSyntaxError with an informative error message when an invalid block suggestion is encountered, and that the message is in English regardless of the locale setting.
         """
         engine = self._engine()
         msg = (
@@ -90,8 +86,7 @@ class TemplateTestMixin:
 
     def test_compile_filter_expression_error(self):
         """
-        19819 -- Make sure the correct token is highlighted for
-        FilterExpression errors.
+        Tests that the correct token is highlighted when a FilterExpression error occurs in a template.
         """
         engine = self._engine()
         msg = "Could not parse the remainder: '@bar' from 'foo@bar'"
@@ -106,8 +101,7 @@ class TemplateTestMixin:
 
     def test_compile_tag_error(self):
         """
-        Errors raised while compiling nodes should include the token
-        information.
+        Verify that token information is correctly included in compilation errors for custom template tags.
         """
         engine = self._engine(
             libraries={"bad_tag": "template_tests.templatetags.bad_tag"},
@@ -118,6 +112,9 @@ class TemplateTestMixin:
             self.assertEqual(e.exception.template_debug["during"], "{% badtag %}")
 
     def test_compile_tag_error_27584(self):
+        """
+        Tests that a specific template tag compilation error (Django ticket #27584) is correctly raised as a TemplateSyntaxError when rendering a template with an invalid tag.
+        """
         engine = self._engine(
             app_dirs=True,
             libraries={"tag_27584": "template_tests.templatetags.tag_27584"},
@@ -129,7 +126,9 @@ class TemplateTestMixin:
             self.assertEqual(e.exception.template_debug["during"], "{% badtag %}")
 
     def test_compile_tag_error_27956(self):
-        """Errors in a child of {% extends %} are displayed correctly."""
+        """
+        Tests that template syntax errors in a child template of an extends tag are correctly reported.
+        """
         engine = self._engine(
             app_dirs=True,
             libraries={"tag_27584": "template_tests.templatetags.tag_27584"},
@@ -150,7 +149,9 @@ class TemplateTestMixin:
         self.assertEqual(t.extra_data["extra_data"], "CUSTOM_DATA")
 
     def test_render_tag_error_in_extended_block(self):
-        """Errors in extended block are displayed correctly."""
+        """
+        Verifies that errors occurring within extended blocks are properly displayed during template rendering, specifically when an included template does not exist.
+        """
         e = self._engine(app_dirs=True)
         template = e.get_template("test_extends_block_error.html")
         context = Context()
@@ -164,7 +165,7 @@ class TemplateTestMixin:
 
     def test_super_errors(self):
         """
-        #18169 -- NoReverseMatch should not be silence in block.super.
+        Tests that a NoReverseMatch error is raised when rendering a template with a block.super call that contains an invalid reverse URL.
         """
         engine = self._engine(app_dirs=True)
         t = engine.get_template("included_content.html")
@@ -173,8 +174,7 @@ class TemplateTestMixin:
 
     def test_extends_generic_template(self):
         """
-        #24338 -- Allow extending django.template.backends.django.Template
-        objects.
+        Tests the ability to extend a django.template.backends.django.Template object using the extends template tag.
         """
         engine = self._engine()
         parent = engine.from_string("{% block content %}parent{% endblock %}")

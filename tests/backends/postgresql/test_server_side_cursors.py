@@ -39,6 +39,15 @@ class ServerSideCursorsPostgres(TestCase):
 
     @contextmanager
     def override_db_setting(self, **kwargs):
+        """
+
+        Override database settings for the duration of a context.
+
+        Temporarily changes database settings specified by keyword arguments, restoring the original values after exiting the context. This is useful for testing scenarios that require specific database configurations.
+
+        :param kwargs: Database settings to override with their new values.
+
+        """
         for setting in kwargs:
             original_value = connection.settings_dict.get(setting)
             if setting in connection.settings_dict:
@@ -52,6 +61,12 @@ class ServerSideCursorsPostgres(TestCase):
             yield
 
     def assertUsesCursor(self, queryset, num_expected=1):
+        """
+        Asserts that a given queryset uses the expected number of cursors.
+
+        Verifies that the queryset's execution results in the creation of the specified number of cursors,
+        each of which is named with a specific prefix and has the expected properties (not scrollable, holdable, or binary).
+        """
         next(queryset)  # Open a server-side cursor
         cursors = self.inspect_cursors()
         self.assertEqual(len(cursors), num_expected)
@@ -93,6 +108,10 @@ class ServerSideCursorsPostgres(TestCase):
         self.assertUsesCursor(persons2, num_expected=2)
 
     def test_closed_server_side_cursor(self):
+        """
+        Tests that server-side cursors are properly closed when no longer in use, 
+        preventing potential connection leaks and resource waste.
+        """
         persons = Person.objects.iterator()
         next(persons)  # Open a server-side cursor
         del persons
@@ -105,6 +124,9 @@ class ServerSideCursorsPostgres(TestCase):
         reason="Cursor not closed properly due to differences in garbage collection.",
     )
     def test_server_side_cursors_setting(self):
+        """
+        Tests the server-side cursors setting to ensure it correctly controls whether a cursor is used when iterating over query results.
+        """
         with self.override_db_setting(DISABLE_SERVER_SIDE_CURSORS=False):
             persons = Person.objects.iterator()
             self.assertUsesCursor(persons)
@@ -120,10 +142,7 @@ class ServerSideCursorsPostgres(TestCase):
     )
     def test_server_side_binding(self):
         """
-        The ORM still generates SQL that is not suitable for usage as prepared
-        statements but psycopg >= 3 defaults to using server-side bindings for
-        server-side cursors which requires some specialized logic when the
-        `server_side_binding` setting is disabled (default).
+        Tests the interaction between the ORM and server-side bindings for prepared statements in psycopg >= 3, verifying correct behavior with server-side binding enabled and disabled.
         """
 
         def perform_query():

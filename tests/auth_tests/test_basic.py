@@ -14,7 +14,9 @@ from .models import CustomUser
 
 class BasicTestCase(TestCase):
     def test_user(self):
-        "Users can be created and can set their password"
+        """
+        Tests the creation and password management functionality of a User object, including password setting, verification, and deactivation, as well as validation of user attributes such as username, authentication, and roles.
+        """
         u = User.objects.create_user("testuser", "test@example.com", "testpw")
         self.assertTrue(u.has_usable_password())
         self.assertFalse(u.check_password("bad"))
@@ -45,6 +47,10 @@ class BasicTestCase(TestCase):
         self.assertFalse(u2.has_usable_password())
 
     def test_unicode_username(self):
+        """
+        Tests the uniqueness of usernames when using Unicode characters, 
+        ensuring that visually similar characters are not treated as identical usernames.
+        """
         User.objects.create_user("jörg")
         User.objects.create_user("Григорий")
         # Two equivalent Unicode normalized usernames are duplicates.
@@ -55,7 +61,9 @@ class BasicTestCase(TestCase):
             User.objects.create_user(omega_username)
 
     def test_user_no_email(self):
-        "Users can be created without an email"
+        """
+        Verifies that users can be created without a valid email address, ensuring default email handling behaves as expected.
+        """
         cases = [
             {},
             {"email": ""},
@@ -67,13 +75,21 @@ class BasicTestCase(TestCase):
                 self.assertEqual(u.email, "")
 
     def test_superuser(self):
-        "Check the creation and properties of a superuser"
+        """
+        Verifies the successful creation of a superuser with expected properties, including superuser, active, and staff status.
+        """
         super = User.objects.create_superuser("super", "super@example.com", "super")
         self.assertTrue(super.is_superuser)
         self.assertTrue(super.is_active)
         self.assertTrue(super.is_staff)
 
     def test_superuser_no_email_or_password(self):
+        """
+        Tests the creation of a superuser with missing or empty email and password fields.
+
+        Verifies that a superuser can be created without an email or password, and that 
+        their email is set to an empty string and they do not have a usable password.
+        """
         cases = [
             {},
             {"email": ""},
@@ -115,7 +131,9 @@ class BasicTestCase(TestCase):
             get_user_model()
 
     def test_user_verbose_names_translatable(self):
-        "Default User model verbose names are translatable (#19945)"
+        """
+        Tests whether the default User model's verbose names are correctly translated into different languages.
+        """
         with translation.override("en"):
             self.assertEqual(User._meta.verbose_name, "user")
             self.assertEqual(User._meta.verbose_name_plural, "users")
@@ -138,6 +156,9 @@ class TestGetUser(TestCase):
         self.assertIsInstance(user, AnonymousUser)
 
     def test_get_user(self):
+        """
+        Tests that get_user function retrieves the correct User instance from a request object, verifying the user's existence and authenticity in the current session.
+        """
         created_user = User.objects.create_user(
             "testuser", "test@example.com", "testpw"
         )
@@ -149,6 +170,15 @@ class TestGetUser(TestCase):
         self.assertEqual(user.username, created_user.username)
 
     def test_get_user_fallback_secret(self):
+        """
+
+        Tests the fallback secret key functionality when retrieving a user from a request.
+
+        Verifies that the get_user function works correctly when the SECRET_KEY is changed,
+        both with and without SECRET_KEY_FALLBACKS set, ensuring a seamless transition for
+        authenticated users.
+
+        """
         created_user = User.objects.create_user(
             "testuser", "test@example.com", "testpw"
         )
@@ -172,6 +202,14 @@ class TestGetUser(TestCase):
             self.assertEqual(user.username, created_user.username)
 
     async def test_aget_user(self):
+        """
+
+        Retrieves the currently authenticated user from the given HTTP request.
+
+        :returns: The authenticated user instance, or None if no user is authenticated.
+        :rtype: User
+
+        """
         created_user = await sync_to_async(User.objects.create_user)(
             "testuser", "test@example.com", "testpw"
         )

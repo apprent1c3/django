@@ -22,6 +22,13 @@ class TimezoneTests(SimpleTestCase):
             self.assertTrue(timezone.is_naive(timezone.now()))
 
     def test_localdate(self):
+        """
+
+        Tests the timezone.localdate function to ensure it correctly handles naive and aware datetime objects,
+        raises ValueErrors when applied to naive datetimes, and returns the correct local date when given an
+        aware datetime object and/or a timezone.
+
+        """
         naive = datetime.datetime(2015, 1, 1, 0, 0, 1)
         with self.assertRaisesMessage(
             ValueError, "localtime() cannot be applied to a naive datetime"
@@ -47,6 +54,12 @@ class TimezoneTests(SimpleTestCase):
                 self.assertEqual(timezone.localdate(), datetime.date(2014, 12, 31))
 
     def test_override(self):
+        """
+        Tests the override functionality of the timezone module, ensuring that 
+        the current timezone is correctly set and reverted when overriding a timezone 
+        with a specified timezone or None, both when a default timezone is active and 
+        deactivated.
+        """
         default = timezone.get_default_timezone()
         try:
             timezone.activate(ICT)
@@ -72,6 +85,13 @@ class TimezoneTests(SimpleTestCase):
             timezone.deactivate()
 
     def test_override_decorator(self):
+        """
+
+        Tests the timezone override decorator to ensure it correctly sets and resets the current timezone.
+        Verifies behavior under various scenarios, including when a specific timezone is overridden, 
+        when no timezone is specified, and when the timezone is activated and deactivated manually.
+
+        """
         default = timezone.get_default_timezone()
 
         @timezone.override(EAT)
@@ -197,6 +217,9 @@ class TimezoneTests(SimpleTestCase):
 
     def test_make_aware_zoneinfo_ambiguous(self):
         # 2:30 happens twice, once before DST ends and once after
+        """
+        Tests that ambiguous local datetimes are correctly converted to standard and daylight saving time when using the make_aware function with zoneinfo timezone. Verifies that the resulting datetime objects have the expected UTC offsets.
+        """
         ambiguous = datetime.datetime(2015, 10, 25, 2, 30)
 
         std = timezone.make_aware(ambiguous.replace(fold=1), timezone=PARIS_ZI)
@@ -210,6 +233,9 @@ class TimezoneTests(SimpleTestCase):
 
     def test_make_aware_zoneinfo_non_existent(self):
         # 2:30 never happened due to DST
+        """
+        Checks the handling of a non-existent time in a timezone, specifically during a DST transition.
+        """
         non_existent = datetime.datetime(2015, 3, 29, 2, 30)
 
         std = timezone.make_aware(non_existent, PARIS_ZI)
@@ -223,10 +249,7 @@ class TimezoneTests(SimpleTestCase):
 
     def test_get_timezone_name(self):
         """
-        The _get_timezone_name() helper must return the offset for fixed offset
-        timezones, for usage with Trunc DB functions.
-
-        The datetime.timezone examples show the current behavior.
+        Tests the _get_timezone_name function to verify it returns the correct timezone name or offset for various timezone objects, ensuring compatibility with Trunc DB functions.
         """
         tests = [
             # datetime.timezone, fixed offset with and without `name`.

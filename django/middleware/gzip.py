@@ -17,6 +17,11 @@ class GZipMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # It's not worth attempting to compress really short responses.
+        """
+        Automatically applies GZip compression to an HTTP response if the client accepts it and the response is not already compressed.
+        The function modifies the response by compressing its content, updating the `Content-Length` and `Content-Encoding` headers, and adjusting the `ETag` header as necessary.
+        It handles both streaming and non-streaming responses, and only compresses the content if it will result in a smaller size.
+        """
         if not response.streaming and len(response.content) < 200:
             return response
 

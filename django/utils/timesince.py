@@ -27,31 +27,9 @@ MONTHS_DAYS = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 def timesince(d, now=None, reversed=False, time_strings=None, depth=2):
     """
-    Take two datetime objects and return the time between d and now as a nicely
-    formatted string, e.g. "10 minutes". If d occurs after now, return
-    "0 minutes".
-
-    Units used are years, months, weeks, days, hours, and minutes.
-    Seconds and microseconds are ignored.
-
-    The algorithm takes into account the varying duration of years and months.
-    There is exactly "1 year, 1 month" between 2013/02/10 and 2014/03/10,
-    but also between 2007/08/10 and 2008/09/10 despite the delta being 393 days
-    in the former case and 397 in the latter.
-
-    Up to `depth` adjacent units will be displayed.  For example,
-    "2 weeks, 3 days" and "1 year, 3 months" are possible outputs, but
-    "2 weeks, 3 hours" and "1 year, 5 days" are not.
-
-    `time_strings` is an optional dict of strings to replace the default
-    TIME_STRINGS dict.
-
-    `depth` is an optional integer to control the number of adjacent time
-    units returned.
-
-    Originally adapted from
-    https://web.archive.org/web/20060617175230/http://blog.natbat.co.uk/archive/2003/Jun/14/time_since
-    Modified to improve results for years and months.
+    Calculate the time difference between two datetime objects as a human-readable string, 
+    e.g. \"10 minutes\", considering varying durations of years and months, 
+    and allowing customization of output units and depth.
     """
     if time_strings is None:
         time_strings = TIME_STRINGS

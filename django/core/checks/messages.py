@@ -8,6 +8,15 @@ CRITICAL = 50
 
 class CheckMessage:
     def __init__(self, level, msg, hint=None, obj=None, id=None):
+        """
+        Initializes an error or warning object with a specified level and message.
+
+        :param level: The severity level of the error or warning.
+        :param msg: A descriptive message about the error or warning.
+        :param hint: Optional hint to help resolve the issue.
+        :param obj: Optional object related to the error or warning.
+        :param id: Optional unique identifier for the error or warning.
+        """
         if not isinstance(level, int):
             raise TypeError("The first argument should be level.")
         self.level = level
@@ -23,6 +32,9 @@ class CheckMessage:
         )
 
     def __str__(self):
+        """
+        Returns a human-readable string representation of the object, including its identifier, message and optional hint, for diagnostic or logging purposes.
+        """
         from django.db import models
 
         if self.obj is None:

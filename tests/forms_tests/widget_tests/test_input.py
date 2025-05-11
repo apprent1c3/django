@@ -5,6 +5,9 @@ from .base import WidgetTest
 
 class InputTests(WidgetTest):
     def test_attrs_with_type(self):
+        """
+        Tests that the Input widget correctly handles HTML attributes with specific types, such as 'date' and 'number', and verifies the generated HTML output is as expected.
+        """
         attrs = {"type": "date"}
         widget = Input(attrs)
         self.check_html(

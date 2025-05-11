@@ -118,6 +118,9 @@ class ViewTest(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_setup_get_and_head(self):
+        """
+        Verifies that the :meth:`setup` method of a view instance properly assigns the :meth:`head` attribute to be equivalent to the :meth:`get` method.
+        """
         view_instance = SimpleView()
         self.assertFalse(hasattr(view_instance, "head"))
         view_instance.setup(self.rf.get("/"))
@@ -146,8 +149,7 @@ class ViewTest(SimpleTestCase):
 
     def test_invalid_keyword_argument(self):
         """
-        View arguments must be predefined on the class and can't
-        be named like an HTTP method.
+        Tests that a SimpleView or CustomizableView cannot be instantiated with an invalid keyword argument, specifically one named like an HTTP method or an attribute not predefined on the class.
         """
         msg = (
             "The method name %s is not accepted as a keyword argument to "
@@ -179,7 +181,7 @@ class ViewTest(SimpleTestCase):
 
     def test_class_attributes(self):
         """
-        The callable returned from as_view() has proper special attributes.
+        Verifies that a view callable has the expected special attributes after being created via the as_view() method.
         """
         cls = SimpleView
         view = cls.as_view()
@@ -199,8 +201,7 @@ class ViewTest(SimpleTestCase):
 
     def test_options(self):
         """
-        Views respond to HTTP OPTIONS requests with an Allow header
-        appropriate for the methods implemented by the view class.
+        Verifies that a view responds correctly to HTTP OPTIONS requests by returning a status code of 200 and a valid Allow header.
         """
         request = self.rf.options("/")
         view = SimpleView.as_view()
@@ -210,7 +211,9 @@ class ViewTest(SimpleTestCase):
 
     def test_options_for_get_view(self):
         """
-        A view implementing GET allows GET and HEAD.
+
+        Tests that a view implementing GET requests allows both GET and HEAD options.
+
         """
         request = self.rf.options("/")
         view = SimpleView.as_view()
@@ -219,7 +222,7 @@ class ViewTest(SimpleTestCase):
 
     def test_options_for_get_and_post_view(self):
         """
-        A view implementing GET and POST allows GET, HEAD, and POST.
+        Tests that a view supporting both GET and POST requests allows OPTIONS to return expected allowed methods (GET, HEAD, and POST).
         """
         request = self.rf.options("/")
         view = SimplePostView.as_view()
@@ -228,7 +231,7 @@ class ViewTest(SimpleTestCase):
 
     def test_options_for_post_view(self):
         """
-        A view implementing POST allows POST.
+        Tests that a view, which only supports POST requests, correctly indicates that it allows POST when an OPTIONS request is made.
         """
         request = self.rf.options("/")
         view = PostOnlyView.as_view()
@@ -242,8 +245,7 @@ class ViewTest(SimpleTestCase):
 
     def test_args_kwargs_request_on_self(self):
         """
-        Test a view only has args, kwargs & request once `as_view`
-        has been called.
+        Tests that a view only exposes args, kwargs, and request attributes after it has been initialized as a view.
         """
         bare_view = InstanceView()
         view = InstanceView.as_view()(self.rf.get("/"))
@@ -252,6 +254,9 @@ class ViewTest(SimpleTestCase):
             self.assertIn(attribute, dir(view))
 
     def test_overridden_setup(self):
+        """
+        Tests that setup method in a view is overridden and instance attribute is set correctly when using a mixin.
+        """
         class SetAttributeMixin:
             def setup(self, request, *args, **kwargs):
                 self.attr = True
@@ -266,6 +271,9 @@ class ViewTest(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_not_calling_parent_setup_error(self):
+        """
+        Checks that calling a view without setting its 'request' attribute raises an AttributeError, simulating a scenario where the setup method has been overridden but the parent class's setup method is not called.
+        """
         class TestView(View):
             def setup(self, request, *args, **kwargs):
                 pass  # Not calling super().setup()
@@ -278,6 +286,10 @@ class ViewTest(SimpleTestCase):
             TestView.as_view()(self.rf.get("/"))
 
     def test_setup_adds_args_kwargs_request(self):
+        """
+        Verifies that the setup method of the View class correctly assigns 
+        request, args, and kwargs attributes when called with these parameters.
+        """
         request = self.rf.get("/")
         args = ("arg 1", "arg 2")
         kwargs = {"kwarg_1": 1, "kwarg_2": "year"}
@@ -351,7 +363,7 @@ class TemplateViewTest(SimpleTestCase):
     @require_jinja2
     def test_template_engine(self):
         """
-        A template view may provide a template engine.
+        Tests the template engine used by a template view, ensuring it renders templates correctly with both Django and Jinja2 template engines.
         """
         request = self.rf.get("/using/")
         view = TemplateView.as_view(template_name="generic_views/using.html")
@@ -367,7 +379,7 @@ class TemplateViewTest(SimpleTestCase):
 
     def test_template_params(self):
         """
-        A generic template view passes kwargs as context.
+        Tests that a template view correctly passes keyword arguments as context variables.
         """
         response = self.client.get("/template/simple/bar/")
         self.assertEqual(response.status_code, 200)
@@ -376,7 +388,7 @@ class TemplateViewTest(SimpleTestCase):
 
     def test_extra_template_params(self):
         """
-        A template view can be customized to return extra context.
+        Tests that a template view can successfully return extra template parameters in its context.
         """
         response = self.client.get("/template/custom/bar/")
         self.assertEqual(response.status_code, 200)
@@ -386,7 +398,10 @@ class TemplateViewTest(SimpleTestCase):
 
     def test_cached_views(self):
         """
-        A template view can be cached
+
+            Tests if a template view can be cached correctly, verifying that the response content remains the same
+            within the cache duration and updates afterwards.
+
         """
         response = self.client.get("/template/cached/bar/")
         self.assertEqual(response.status_code, 200)
@@ -456,7 +471,9 @@ class RedirectViewTest(SimpleTestCase):
         self.assertEqual(response.url, "/bar/")
 
     def test_include_args(self):
-        "GET arguments can be included in the redirected URL"
+        """
+        Tests the RedirectView's ability to include GET arguments in the redirected URL, ensuring that query strings are properly preserved when redirected.
+        """
         response = RedirectView.as_view(url="/bar/")(self.rf.get("/foo/"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, "/bar/")
@@ -552,6 +569,11 @@ class RedirectViewTest(SimpleTestCase):
 
 class GetContextDataTest(SimpleTestCase):
     def test_get_context_data_super(self):
+        """
+        Tests the get_context_data method of CustomContextView, ensuring it correctly 
+        handles keyword arguments and returns the expected context dictionary with 
+        custom key-value pairs.
+        """
         test_view = views.CustomContextView()
         context = test_view.get_context_data(kwarg_test="kwarg_value")
 
@@ -589,6 +611,9 @@ class UseMultipleObjectMixinTest(SimpleTestCase):
         self.assertEqual(context["object_list"], test_view.queryset)
 
     def test_overwrite_queryset(self):
+        """
+        Tests whether the CustomMultipleObjectMixinView can overwrite its queryset with a custom object list in the context data.
+        """
         test_view = views.CustomMultipleObjectMixinView()
         test_view.get(self.rf.get("/"))
         queryset = [{"name": "Lennon"}, {"name": "Ono"}]
@@ -601,9 +626,7 @@ class UseMultipleObjectMixinTest(SimpleTestCase):
 class SingleObjectTemplateResponseMixinTest(SimpleTestCase):
     def test_template_mixin_without_template(self):
         """
-        We want to makes sure that if you use a template mixin, but forget the
-        template, it still tells you it's ImproperlyConfigured instead of
-        TemplateDoesNotExist.
+        Tests that TemplateResponseMixin correctly raises ImproperlyConfigured when a template mixin is used without specifying a template name or implementing get_template_names().
         """
         view = views.TemplateResponseWithoutTemplate()
         msg = (

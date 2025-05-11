@@ -15,6 +15,11 @@ from .base import MultipleLocaleActivationTestCase, extended_locale_paths
 
 
 def setup(templates, *args, **kwargs):
+    """
+    Sets up a decorator to configure translation templates for a given function, 
+    supporting both 'trans' and 'translate' tag syntaxes. The decorator allows the 
+    function to be used with either syntax, providing flexibility in template setup.
+    """
     translate_setup = base_setup(templates, *args, **kwargs)
     trans_setup = base_setup(
         {
@@ -30,7 +35,27 @@ def setup(templates, *args, **kwargs):
 
     def decorator(func):
         @wraps(func)
+        """
+        A decorator that applies setup functions for each tag in the tags dictionary to the wrapped function.
+
+        It checks if the function signature includes a 'tag_name' parameter and applies the corresponding setup function accordingly.
+
+        This decorator is intended to simplify the process of setting up and executing functions with tag-specific configurations.
+        """
         def inner(self, *args):
+            """
+
+            Facilitates function invocation with optional tag-based setup.
+
+            Wraps the original function to apply a setup function based on the presence
+            of a 'tag_name' parameter in the function signature. If 'tag_name' is present,
+            the setup function is applied with a partial function invocation; otherwise,
+            it is applied directly.
+
+            :param self: instance reference
+            :param args: variable arguments to be passed to the wrapped function
+
+            """
             signature = inspect.signature(func)
             for tag_name, setup_func in tags.items():
                 if "tag_name" in signature.parameters:
@@ -202,7 +227,9 @@ class TranslationTransTagTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_template_tags_pgettext(self):
-        """{% translate %} takes message contexts into account (#14806)."""
+        """
+        Tests the {% translate %} template tag with message contexts, ensuring it correctly handles translations based on the provided context.
+        """
         trans_real._active = Local()
         trans_real._translations = {}
         with translation.override("de"):

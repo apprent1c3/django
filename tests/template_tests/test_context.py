@@ -15,6 +15,14 @@ from django.test import RequestFactory, SimpleTestCase, override_settings
 
 class ContextTests(SimpleTestCase):
     def test_context(self):
+        """
+
+        Tests the functionality of the Context class.
+
+        Verifies that the Context object can be initialized, values can be retrieved and modified,
+        and that the push and pop operations work correctly, allowing for nested context manipulation.
+
+        """
         c = Context({"a": 1, "b": "xyzzy"})
         self.assertEqual(c["a"], 1)
         self.assertEqual(c.push(), {})
@@ -27,6 +35,14 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c, mock.ANY)
 
     def test_push_context_manager(self):
+        """
+
+        Tests the push context manager functionality of the Context class.
+
+        Verifies that changes made within the context manager are properly isolated 
+        and reverted after the manager is exited, ensuring the original state is maintained.
+
+        """
         c = Context({"a": 1})
         with c.push():
             c["a"] = 2
@@ -38,6 +54,14 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c["a"], 1)
 
     def test_update_context_manager(self):
+        """
+
+        Verifies the functionality of the context manager's update method.
+
+        The test ensures that changes made within the context are reverted after exiting,
+        and that updates passed to the context manager are applied during its scope.
+
+        """
         c = Context({"a": 1})
         with c.update({}):
             c["a"] = 2
@@ -89,6 +113,9 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_setdefault(self):
+        """
+        Tests the setdefault method of the Context class, verifying that it sets a value for a key if it does not exist and returns the existing value if it does exist.
+        """
         c = Context()
 
         x = c.setdefault("x", 42)
@@ -101,7 +128,7 @@ class ContextTests(SimpleTestCase):
 
     def test_resolve_on_context_method(self):
         """
-        #17778 -- Variable shouldn't resolve RequestContext methods
+        Tests that variables do not resolve to context method names, and validates correct resolution for existing variables in the context.
         """
         empty_context = Context()
 
@@ -117,6 +144,9 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_render_context(self):
+        """
+        Tests the rendering context by verifying that pushed values override the original dictionary and nonexistent keys raise a KeyError or return None when retrieved.
+        """
         test_context = RenderContext({"fruit": "papaya"})
 
         # push() limits access to the topmost dict
@@ -131,6 +161,9 @@ class ContextTests(SimpleTestCase):
         self.assertIsNone(test_context.get("fruit"))
 
     def test_flatten_context(self):
+        """
+        Tests the Context class's flatten method, verifying it correctly combines default and user-defined attributes into a single dictionary.
+        """
         a = Context()
         a.update({"a": 2})
         a.update({"b": 4})
@@ -171,7 +204,9 @@ class ContextTests(SimpleTestCase):
 
     def test_context_comparable(self):
         """
-        #21765 -- equality comparison should work
+
+        Tests that Context objects can be accurately compared for equality.
+
         """
 
         test_data = {"x": "y", "v": "z", "d": {"o": object, "a": "b"}}
@@ -213,7 +248,9 @@ class ContextTests(SimpleTestCase):
 
     def test_set_upward_with_push(self):
         """
-        The highest context which has the given key is used.
+
+        Tests the set_upward functionality, ensuring that the highest context containing a given key is updated and the change is reflected correctly across context pushes and pops.
+
         """
         c = Context({"a": 1})
         c.push({"a": 2})
@@ -224,7 +261,10 @@ class ContextTests(SimpleTestCase):
 
     def test_set_upward_with_push_no_match(self):
         """
-        The highest context is used if the given key isn't found.
+
+        Tests setting a value upward in a context when the key is not found, 
+        verifying that the highest context is used.
+
         """
         c = Context({"b": 1})
         c.push({"b": 2})
@@ -242,8 +282,7 @@ class RequestContextTests(SimpleTestCase):
 
     def test_include_only(self):
         """
-        #15721 -- ``{% include %}`` and ``RequestContext`` should work
-        together.
+        Tests that the ``{% include %}`` template tag works correctly with ``RequestContext`` when the \"only\" keyword is specified, ensuring that variables from the parent template are not leaked into the included template.
         """
         engine = Engine(
             loaders=[
@@ -286,6 +325,9 @@ class RequestContextTests(SimpleTestCase):
         )
 
     def test_modify_context_and_render(self):
+        """
+        Tests that a template renders correctly after modifying its context.
+        """
         template = Template("{{ foo }}")
         request = self.request_factory.get("/")
         context = RequestContext(request, {})
@@ -306,6 +348,9 @@ class RequestContextTests(SimpleTestCase):
         ],
     )
     def test_template_context_processor_returning_none(self):
+        """
+        Tests that a TypeError is raised when a template context processor returns None, as it should return a dictionary.
+        """
         request_context = RequestContext(HttpRequest())
         msg = (
             "Context processor context_process_returning_none didn't return a "

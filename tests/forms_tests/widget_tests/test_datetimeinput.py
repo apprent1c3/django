@@ -14,7 +14,7 @@ class DateTimeInputTest(WidgetTest):
 
     def test_render_value(self):
         """
-        The microseconds are trimmed on display, by default.
+        Tests the rendering of datetime objects as HTML input values, verifying that microseconds are trimmed by default.
         """
         d = datetime(2007, 9, 17, 12, 51, 34, 482548)
         self.assertEqual(str(d), "2007-09-17 12:51:34.482548")
@@ -64,6 +64,9 @@ class DateTimeInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests that the widget is rendered correctly when use_fieldset is False. Specifically, it checks the HTML output of a form field against an expected template.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

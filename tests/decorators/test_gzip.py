@@ -25,6 +25,10 @@ class GzipPageTests(SimpleTestCase):
 
     def test_gzip_page_decorator(self):
         @gzip_page
+        """
+        Tests the gzip_page decorator to ensure it correctly gzips responses to HTTP requests 
+        that specify gzip encoding in the Accept-Encoding header.
+        """
         def sync_view(request):
             return HttpResponse(content=self.content)
 
@@ -36,6 +40,9 @@ class GzipPageTests(SimpleTestCase):
 
     async def test_gzip_page_decorator_async_view(self):
         @gzip_page
+        """
+        Tests that the gzip_page decorator correctly compresses an asynchronous view's response when the client supports gzip encoding.
+        """
         async def async_view(request):
             return HttpResponse(content=self.content)
 

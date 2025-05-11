@@ -4,6 +4,9 @@ from django.test import SimpleTestCase
 
 class FunctionTests(SimpleTestCase):
     def test_values(self):
+        """
+        Tests extraction of individual digits from a given number using the get_digit function, verifying its correctness for various position values.
+        """
         self.assertEqual(get_digit(123, 1), 3)
         self.assertEqual(get_digit(123, 2), 2)
         self.assertEqual(get_digit(123, 3), 1)

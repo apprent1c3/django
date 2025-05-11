@@ -28,6 +28,9 @@ class GeometryField(forms.Field):
     }
 
     def __init__(self, *, srid=None, geom_type=None, **kwargs):
+        """
+        Initializes the geographic object with spatial reference system identifier (SRID) and geometry type, inheriting additional attributes from parent class.
+        """
         self.srid = srid
         if geom_type is not None:
             self.geom_type = geom_type
@@ -35,7 +38,14 @@ class GeometryField(forms.Field):
         self.widget.attrs["geom_type"] = self.geom_type
 
     def to_python(self, value):
-        """Transform the value to a Geometry object."""
+        """
+        Transform a value into a Python Geometry object.
+
+        Accepts a value which is either a valid Geometry object or a string that can be
+        deserialized into one. If the value cannot be transformed, a validation error is
+        raised. Also ensures the resulting Geometry object has a valid Spatial Reference
+        System Identifier (SRID).
+        """
         if value in self.empty_values:
             return None
 
@@ -66,9 +76,7 @@ class GeometryField(forms.Field):
 
     def clean(self, value):
         """
-        Validate that the input value can be converted to a Geometry object
-        and return it. Raise a ValidationError if the value cannot be
-        instantiated as a Geometry.
+        Validate an input value as a Geometry object, ensuring compatibility with the specified geometry type and spatial reference system (SRID), raising a ValidationError if the value is invalid or cannot be transformed.
         """
         geom = super().clean(value)
         if geom is None:
@@ -96,7 +104,14 @@ class GeometryField(forms.Field):
         return geom
 
     def has_changed(self, initial, data):
-        """Compare geographic value of data with its initial value."""
+        """
+        Determine if the geographic value of data has changed from its initial value.
+
+        Returns True if the data has changed, False otherwise. The comparison checks for 
+        exact equality with a small tolerance, allowing for minor floating point precision 
+        differences. If either the data or initial value is invalid, it is considered changed.
+
+        """
 
         try:
             data = self.to_python(data)

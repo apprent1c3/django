@@ -36,6 +36,11 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.docstring = self.__doc__
 
     def test_parse_docstring(self):
+        """
+
+        Tests the parsing of a docstring into its constituent parts, including title, description, and metadata.
+
+        """
         title, description, metadata = parse_docstring(self.docstring)
         docstring_title = (
             "This __doc__ output is required for testing. I copied this example from\n"
@@ -53,6 +58,10 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(metadata, {"some_metadata": "some data"})
 
     def test_title_output(self):
+        """
+        Verifies that the title from a docstring is properly processed and rendered as HTML, 
+        confirming it contains the expected output and matches the reference rendering.
+        """
         title, description, metadata = parse_docstring(self.docstring)
         title_output = parse_rst(title, "model", "model:admindocs")
         self.assertIn("TITLE", title_output)
@@ -88,7 +97,7 @@ class TestUtils(AdminDocsSimpleTestCase):
 
     def test_parse_rst(self):
         """
-        parse_rst() should use `cmsreference` as the default role.
+        Tests the parse_rst function to ensure correct rendering of reStructuredText markup with default role 'cmsreference' for various document types.
         """
         markup = '<p><a class="reference external" href="/admindocs/%s">title</a></p>\n'
         self.assertEqual(parse_rst("`title`", "model"), markup % "models/title/")
@@ -98,6 +107,9 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(parse_rst("`title`", "tag"), markup % "tags/#title")
 
     def test_parse_rst_with_docstring_no_leading_line_feed(self):
+        """
+        Tests parsing of reStructuredText (RST) documentation strings without leading line feeds, ensuring correct title and body parsing and validation of error-free parsing process.
+        """
         title, body, _ = parse_docstring("firstline\n\n    second line")
         with captured_stderr() as stderr:
             self.assertEqual(parse_rst(title, ""), "<p>firstline</p>\n")
@@ -122,9 +134,7 @@ class TestUtils(AdminDocsSimpleTestCase):
 
     def test_publish_parts(self):
         """
-        Django shouldn't break the default role for interpreted text
-        when ``publish_parts`` is used directly, by setting it to
-        ``cmsreference`` (#6681).
+        Tests that using publish_parts does not alter the default role for interpreted text in reStructuredText, ensuring that Django's behavior remains consistent with expected output.
         """
         import docutils
 

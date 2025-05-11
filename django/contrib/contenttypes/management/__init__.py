@@ -10,6 +10,10 @@ class RenameContentType(migrations.RunPython):
         super().__init__(self.rename_forward, self.rename_backward)
 
     def _rename(self, apps, schema_editor, old_model, new_model):
+        """
+        Renames a model in the content type database table, updating the existing content type entry 
+        to reference the new model name, if the content type exists and migration is allowed.
+        """
         ContentType = apps.get_model("contenttypes", "ContentType")
         db = schema_editor.connection.alias
         if not router.allow_migrate_model(db, ContentType):
@@ -47,8 +51,7 @@ def inject_rename_contenttypes_operations(
     plan=None, apps=global_apps, using=DEFAULT_DB_ALIAS, **kwargs
 ):
     """
-    Insert a `RenameContentType` operation after every planned `RenameModel`
-    operation.
+    Insert a `RenameContentType` operation after every planned `RenameModel` operation to ensure content types are updated accordingly when models are renamed, maintaining consistency between model and content type names.
     """
     if plan is None:
         return
@@ -90,6 +93,19 @@ def inject_rename_contenttypes_operations(
 
 
 def get_contenttypes_and_models(app_config, using, ContentType):
+    """
+
+    Retrieve a mapping of content types and models for a given application configuration.
+
+    Returns a tuple containing two dictionaries: one mapping model names to their corresponding content types,
+    and another mapping model names to their corresponding model classes. Returns (None, None) if migration is not allowed.
+
+    :param app_config: Application configuration object.
+    :param using: Database alias to use for the query.
+    :param ContentType: ContentType model class.
+    :rtype: tuple
+
+    """
     if not router.allow_migrate_model(using, ContentType):
         return None, None
 
@@ -112,7 +128,19 @@ def create_contenttypes(
     **kwargs,
 ):
     """
-    Create content types for models in the given app.
+
+    Create content types for models in a given application.
+
+    This function is responsible for initializing the content types in the database
+    for the models defined in the provided application configuration. It creates the
+    necessary ContentType objects for each model and stores them in the database.
+
+    :param app_config: Application configuration to create content types for.
+    :param verbosity: Verbosity level for output messages (default: 2).
+    :param interactive: Whether to run in interactive mode (default: True).
+    :param using: Database alias to use for the operation (default: DEFAULT_DB_ALIAS).
+    :param apps: Registry of applications (default: global_apps).
+
     """
     if not app_config.models_module:
         return

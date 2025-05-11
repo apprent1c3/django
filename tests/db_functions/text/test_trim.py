@@ -25,6 +25,9 @@ class TrimTests(TestCase):
         )
 
     def test_trim_transform(self):
+        """
+        \"testing the trim transformation functionality on a model field, specifically left, right, and full trim operations to ensure correct filtering results.\"
+        """
         Author.objects.create(name=" John  ")
         Author.objects.create(name="Rhonda")
         tests = (

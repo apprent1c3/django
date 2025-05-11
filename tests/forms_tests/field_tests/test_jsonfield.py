@@ -30,6 +30,9 @@ class JSONFieldTest(SimpleTestCase):
             field.clean("{some badly formed: json}")
 
     def test_prepare_value(self):
+        """
+        Tests the preparation of values for a JSON field, ensuring that various input types are correctly converted to JSON strings.
+        """
         field = JSONField()
         self.assertEqual(field.prepare_value({"a": "b"}), '{"a": "b"}')
         self.assertEqual(field.prepare_value(None), "null")
@@ -50,7 +53,9 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIsInstance(field.widget, TextInput)
 
     def test_custom_widget_attribute(self):
-        """The widget can be overridden with an attribute."""
+        """
+        Verifies that a custom widget attribute can be successfully applied to a JSON field, allowing for overrides of the default widget.
+        """
 
         class CustomJSONField(JSONField):
             widget = TextInput
@@ -59,6 +64,11 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIsInstance(field.widget, TextInput)
 
     def test_converted_value(self):
+        """
+
+        Tests that the JSON field correctly converts and validates various JSON values, ensuring that the cleaned value matches the original cleaned value.
+
+        """
         field = JSONField(required=False)
         tests = [
             '["a", "b", "c"]',
@@ -81,6 +91,9 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIs(field.has_changed({"a": 1, "b": 2}, '{"b": 2, "a": 1}'), False)
 
     def test_custom_encoder_decoder(self):
+        """
+        Tests the functionality of a custom JSON decoder within the JSONField class, ensuring that it properly encodes and decodes UUID values.
+        """
         class CustomDecoder(json.JSONDecoder):
             def __init__(self, object_hook=None, *args, **kwargs):
                 return super().__init__(object_hook=self.as_uuid, *args, **kwargs)
@@ -104,6 +117,9 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIn("[&quot;foo&quot;]</textarea>", form.as_p())
 
     def test_redisplay_none_input(self):
+        """
+        Tests the behavior of a JSONField in a form when no input or null is provided, verifying that the field is rendered with a 'null' value and displays an error message indicating that the field is required.
+        """
         class JSONForm(Form):
             json_field = JSONField(required=True)
 
@@ -120,8 +136,10 @@ class JSONFieldTest(SimpleTestCase):
 
     def test_redisplay_wrong_input(self):
         """
-        Displaying a bound form (typically due to invalid input). The form
-        should not overquote JSONField inputs.
+
+        Tests redisplaying a form after invalid input, specifically verifying that JSONField
+        inputs are not overquoted.
+
         """
 
         class JSONForm(Form):

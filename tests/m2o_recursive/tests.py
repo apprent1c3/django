@@ -10,6 +10,9 @@ class ManyToOneRecursiveTests(TestCase):
         cls.c = Category.objects.create(id=None, name="Child category", parent=cls.r)
 
     def test_m2o_recursive(self):
+        """
+        Tests the many-to-one recursive relationship between objects, ensuring correct retrieval of child and parent objects and validation of their properties.
+        """
         self.assertSequenceEqual(self.r.child_set.all(), [self.c])
         self.assertEqual(self.r.child_set.get(name__startswith="Child").id, self.c.id)
         self.assertIsNone(self.r.parent)
@@ -31,6 +34,9 @@ class MultipleManyToOneRecursiveTests(TestCase):
         )
 
     def test_m2o_recursive2(self):
+        """
+        Tests the many-to-one relationships in a family structure, verifying that a child's parents are correctly identified and that the parents' child sets are correctly populated.
+        """
         self.assertEqual(self.kid.mother.id, self.mom.id)
         self.assertEqual(self.kid.father.id, self.dad.id)
         self.assertSequenceEqual(self.dad.fathers_child_set.all(), [self.kid])

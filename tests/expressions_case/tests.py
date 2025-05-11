@@ -36,6 +36,13 @@ except ImportError:
 class CaseExpressionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        .. classmethod:: setUpTestData
+            Sets up test data for the test suite by creating instances of CaseTestModel, 
+            O2OCaseTestModel and FKCaseTestModel. It also prepares a list of fields 
+            that can be used for grouping, excluding fields that are auto-generated 
+            reverse relationships and certain types of large object fields.
+        """
         o = CaseTestModel.objects.create(integer=1, integer2=1, string="1")
         O2OCaseTestModel.objects.create(o2o=o, integer=1)
         FKCaseTestModel.objects.create(fk=o, integer=1)
@@ -1566,6 +1573,11 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_conditional_aggregation_example(self):
+        """
+
+        Tests conditional aggregation on Client objects, verifying that the correct counts of regular, gold, and platinum clients are returned.
+
+        """
         Client.objects.create(
             name="Jean Grey",
             account_type=Client.REGULAR,
@@ -1626,6 +1638,9 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_hash(self):
+        """
+        Tests the hash value of Case expressions to ensure they are correctly computed based on their components, regardless of the input type used for the 'in' condition in the When clause, and also verifies that different expressions produce different hash values.
+        """
         expression_1 = Case(
             When(account_type__in=[Client.REGULAR, Client.GOLD], then=1),
             default=2,
@@ -1655,6 +1670,9 @@ class CaseWhenTests(SimpleTestCase):
             Case(When(Q(pk__in=[])), object())
 
     def test_invalid_when_constructor_args(self):
+        """
+        Tests that the When class constructor raises a TypeError when passed invalid condition arguments, ensuring it only accepts a Q object, a boolean expression, or lookups as a condition.
+        """
         msg = (
             "When() supports a Q object, a boolean expression, or lookups as "
             "a condition."

@@ -43,7 +43,10 @@ class AsyncDummyCacheTests(SimpleTestCase):
 
     async def test_adelete(self):
         """
-        Cache deletion is transparently ignored on the dummy cache backend.
+
+        Tests the behavior of the cache deletion operation on a dummy cache backend.
+        Verifies that cache deletion does not actually remove the item and returns False.
+
         """
         await cache.aset_many({"key1": "spam", "key2": "eggs"})
         self.assertIsNone(await cache.aget("key1"))
@@ -58,7 +61,9 @@ class AsyncDummyCacheTests(SimpleTestCase):
         self.assertIs(await cache.ahas_key("goodbye1"), False)
 
     async def test_aincr(self):
-        """Dummy cache values can't be incremented."""
+        """
+        Tests that attempting to increment a non-numeric or non-existent cache value raises a ValueError, ensuring cache atomic increment operations are only performed on valid data.
+        """
         await cache.aset("answer", 42)
         with self.assertRaises(ValueError):
             await cache.aincr("answer")
@@ -68,7 +73,9 @@ class AsyncDummyCacheTests(SimpleTestCase):
             await cache.aincr("does_not_exist", -1)
 
     async def test_adecr(self):
-        """Dummy cache values can't be decremented."""
+        """
+        Verifies that cache values cannot be decremented when they are dummy or do not exist, raising a ValueError in such cases to prevent incorrect cache operations.
+        """
         await cache.aset("answer", 42)
         with self.assertRaises(ValueError):
             await cache.adecr("answer")
@@ -81,7 +88,9 @@ class AsyncDummyCacheTests(SimpleTestCase):
         self.assertIs(await cache.atouch("key"), False)
 
     async def test_data_types(self):
-        """All data types are ignored equally by the dummy cache."""
+        """
+        Tests that the dummy cache ignores all data types equally, including basic types and complex objects like functions and classes.
+        """
 
         def f():
             return 42
@@ -103,7 +112,9 @@ class AsyncDummyCacheTests(SimpleTestCase):
         self.assertIsNone(await cache.aget("data"))
 
     async def test_expiration(self):
-        """Expiration has no effect on the dummy cache."""
+        """
+        Tests that cache entries created with an expiration time are properly removed after the expiration time has passed.
+        """
         await cache.aset("expire1", "very quickly", 1)
         await cache.aset("expire2", "very quickly", 1)
         await cache.aset("expire3", "very quickly", 1)
@@ -116,7 +127,9 @@ class AsyncDummyCacheTests(SimpleTestCase):
         self.assertIs(await cache.ahas_key("expire3"), False)
 
     async def test_unicode(self):
-        """Unicode values are ignored by the dummy cache."""
+        """
+        Tests the handling of Unicode values by the dummy cache, ensuring they are ignored as expected.
+        """
         tests = {
             "ascii": "ascii_value",
             "unicode_ascii": "Iñtërnâtiônàlizætiøn1",
@@ -159,7 +172,10 @@ class AsyncDummyCacheTests(SimpleTestCase):
         await cache.aclose()
 
     async def test_aincr_version(self):
-        """Dummy cache versions can't be incremented."""
+        """
+        Tests that attempting to increment the version of a dummy cache or a non-existent cache raises a ValueError.\"\"\"
+        ```
+        """
         await cache.aset("answer", 42)
         with self.assertRaises(ValueError):
             await cache.aincr_version("answer")
@@ -169,7 +185,9 @@ class AsyncDummyCacheTests(SimpleTestCase):
             await cache.aincr_version("does_not_exist")
 
     async def test_adecr_version(self):
-        """Dummy cache versions can't be decremented."""
+        """
+        Tests that attempting to decrement the version of a dummy cache entry raises a ValueError, covering scenarios where the entry exists, has a specified version, or does not exist.
+        """
         await cache.aset("answer", 42)
         with self.assertRaises(ValueError):
             await cache.adecr_version("answer")

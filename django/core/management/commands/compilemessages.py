@@ -19,6 +19,12 @@ def has_bom(fn):
 def is_writable(path):
     # Known side effect: updating file access/modified time to current time if
     # it is writable.
+    """
+    Checks if a file at the given path is writable.
+
+     :param path: The file path to check.
+     :return: True if the file is writable, False otherwise.
+    """
     try:
         with open(path, "a"):
             os.utime(path, None)
@@ -70,6 +76,13 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        Handle the compilation of translation messages for a project.
+
+        Compiles.po files into.mo files based on provided options, including the locale, files to exclude, and ignore patterns.
+        The function iterates through the project directory, identifies translation files, and compiles them using the GNU gettext tools.
+        Raises an error if the gettext tools are not found, no translation files are found, or if any errors occur during compilation.
+        """
         locale = options["locale"]
         exclude = options["exclude"]
         ignore_patterns = set(options["ignore_patterns"])
@@ -142,7 +155,21 @@ class Command(BaseCommand):
 
     def compile_messages(self, locations):
         """
-        Locations is a list of tuples: [(directory, file), ...]
+        Compile translation messages from *.po files to *.mo files in the specified locations.
+
+        :arg locations: A list of tuples, where each tuple contains a directory path and a file name.
+        :returns: None
+        :raises: None
+
+        Description:
+            This function compiles translation messages from *.po files to *.mo files
+            in the specified locations using a thread pool executor.
+            It checks if each *.po file needs to be compiled by comparing the
+            modification times of the *.po and *.mo files. If the *.mo file is
+            up-to-date, it skips compilation.
+            The function also checks for the presence of a Byte Order Mark (BOM)
+            in the *.po file and reports an error if found.
+            If the compilation fails, it reports an error and sets the has_errors flag.
         """
         with concurrent.futures.ThreadPoolExecutor() as executor:
             futures = []

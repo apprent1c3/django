@@ -46,7 +46,11 @@ class MultiDBOperationTests(OperationTestBase):
 
     def _test_create_model(self, app_label, should_run):
         """
-        CreateModel honors multi-db settings.
+
+        Tests the creation of a model, specifically validating that the operation respects 
+        multi-database settings and can successfully create and then reverse the creation 
+        of the model in the database.
+
         """
         operation = migrations.CreateModel(
             "Pony",
@@ -92,7 +96,7 @@ class MultiDBOperationTests(OperationTestBase):
 
     def test_create_model4(self):
         """
-        Test multiple routers.
+        Tests the creation of a model with multiple database routers configured, covering various scenarios to ensure correct behavior.
         """
         with override_settings(DATABASE_ROUTERS=[AgnosticRouter(), AgnosticRouter()]):
             self._test_create_model("test_mltdb_crmo4", should_run=True)
@@ -106,6 +110,14 @@ class MultiDBOperationTests(OperationTestBase):
             self._test_create_model("test_mltdb_crmo4", should_run=True)
 
     def _test_run_sql(self, app_label, should_run, hints=None):
+        """
+
+        Tests the execution and effect of a RunSQL migration operation.
+
+        This function verifies that a SQL operation executed through a migration does not affect the project state,
+        and that the changes are only applied to the database when the migration is run.
+
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 
@@ -146,6 +158,16 @@ class MultiDBOperationTests(OperationTestBase):
         self._test_run_sql("test_mltdb_runsql3", should_run=True, hints={"foo": True})
 
     def _test_run_python(self, app_label, should_run, hints=None):
+        """
+        Runs a test case for a Python-based migration operation.
+
+        Verifies that the operation correctly applies and reverses the migration, 
+        and checks the expected state of the database after running the operation.
+
+        :param app_label: The label of the application to test.
+        :param should_run: Whether the migration operation should create objects.
+        :param hints: Optional hints for the migration operation.
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 

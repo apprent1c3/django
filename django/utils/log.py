@@ -65,6 +65,13 @@ DEFAULT_LOGGING = {
 
 
 def configure_logging(logging_config, logging_settings):
+    """
+    Configures the logging system based on the provided configuration and settings.
+
+    :param logging_config: Optional string representing the logging configuration function to use.
+    :param logging_settings: Optional dictionary containing logging settings to apply.
+    :note: If logging_config is provided, it will be imported and used to configure logging with the given settings. If not provided, default logging configuration will be used.
+    """
     if logging_config:
         # First find the logging configuration function ...
         logging_config_func = import_string(logging_config)
@@ -93,6 +100,9 @@ class AdminEmailHandler(logging.Handler):
 
     def emit(self, record):
         # Early return when no email will be sent.
+        """
+        Handles emitting of error records, sending email notifications to administrators with relevant error details, subject to settings and internal IP checks.
+        """
         if (
             not settings.ADMINS
             # Method not overridden.
@@ -183,6 +193,14 @@ class ServerFormatter(logging.Formatter):
         super().__init__(*args, **kwargs)
 
     def format(self, record):
+        """
+        Formats a log record, applying HTTP status code styling and optionally adding server time information.\"\"\"
+
+         \"\"\" 
+            :param record: The log record to be formatted
+            :return: The formatted log record
+
+        """
         msg = record.msg
         status_code = getattr(record, "status_code", None)
 
@@ -224,11 +242,7 @@ def log_response(
     exception=None,
 ):
     """
-    Log errors based on HttpResponse status.
-
-    Log 5xx responses as errors and 4xx responses as warnings (unless a level
-    is given as a keyword argument). The HttpResponse status_code and the
-    request are passed to the logger's extra parameter.
+    Logs an HTTP response with a given message, automatically determining the log level based on the response status code unless specified.
     """
     # Check if the response has already been logged. Multiple requests to log
     # the same response can be received in some cases, e.g., when the

@@ -5,8 +5,7 @@ from asgiref.sync import iscoroutinefunction
 
 def no_append_slash(view_func):
     """
-    Mark a view function as excluded from CommonMiddleware's APPEND_SLASH
-    redirection.
+    Excludes a view function from URL trailing slash redirection by CommonMiddleware, allowing it to handle URLs with and without a trailing slash without being redirected.
     """
 
     # view_func.should_append_slash = False would also work, but decorators are

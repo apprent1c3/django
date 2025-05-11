@@ -69,6 +69,9 @@ class UpdateCacheMiddleware(MiddlewareMixin):
     """
 
     def __init__(self, get_response):
+        """
+        Initializes a cache middleware instance, setting up cache timeout, key prefix, and alias based on predefined settings.
+        """
         super().__init__(get_response)
         self.cache_timeout = settings.CACHE_MIDDLEWARE_SECONDS
         self.page_timeout = None
@@ -83,7 +86,11 @@ class UpdateCacheMiddleware(MiddlewareMixin):
         return hasattr(request, "_cache_update_cache") and request._cache_update_cache
 
     def process_response(self, request, response):
-        """Set the cache, if needed."""
+        """
+        Sets the cache for a given request and response if necessary, 
+        considering factors like cache control headers, response status code, 
+        and cookies, to improve subsequent requests for the same resource.
+        """
         if not self._should_update_cache(request, response):
             # We don't need to update the cache, just return.
             return response
@@ -150,8 +157,7 @@ class FetchFromCacheMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         """
-        Check whether the page is already cached and return the cached
-        version if available.
+        Checks if a request can be fulfilled from cache and returns the cached response if available, otherwise indicates that the request should be processed to update the cache.
         """
         if request.method not in ("GET", "HEAD"):
             request._cache_update_cache = False
@@ -197,6 +203,9 @@ class CacheMiddleware(UpdateCacheMiddleware, FetchFromCacheMiddleware):
     """
 
     def __init__(self, get_response, cache_timeout=None, page_timeout=None, **kwargs):
+        """
+        Initiates the cache middleware, setting up necessary parameters for caching behavior, including cache timeout, page timeout, and optional key prefix and cache alias.
+        """
         super().__init__(get_response)
         # We need to differentiate between "provided, but using default value",
         # and "not provided". If the value is provided using a default, then

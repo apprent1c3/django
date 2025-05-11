@@ -60,7 +60,17 @@ def reset_format_cache():
 
 
 def iter_format_modules(lang, format_module_path=None):
-    """Find format modules."""
+    """
+
+    Find and yield format modules for a given language.
+
+    The function iterates over predefined and custom locations to find format modules
+    for the specified language and its base locale, returning them one by one.
+
+    :param lang: The language code to find format modules for
+    :param format_module_path: Optional path or list of paths to search for format modules
+
+    """
     if not check_for_language(lang):
         return
 
@@ -87,7 +97,9 @@ def iter_format_modules(lang, format_module_path=None):
 
 
 def get_format_modules(lang=None):
-    """Return a list of the format modules found."""
+    """
+    Return a list of format modules available for a given language, defaulting to the current language if not specified. The result is cached to improve performance for subsequent requests with the same language.
+    """
     if lang is None:
         lang = get_language()
     if lang not in _format_modules_cache:
@@ -99,12 +111,7 @@ def get_format_modules(lang=None):
 
 def get_format(format_type, lang=None, use_l10n=None):
     """
-    For a specific format type, return the format for the current
-    language (locale). Default to the format in the settings.
-    format_type is the name of the format, e.g. 'DATE_FORMAT'.
-
-    If use_l10n is provided and is not None, it forces the value to
-    be localized (or not), otherwise it's always localized.
+    Retrieves the specified format for the current language, allowing for optional localization override. The function returns the format type (e.g. 'DATE_FORMAT') as configured for the current locale, with flexibility to force localization or use a default language.
     """
     if use_l10n is None:
         use_l10n = True
@@ -171,10 +178,7 @@ def time_format(value, format=None, use_l10n=None):
 
 def number_format(value, decimal_pos=None, use_l10n=None, force_grouping=False):
     """
-    Format a numeric value using localization settings.
-
-    If use_l10n is provided and is not None, it forces the value to
-    be localized (or not), otherwise it's always localized.
+    Format a numeric value using localization settings, allowing control over decimal places, thousand separators, and grouping.
     """
     if use_l10n is None:
         use_l10n = True
@@ -192,11 +196,7 @@ def number_format(value, decimal_pos=None, use_l10n=None, force_grouping=False):
 
 def localize(value, use_l10n=None):
     """
-    Check if value is a localizable type (date, number...) and return it
-    formatted as a string using current locale format.
-
-    If use_l10n is provided and is not None, it forces the value to
-    be localized (or not), otherwise it's always localized.
+    Formats the given value as a string according to the current locale, if applicable. Supports localization of dates, numbers, and other data types. The localization can be forced or disabled using the `use_l10n` parameter.
     """
     if isinstance(value, str):  # Handle strings first for performance reasons.
         return value
@@ -217,8 +217,14 @@ def localize(value, use_l10n=None):
 
 def localize_input(value, default=None):
     """
-    Check if an input value is a localizable type and return it
-    formatted with the appropriate formatting string of the current locale.
+    Localize an input value according to the current locale formatting rules.
+
+    Args:
+        value: The input value to be localized. Can be a string, boolean, number, date, time, or datetime object.
+        default: Optional default format string for date, time and datetime objects.
+
+    Returns:
+        The input value formatted according to the current locale settings.
     """
     if isinstance(value, str):  # Handle strings first for performance reasons.
         return value
@@ -243,25 +249,7 @@ def localize_input(value, default=None):
 @functools.lru_cache
 def sanitize_strftime_format(fmt):
     """
-    Ensure that certain specifiers are correctly padded with leading zeros.
-
-    For years < 1000 specifiers %C, %F, %G, and %Y don't work as expected for
-    strftime provided by glibc on Linux as they don't pad the year or century
-    with leading zeros. Support for specifying the padding explicitly is
-    available, however, which can be used to fix this issue.
-
-    FreeBSD, macOS, and Windows do not support explicitly specifying the
-    padding, but return four digit years (with leading zeros) as expected.
-
-    This function checks whether the %Y produces a correctly padded string and,
-    if not, makes the following substitutions:
-
-    - %C → %02C
-    - %F → %010F
-    - %G → %04G
-    - %Y → %04Y
-
-    See https://bugs.python.org/issue13305 for more details.
+    Ensure that certain specifiers in a strftime format string are correctly padded with leading zeros, fixing issues with glibc on Linux for years less than 1000.
     """
     if datetime.date(1, 1, 1).strftime("%Y") == "0001":
         return fmt
@@ -275,8 +263,7 @@ def sanitize_strftime_format(fmt):
 
 def sanitize_separators(value):
     """
-    Sanitize a value according to the current decimal and
-    thousand separator setting. Used with form field input.
+    Sanitizes a numeric value by replacing decimal and thousand separators according to the current locale settings, preparing it for use with form field input.
     """
     if isinstance(value, str):
         parts = []

@@ -8,6 +8,9 @@ from .models import Article, Category, Comment
 
 class DateTimesTests(TestCase):
     def test_related_model_traverse(self):
+        """
+        Tests querying related models using the datetimes method to extract specific dates from related objects, covering various date intervals such as year, month, week, and day, for articles, comments, and categories.
+        """
         a1 = Article.objects.create(
             title="First one",
             pub_date=datetime.datetime(2005, 7, 28, 9, 0, 0),
@@ -96,6 +99,9 @@ class DateTimesTests(TestCase):
         self.assertEqual(qs[0], now)
 
     def test_datetimes_returns_available_dates_for_given_scope_and_given_field(self):
+        """
+        Tests that the datetimes method of a QuerySet returns the available dates for a given field, filtered by the specified scope (e.g. year, month, week, day), and that it respects the order parameter (either ascending or descending).
+        """
         pub_dates = [
             datetime.datetime(2005, 7, 28, 12, 15),
             datetime.datetime(2005, 7, 29, 2, 15),
@@ -146,6 +152,10 @@ class DateTimesTests(TestCase):
         )
 
     def test_datetimes_has_lazy_iterator(self):
+        """
+        Tests that the datetimes iterator only executes a single query when iterating over results, 
+        despite being a lazy iterator, and returns dates in the expected order and format.
+        """
         pub_dates = [
             datetime.datetime(2005, 7, 28, 12, 15),
             datetime.datetime(2005, 7, 29, 2, 15),

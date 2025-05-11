@@ -8,11 +8,7 @@ from django.utils.module_loading import module_has_submodule
 @functools.cache
 def get_callable(lookup_view):
     """
-    Return a callable corresponding to lookup_view.
-    * If lookup_view is already a callable, return it.
-    * If lookup_view is a string import path that can be resolved to a callable,
-      import that callable and return it, otherwise raise an exception
-      (ImportError or ViewDoesNotExist).
+    Return a callable corresponding to the provided lookup view, resolving strings to importable callables if necessary. Raises an exception if the lookup view cannot be resolved to a callable.
     """
     if callable(lookup_view):
         return lookup_view
@@ -59,6 +55,12 @@ def get_callable(lookup_view):
 def get_mod_func(callback):
     # Convert 'django.views.news.stories.story_detail' to
     # ['django.views.news.stories', 'story_detail']
+    """
+    Split a callback string into a module and function name.
+
+    :param callback: A string containing a module and function name, separated by a dot.
+    :returns: A tuple containing the module name and function name. If no dot is found, returns the input string as the module name and an empty string as the function name.
+    """
     try:
         dot = callback.rindex(".")
     except ValueError:

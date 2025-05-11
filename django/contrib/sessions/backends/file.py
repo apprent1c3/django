@@ -27,6 +27,11 @@ class SessionStore(SessionBase):
 
     @classmethod
     def _get_storage_path(cls):
+        """
+        Returns the path where session data is stored, defaulting to the directory 
+        defined by the SESSION_FILE_PATH setting or the system's temporary directory if 
+        not specified. Ensures the directory exists before returning the path.
+        """
         try:
             return cls._storage_path
         except AttributeError:
@@ -46,7 +51,7 @@ class SessionStore(SessionBase):
 
     def _key_to_file(self, session_key=None):
         """
-        Get the file associated with this session key.
+        Returns the file path associated with a given session key, validating its contents and using the instance's default session key if none is provided.
         """
         if session_key is None:
             session_key = self._get_or_create_session_key()
@@ -77,6 +82,11 @@ class SessionStore(SessionBase):
         )
 
     def load(self):
+        """
+        Loads session data from a file, decoding and validating it in the process. 
+        If the data is invalid, corrupted, or has expired, it is discarded and a new session is created. 
+        The function returns the loaded session data, or an empty dictionary if the session is invalid or has expired.
+        """
         session_data = {}
         try:
             with open(self._key_to_file(), encoding="ascii") as session_file:
@@ -108,6 +118,9 @@ class SessionStore(SessionBase):
         return self.load()
 
     def create(self):
+        """
+        Creates a new session, generating a unique session key and persisting it to storage until successful creation.
+        """
         while True:
             self._session_key = self._get_new_session_key()
             try:
@@ -121,6 +134,17 @@ class SessionStore(SessionBase):
         return self.create()
 
     def save(self, must_create=False):
+        """
+        Saves the current session data to a file.
+
+        The file is created if it does not exist and :param:`must_create` is ``True``. 
+        If the file already exists and :param:`must_create` is ``True``, an error is raised. 
+        If the file does not exist and :param:`must_create` is ``False``, the session is created instead. 
+
+        :param bool must_create: Whether the file must be created, or the operation should fail if it exists.
+        :raises UpdateError: If the file does not exist and :param:`must_create` is ``False``.
+        :raises CreateError: If the file exists and :param:`must_create` is ``True``.
+        """
         if self.session_key is None:
             return self.create()
         # Get the session data now, before we start messing
@@ -193,6 +217,13 @@ class SessionStore(SessionBase):
         return self.exists(session_key)
 
     def delete(self, session_key=None):
+        """
+
+        Deletes a session file associated with the given or default session key.
+
+        :param session_key: The session key to delete, defaults to the instance's session key if not provided.
+
+        """
         if session_key is None:
             if self.session_key is None:
                 return
@@ -207,6 +238,16 @@ class SessionStore(SessionBase):
 
     @classmethod
     def clear_expired(cls):
+        """
+
+        Removes expired sessions from storage.
+
+        This method iterates through stored session files and checks their validity.
+        If a session is found to be expired, it is effectively removed by replacing its
+        creation method with a no-op, then loading the session to trigger expiration
+        handling.
+
+        """
         storage_path = cls._get_storage_path()
         file_prefix = settings.SESSION_COOKIE_NAME
 

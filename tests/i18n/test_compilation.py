@@ -31,6 +31,9 @@ class PoFileTests(MessageCompilationTests):
     MO_FILE_EN = "locale/en/LC_MESSAGES/django.mo"
 
     def test_bom_rejection(self):
+        """
+        Tests that a translation file with a Byte Order Mark (BOM) is correctly rejected during message compilation.
+        """
         stderr = StringIO()
         with self.assertRaisesMessage(
             CommandError, "compilemessages generated one or more errors."
@@ -42,6 +45,9 @@ class PoFileTests(MessageCompilationTests):
         self.assertFalse(os.path.exists(self.MO_FILE))
 
     def test_no_write_access(self):
+        """
+        Tests that compilemessages command fails when the.mo file directory is not writable.
+        """
         mo_file_en = Path(self.MO_FILE_EN)
         err_buffer = StringIO()
         # Put file in read-only mode.
@@ -61,6 +67,9 @@ class PoFileTests(MessageCompilationTests):
             mo_file_en.chmod(old_mode)
 
     def test_no_compile_when_unneeded(self):
+        """
+        Checks that the compilemessages command does not recompile a translation file if it is already up to date.
+        """
         mo_file_en = Path(self.MO_FILE_EN)
         mo_file_en.touch()
         stdout = StringIO()
@@ -196,6 +205,9 @@ class IgnoreDirectoryCompilationTests(MessageCompilationTests):
         self.assertNoneExist(self.NESTED_DIR, ["en", "fr", "it"])
 
     def test_no_dirs_accidentally_skipped(self):
+        """
+        Tests that the compilemessages command does not accidentally skip directories when ignoring certain directories and files.
+        """
         os_walk_results = [
             # To discover .po filepaths, compilemessages uses with a starting list of
             # basedirs to inspect, which in this scenario are:
@@ -263,6 +275,9 @@ class CompilationErrorHandling(MessageCompilationTests):
     def test_msgfmt_error_including_non_ascii(self):
         # po file contains invalid msgstr content (triggers non-ascii error content).
         # Make sure the output of msgfmt is unaffected by the current locale.
+        """
+        Tests if compilemessages command correctly handles errors involving non-ASCII characters in message format strings, specifically for locales with non-ASCII characters, and verifies that an error message is raised when compiling messages fails
+        """
         env = os.environ.copy()
         env.update({"LC_ALL": "C"})
         with mock.patch(
@@ -294,6 +309,13 @@ class FuzzyTranslationTest(ProjectAndAppTests):
         gettext_module._translations = {}  # flush cache or test will be useless
 
     def test_nofuzzy_compiling(self):
+        """
+
+        Tests localization compilation without fuzzy translations.
+
+        Verifies that messages compile correctly and translations are applied as expected.
+
+        """
         with override_settings(LOCALE_PATHS=[os.path.join(self.test_dir, "locale")]):
             call_command("compilemessages", locale=[self.LOCALE], verbosity=0)
             with translation.override(self.LOCALE):
@@ -301,6 +323,9 @@ class FuzzyTranslationTest(ProjectAndAppTests):
                 self.assertEqual(gettext("Vodka"), "Vodka")
 
     def test_fuzzy_compiling(self):
+        """
+        Tests compiling of fuzzy translations with overridden locale settings and verifies that the translations are applied correctly.
+        """
         with override_settings(LOCALE_PATHS=[os.path.join(self.test_dir, "locale")]):
             call_command(
                 "compilemessages", locale=[self.LOCALE], fuzzy=True, verbosity=0

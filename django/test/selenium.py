@@ -25,8 +25,9 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
 
     def __new__(cls, name, bases, attrs):
         """
-        Dynamically create new classes and add them to the test module when
-        multiple browsers specs are provided (e.g. --selenium=firefox,chrome).
+        Dynamically creates new classes and adds them to the test module when multiple browser specifications are provided.
+        This allows for running tests across different browsers, such as Firefox and Chrome.
+        The function ensures that test classes are properly configured with browser-specific settings.
         """
         test_class = super().__new__(cls, name, bases, attrs)
         # If the test class is either browser-specific or a test base, return it.
@@ -80,6 +81,14 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
         return getattr(DesiredCapabilities, browser.upper())
 
     def create_options(self):
+        """
+
+        Create browser options, including headless mode if enabled.
+
+        Returns:
+            Browser options object configured for the specified browser, with headless mode enabled if the instance is set to headless.
+
+        """
         options = self.import_options(self.browser)()
         if self.headless:
             match self.browser:
@@ -90,6 +99,9 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
         return options
 
     def create_webdriver(self):
+        """
+        Creates a WebDriver instance with the specified browser and options, using either a local browser or a remote Selenium hub if configured.
+        """
         options = self.create_options()
         if self.selenium_hub:
             from selenium import webdriver
@@ -123,6 +135,21 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
+        """
+
+        Automatically generates screenshot test methods for a subclass.
+
+        This method is a class factory hook that dynamically creates test methods
+        for each method in the subclass that has screenshot cases defined.
+        It replaces the original method with multiple test methods, each covering
+        a different screenshot case.
+
+        The generated test methods have names that include the original method name
+        and the screenshot case name, and are annotated with the screenshot case.
+        They wrap the original method with a context manager that sets up the
+        screenshot case before running the method.
+
+        """
         super().__init_subclass__(**kwargs)
         if not cls.screenshots:
             return
@@ -185,6 +212,14 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
     @contextmanager
     def dark(self):
         # Navigate to a page before executing a script.
+        """
+
+        Temporarily sets the application theme to dark mode for testing purposes.
+
+        This context manager simulates a user selection of the dark theme and reverts
+        to the original state upon completion, ensuring a clean test environment.
+
+        """
         self.selenium.get(self.live_server_url)
         self.selenium.execute_script("localStorage.setItem('theme', 'dark');")
         with self.desktop_size():
@@ -194,6 +229,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
                 self.selenium.execute_script("localStorage.removeItem('theme');")
 
     def set_emulated_media(self, *, media=None, features=None):
+        """
+        Sets emulated media properties for the current browser session, allowing for simulation of different media conditions, such as dark mode or prefers-color-scheme. Currently supported on Chromium and Chrome-based browsers only.
+        """
         if self.browser not in {"chrome", "edge"}:
             self.skipTest(
                 "Emulation.setEmulatedMedia is only supported on Chromium and "
@@ -215,6 +253,10 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @contextmanager
     def high_contrast(self):
+        """
+        Temporarily enables high contrast mode for the duration of the context, 
+        allowing for testing of forced color schemes, then resets to default mode upon exit.
+        """
         self.set_emulated_media(features=[{"name": "forced-colors", "value": "active"}])
         with self.desktop_size():
             try:
@@ -225,6 +267,14 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
                 )
 
     def take_screenshot(self, name):
+        """
+        Captures a screenshot of the current browser state and saves it as a PNG file.
+
+        The screenshot filename is generated based on the current test method name, the provided screenshot name, and the test case.
+        The screenshot is stored in the 'screenshots' directory in the current working directory.
+
+        Requires that the test has been configured to take screenshots.
+        """
         if not self.screenshots:
             return
         test = getattr(self, self._testMethodName)
@@ -243,7 +293,10 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @contextmanager
     def disable_implicit_wait(self):
-        """Disable the default implicit wait."""
+        """
+        Temporarily disable the implicit wait timeout, allowing for faster test execution 
+        by requiring explicit waits or instantly returning on element access attempts.
+        """
         self.selenium.implicitly_wait(0)
         try:
             yield
@@ -252,6 +305,12 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
 
 def screenshot_cases(method_names):
+    """
+    A decorator that marks a test case for screenshotting, associating it with specific method names.
+
+        :param method_names: A string or list of method names to capture screenshots for
+        :return: The decorated test function with screenshot capturing enabled
+    """
     if isinstance(method_names, str):
         method_names = method_names.split(",")
 

@@ -64,15 +64,7 @@ def send_mail(
     html_message=None,
 ):
     """
-    Easy wrapper for sending a single message to a recipient list. All members
-    of the recipient list will see the other recipients in the 'To' field.
-
-    If from_email is None, use the DEFAULT_FROM_EMAIL setting.
-    If auth_user is None, use the EMAIL_HOST_USER setting.
-    If auth_password is None, use the EMAIL_HOST_PASSWORD setting.
-
-    Note: The API for this method is frozen. New code wanting to extend the
-    functionality should use the EmailMessage class directly.
+    Sends a single email message to a list of recipients, optionally rendering the message in HTML format, with support for authentication and connection settings.
     """
     connection = connection or get_connection(
         username=auth_user,
@@ -118,7 +110,18 @@ def send_mass_mail(
 def mail_admins(
     subject, message, fail_silently=False, connection=None, html_message=None
 ):
-    """Send a message to the admins, as defined by the ADMINS setting."""
+    """
+    Sends an email notification to site administrators.
+
+    Sending occurs only if the ADMINS setting is properly configured.
+    Optional HTML content can be included for emails supporting it.
+
+    :param subject: email subject line
+    :param message: plain text email content
+    :param fail_silently: whether to suppress send errors
+    :param connection: optional email backend connection to use
+    :param html_message: optional HTML content for the email
+    """
     if not settings.ADMINS:
         return
     if not all(isinstance(a, (list, tuple)) and len(a) == 2 for a in settings.ADMINS):
@@ -138,7 +141,16 @@ def mail_admins(
 def mail_managers(
     subject, message, fail_silently=False, connection=None, html_message=None
 ):
-    """Send a message to the managers, as defined by the MANAGERS setting."""
+    """
+    Send an email notification to site managers with a specified subject and message.
+
+    :param str subject: Email subject line
+    :param str message: Email body content
+    :param bool fail_silently: If True, suppresses email-related exceptions
+    :param connection: Optional email connection object
+    :param str html_message: Optional HTML version of the email body content
+
+    """
     if not settings.MANAGERS:
         return
     if not all(isinstance(a, (list, tuple)) and len(a) == 2 for a in settings.MANAGERS):

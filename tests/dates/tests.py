@@ -10,6 +10,9 @@ from .models import Article, Category, Comment
 
 class DatesTests(TestCase):
     def test_related_model_traverse(self):
+        """
+        Tests the traversal of related models for date queries, ensuring correct date retrieval for comments, articles, and categories.
+        """
         a1 = Article.objects.create(
             title="First one",
             pub_date=datetime.date(2005, 7, 28),
@@ -133,6 +136,9 @@ class DatesTests(TestCase):
 
     @skipUnless(connection.vendor == "mysql", "Test checks MySQL query syntax")
     def test_dates_avoid_datetime_cast(self):
+        """
+        Checks if MySQL query syntax for dates is correct by verifying the generated SQL query for date-based lookups on the 'pub_date' field, ensuring that datetime casting is avoided where possible.
+        """
         Article.objects.create(pub_date=datetime.date(2015, 10, 21))
         for kind in ["day", "month", "year"]:
             qs = Article.objects.dates("pub_date", kind)

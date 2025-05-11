@@ -49,6 +49,9 @@ class LookupTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a few Authors.
+        """
+        Sets up test data for the application, including authors, articles, and tags, to be used in subsequent tests.
+        """
         cls.au1 = Author.objects.create(name="Author 1", alias="a1", bio="x" * 4001)
         cls.au2 = Author.objects.create(name="Author 2", alias="a2")
         # Create a few Articles.
@@ -152,6 +155,13 @@ class LookupTests(TestCase):
 
     def test_count(self):
         # count() returns the number of objects matching search criteria.
+        """
+
+        Verifies the accurate counting of articles in the database, 
+        including filtering by publication date and headline, 
+        and slicing of querysets.
+
+        """
         self.assertEqual(Article.objects.count(), 7)
         self.assertEqual(
             Article.objects.filter(pub_date__exact=datetime(2005, 7, 27)).count(), 3
@@ -174,6 +184,13 @@ class LookupTests(TestCase):
 
     def test_in_bulk(self):
         # in_bulk() takes a list of IDs and returns a dictionary mapping IDs to objects.
+        """
+        ``` 
+        #: Tests the in_bulk method to ensure it can fetch multiple objects from the database in a single query.
+        #: It verifies that it can handle various input types such as lists, dictionaries, sets, tuples and empty inputs.
+        #: Also, checks that it raises an error when an invalid input is provided.
+        ```
+        """
         arts = Article.objects.in_bulk([self.a1.id, self.a2.id])
         self.assertEqual(arts[self.a1.id], self.a1)
         self.assertEqual(arts[self.a2.id], self.a2)
@@ -205,6 +222,9 @@ class LookupTests(TestCase):
             Article.objects.in_bulk(headline__startswith="Blah")
 
     def test_in_bulk_lots_of_ids(self):
+        """
+        Tests the `in_bulk` method of the Author model with a large number of IDs, verifying that it correctly retrieves authors and adheres to the expected number of database queries based on the maximum number of query parameters allowed by the database connection.
+        """
         test_range = 2000
         max_query_params = connection.features.max_query_params
         expected_num_queries = (
@@ -260,6 +280,9 @@ class LookupTests(TestCase):
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_in_bulk_preserve_ordering_with_batch_size(self):
+        """
+        Tests that the in_bulk method preserves ordering when used with distinct on fields and a batch size, for databases that support it.
+        """
         old_max_query_params = connection.features.max_query_params
         connection.features.max_query_params = 1
         try:
@@ -298,6 +321,12 @@ class LookupTests(TestCase):
 
     @isolate_apps("lookup")
     def test_in_bulk_non_unique_meta_constaint(self):
+        """
+        Tests that in_bulk() raises an error when field_name is not a unique field.
+
+        Verifies the constraint that the field_name passed to in_bulk() must be a unique field.
+        Checks for ValueError when a non-unique field is provided, with custom error message containing the non-unique field name.
+        """
         class Model(models.Model):
             ean = models.CharField(max_length=100)
             brand = models.CharField(max_length=100)
@@ -330,6 +359,9 @@ class LookupTests(TestCase):
     def test_values(self):
         # values() returns a list of dictionaries instead of object instances --
         # and you can specify which fields you want to retrieve.
+        """
+        Tests the behavior of Django's ORM values method, ensuring it correctly retrieves data from the database and handles various edge cases, including filtering, extra select, and field lookups.
+        """
         self.assertSequenceEqual(
             Article.objects.values("headline"),
             [
@@ -523,6 +555,13 @@ class LookupTests(TestCase):
         # returned as a list of tuples, rather than a list of dictionaries.
         # Within each tuple, the order of the elements is the same as the order
         # of fields in the values_list() call.
+        """
+
+        Tests the values_list method of Django's ORM to ensure it correctly returns 
+        sequences of field values, handles ordering and extra select fields, 
+        and raises a TypeError when attempting to use flat=True with multiple fields.
+
+        """
         self.assertSequenceEqual(
             Article.objects.values_list("headline"),
             [
@@ -624,6 +663,9 @@ class LookupTests(TestCase):
         # get_previous_by_FOO() methods. In the case of identical date values,
         # these methods will use the ID as a fallback check. This guarantees
         # that no records are skipped or duplicated.
+        """
+        Tests retrieval of next and previous articles by publication date, verifying correct results for various articles and query filters.
+        """
         self.assertEqual(repr(self.a1.get_next_by_pub_date()), "<Article: Article 2>")
         self.assertEqual(repr(self.a2.get_next_by_pub_date()), "<Article: Article 3>")
         self.assertEqual(
@@ -659,6 +701,9 @@ class LookupTests(TestCase):
     def test_escaping(self):
         # Underscores, percent signs and backslashes have special meaning in the
         # underlying SQL code, but Django handles the quoting of them automatically.
+        """
+        Tests the escaping behavior of special characters in string lookups for Article objects, ensuring that underscores, percent signs, and backslashes are correctly handled in filtering queries.
+        """
         a8 = Article.objects.create(
             headline="Article_ with underscore", pub_date=datetime(2005, 11, 20)
         )
@@ -691,6 +736,13 @@ class LookupTests(TestCase):
         )
 
     def test_exclude(self):
+        """
+        Tests the QuerySet exclude method with various lookup types.
+
+            Verifies that the exclude method correctly filters out objects from the QuerySet
+            based on headline contents, ensuring that only expected objects are returned.
+
+        """
         a8 = Article.objects.create(
             headline="Article_ with underscore", pub_date=datetime(2005, 11, 20)
         )
@@ -718,6 +770,9 @@ class LookupTests(TestCase):
 
     def test_none(self):
         # none() returns a QuerySet that behaves like any other QuerySet object
+        """
+        Tests the behavior of the `none()` method on Article querysets, verifying it returns an empty queryset and does not affect the database when used with filter, count, update, or iteration operations.
+        """
         self.assertSequenceEqual(Article.objects.none(), [])
         self.assertSequenceEqual(
             Article.objects.none().filter(headline__startswith="Article"), []
@@ -770,6 +825,12 @@ class LookupTests(TestCase):
             self.assertSequenceEqual(Article.objects.filter(id__in=[None]), [])
 
     def test_in_ignore_none_with_unhashable_items(self):
+        """
+
+        Checks that the ORM correctly handles IN queries with unhashable items and None values.
+        Verifies that the filter operation returns the expected results and that the generated SQL query is correct.
+
+        """
         class UnhashableInt(int):
             __hash__ = None
 
@@ -791,6 +852,9 @@ class LookupTests(TestCase):
             Article.objects.filter(pub_date_year="2005").count()
 
     def test_unsupported_lookups(self):
+        """
+        Tests that unsupported lookups on model fields raise the expected FieldError exceptions with informative error messages, ensuring that invalid lookups are properly rejected and helpful suggestions for valid alternatives are provided.
+        """
         with self.assertRaisesMessage(
             FieldError,
             "Unsupported lookup 'starts' for CharField or join on the field "
@@ -841,6 +905,9 @@ class LookupTests(TestCase):
             Article.objects.filter(pub_date__gt__lt__foo="blahblah")
 
     def test_unsupported_lookups_custom_lookups(self):
+        """
+        Tests that a custom lookup with a typographical error in the lookup type name correctly raises a FieldError when attempting to filter on a SlugField, providing a helpful error message suggesting the correct lookup type.
+        """
         slug_field = Article._meta.get_field("slug")
         msg = (
             "Unsupported lookup 'lengtp' for SlugField or join on the field not "
@@ -852,6 +919,9 @@ class LookupTests(TestCase):
 
     def test_relation_nested_lookup_error(self):
         # An invalid nested lookup on a related field raises a useful error.
+        """
+        Tests that nested lookups on foreign key fields raise a FieldError when an unsupported lookup type is used, ensuring that only valid lookup types are permitted for foreign key or join operations.
+        """
         msg = (
             "Unsupported lookup 'editor__name' for ForeignKey or join on the field not "
             "permitted."
@@ -874,6 +944,9 @@ class LookupTests(TestCase):
             Author.objects.filter(article__title="Article 1")
 
     def test_unsupported_lookup_reverse_foreign_key_custom_lookups(self):
+        """
+        Tests that Django raises a FieldError when a reverse foreign key lookup is performed with a custom lookup name that is not registered on the related field.
+        """
         msg = (
             "Unsupported lookup 'abspl' for ManyToOneRel or join on the field not "
             "permitted, perhaps you meant abspk?"
@@ -893,6 +966,9 @@ class LookupTests(TestCase):
     def test_regex(self):
         # Create some articles with a bit more interesting headlines for
         # testing field lookups.
+        """
+        Tests the regular expression functionality in the Article model, ensuring that various regex patterns correctly filter Article objects based on their headlines.
+        """
         Article.objects.all().delete()
         now = datetime.now()
         Article.objects.bulk_create(
@@ -1079,7 +1155,7 @@ class LookupTests(TestCase):
 
     def test_nonfield_lookups(self):
         """
-        A lookup query containing non-fields raises the proper exception.
+        Tests that lookup queries containing non-field names raise the expected FieldError exceptions, ensuring that invalid field lookups are properly handled.
         """
         msg = (
             "Unsupported lookup 'blahblah' for CharField or join on the field not "
@@ -1102,8 +1178,7 @@ class LookupTests(TestCase):
 
     def test_lookup_collision(self):
         """
-        Genuine field names don't collide with built-in lookup types
-        ('year', 'gt', 'range', 'in' etc.) (#11670).
+        Tests that field names like 'year' or 'gt' in a model do not conflict with built-in lookup types in Django's ORM, ensuring correct filtering and lookup functionality.
         """
         # 'gt' is used as a code number for the year, e.g. 111=>2009.
         season_2009 = Season.objects.create(year=2009, gt=111)
@@ -1208,7 +1283,10 @@ class LookupTests(TestCase):
         )
 
     def test_exact_none_transform(self):
-        """Transforms are used for __exact=None."""
+        """
+        Tests if a transform correctly handles the exact=None lookup, 
+        specifically for a field with a null value representation.
+        """
         Season.objects.create(year=1, nulled_text_field="not null")
         self.assertFalse(Season.objects.filter(nulled_text_field__isnull=True))
         self.assertTrue(Season.objects.filter(nulled_text_field__nulled__isnull=True))
@@ -1228,6 +1306,9 @@ class LookupTests(TestCase):
         )
 
     def test_exact_sliced_queryset_not_limited_to_one(self):
+        """
+        Tests that exact sliced QuerySets are limited to one result, raising a ValueError if the QuerySet returns multiple values.
+        """
         msg = (
             "The QuerySet value for an exact lookup must be limited to one "
             "result using slicing."
@@ -1241,6 +1322,9 @@ class LookupTests(TestCase):
     def test_exact_booleanfield(self):
         # MySQL ignores indexes with boolean fields unless they're compared
         # directly to a boolean value.
+        """
+        Tests the exact lookup of a BooleanField when using a MySQL database connection. This ensures that the boolean filter is properly translated into a SQL query, resulting in the correct model instances being returned.
+        """
         product = Product.objects.create(name="Paper", qty_target=5000)
         Stock.objects.create(product=product, short=False, qty_available=5100)
         stock_1 = Stock.objects.create(product=product, short=True, qty_available=180)
@@ -1255,6 +1339,9 @@ class LookupTests(TestCase):
     def test_exact_booleanfield_annotation(self):
         # MySQL ignores indexes with boolean fields unless they're compared
         # directly to a boolean value.
+        """
+        Tests the annotation of exact boolean values in MySQL-specific database queries, covering cases with Case, ExpressionWrapper, and Exists annotations to ensure correct filtering and query generation.
+        """
         qs = Author.objects.annotate(
             case=Case(
                 When(alias="a1", then=True),
@@ -1289,6 +1376,9 @@ class LookupTests(TestCase):
         self.assertTrue(Season.objects.filter(pk=season.pk, nulled_text_field=""))
 
     def test_pattern_lookups_with_substr(self):
+        """
+        Tests pattern lookups with substrings by creating authors with specific names and aliases, and then verifying that the filtered results match the expected outcome for various lookup types, including case-sensitive and case-insensitive starts with, contains, and ends with lookups.
+        """
         a = Author.objects.create(name="John Smith", alias="Johx")
         b = Author.objects.create(name="Rhonda Simpson", alias="sonx")
         tests = (
@@ -1307,7 +1397,9 @@ class LookupTests(TestCase):
                 self.assertCountEqual(authors, result)
 
     def test_custom_lookup_none_rhs(self):
-        """Lookup.can_use_none_as_rhs=True allows None as a lookup value."""
+        """
+        Tests that Lookup can correctly utilize None as a lookup value when can_use_none_as_rhs is enabled.
+        """
         season = Season.objects.create(year=2012, nulled_text_field=None)
         query = Season.objects.get_queryset().query
         field = query.model._meta.get_field("nulled_text_field")
@@ -1357,6 +1449,9 @@ class LookupTests(TestCase):
         self.assertEqual(authors.get(), newest_author)
 
     def test_isnull_non_boolean_value(self):
+        """
+        Tests that a ValueError is raised when a non-boolean value is used with the isnull lookup in a QuerySet filter.
+        """
         msg = "The QuerySet value for an isnull lookup must be True or False."
         tests = [
             Author.objects.filter(alias__isnull=1),
@@ -1380,6 +1475,13 @@ class LookupTests(TestCase):
         )
 
     def test_lookup_rhs(self):
+        """
+
+        Tests the lookup of the 'short' field in the Stock model.
+
+        Verifies that the 'short' field correctly identifies stocks with quantities less than the product's target quantity.
+
+        """
         product = Product.objects.create(name="GME", qty_target=5000)
         stock_1 = Stock.objects.create(product=product, short=True, qty_available=180)
         stock_2 = Stock.objects.create(product=product, short=False, qty_available=5100)
@@ -1408,6 +1510,9 @@ class LookupTests(TestCase):
 class LookupQueryingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the test class, initializing multiple seasons and games to be used in subsequent tests.
+        """
         cls.s1 = Season.objects.create(year=1942, gt=1942)
         cls.s2 = Season.objects.create(year=1842, gt=1942, nulled_text_field="text")
         cls.s3 = Season.objects.create(year=2042, gt=1942)

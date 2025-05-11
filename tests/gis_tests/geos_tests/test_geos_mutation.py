@@ -84,7 +84,9 @@ class GEOSMutationTest(unittest.TestCase):
     """
 
     def test00_GEOSIndexException(self):
-        "Testing Geometry IndexError"
+        """
+        Tests that Geometry IndexError is correctly raised when indexing out of bounds for a Point object.
+        """
         p = Point(1, 2)
         for i in range(-2, 2):
             p._checkindex(i)
@@ -94,7 +96,9 @@ class GEOSMutationTest(unittest.TestCase):
             p._checkindex(-3)
 
     def test01_PointMutations(self):
-        "Testing Point mutations"
+        """
+        Tests the functionality of Point mutations, including setting and retrieving individual coordinates and lists of coordinates.
+        """
         for p in (Point(1, 2, 3), fromstr("POINT (1 2 3)")):
             self.assertEqual(
                 p._get_single_external(1), 2.0, "Point _get_single_external"
@@ -109,14 +113,18 @@ class GEOSMutationTest(unittest.TestCase):
             self.assertEqual(p.coords, (50.0, 3141.0), "Point _set_list")
 
     def test02_PointExceptions(self):
-        "Testing Point exceptions"
+        """
+        Tests that Point class correctly raises TypeError exceptions when initialized with invalid input, specifically when the number of dimensions is not 2 or 3.
+        """
         with self.assertRaises(TypeError):
             Point(range(1))
         with self.assertRaises(TypeError):
             Point(range(4))
 
     def test03_PointApi(self):
-        "Testing Point API"
+        """
+        Tests the Point API by verifying the equivalence of points created using different methods and applying various geometric functions.
+        """
         q = Point(4, 5, 3)
         for p in (Point(1, 2, 3), fromstr("POINT (1 2 3)")):
             p[0:2] = [4, 5]
@@ -124,7 +132,14 @@ class GEOSMutationTest(unittest.TestCase):
                 self.assertEqual(f(q), f(p), "Point " + f.__name__)
 
     def test04_LineStringMutations(self):
-        "Testing LineString mutations"
+        """
+        Verifies the correctness of LineString mutation operations.
+
+        Tests get and set operations on LineString objects, ensuring that coordinates
+        can be retrieved and modified accurately. Additionally, checks the equivalence
+        of LineString objects created from modified coordinates with the original object
+        using various GEOS functions.
+        """
         for ls in (
             LineString((1, 0), (4, 1), (6, -1)),
             fromstr("LINESTRING (1 0,4 1,6 -1)"),
@@ -154,7 +169,9 @@ class GEOSMutationTest(unittest.TestCase):
                 self.assertEqual(f(lsa), f(ls), "LineString " + f.__name__)
 
     def test05_Polygon(self):
-        "Testing Polygon mutations"
+        """
+        Tests the correctness of Polygon object mutations by verifying its methods to retrieve and modify its external and internal rings.
+        """
         for pg in (
             Polygon(
                 ((1, 0), (4, 1), (6, -1), (8, 10), (1, 0)),
@@ -195,7 +212,12 @@ class GEOSMutationTest(unittest.TestCase):
                 self.assertEqual(f(lsa), f(pg), "Polygon " + f.__name__)
 
     def test06_Collection(self):
-        "Testing Collection mutations"
+        """
+        Tests the mutation functionality of the Collection class, specifically 
+        the _get_single_external and _set_list methods, and verifies their effect 
+        on MultiPoint objects by comparing their coordinates and the results of 
+        various geometric functions.
+        """
         points = (
             MultiPoint(*map(Point, ((3, 4), (-1, 2), (5, -4), (2, 8)))),
             fromstr("MULTIPOINT (3 4,-1 2,5 -4,2 8)"),

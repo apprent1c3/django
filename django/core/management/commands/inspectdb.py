@@ -43,6 +43,13 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        Handles database inspection and writes the result to the standard output.
+
+        Raises:
+            CommandError: If the currently selected database backend does not support inspection.
+
+        """
         try:
             for line in self.handle_inspection(options):
                 self.stdout.write(line)
@@ -53,6 +60,28 @@ class Command(BaseCommand):
             )
 
     def handle_inspection(self, options):
+        """
+        ```python
+        \"\"\"
+        Generate an auto-generated Django model module from database tables.
+
+        In this module, a class is generated for each specified database table.
+        Each class represents a Django model, containing fields and metadata
+        representing the corresponding table's structure and data. The models
+        are generated with foreign key and one-to-one field relationships, as
+        well as comments and database table comments, if supported.
+
+        Generated model classes require manual review and cleanup, including:
+        rearranging model order, ensuring primary key fields, and setting field
+        delete behaviors.
+
+        :param options: Dictionary containing database connection and table
+                        options, such as database name, table names, and filter
+                        function.
+        	yield: Lines of code for the auto-generated Django model module.
+        \"\"\"
+        ```
+        """
         connection = connections[options["database"]]
         # 'table_name_filter' is a stealth option
         table_name_filter = options.get("table_name_filter")
@@ -262,7 +291,12 @@ class Command(BaseCommand):
 
     def normalize_col_name(self, col_name, used_column_names, is_relation):
         """
-        Modify the column name to make it Python-compatible as a field name
+
+        Modify a column name to make it compatible as a Python field name.
+
+        Takes a column name, a list of used column names, and a relation indicator, and returns a tuple containing the normalized
+        field name, a dictionary of field parameters, and a list of notes explaining any modifications made to the field name.
+
         """
         field_params = {}
         field_notes = []
@@ -326,9 +360,12 @@ class Command(BaseCommand):
 
     def get_field_type(self, connection, table_name, row):
         """
-        Given the database connection, the table name, and the cursor row
-        description, this routine will return the given field type name, as
-        well as any additional keyword parameters and notes for the field.
+        Inspects a database field and returns its type name, additional keyword parameters, and notes.
+
+            The function uses the provided database connection and table information to determine the field type, 
+            and then infers additional parameters such as max length, collation, or decimal places as applicable.
+
+            :return: A tuple containing the field type name, a dictionary of keyword parameters, and a list of notes
         """
         field_params = {}
         field_notes = []
@@ -375,9 +412,7 @@ class Command(BaseCommand):
         comment,
     ):
         """
-        Return a sequence comprising the lines of code necessary
-        to construct the inner Meta class for the model corresponding
-        to the given database table name.
+        _Returns the lines of code necessary to construct the inner Meta class for the model corresponding to the given database table name, including table options and constraints._
         """
         unique_together = []
         has_unsupported_constraint = False

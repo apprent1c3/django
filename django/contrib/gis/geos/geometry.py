@@ -28,6 +28,24 @@ class GEOSGeometryBase(GEOSBase):
     has_cs = False  # Only Point, LineString, LinearRing have coordinate sequences
 
     def __init__(self, ptr, cls):
+        """
+        Initializes a GEOS geometry object, determines its specific class based on the geometry type ID, and performs additional setup tasks.\"\"\"
+
+
+        Or more detailed but still not too long:
+
+         \"\"\"Initializes a GEOS geometry object with a given pointer and class.
+
+         If the class is not specified and the object is an instance of GEOSGeometryBase or GEOSGeometry, 
+         attempts to automatically determine the class based on the geometry type ID.
+
+         Performs additional setup tasks through the _post_init method after initialization.\"\"\"
+
+
+        Considering high-level explanation as priority choice, first option is chosen as it explains briefly why the function exists and represents main init functionality of object:
+
+        \"\"\"Initializes a GEOS geometry object, determines its specific class based on the geometry type ID, and performs additional setup tasks.
+        """
         self._ptr = ptr
 
         # Setting the class type (e.g., Point, Polygon, etc.)
@@ -104,6 +122,12 @@ class GEOSGeometryBase(GEOSBase):
 
     def __setstate__(self, state):
         # Instantiating from the tuple state that was pickled.
+        """
+        Restores the object's state from a pickled representation.
+
+        Sets the object's geometry and spatial reference system identifier (SRID) based on the provided state.
+        Raises a GEOSException if the geometry loaded from the pickled state is invalid.
+        """
         wkb, srid = state
         ptr = self._from_pickle_wkb(wkb)
         if not ptr:
@@ -118,6 +142,17 @@ class GEOSGeometryBase(GEOSBase):
 
     @staticmethod
     def from_ewkt(ewkt):
+        """
+
+        Creates a GEOSGeometry instance from an Extended Well-Known Text (EWKT) string.
+
+        The EWKT string is parsed to extract the SRID (Spatial Reference System Identifier) and 
+        the corresponding WKT (Well-Known Text) geometry. The resulting GEOSGeometry instance 
+        is returned with the specified SRID. 
+
+        Raises a ValueError if the EWKT string has an invalid SRID part or if the WKT string is empty.
+
+        """
         ewkt = force_bytes(ewkt)
         srid = None
         parts = ewkt.split(b";", 1)
@@ -144,8 +179,7 @@ class GEOSGeometryBase(GEOSBase):
     # Comparison operators
     def __eq__(self, other):
         """
-        Equivalence testing, a Geometry may be compared with another Geometry
-        or an EWKT representation.
+        Checks for equivalence between two geometric objects or a geometric object and an EWKT representation, considering spatial equality and SRID matching.
         """
         if isinstance(other, str):
             try:
@@ -224,9 +258,7 @@ class GEOSGeometryBase(GEOSBase):
 
     def normalize(self, clone=False):
         """
-        Convert this Geometry to normal form (or canonical form).
-        If the `clone` keyword is set, then the geometry is not modified and a
-        normalized clone of the geometry is returned instead.
+        Convert this Geometry to its normal form, optionally creating a clone to avoid modifying the original.
         """
         if clone:
             clone = self.clone()
@@ -366,7 +398,9 @@ class GEOSGeometryBase(GEOSBase):
     # #### SRID Routines ####
     @property
     def srid(self):
-        "Get the SRID for the geometry. Return None if no SRID is set."
+        """
+        Returns the Spatial Reference System Identifier (SRID) associated with the geometry, or None if no SRID is defined.
+        """
         s = capi.geos_get_srid(self.ptr)
         if s == 0:
             return None
@@ -464,7 +498,9 @@ class GEOSGeometryBase(GEOSBase):
 
     @property
     def srs(self):
-        "Return the OSR SpatialReference for SRID of this Geometry."
+        """
+        Returns the OSR SpatialReference for the SRID of this Geometry, or None if the SRID is not set or invalid.
+        """
         if self.srid:
             try:
                 return gdal.SpatialReference(self.srid)
@@ -479,11 +515,7 @@ class GEOSGeometryBase(GEOSBase):
 
     def transform(self, ct, clone=False):
         """
-        Requires GDAL. Transform the geometry according to the given
-        transformation object, which may be an integer SRID, and WKT or
-        PROJ string. By default, transform the geometry in-place and return
-        nothing. However if the `clone` keyword is set, don't modify the
-        geometry and return a transformed clone instead.
+        Transforms a geometry object to a new coordinate reference system (CRS) specified by a transformation object, SRID, WKT, or PROJ string. Optionally creates a transformed clone of the original geometry instead of modifying it in-place. Requires a valid SRID to be set, or raises an exception if it is not.
         """
         srid = self.srid
 
@@ -599,15 +631,9 @@ class GEOSGeometryBase(GEOSBase):
 
     def simplify(self, tolerance=0.0, preserve_topology=False):
         """
-        Return the Geometry, simplified using the Douglas-Peucker algorithm
-        to the specified tolerance (higher tolerance => less points).  If no
-        tolerance provided, defaults to 0.
-
-        By default, don't preserve topology - e.g. polygons can be split,
-        collapse to lines or disappear holes can be created or disappear, and
-        lines can cross. By specifying preserve_topology=True, the result will
-        have the same dimension and number of components as the input. This is
-        significantly slower.
+        Return the Geometry, simplified using the Douglas-Peucker algorithm to the specified tolerance.
+        The simplified geometry can be returned with the original topology preserved or not, depending on the preserve_topology parameter.
+        A higher tolerance value results in a geometry with fewer points.
         """
         if preserve_topology:
             return self._topology(capi.geos_preservesimplify(self.ptr, tolerance))
@@ -649,8 +675,10 @@ class GEOSGeometryBase(GEOSBase):
     @property
     def extent(self):
         """
-        Return the extent of this geometry as a 4-tuple, consisting of
-        (xmin, ymin, xmax, ymax).
+
+        Returns the extent of the geometry as a bounding box, represented as a 4-tuple of 
+        (minimum x, minimum y, maximum x, maximum y) coordinates.
+
         """
         from .point import Point
 
@@ -722,18 +750,7 @@ class GEOSGeometry(GEOSGeometryBase, ListMixin):
 
     def __init__(self, geo_input, srid=None):
         """
-        The base constructor for GEOS geometry objects. It may take the
-        following inputs:
-
-         * strings:
-            - WKT
-            - HEXEWKB (a PostGIS-specific canonical form)
-            - GeoJSON (requires GDAL)
-         * memoryview:
-            - WKB
-
-        The `srid` keyword specifies the Source Reference Identifier (SRID)
-        number for this Geometry. If not provided, it defaults to None.
+        Initialize a GEOS geometry object from various input formats, including WKT, HEXEWKB, GeoJSON, and WKB, with optional specification of the Source Reference Identifier (SRID) number.
         """
         input_srid = None
         if isinstance(geo_input, bytes):

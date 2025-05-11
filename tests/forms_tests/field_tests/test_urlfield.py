@@ -17,6 +17,12 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertWidgetRendersTo(f, '<input type="url" name="f" id="id_f" required>')
 
     def test_urlfield_widget_max_min_length(self):
+        """
+        Tests the functionality of the URLField widget with minimum and maximum length constraints.
+
+        Verifies that the widget correctly validates URLs within the specified length range,
+        renders the correct HTML attributes, and raises validation errors for URLs that are too short or too long.
+        """
         f = URLField(min_length=15, max_length=20)
         self.assertEqual("http://example.com", f.clean("http://example.com"))
         self.assertWidgetRendersTo(
@@ -34,6 +40,11 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_urlfield_clean(self):
         # RemovedInDjango60Warning: When the deprecation ends, remove the
         # assume_scheme argument.
+        """
+        Tests the clean method of a URLField instance with various URL inputs, 
+        including HTTP and HTTPS schemes, IDNs, IPv4 and IPv6 addresses, and URLs 
+        with query parameters, to ensure it returns the expected cleaned URL.
+        """
         f = URLField(required=False, assume_scheme="https")
         tests = [
             ("http://localhost", "http://localhost"),
@@ -86,6 +97,9 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 self.assertEqual(f.clean(url), expected)
 
     def test_urlfield_clean_invalid(self):
+        """
+        Tests the URLField's clean method with various invalid URLs to ensure it raises a ValidationError with the message \"Enter a valid URL.\"
+        """
         f = URLField()
         tests = [
             "foo",
@@ -122,6 +136,9 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                     f.clean(value)
 
     def test_urlfield_clean_required(self):
+        """
+        Tests that URLField validates required input, raising a ValidationError when given None or an empty string.
+        """
         f = URLField()
         msg = "'This field is required.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -145,6 +162,9 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             URLField(strip=False)
 
     def test_urlfield_assume_scheme(self):
+        """
+        Tests that a URLField correctly appends a scheme to URLs that do not specify one, using either 'http' or 'https' as the default scheme.
+        """
         f = URLField()
         # RemovedInDjango60Warning: When the deprecation ends, replace with:
         # "https://example.com"
@@ -169,6 +189,9 @@ class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCa
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_urlfield_forms_urlfield_assume_https(self):
+        """
+        Tests the behavior of URLField forms when assuming HTTPS scheme, verifying that the field correctly prepends 'https://' to URLs without a scheme, while also respecting an explicitly specified scheme.
+        """
         with self.settings(FORMS_URLFIELD_ASSUME_HTTPS=True):
             f = URLField()
             self.assertEqual(f.clean("example.com"), "https://example.com")
@@ -184,6 +207,9 @@ class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCa
                 pass
 
     def test_settings_init_forms_urlfield_assume_https_warning(self):
+        """
+        Tests that a RemovedInDjango60Warning is raised when initializing Settings with FORMS_URLFIELD_ASSUME_HTTPS set to True, as this setting is deprecated since Django 6.0.
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.FORMS_URLFIELD_ASSUME_HTTPS = True
         sys.modules["fake_settings_module"] = settings_module

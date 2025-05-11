@@ -20,7 +20,7 @@ class FallbackStorage(BaseStorage):
 
     def _get(self, *args, **kwargs):
         """
-        Get a single list of messages from all storage backends.
+        Retrieves a list of messages from all available storage backends, aggregating messages until all backends have been queried or a single backend indicates all messages have been retrieved.
         """
         all_messages = []
         for storage in self.storages:
@@ -39,11 +39,7 @@ class FallbackStorage(BaseStorage):
 
     def _store(self, messages, response, *args, **kwargs):
         """
-        Store the messages and return any unstored messages after trying all
-        backends.
-
-        For each storage backend, any messages not stored are passed on to the
-        next backend.
+        Stores given messages using a series of storage backends, with each backend attempting to store any messages not stored by the previous one, and returns a list of any messages that could not be stored by any backend.
         """
         for storage in self.storages:
             if messages:

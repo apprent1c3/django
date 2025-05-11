@@ -84,6 +84,11 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
     """
 
     def test_translates_with_a_percent_symbol_at_the_end(self):
+        """
+
+        Tests whether the translation tags correctly handle a percent symbol at the end of a string.
+
+        """
         expected = "Littérale avec un symbole de pour cent à la fin %"
 
         trans_tpl = Template(
@@ -99,6 +104,9 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
         self.assertEqual(block_tpl.render(Context({})), expected)
 
     def test_translates_with_percent_symbol_in_the_middle(self):
+        """
+        Tests the translation functionality when a percent symbol is present in the middle of the string, ensuring correct rendering with both the translate and blocktranslate templates.
+        """
         expected = "Pour cent littérale % avec un symbole au milieu"
 
         trans_tpl = Template(
@@ -114,6 +122,9 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
         self.assertEqual(block_tpl.render(Context({})), expected)
 
     def test_translates_with_percent_symbol_using_context(self):
+        """
+        Tests translation functionality with percent symbol using template context, covering both translate and blocktranslate tags with and without context specification.
+        """
         trans_tpl = Template('{% load i18n %}{% translate "It is 100%" %}')
         self.assertEqual(trans_tpl.render(Context({})), "Il est de 100%")
         trans_tpl = Template(
@@ -133,6 +144,9 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
 
     def test_translates_with_string_that_look_like_fmt_spec_with_trans(self):
         # tests "%s"
+        """
+        Tests if translation templates correctly handle strings that resemble format specifiers, ensuring they are not interpreted as such during translation.
+        """
         expected = (
             "On dirait un spec str fmt %s mais ne devrait pas être interprété comme "
             "plus disponible"
@@ -167,6 +181,9 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
         self.assertEqual(block_tpl.render(Context({})), expected)
 
     def test_translates_multiple_percent_signs(self):
+        """
+        Tests if the translation system correctly handles strings containing multiple percent signs, ensuring proper replacement and escaping in both template and blocktranslate tags.
+        """
         expected = (
             "1 % signe pour cent, signes %% 2 pour cent, trois signes de pourcentage "
             "%%%"

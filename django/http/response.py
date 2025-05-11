@@ -32,8 +32,7 @@ _charset_from_content_type_re = _lazy_re_compile(
 class ResponseHeaders(CaseInsensitiveMapping):
     def __init__(self, data):
         """
-        Populate the initial data using __setitem__ to ensure values are
-        correctly encoded.
+        Initializes the object with the given data, properly encoding the values.
         """
         self._store = {}
         if data:
@@ -42,9 +41,9 @@ class ResponseHeaders(CaseInsensitiveMapping):
 
     def _convert_to_charset(self, value, charset, mime_encode=False):
         """
-        Convert headers key/value to ascii/latin-1 native strings.
-        `charset` must be 'ascii' or 'latin-1'. If `mime_encode` is True and
-        `value` can't be represented in the given charset, apply MIME-encoding.
+        Converts a header value to the specified charset, either 'ascii' or 'latin-1', 
+        applying MIME-encoding if the value cannot be represented in the given charset and 
+        mime_encode is True, while validating that the value does not contain newlines.
         """
         try:
             if isinstance(value, str):
@@ -112,6 +111,20 @@ class HttpResponseBase:
     def __init__(
         self, content_type=None, status=None, reason=None, charset=None, headers=None
     ):
+        """
+
+        Initialize a response object with optional content type, HTTP status, reason phrase, character set, and headers.
+
+        The response object is responsible for managing HTTP response data, including headers, status codes, and cookies.
+        It provides a flexible way to construct and configure HTTP responses for various use cases.
+
+        :param content_type: The content type of the response (e.g., text/html, application/json)
+        :param status: The HTTP status code of the response (e.g., 200, 404, 500)
+        :param reason: The reason phrase of the response (e.g., OK, Not Found, Internal Server Error)
+        :param charset: The character set of the response (e.g., utf-8, iso-8859-1)
+        :param headers: A dictionary of HTTP headers to include in the response
+
+        """
         self.headers = ResponseHeaders(headers)
         self._charset = charset
         if "Content-Type" not in self.headers:
@@ -153,6 +166,9 @@ class HttpResponseBase:
 
     @property
     def charset(self):
+        """
+        Returns the character set of the object, attempting to determine it from the 'Content-Type' header if not explicitly set. If still unknown, defaults to the DEFAULT_CHARSET setting.
+        """
         if self._charset is not None:
             return self._charset
         # The Content-Type header may not yet be set, because the charset is
@@ -223,17 +239,7 @@ class HttpResponseBase:
         samesite=None,
     ):
         """
-        Set a cookie.
-
-        ``expires`` can be:
-        - a string in the correct format,
-        - a naive ``datetime.datetime`` object in UTC,
-        - an aware ``datetime.datetime`` object in any time zone.
-        If it is a ``datetime.datetime`` object then calculate ``max_age``.
-
-        ``max_age`` can be:
-        - int/float specifying seconds,
-        - ``datetime.timedelta`` object.
+        Set a cookie with the given key and value, and optional attributes such as expiration date, maximum age, path, domain, security and same-site flags. The ``expires`` attribute can be specified as a string, a naive or aware datetime object, and the ``max_age`` attribute can be specified as an integer, float or timedelta object.
         """
         self.cookies[key] = value
         if expires is not None:
@@ -303,7 +309,9 @@ class HttpResponseBase:
     # Common methods used by subclasses
 
     def make_bytes(self, value):
-        """Turn a value into a bytestring encoded in the output charset."""
+        """
+        Encode a given value into a bytestring using the output charset.
+        """
         # Per PEP 3333, this response body must be bytes. To avoid returning
         # an instance of a subclass, this function returns `bytes(value)`.
         # This doesn't make a copy when `value` already contains bytes.
@@ -324,6 +332,13 @@ class HttpResponseBase:
     # The WSGI server must call this method upon completion of the request.
     # See http://blog.dscpl.com.au/2012/10/obligations-for-calling-close-on.html
     def close(self):
+        """
+
+        Closes all managed resources and signals the end of a request.
+
+        Releases all registered resource closers and prevents further access.
+
+        """
         for closer in self._resource_closers:
             try:
                 closer()
@@ -395,6 +410,11 @@ class HttpResponse(HttpResponseBase):
     @content.setter
     def content(self, value):
         # Consume iterators upon assignment to allow repeated iteration.
+        """
+        Sets the content of the object, converting the provided value into bytes if necessary.
+        Accepts both single values and iterables, ensuring that all elements are properly converted.
+        Closes the input value if it is an iterable that supports closing.
+        """
         if hasattr(value, "__iter__") and not isinstance(
             value, (bytes, memoryview, str)
         ):
@@ -462,6 +482,10 @@ class StreamingHttpResponse(HttpResponseBase):
 
     @property
     def streaming_content(self):
+        """
+        A property that returns an iterator or async iterator over the content data,
+        either synchronously or asynchronously, depending on the streaming mode.
+        """
         if self.is_async:
             # pull to lexical scope to capture fixed reference in case
             # streaming_content is set again later.
@@ -481,6 +505,14 @@ class StreamingHttpResponse(HttpResponseBase):
 
     def _set_streaming_content(self, value):
         # Ensure we can never iterate on "value" more than once.
+        """
+
+        Sets the streaming content to be iterated over, handling both synchronous and asynchronous sources.
+
+        The function determines whether the provided value is an asynchronous or synchronous iterable and sets the iterator accordingly.
+        It also registers the source for closure, if applicable.
+
+        """
         try:
             self._iterator = iter(value)
             self.is_async = False
@@ -491,6 +523,16 @@ class StreamingHttpResponse(HttpResponseBase):
             self._resource_closers.append(value.close)
 
     def __iter__(self):
+        """
+
+        Return an iterator over the response content, handling both synchronous and asynchronous iterators.
+
+        If the content is an asynchronous iterator, it is converted to a synchronous iterator to ensure compatibility.
+
+        Yields:
+            bytes: The response content, split into chunks.
+
+        """
         try:
             return iter(self.streaming_content)
         except TypeError:
@@ -510,6 +552,14 @@ class StreamingHttpResponse(HttpResponseBase):
             return map(self.make_bytes, iter(async_to_sync(to_list)(self._iterator)))
 
     async def __aiter__(self):
+        """
+        Asynchronous iterator for the response content.
+
+        Yields parts of the content in an asynchronous manner, allowing for 
+        streaming responses. If the underlying content is not asynchronous, 
+        it will be converted to an asynchronous iterator, generating a warning 
+        in the process to recommend using an asynchronous iterator instead.
+        """
         try:
             async for part in self.streaming_content:
                 yield part
@@ -544,6 +594,9 @@ class FileResponse(StreamingHttpResponse):
         super().__init__(*args, **kwargs)
 
     def _set_streaming_content(self, value):
+        """
+        Sets the streaming content of the object, handling file-like objects and setting appropriate headers, while also ensuring proper resource closure.
+        """
         if not hasattr(value, "read"):
             self.file_to_stream = None
             return super()._set_streaming_content(value)
@@ -557,8 +610,7 @@ class FileResponse(StreamingHttpResponse):
 
     def set_headers(self, filelike):
         """
-        Set some common response headers (Content-Length, Content-Type, and
-        Content-Disposition) based on the `filelike` response content.
+        Set common response headers based on the provided file-like response content, including Content-Length, Content-Type, and Content-Disposition, to facilitate proper content handling and delivery.
         """
         filename = getattr(filelike, "name", "")
         filename = filename if isinstance(filename, str) else ""
@@ -614,6 +666,9 @@ class HttpResponseRedirectBase(HttpResponse):
     allowed_schemes = ["http", "https", "ftp"]
 
     def __init__(self, redirect_to, *args, **kwargs):
+        """
+        Initializes a redirect response object, setting the Location header to the provided URL and validating its protocol against a set of allowed schemes.
+        """
         super().__init__(*args, **kwargs)
         self["Location"] = iri_to_uri(redirect_to)
         parsed = urlsplit(str(redirect_to))
@@ -722,6 +777,16 @@ class JsonResponse(HttpResponse):
         json_dumps_params=None,
         **kwargs,
     ):
+        """
+        Initialize a JSON response object, handling data serialization and encoding.
+
+        :param data: Data to be serialized into a JSON response
+        :param encoder: Custom JSON encoder class, defaults to DjangoJSONEncoder
+        :param safe: Flag to ensure data is a dictionary for safe serialization, defaults to True
+        :param json_dumps_params: Additional parameters for json.dumps, defaults to {}
+        :param **kwargs: Additional keyword arguments for the response object
+        :raises TypeError: If safe is True and data is not a dictionary
+        """
         if safe and not isinstance(data, dict):
             raise TypeError(
                 "In order to allow non-dict objects to be serialized set the "

@@ -20,6 +20,9 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        Adds command-line arguments to a parser for squashing Django migrations, allowing users to specify the application label, migration range, and optional optimization and naming parameters.
+        """
         parser.add_argument(
             "app_label",
             help="App label of the application to squash migrations for.",
@@ -60,6 +63,22 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        ```\"\"\"
+        Squashes a series of migrations into a single new migration.
+
+        This function takes a range of migrations specified by a start migration and an end migration,
+        squashes them into a single new migration, and writes the new migration to a file.
+
+        It can also optimize the resulting migration to minimize the number of operations.
+        Once the new migration is created, the old migrations can be left in place to allow
+        for a smooth transition. However, once all instances of the codebase have applied
+        the new migration, the old migrations can be safely deleted.
+
+        The function will prompt for confirmation before proceeding if it is run in interactive mode.
+        \"\"\" 
+        ```
+        """
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
         app_label = options["app_label"]
@@ -253,6 +272,18 @@ class Command(BaseCommand):
                     )
 
     def find_migration(self, loader, app_label, name):
+        """
+        Retrieves a specific migration by its name from the given application.
+
+        Args:
+            loader: The migration loader to use.
+            app_label (str): The label of the application to search for migrations.
+            name (str): The name of the migration to find.
+
+        Raises:
+            CommandError: If no migration matches the given name and app label, or if multiple migrations match.
+
+        """
         try:
             return loader.get_migration_by_prefix(app_label, name)
         except AmbiguityError:

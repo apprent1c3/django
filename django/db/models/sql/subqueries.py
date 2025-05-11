@@ -15,6 +15,18 @@ class DeleteQuery(Query):
     compiler = "SQLDeleteCompiler"
 
     def do_query(self, table, where, using):
+        """
+
+        Execute a SQL query on a specified table using the given conditions and database connection.
+
+        The query is executed with a cursor and returns the number of affected rows.
+
+        :param table: The table to query
+        :param where: The conditions for the query
+        :param using: The database connection to use
+        :return: The number of rows affected by the query
+
+        """
         self.alias_map = {table: self.alias_map[table]}
         self.where = where
         cursor = self.get_compiler(using).execute_sql(CURSOR)
@@ -25,10 +37,11 @@ class DeleteQuery(Query):
 
     def delete_batch(self, pk_list, using):
         """
-        Set up and execute delete queries for all the objects in pk_list.
+        Deletes multiple objects from the database in batches.
 
-        More than one physical query may be executed if there are a
-        lot of values in pk_list.
+        :arg pk_list: List of primary keys of objects to delete
+        :arg using: Database to use for the deletion
+        :return: Total number of objects deleted
         """
         # number of objects deleted
         num_deleted = 0
@@ -69,6 +82,16 @@ class UpdateQuery(Query):
         return obj
 
     def update_batch(self, pk_list, values, using):
+        """
+        Updates a batch of objects in the database.
+
+        :param pk_list: A list of primary keys to be updated.
+        :param values: The values to be updated.
+        :param using: The database alias to use for the update operation.
+
+        This function executes a batch update in chunks to avoid db query size limits, 
+        allowing for efficient updates of large numbers of objects.
+        """
         self.add_update_values(values)
         for offset in range(0, len(pk_list), GET_ITERATOR_CHUNK_SIZE):
             self.clear_where()
@@ -79,9 +102,9 @@ class UpdateQuery(Query):
 
     def add_update_values(self, values):
         """
-        Convert a dictionary of field name to value mappings into an update
-        query. This is the entry point for the public update() method on
-        querysets.
+        Converts a dictionary of field name to value mappings into an update query, 
+        allowing for updates to be made on a queryset. Supports updates to non-relation 
+        and foreign key fields, and handles related model updates.
         """
         values_seq = []
         for name, val in values.items():
@@ -103,9 +126,7 @@ class UpdateQuery(Query):
 
     def add_update_fields(self, values_seq):
         """
-        Append a sequence of (field, model, value) triples to the internal list
-        that will be used to generate the UPDATE query. Might be more usefully
-        called add_update_targets() to hint at the extra information here.
+        Adds fields to be updated in a query, handling field-generated values and resolving expressions for the values to be updated.
         """
         for field, model, val in values_seq:
             # Omit generated fields.
@@ -126,9 +147,7 @@ class UpdateQuery(Query):
 
     def get_related_updates(self):
         """
-        Return a list of query objects: one for each update required to an
-        ancestor model. Each query will have the same filtering conditions as
-        the current query but will only update a single table.
+        Returns a list of update queries for ancestor models, each with the same filtering conditions as the current query, but only updating a single table.
         """
         if not self.related_updates:
             return []
@@ -148,6 +167,13 @@ class InsertQuery(Query):
     def __init__(
         self, *args, on_conflict=None, update_fields=None, unique_fields=None, **kwargs
     ):
+        """
+        Initializes the object with given parameters, handling potential conflicts and field updates during data insertion.
+
+        :param on_conflict: Action to take when a conflict occurs
+        :param update_fields: List of fields to update in case of a conflict
+        :param unique_fields: List of fields that must be unique
+        """
         super().__init__(*args, **kwargs)
         self.fields = []
         self.objs = []

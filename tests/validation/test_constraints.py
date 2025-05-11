@@ -45,6 +45,9 @@ class PerformConstraintChecksTest(TestCase):
         product.full_clean(validate_constraints=False)
 
     def test_full_clean_with_unique_constraints(self):
+        """
+        Tests the full clean method on models with unique constraints to ensure that validation errors are raised when attempting to create duplicate products with the same name and color, or the same rank.
+        """
         UniqueConstraintProduct.objects.create(name="product", color="yellow", rank=1)
         tests = [
             UniqueConstraintProduct(name="product", color="yellow", rank=1),
@@ -75,6 +78,9 @@ class PerformConstraintChecksTest(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_full_clean_with_partial_unique_constraints(self):
+        """
+        Tests the full clean functionality of a model instance when partial unique constraints are involved, ensuring that a validation error is raised when a constraint is violated.
+        """
         UniqueConstraintConditionProduct.objects.create(name="product")
         product = UniqueConstraintConditionProduct(name="product")
         with self.assertRaises(ValidationError) as cm:

@@ -24,8 +24,7 @@ class HandlerTests(SimpleTestCase):
 
     def test_bad_path_info(self):
         """
-        A non-UTF-8 path populates PATH_INFO with an URL-encoded path and
-        produces a 404.
+        Tests that a non-UTF-8 path results in a 404 response, with the path being URL-encoded in the PATH_INFO environment variable.
         """
         environ = self.request_factory.get("/").environ
         environ["PATH_INFO"] = "\xed"
@@ -36,7 +35,7 @@ class HandlerTests(SimpleTestCase):
 
     def test_non_ascii_query_string(self):
         """
-        Non-ASCII query strings are properly decoded (#20530, #22996).
+        Tests that non-ASCII characters in query strings are correctly decoded, covering various encoding schemes.
         """
         environ = self.request_factory.get("/").environ
         raw_query_strings = [
@@ -58,7 +57,9 @@ class HandlerTests(SimpleTestCase):
         self.assertEqual(got, ["café", "café", "caf\ufffd", "café"])
 
     def test_non_ascii_cookie(self):
-        """Non-ASCII cookies set in JavaScript are properly decoded (#20557)."""
+        """
+        Tests that non-ASCII cookies set in JavaScript are correctly decoded, ensuring proper handling of Unicode characters in cookie values.
+        """
         environ = self.request_factory.get("/").environ
         raw_cookie = 'want="café"'.encode("utf-8").decode("iso-8859-1")
         environ["HTTP_COOKIE"] = raw_cookie
@@ -67,8 +68,7 @@ class HandlerTests(SimpleTestCase):
 
     def test_invalid_unicode_cookie(self):
         """
-        Invalid cookie content should result in an absent cookie, but not in a
-        crash while trying to decode it (#23638).
+        Tests that a request with an invalid Unicode cookie does not crash when decoded, and instead results in an empty cookie.
         """
         environ = self.request_factory.get("/").environ
         environ["HTTP_COOKIE"] = "x=W\x03c(h]\x8e"
@@ -81,8 +81,7 @@ class HandlerTests(SimpleTestCase):
     @override_settings(ROOT_URLCONF="handlers.urls")
     def test_invalid_multipart_boundary(self):
         """
-        Invalid boundary string should produce a "Bad Request" response, not a
-        server error (#23887).
+        Tests that an invalid multipart boundary string in a request produces a Bad Request response, rather than a server error.
         """
         environ = self.request_factory.post("/malformed_post/").environ
         environ["CONTENT_TYPE"] = "multipart/form-data; boundary=WRONG\x07"
@@ -101,6 +100,9 @@ class TransactionsPerRequestTests(TransactionTestCase):
         self.assertContains(response, "False")
 
     def test_auto_transaction(self):
+        """
+        Tests that the view at '/in_transaction/' returns 'True' when atomic requests are enabled.
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -110,6 +112,9 @@ class TransactionsPerRequestTests(TransactionTestCase):
         self.assertContains(response, "True")
 
     async def test_auto_transaction_async_view(self):
+        """
+        Tests that attempting to use atomic requests with async views raises a RuntimeError, as they are incompatible.
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -120,6 +125,9 @@ class TransactionsPerRequestTests(TransactionTestCase):
             connection.settings_dict["ATOMIC_REQUESTS"] = old_atomic_requests
 
     def test_no_auto_transaction(self):
+        """
+        Raises a test case to verify that the automatic transaction setting does not affect the expected output of specific views, checking that certain views return 'False' when not in an automatic transaction and 'True' under a specific condition.
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -145,6 +153,9 @@ class TransactionsPerRequestTests(TransactionTestCase):
 @override_settings(ROOT_URLCONF="handlers.urls")
 class SignalsTests(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the test environment by initializing signal tracking and registering callback functions for request start and finish events, ensuring proper cleanup after test completion.
+        """
         self.signals = []
         self.signaled_environ = None
         request_started.connect(self.register_started)
@@ -194,6 +205,9 @@ class HandlerRequestTests(SimpleTestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_invalid_urls(self):
+        """
+        Tests the application's handling of invalid URLs, ensuring that it correctly returns a 404 status code and properly encodes non-ASCII characters in the request path.
+        """
         response = self.client.get("~%A9helloworld")
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.context["request_path"], "/~%25A9helloworld")
@@ -217,6 +231,9 @@ class HandlerRequestTests(SimpleTestCase):
         self.assertIsInstance(environ["PATH_INFO"], str)
 
     def test_handle_accepts_httpstatus_enum_value(self):
+        """
+        Tests that the WSGIHandler correctly handles HTTPStatus enum values by verifying a successful request returns a 200 OK status.
+        """
         def start_response(status, headers):
             start_response.status = status
 
@@ -231,6 +248,10 @@ class HandlerRequestTests(SimpleTestCase):
             self.client.get("/")
 
     def test_no_response(self):
+        """
+        Tests that views return HttpResponse objects, failing if they return None instead, 
+        which should raise a ValueError with a message indicating the offending view.
+        """
         msg = (
             "The view %s didn't return an HttpResponse object. It returned None "
             "instead."
@@ -252,6 +273,9 @@ class HandlerRequestTests(SimpleTestCase):
         self.assertEqual(b"".join(list(response)), b"streaming content")
 
     def test_async_streaming(self):
+        """
+        Verifies the correct behavior of asynchronous streaming by fetching content from '/async_streaming/' and checking the response status code, content, and warning messages.
+        """
         response = self.client.get("/async_streaming/")
         self.assertEqual(response.status_code, 200)
         msg = (
@@ -327,6 +351,12 @@ class AsyncHandlerRequestTests(SimpleTestCase):
             await self.async_client.get("/unawaited/")
 
     def test_root_path(self):
+        """
+        Verify that root path is properly handled in an asynchronous request.
+
+        Checks if the path, script name, and path info are correctly set when a request
+        is made with a specified root path.
+        """
         async_request_factory = AsyncRequestFactory()
         request = async_request_factory.request(
             **{"path": "/root/somepath/", "root_path": "/root"}
@@ -337,6 +367,9 @@ class AsyncHandlerRequestTests(SimpleTestCase):
 
     @override_settings(FORCE_SCRIPT_NAME="/FORCED_PREFIX")
     def test_force_script_name(self):
+        """
+        Test that the FORCE_SCRIPT_NAME setting correctly influences the script name and path of an asynchronous request.
+        """
         async_request_factory = AsyncRequestFactory()
         request = async_request_factory.request(**{"path": "/FORCED_PREFIX/somepath/"})
         self.assertEqual(request.path, "/FORCED_PREFIX/somepath/")
@@ -344,6 +377,9 @@ class AsyncHandlerRequestTests(SimpleTestCase):
         self.assertEqual(request.path_info, "/somepath/")
 
     async def test_sync_streaming(self):
+        """
+        Tests synchronous streaming from an asynchronous client, ensuring a warning is raised and content is received correctly.
+        """
         response = await self.async_client.get("/streaming/")
         self.assertEqual(response.status_code, 200)
         msg = (

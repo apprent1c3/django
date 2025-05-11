@@ -73,6 +73,13 @@ class SystemChecksTestCase(SimpleTestCase):
     databases = "__all__"
 
     def test_checks_are_performed(self):
+        """
+
+        Verify that model checks are performed correctly when registering a model admin.
+
+        Tests that the checks system identifies and reports expected errors when a model is registered with the admin site.
+
+        """
         admin.site.register(Song, MyAdmin)
         try:
             errors = checks.run_checks()
@@ -260,6 +267,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(admin.checks.check_dependencies(), [])
 
     def test_custom_adminsite(self):
+        """
+        Tests the registration of a model with a custom admin site, verifying that it produces the expected validation errors.
+        """
         class CustomAdminSite(admin.AdminSite):
             pass
 
@@ -273,6 +283,9 @@ class SystemChecksTestCase(SimpleTestCase):
             custom_site.unregister(Song)
 
     def test_allows_checks_relying_on_other_modeladmins(self):
+        """
+        Tests that django admin checks can rely on the presence of other ModelAdmin instances. Verifies that an error is raised when a required ModelAdmin is missing.
+        """
         class MyBookAdmin(admin.ModelAdmin):
             def check(self, **kwargs):
                 errors = super().check(**kwargs)
@@ -292,6 +305,9 @@ class SystemChecksTestCase(SimpleTestCase):
             admin.site.unregister(Author)
 
     def test_field_name_not_in_list_display(self):
+        """
+        Tests that an admin interface correctly raises an error when a field is listed as editable but not displayed in the list view.
+        """
         class SongAdmin(admin.ModelAdmin):
             list_editable = ["original_release"]
 
@@ -338,6 +354,9 @@ class SystemChecksTestCase(SimpleTestCase):
         )
 
     def test_readonly_and_editable(self):
+        """
+        ..: Tests that readonly fields cannot be marked as editable in the admin interface. Verifies that Django's admin validation correctly identifies and reports this configuration error.
+        """
         class SongAdmin(admin.ModelAdmin):
             readonly_fields = ["original_release"]
             list_display = ["pk", "original_release"]
@@ -364,6 +383,9 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_pk_not_editable(self):
         # PKs cannot be edited in the list.
+        """
+        Checks that a model's primary key cannot be made editable through the admin interface.
+        """
         class SongAdmin(admin.ModelAdmin):
             list_display = ["title", "id"]
             list_editable = ["id"]
@@ -380,6 +402,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_editable(self):
+        """
+        Checks if the SongAdmin class is correctly defined and does not throw any errors when instantiated with a Song model and AdminSite instance, verifying the configuration of list display, editable fields, and fieldsets.
+        """
         class SongAdmin(admin.ModelAdmin):
             list_display = ["pk", "title"]
             list_editable = ["title"]
@@ -412,7 +437,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_fieldsets_fields_non_tuple(self):
         """
-        The first fieldset's fields must be a list/tuple.
+        Checks that fields within a Django admin fieldset are defined as a list or tuple.
         """
 
         class NotATupleAdmin(admin.ModelAdmin):
@@ -434,7 +459,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_nonfirst_fieldset(self):
         """
-        The second fieldset's fields must be a list/tuple.
+        Tests that the fields in non-first fieldsets are defined as a list or tuple, ensuring proper configuration of admin interfaces.
         """
 
         class NotATupleAdmin(admin.ModelAdmin):
@@ -455,7 +480,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_exclude_values(self):
         """
-        Tests for basic system checks of 'exclude' option values (#12689)
+        Tests the 'exclude' option in admin model classes to ensure it is configured correctly, specifically that its value is a list or tuple, as required by the system.
         """
 
         class ExcludedFields1(admin.ModelAdmin):
@@ -472,6 +497,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_exclude_duplicate_values(self):
+        """
+        Tests that the admin interface correctly identifies and reports duplicate field values in the exclude attribute of a ModelAdmin class.
+        """
         class ExcludedFields2(admin.ModelAdmin):
             exclude = ("name", "name")
 
@@ -486,6 +514,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_exclude_in_inline(self):
+        """
+        Verifies that using a string value for the 'exclude' attribute in an admin inline model causes a validation error, ensuring that only lists or tuples are accepted.
+        """
         class ExcludedFieldsInline(admin.TabularInline):
             model = Song
             exclude = "foo"
@@ -506,8 +537,10 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_exclude_inline_model_admin(self):
         """
-        Regression test for #9932 - exclude in InlineModelAdmin should not
-        contain the ForeignKey field used in ModelAdmin.model
+
+        Regression test to ensure that using exclude in InlineModelAdmin does not include 
+        the ForeignKey field linking to the parent model referenced in ModelAdmin.model.
+
         """
 
         class SongInline(admin.StackedInline):
@@ -531,8 +564,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_valid_generic_inline_model_admin(self):
         """
-        Regression test for #22034 - check that generic inlines don't look for
-        normal ForeignKey relations.
+        Verifies that a model admin with a generic inline does not incorrectly seek normal ForeignKey relations, addressing a regression issue.
         """
 
         class InfluenceInline(GenericStackedInline):
@@ -546,8 +578,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_generic_inline_model_admin_non_generic_model(self):
         """
-        A model without a GenericForeignKey raises problems if it's included
-        in a GenericInlineModelAdmin definition.
+        Tests that an admin model without a GenericForeignKey raises the correct error when included in a GenericInlineModelAdmin definition.
         """
 
         class BookInline(GenericStackedInline):
@@ -568,8 +599,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_generic_inline_model_admin_bad_ct_field(self):
         """
-        A GenericInlineModelAdmin errors if the ct_field points to a
-        nonexistent field.
+        Tests that a GenericInlineModelAdmin raises an error when the ct_field refers to a non-existent field on the model.
         """
 
         class InfluenceInline(GenericStackedInline):
@@ -592,8 +622,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_generic_inline_model_admin_bad_fk_field(self):
         """
-        A GenericInlineModelAdmin errors if the ct_fk_field points to a
-        nonexistent field.
+        Tests that a GenericInlineModelAdmin correctly raises an error when the ct_fk_field points to a field that does not exist on the model, ensuring valid foreign key field references.
         """
 
         class InfluenceInline(GenericStackedInline):
@@ -616,8 +645,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_generic_inline_model_admin_non_gfk_ct_field(self):
         """
-        A GenericInlineModelAdmin raises problems if the ct_field points to a
-        field that isn't part of a GenericForeignKey.
+        Verifies that a GenericInlineModelAdmin with a ct_field not part of a GenericForeignKey raises the correct error.
         """
 
         class InfluenceInline(GenericStackedInline):
@@ -640,8 +668,9 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_generic_inline_model_admin_non_gfk_fk_field(self):
         """
-        A GenericInlineModelAdmin raises problems if the ct_fk_field points to
-        a field that isn't part of a GenericForeignKey.
+
+        Tests that a GenericInlineModelAdmin correctly raises an error when the ct_fk_field points to a field that is not part of a GenericForeignKey.
+
         """
 
         class InfluenceInline(GenericStackedInline):
@@ -663,6 +692,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_app_label_in_admin_checks(self):
+        """
+        Tests the validation of raw_id_fields in ModelAdmin instances, specifically checking that a nonexistent field raises an error.
+        """
         class RawIdNonexistentAdmin(admin.ModelAdmin):
             raw_id_fields = ("nonexistent",)
 
@@ -679,9 +711,9 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_fk_exclusion(self):
         """
-        Regression test for #11709 - when testing for fk excluding (when exclude is
-        given) make sure fk_name is honored or things blow up when there is more
-        than one fk to the parent model.
+        Verify that foreign key exclusion works correctly when multiple foreign keys exist.
+
+        Tests that the fk_name parameter is honored when exclude is used, preventing errors with multiple foreign keys to the parent model.
         """
 
         class TwoAlbumFKAndAnEInline(admin.TabularInline):
@@ -696,6 +728,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_inline_self_check(self):
+        """
+        Tests that the admin interface correctly identifies and reports errors when an inline model has multiple ForeignKeys to the same parent model, without specifying a 'fk_name' attribute.
+        """
         class TwoAlbumFKAndAnEInline(admin.TabularInline):
             model = TwoAlbumFKAndAnE
 
@@ -715,6 +750,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_inline_with_specified(self):
+        """
+        Tests that an inline instance with a specified foreign key name does not produce any errors when checking the ModelAdmin instance.
+        """
         class TwoAlbumFKAndAnEInline(admin.TabularInline):
             model = TwoAlbumFKAndAnE
             fk_name = "album1"
@@ -726,6 +764,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_inlines_property(self):
+        """
+        Tests that the dynamic inlines property in a ModelAdmin instance works as expected and does not produce any validation errors.
+        """
         class CitiesInline(admin.TabularInline):
             model = City
 
@@ -746,6 +787,11 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_readonly_on_method(self):
         @admin.display
+        """
+
+        Tests that a readonly field defined with the admin.display decorator does not trigger any errors when checked by the AdminModel validation.
+
+        """
         def my_function(obj):
             pass
 
@@ -756,6 +802,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_readonly_on_modeladmin(self):
+        """
+        Tests that a readonly method defined on a ModelAdmin class does not produce any errors during validation.
+        """
         class SongAdmin(admin.ModelAdmin):
             readonly_fields = ("readonly_method_on_modeladmin",)
 
@@ -767,10 +816,19 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_readonly_dynamic_attribute_on_modeladmin(self):
+        """
+
+        Tests that a ModelAdmin with a read-only dynamic attribute does not raise errors during validation.
+        The dynamic attribute is generated on the fly using the __getattr__ method.
+
+        """
         class SongAdmin(admin.ModelAdmin):
             readonly_fields = ("dynamic_method",)
 
             def __getattr__(self, item):
+                """
+                Override attribute access to dynamically generate an admin display method 'dynamic_method' when requested, raising AttributeError for all other requests.
+                """
                 if item == "dynamic_method":
 
                     @admin.display
@@ -791,6 +849,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_nonexistent_field(self):
+        """
+        Tests the case where a field in readonly_fields does not exist as an attribute or field in the model.
+        """
         class SongAdmin(admin.ModelAdmin):
             readonly_fields = ("title", "nonexistent")
 
@@ -807,6 +868,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_nonexistent_field_on_inline(self):
+        """
+        Tests that the admin interface correctly identifies and reports an error when a non-existent field is specified as readonly in an inline model.
+        """
         class CityInline(admin.TabularInline):
             model = City
             readonly_fields = ["i_dont_exist"]  # Missing attribute
@@ -839,6 +903,9 @@ class SystemChecksTestCase(SimpleTestCase):
         )
 
     def test_extra(self):
+        """
+        Tests that a Django admin interface for the Song model with a custom display field does not raise any errors.
+        """
         class SongAdmin(admin.ModelAdmin):
             @admin.display
             def awesome_song(self, instance):
@@ -858,9 +925,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_graceful_m2m_fail(self):
         """
-        Regression test for #12203/#12237 - Fail more gracefully when a M2M field that
-        specifies the 'through' option is included in the 'fields' or the 'fieldsets'
-        ModelAdmin options.
+        Tests that an admin interface fails gracefully when a ManyToMany field with a manually specified relationship model is included in the 'fields' option of a ModelAdmin instance.
         """
 
         class BookAdmin(admin.ModelAdmin):
@@ -878,6 +943,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_cannot_include_through(self):
+        """
+        Tests that a ManyToManyField with a manually specified relationship model cannot be included in a fieldset.
+        """
         class FieldsetBookAdmin(admin.ModelAdmin):
             fieldsets = (
                 ("Header 1", {"fields": ("name",)}),
@@ -912,9 +980,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_explicit_through_override(self):
         """
-        Regression test for #12209 -- If the explicitly provided through model
-        is specified as a string, the admin should still be able use
-        Model.m2m_field.through
+        Tests that an admin model can access a many-to-many field's through model even when the model is specified as a string, ensuring a regression issue is resolved.
         """
 
         class AuthorsInline(admin.TabularInline):
@@ -928,8 +994,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_non_model_fields(self):
         """
-        Regression for ensuring ModelAdmin.fields can contain non-model fields
-        that broke with r11737
+        Tests that a ModelAdmin can successfully contain non-model fields in its fields list, ensuring backwards compatibility after changes introduced in revision r11737.
         """
 
         class SongForm(forms.ModelForm):
@@ -944,8 +1009,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_non_model_first_field(self):
         """
-        Regression for ensuring ModelAdmin.field can handle first elem being a
-        non-model field (test fix for UnboundLocalError introduced with r16225).
+        Tests that ModelAdmin fields can handle a non-model field as the first element, ensuring the fix for UnboundLocalError is effective.
         """
 
         class SongForm(forms.ModelForm):
@@ -963,6 +1027,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_check_sublists_for_duplicates(self):
+        """
+        Tests that the check_sublists_for_duplicates method correctly identifies duplicate fields within sublist definitions in a ModelAdmin instance, ensuring proper validation of admin interface configurations.
+        """
         class MyModelAdmin(admin.ModelAdmin):
             fields = ["state", ["state"]]
 
@@ -977,6 +1044,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_check_fieldset_sublists_for_duplicates(self):
+        """
+        Checks the fieldsets in a model admin for duplicate fields in sublists.
+        """
         class MyModelAdmin(admin.ModelAdmin):
             fieldsets = [
                 (None, {"fields": ["title", "album", ("title", "album")]}),
@@ -994,8 +1064,7 @@ class SystemChecksTestCase(SimpleTestCase):
 
     def test_list_filter_works_on_through_field_even_when_apps_not_ready(self):
         """
-        Ensure list_filter can access reverse fields even when the app registry
-        is not ready; refs #24146.
+        Ensures list_filter can access reverse fields through relationships even when the app registry is not fully initialized, covering edge cases in admin interface configuration.
         """
 
         class BookAdminWithListFilter(admin.ModelAdmin):
@@ -1018,6 +1087,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_related_field_list_display_wrong_field(self):
+        """
+        Tests that a Django admin list display field with an incorrect related field raises the correct error.
+        """
         class SongAdmin(admin.ModelAdmin):
             list_display = ["pk", "original_release", "album__hello"]
 

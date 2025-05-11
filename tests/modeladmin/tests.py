@@ -63,6 +63,13 @@ class ModelAdminTests(TestCase):
     # form/fields/fieldsets interaction ##############################
 
     def test_default_fields(self):
+        """
+        Checks the default fields used in the admin interface for the Band model.
+
+        Verifies that the form base fields, fields displayed on the admin pages,
+        and exclude fields are correctly set by default when no explicit configuration
+        is provided.
+        """
         ma = ModelAdmin(Band, self.site)
         self.assertEqual(
             list(ma.get_form(request).base_fields), ["name", "bio", "sign_date"]
@@ -92,6 +99,9 @@ class ModelAdminTests(TestCase):
 
     def test_get_fieldsets(self):
         # get_fieldsets() is called when figuring out form fields (#18681).
+        """
+        Tests that the get_fieldsets method of ModelAdmin and Inline admin classes correctly determines the fields to be displayed in the admin interface.
+        """
         class BandAdmin(ModelAdmin):
             def get_fieldsets(self, request, obj=None):
                 return [(None, {"fields": ["name", "bio"]})]
@@ -114,8 +124,7 @@ class ModelAdminTests(TestCase):
 
     def test_lookup_allowed_allows_nonexistent_lookup(self):
         """
-        A lookup_allowed allows a parameter whose field lookup doesn't exist.
-        (#21129).
+        Tests that the lookup_allowed method permits a lookup for a parameter that doesn't exist, aligning with the expected behavior when handling non-existent field lookups.
         """
 
         class BandAdmin(ModelAdmin):
@@ -129,6 +138,14 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_onetoone(self):
+        """
+
+        Tests that lookup is allowed on one-to-one relationships in the ModelAdmin list filter.
+
+        Verifies that the lookup_allowed method returns True for fields defined in the list_filter
+        attribute of a ModelAdmin instance, including those that span one-to-one relationships.
+
+        """
         class Department(models.Model):
             code = models.CharField(max_length=4, unique=True)
 
@@ -164,6 +181,12 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_for_local_fk_fields(self):
+        """
+        Tests that lookups on local foreign key fields are allowed in the ModelAdmin interface.
+
+        Checks various lookup types (e.g. exact, id, isnull) on a foreign key field
+        to ensure they are permitted for use in the admin interface.
+        """
         class Country(models.Model):
             pass
 
@@ -190,6 +213,9 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_non_autofield_primary_key(self):
+        """
+        Tests whether a lookup is allowed on a non-autofield primary key when using the ModelAdmin interface, ensuring that filters on a related model's custom primary key are correctly validated.
+        """
         class Country(models.Model):
             id = models.CharField(max_length=2, primary_key=True)
 
@@ -204,6 +230,9 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_foreign_primary(self):
+        """
+        Tests if foreign key and primary key lookups are allowed in ModelAdmin list filters.
+        """
         class Country(models.Model):
             name = models.CharField(max_length=256)
 
@@ -239,6 +268,12 @@ class ModelAdminTests(TestCase):
         )
 
     def test_lookup_allowed_considers_dynamic_list_filter(self):
+        """
+        Tests that the lookup_allowed method in a ModelAdmin considers the dynamic list filter. 
+
+        The test checks whether lookup is allowed for a filter based on the list filter, 
+        when the list filter is dynamically determined by the request's user.
+        """
         class ConcertAdmin(ModelAdmin):
             list_filter = ["main_band__sign_date"]
 
@@ -276,6 +311,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_lookup_allowed_without_request_deprecation(self):
+        """
+        Tests that a deprecation warning is raised when the `lookup_allowed` method of a ModelAdmin class does not include the `request` parameter, and verifies that the filter is correctly applied despite the warning.
+        """
         class ConcertAdmin(ModelAdmin):
             list_filter = ["main_band__sign_date"]
 
@@ -308,6 +346,12 @@ class ModelAdminTests(TestCase):
     def test_field_arguments(self):
         # If fields is specified, fieldsets_add and fieldsets_change should
         # just stick the fields into a formsets structure and return it.
+        """
+
+        Tests that the fields argument in a ModelAdmin class is correctly used to restrict 
+        the fields displayed in the admin interface for a model.
+
+        """
         class BandAdmin(ModelAdmin):
             fields = ["name"]
 
@@ -328,6 +372,11 @@ class ModelAdminTests(TestCase):
         # Form class isn't being displayed because it's not in fields/fieldsets.
 
         # Using `fields`.
+        """
+        Tests that the arguments to form fields in ModelAdmin are restricted as expected, 
+        verifying that fields and exclude parameters correctly limit which model fields are 
+        included in the form.
+        """
         class BandAdmin(ModelAdmin):
             fields = ["name"]
 
@@ -367,9 +416,7 @@ class ModelAdminTests(TestCase):
 
     def test_custom_form_meta_exclude_with_readonly(self):
         """
-        The custom ModelForm's `Meta.exclude` is respected when used in
-        conjunction with `ModelAdmin.readonly_fields` and when no
-        `ModelAdmin.exclude` is defined (#14496).
+        Tests that custom ModelForm's Meta.exclude is correctly applied when used with ModelAdmin.readonly_fields and no ModelAdmin.exclude is defined, ensuring proper field exclusion in admin interfaces.
         """
 
         # With ModelAdmin
@@ -407,6 +454,14 @@ class ModelAdminTests(TestCase):
         )
 
     def test_custom_formfield_override_readonly(self):
+        """
+        Test that a custom form field can be marked as readonly in the admin interface.
+
+        Checks if the readonly attribute on a field is respected when generating form fields, 
+        visible fields and fieldsets for an admin model instance. The test case verifies 
+        that readonly fields are excluded from the form but are still visible in the 
+        admin interface as read-only fields.
+        """
         class AdminBandForm(forms.ModelForm):
             name = forms.CharField()
 
@@ -433,8 +488,7 @@ class ModelAdminTests(TestCase):
 
     def test_custom_form_meta_exclude(self):
         """
-        The custom ModelForm's `Meta.exclude` is overridden if
-        `ModelAdmin.exclude` or `InlineModelAdmin.exclude` are defined (#14496).
+        Tests that ModelForm's Meta.exclude is correctly overridden by ModelAdmin.exclude or InlineModelAdmin.exclude.
         """
 
         # With ModelAdmin
@@ -472,6 +526,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_overriding_get_exclude(self):
+        """
+        Tests that the get_exclude method in ModelAdmin can be overridden to exclude specific fields from a model's form.
+        """
         class BandAdmin(ModelAdmin):
             def get_exclude(self, request, obj=None):
                 return ["name"]
@@ -482,6 +539,9 @@ class ModelAdminTests(TestCase):
         )
 
     def test_get_exclude_overrides_exclude(self):
+        """
+        Tests that ModelAdmin.get_exclude overrides exclude when getting the form fields
+        """
         class BandAdmin(ModelAdmin):
             exclude = ["bio"]
 
@@ -494,6 +554,13 @@ class ModelAdminTests(TestCase):
         )
 
     def test_get_exclude_takes_obj(self):
+        """
+
+        Tests that the ModelAdmin get_exclude method correctly excludes fields based on the object being edited.
+
+        The test case verifies that when an object is provided, the 'sign_date' field is excluded, and when no object is provided, the 'name' field is excluded.
+
+        """
         class BandAdmin(ModelAdmin):
             def get_exclude(self, request, obj=None):
                 if obj:
@@ -508,6 +575,12 @@ class ModelAdminTests(TestCase):
     def test_custom_form_validation(self):
         # If a form is specified, it should use it allowing custom validation
         # to work properly. This won't break any of the admin widgets or media.
+        """
+
+        Tests custom form validation for the BandAdmin class.
+        Verifies that the form fields and widget types are correctly defined.
+
+        """
         class AdminBandForm(forms.ModelForm):
             delete = forms.BooleanField()
 
@@ -525,8 +598,9 @@ class ModelAdminTests(TestCase):
 
     def test_form_exclude_kwarg_override(self):
         """
-        The `exclude` kwarg passed to `ModelAdmin.get_form()` overrides all
-        other declarations (#8999).
+
+        Tests that the 'exclude' keyword argument passed to ModelAdmin.get_form() takes precedence over other exclusion declarations, such as those defined in ModelAdmin or ModelForm classes.
+
         """
 
         class AdminBandForm(forms.ModelForm):
@@ -547,8 +621,7 @@ class ModelAdminTests(TestCase):
 
     def test_formset_exclude_kwarg_override(self):
         """
-        The `exclude` kwarg passed to `InlineModelAdmin.get_formset()`
-        overrides all other declarations (#8999).
+        Tests that the `exclude` keyword argument passed to `InlineModelAdmin.get_formset()` takes precedence over other `exclude` declarations, ensuring correct form field exclusion in inline model administration.
         """
 
         class AdminConcertForm(forms.ModelForm):
@@ -576,6 +649,12 @@ class ModelAdminTests(TestCase):
         )
 
     def test_formset_overriding_get_exclude_with_form_fields(self):
+        """
+
+        Tests that the get_exclude method in ModelAdmin's inline formset overrides 
+        the fields specified in the form's Meta class when getting the form fields.
+
+        """
         class AdminConcertForm(forms.ModelForm):
             class Meta:
                 model = Concert
@@ -599,6 +678,11 @@ class ModelAdminTests(TestCase):
         )
 
     def test_formset_overriding_get_exclude_with_form_exclude(self):
+        """
+
+        Tests that the get_exclude method in an Inline model's formset correctly overrides the exclude attribute on the form when defining fields to exclude.
+
+        """
         class AdminConcertForm(forms.ModelForm):
             class Meta:
                 model = Concert
@@ -623,8 +707,12 @@ class ModelAdminTests(TestCase):
 
     def test_raw_id_fields_widget_override(self):
         """
-        The autocomplete_fields, raw_id_fields, and radio_fields widgets may
-        overridden by specifying a widget in get_formset().
+
+            Tests the ability to override the raw_id_fields widget in an admin formset.
+            Validates that specifying a widget in get_formset can successfully replace 
+            the default widget used for raw_id_fields, ensuring flexibility in the 
+            presentation and interaction of inline model fields in the admin interface.
+
         """
 
         class ConcertInline(TabularInline):
@@ -652,6 +740,9 @@ class ModelAdminTests(TestCase):
     def test_queryset_override(self):
         # If the queryset of a ModelChoiceField in a custom form is overridden,
         # RelatedFieldWidgetWrapper doesn't mess that up.
+        """
+        Tests that the queryset of a model form field can be overridden by a custom ModelAdmin form, verifying that the modified form correctly limits the choices presented to the user.
+        """
         band2 = Band.objects.create(
             name="The Beatles", bio="", sign_date=date(1962, 1, 1)
         )
@@ -695,8 +786,7 @@ class ModelAdminTests(TestCase):
 
     def test_regression_for_ticket_15820(self):
         """
-        `obj` is passed from `InlineModelAdmin.get_fieldsets()` to
-        `InlineModelAdmin.get_formset()`.
+        Tests that the InlineModelAdmin correctly formulates fieldsets for formsets when a custom form class is specified, ensuring proper handling of object-dependent form fields.
         """
 
         class CustomConcertForm(forms.ModelForm):
@@ -736,6 +826,9 @@ class ModelAdminTests(TestCase):
         # ForeignKey widgets in the admin are wrapped with RelatedFieldWidgetWrapper so
         # they need to be handled properly when type checking. For Select fields, all of
         # the choices lists have a first entry of dashes.
+        """
+        Tests that the default foreign key widget for model fields in a ModelAdmin form is a Select widget, and verifies the choices for each field.
+        """
         cma = ModelAdmin(Concert, self.site)
         cmafa = cma.get_form(request)
 
@@ -766,6 +859,13 @@ class ModelAdminTests(TestCase):
         # RadioSelect, and the choices list should have a first entry of 'None' if
         # blank=True for the model field.  Finally, the widget should have the
         # 'radiolist' attr, and 'inline' as well if the field is specified HORIZONTAL.
+        """
+        Tests the rendering of foreign key fields as radio fields in the Django admin interface.
+
+        Validates that the admin form renders the fields as radio select widgets and that the correct choices are displayed. 
+        Also tests custom form usage in ModelAdmin and inline forms. 
+        Verifies that excluded and included fields are correctly displayed in the admin form.
+        """
         class ConcertAdmin(ModelAdmin):
             radio_fields = {
                 "main_band": HORIZONTAL,
@@ -857,6 +957,14 @@ class ModelAdminTests(TestCase):
         )
 
     def test_log_actions(self):
+        """
+
+        Tests logging of administrative actions on a model instance.
+
+        Verifies that the log_addition and log_change methods of the ModelAdmin class
+        correctly create LogEntry objects with the expected attributes.
+
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="bill")
@@ -878,6 +986,9 @@ class ModelAdminTests(TestCase):
                 self.assertEqual(fetched.object_repr, str(self.band))
 
     def test_log_deletions(self):
+        """
+        Tests that log entries are correctly generated when deleting model instances using the ModelAdmin log_deletions method.
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="akash")
@@ -923,6 +1034,13 @@ class ModelAdminTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_deletion(self):
+        """
+        Tests the log_deletion method of ModelAdmin to ensure it correctly logs a deletion event and returns the created LogEntry.
+
+        This test verifies that the method raises a RemovedInDjango60Warning due to its deprecation, and that the resulting LogEntry contains the expected attributes, such as the user, object being deleted, and action flag.
+
+        The test case covers the basic functionality of the log_deletion method to ensure it is working as expected before its removal in Django 6.0.
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="bill")
@@ -941,6 +1059,14 @@ class ModelAdminTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_deletion_fallback(self):
+        """
+
+        Tests the log deletion fallback behavior for the ModelAdmin class.
+
+        Ensures that the deprecated log_deletion() method is called when log_deletions() is implemented,
+        and verifies that the expected deletion logs are generated for a given queryset of objects.
+
+        """
         class InheritedModelAdmin(ModelAdmin):
             def log_deletion(self, request, obj, object_repr):
                 return super().log_deletion(request, obj, object_repr)
@@ -994,6 +1120,10 @@ class ModelAdminTests(TestCase):
         self.assertSequenceEqual(logs, expected_log_values)
 
     def test_get_autocomplete_fields(self):
+        """
+        Tests the get_autocomplete_fields method in ModelAdmin to ensure correct 
+        autocomplete fields are returned based on the admin class configuration.
+        """
         class NameAdmin(ModelAdmin):
             search_fields = ["name"]
 
@@ -1021,6 +1151,13 @@ class ModelAdminTests(TestCase):
             self.site.unregister(Band)
 
     def test_get_deleted_objects(self):
+        """
+        Tests the retrieval of deleted objects for a model instance.
+
+        Verifies the correct functionality of the get_deleted_objects method
+        in the ModelAdmin class, ensuring it returns the expected deleted objects,
+        model count, required permissions, and protected objects for a given set of objects.
+        """
         mock_request = MockRequest()
         mock_request.user = User.objects.create_superuser(
             username="bob", email="bob@test.com", password="test"
@@ -1040,8 +1177,7 @@ class ModelAdminTests(TestCase):
 
     def test_get_deleted_objects_with_custom_has_delete_permission(self):
         """
-        ModelAdmin.get_deleted_objects() uses ModelAdmin.has_delete_permission()
-        for permissions checking.
+        Tests that ModelAdmin.get_deleted_objects uses ModelAdmin.has_delete_permission to check for delete permissions, ensuring custom permission logic is applied when calculating deletable objects.
         """
         mock_request = MockRequest()
         mock_request.user = User.objects.create_superuser(
@@ -1096,8 +1232,7 @@ class ModelAdminPermissionTests(SimpleTestCase):
 
     def test_has_view_permission(self):
         """
-        has_view_permission() returns True for users who can view objects and
-        False for users who can't.
+        Tests a ModelAdmin's has_view_permission method to ensure it correctly determines whether a user has view permission for an object.
         """
         ma = ModelAdmin(Band, AdminSite())
         request = MockRequest()
@@ -1112,8 +1247,7 @@ class ModelAdminPermissionTests(SimpleTestCase):
 
     def test_has_add_permission(self):
         """
-        has_add_permission returns True for users who can add objects and
-        False for users who can't.
+        Checks if a user has permission to add objects through the ModelAdmin interface.
         """
         ma = ModelAdmin(Band, AdminSite())
         request = MockRequest()
@@ -1127,6 +1261,14 @@ class ModelAdminPermissionTests(SimpleTestCase):
         self.assertFalse(ma.has_add_permission(request))
 
     def test_inline_has_add_permission_uses_obj(self):
+        """
+
+        Tests the has_add_permission method in an inline admin class.
+
+        Verifies that the method correctly controls whether an inline form
+        can be added to a model instance.
+
+        """
         class ConcertInline(TabularInline):
             model = Concert
 
@@ -1147,8 +1289,7 @@ class ModelAdminPermissionTests(SimpleTestCase):
 
     def test_has_change_permission(self):
         """
-        has_change_permission returns True for users who can edit objects and
-        False for users who can't.
+        Test that the has_change_permission method correctly determines whether a user has permission to edit objects.
         """
         ma = ModelAdmin(Band, AdminSite())
         request = MockRequest()
@@ -1163,8 +1304,7 @@ class ModelAdminPermissionTests(SimpleTestCase):
 
     def test_has_delete_permission(self):
         """
-        has_delete_permission returns True for users who can delete objects and
-        False for users who can't.
+        Tests the has_delete_permission method to ensure it correctly determines whether a user has permission to delete objects based on their role.
         """
         ma = ModelAdmin(Band, AdminSite())
         request = MockRequest()
@@ -1179,8 +1319,7 @@ class ModelAdminPermissionTests(SimpleTestCase):
 
     def test_has_module_permission(self):
         """
-        as_module_permission returns True for users who have any permission
-        for the module and False for users who don't.
+        Determines whether a user has permission to access a module, returning True if the user has any permission for the module and False otherwise. This is typically used to control access to admin modules based on a user's assigned permissions.
         """
         ma = ModelAdmin(Band, AdminSite())
         request = MockRequest()

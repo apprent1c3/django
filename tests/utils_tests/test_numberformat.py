@@ -7,6 +7,9 @@ from django.utils.numberformat import format as nformat
 
 class TestNumberFormat(SimpleTestCase):
     def test_format_number(self):
+        """
+        Tests the nformat function for correct number formatting with various options, including decimal places, thousand separators, and localized formatting.
+        """
         self.assertEqual(nformat(1234, "."), "1234")
         self.assertEqual(nformat(1234.2, "."), "1234.2")
         self.assertEqual(nformat(1234, ".", decimal_pos=2), "1234.00")
@@ -26,6 +29,9 @@ class TestNumberFormat(SimpleTestCase):
             )
 
     def test_format_string(self):
+        """
+        Tests the formatting of strings as numbers with decimal and thousand separators.
+        """
         self.assertEqual(nformat("1234", "."), "1234")
         self.assertEqual(nformat("1234.2", "."), "1234.2")
         self.assertEqual(nformat("1234", ".", decimal_pos=2), "1234.00")
@@ -43,6 +49,9 @@ class TestNumberFormat(SimpleTestCase):
         )
 
     def test_large_number(self):
+        """
+        Tests the nformat function's handling of very large numbers, ensuring correct formatting for maximum integer values, values slightly above and below the maximum, and corresponding negative values.
+        """
         most_max = (
             "{}179769313486231570814527423731704356798070567525844996"
             "598917476803157260780028538760589558632766878171540458953"
@@ -68,6 +77,9 @@ class TestNumberFormat(SimpleTestCase):
         self.assertEqual(nformat(-2 * int_max, "."), most_max2.format("-"))
 
     def test_float_numbers(self):
+        """
+        Tests the nformat function with floating point numbers to ensure correct formatting and rounding of decimal values.
+        """
         tests = [
             (9e-10, 10, "0.0000000009"),
             (9e-19, 2, "0.00"),
@@ -101,6 +113,14 @@ class TestNumberFormat(SimpleTestCase):
         )
 
     def test_decimal_numbers(self):
+        """
+        Test the formatting of decimal numbers using the nformat function.
+
+        This method checks various scenarios, including integers, floating point numbers,
+        very large and very small numbers, and numbers with a large number of decimal places.
+        It verifies that the nformat function correctly handles these cases, including
+        decimal places, thousand separators, and scientific notation.
+        """
         self.assertEqual(nformat(Decimal("1234"), "."), "1234")
         self.assertEqual(nformat(Decimal("1234.2"), "."), "1234.2")
         self.assertEqual(nformat(Decimal("1234"), ".", decimal_pos=2), "1234.00")
@@ -161,6 +181,9 @@ class TestNumberFormat(SimpleTestCase):
                 )
 
     def test_decimal_subclass(self):
+        """
+        Tests that a custom Decimal subclass is correctly formatted with a prefix when using the nformat function.
+        """
         class EuroDecimal(Decimal):
             """
             Wrapper for Decimal which prefixes each amount with the € symbol.

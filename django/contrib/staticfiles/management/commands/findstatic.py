@@ -18,6 +18,16 @@ class Command(LabelCommand):
         )
 
     def handle_label(self, path, **options):
+        """
+        Locate a file or directory at the given path and return its location.
+
+        The function searches for the specified path, and if found, returns the absolute path(s) where the file or directory is located.
+        The level of verbosity can be controlled through the `verbosity` option, which determines the amount of detail included in the output.
+        If the file or directory is not found, an error message is returned indicating that no matching file was found.
+        Optional keyword arguments:
+            verbosity: controls the level of detail in the output (integer)
+            all: if True, find all occurrences of the path (boolean)
+        """
         verbosity = options["verbosity"]
         result = finders.find(path, find_all=options["all"])
         if verbosity >= 2:

@@ -8,6 +8,9 @@ from ..models import Article, Author
 
 class StrIndexTests(TestCase):
     def test_annotate_charfield(self):
+        """
+        Checks if the StrIndex function correctly annotates a QuerySet of authors with the index of the substring 'R.' in their names.
+        """
         Author.objects.create(name="George. R. R. Martin")
         Author.objects.create(name="J. R. R. Tolkien")
         Author.objects.create(name="Terry Pratchett")
@@ -33,6 +36,9 @@ class StrIndexTests(TestCase):
         )
 
     def test_order_by(self):
+        """
+        Tests that database query results are correctly ordered by the position of a substring within a field, specifically the 'name' field of Author objects, ascending and descending.
+        """
         Author.objects.create(name="Terry Pratchett")
         Author.objects.create(name="J. R. R. Tolkien")
         Author.objects.create(name="George. R. R. Martin")
@@ -56,6 +62,9 @@ class StrIndexTests(TestCase):
         )
 
     def test_unicode_values(self):
+        """
+        Tests the ability to find and order authors based on the presence of specific unicode values within their names.
+        """
         Author.objects.create(name="ツリー")
         Author.objects.create(name="皇帝")
         Author.objects.create(name="皇帝 ツリー")

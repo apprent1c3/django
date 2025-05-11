@@ -54,6 +54,9 @@ class ProgressBar:
         self.prev_done = 0
 
     def update(self, count):
+        """
+        Update the progress bar to reflect the current progress based on the given count, writing the updated bar to the output if necessary.
+        """
         if not self.output:
             return
         perc = count * 100 // self.total_count
@@ -94,7 +97,12 @@ class Serializer:
         **options,
     ):
         """
-        Serialize a queryset.
+        Serialize a queryset into a serialized form.
+
+        This method takes a queryset and various options for controlling the serialization process, 
+        including the fields to include, the use of natural foreign and primary keys, and progress output.
+        It iterates over each object in the queryset, serializing its fields and relationships,
+        and returns the complete serialized data.
         """
         self.options = options
 
@@ -216,7 +224,7 @@ class Deserializer:
 
     def __init__(self, stream_or_string, **options):
         """
-        Init this serializer given a stream or a string
+        Initializes a serializer instance, allowing data to be written to either a provided stream or a string, with additional configuration options.
         """
         self.options = options
         if isinstance(stream_or_string, str):
@@ -262,6 +270,16 @@ class DeserializedObject:
         # Call save on the Model baseclass directly. This bypasses any
         # model-defined save. The save is also forced to be raw.
         # raw=True is passed to any pre/post_save signals.
+        """
+        Saves the model instance, optionally saving many-to-many relationships.
+
+        :param bool save_m2m: Whether to save many-to-many relationships (default: True)
+        :param using: The database alias to use for the save operation
+        :param kwargs: Additional keyword arguments to pass to the save method
+
+        This method is an override of the standard model save method, providing
+        additional functionality for handling many-to-many relationships.
+        """
         models.Model.save_base(self.object, using=using, raw=True, **kwargs)
         if self.m2m_data and save_m2m:
             for accessor_name, object_list in self.m2m_data.items():
@@ -272,6 +290,13 @@ class DeserializedObject:
         self.m2m_data = None
 
     def save_deferred_fields(self, using=None):
+        """
+        Saves deferred fields for the current object, handling both Many-To-Many and Many-To-One relationships.
+
+        :param using: The database alias to use for saving the deferred fields.
+
+        :raises DeserializationError: If there is an error deserializing a deferred field.
+        """
         self.m2m_data = {}
         for field, field_value in self.deferred_fields.items():
             opts = self.object._meta
@@ -301,10 +326,9 @@ class DeserializedObject:
 
 def build_instance(Model, data, db):
     """
-    Build a model instance.
 
-    If the model instance doesn't have a primary key and the model supports
-    natural keys, try to retrieve it from the database.
+    Build a model instance from provided data, attempting to retrieve it from the database if no primary key is given and natural keys are supported.
+
     """
     default_manager = Model._meta.default_manager
     pk = data.get(Model._meta.pk.attname)
@@ -326,6 +350,14 @@ def build_instance(Model, data, db):
 
 
 def deserialize_m2m_values(field, field_value, using, handle_forward_references):
+    """
+    Deserializes many-to-many relation values.
+
+    This function takes a field, its value, and database connection details, 
+    and returns a list of primary key values corresponding to the 
+    deserialized relations. Supports handling of forward references and 
+    natural keys, and raises an error for invalid values.
+    """
     model = field.remote_field.model
     if hasattr(model._default_manager, "get_by_natural_key"):
 
@@ -361,6 +393,25 @@ def deserialize_m2m_values(field, field_value, using, handle_forward_references)
 
 
 def deserialize_fk_value(field, field_value, using, handle_forward_references):
+    """
+    Deserializes a foreign key value into its model instance or related primary key value.
+
+    Parameters
+    ----------
+    field : django.db.models.fields.Field
+        The foreign key field to deserialize.
+    field_value : any
+        The value to be deserialized.
+    using : str
+        The database alias to use for the query.
+    handle_forward_references : bool
+        Whether to handle forward references by deferring the field or raising an exception.
+
+    Returns
+    -------
+    any
+        The deserialized foreign key value, which can be a model instance, a primary key value, or None if the input value is None.
+    """
     if field_value is None:
         return None
     model = field.remote_field.model

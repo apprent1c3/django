@@ -40,6 +40,9 @@ class TestRegistration(SimpleTestCase):
             self.site.register(Person)
 
     def test_prevent_double_registration_for_custom_admin(self):
+        """
+        Tests that attempting to register a model with the admin site multiple times using a custom Admin class raises an AlreadyRegistered exception.
+        """
         class PersonAdmin(admin.ModelAdmin):
             pass
 
@@ -66,6 +69,9 @@ class TestRegistration(SimpleTestCase):
             self.site.get_model_admin(Person)
 
     def test_star_star_overrides(self):
+        """
+        Tests that star star overrides are correctly applied to the admin interface for a given model, ensuring that specified settings such as search fields and list display are properly registered and default values are used where not explicitly defined.
+        """
         self.site.register(
             Person, NameAdmin, search_fields=["name"], list_display=["__str__"]
         )
@@ -75,6 +81,9 @@ class TestRegistration(SimpleTestCase):
         self.assertIs(person_admin.save_on_top, True)
 
     def test_iterable_registration(self):
+        """
+        Registers multiple models with the admin site, specifying custom search fields, and verifies that model admins are correctly created and configured. Also ensures that models can be properly unregistered, leaving the site's registry empty.
+        """
         self.site.register([Person, Place], search_fields=["name"])
         self.assertIsInstance(self.site.get_model_admin(Person), admin.ModelAdmin)
         self.assertEqual(self.site.get_model_admin(Person).search_fields, ["name"])
@@ -135,6 +144,9 @@ class TestRegistrationDecorator(SimpleTestCase):
         )
 
     def test_multiple_registration(self):
+        """
+        Tests the registration of multiple models with the admin site, ensuring that each model is correctly registered and can be unregistered afterwards.
+        """
         register(Traveler, Place)(NameAdmin)
         self.assertIsInstance(
             self.default_site.get_model_admin(Traveler), admin.ModelAdmin

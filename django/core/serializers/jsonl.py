@@ -16,6 +16,9 @@ class Serializer(PythonSerializer):
     internal_use_only = False
 
     def _init_options(self):
+        """
+        Initializes the JSON output options by copying the current options, removing unnecessary keys, and setting default encoding parameters.
+        """
         self._current = None
         self.json_kwargs = self.options.copy()
         self.json_kwargs.pop("stream", None)
@@ -40,7 +43,9 @@ class Serializer(PythonSerializer):
 
 
 def Deserializer(stream_or_string, **options):
-    """Deserialize a stream or string of JSON data."""
+    """
+    Deserialize a stream or string of JSON data into Python objects, handling individual lines and reporting any deserialization errors.
+    """
     if isinstance(stream_or_string, bytes):
         stream_or_string = stream_or_string.decode()
     if isinstance(stream_or_string, (bytes, str)):

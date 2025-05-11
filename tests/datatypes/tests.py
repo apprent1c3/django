@@ -7,6 +7,11 @@ from .models import Donut, RumBaba
 
 class DataTypesTestCase(TestCase):
     def test_boolean_type(self):
+        """
+
+        Tests the boolean fields of a Donut object, specifically the is_frosted and has_sprinkles attributes, to ensure they behave as expected upon instantiation, modification, and retrieval from the database.
+
+        """
         d = Donut(name="Apple Fritter")
         self.assertFalse(d.is_frosted)
         self.assertIsNone(d.has_sprinkles)
@@ -20,6 +25,9 @@ class DataTypesTestCase(TestCase):
         self.assertTrue(d2.has_sprinkles)
 
     def test_date_type(self):
+        """
+        Tests whether the date-related fields of a Donut instance are correctly stored and retrieved from the database, specifically the baked date, time of baking, and time of consumption.
+        """
         d = Donut(name="Apple Fritter")
         d.baked_date = datetime.date(year=1938, month=6, day=4)
         d.baked_time = datetime.time(hour=5, minute=30)
@@ -35,6 +43,9 @@ class DataTypesTestCase(TestCase):
 
     def test_time_field(self):
         # Test for ticket #12059: TimeField wrongly handling datetime.datetime object.
+        """
+        Verifies that the baked_time field is saved and retrieved as a time object, discarding the date component.
+        """
         d = Donut(name="Apple Fritter")
         d.baked_time = datetime.datetime(
             year=2007, month=4, day=20, hour=16, minute=19, second=59
@@ -45,7 +56,9 @@ class DataTypesTestCase(TestCase):
         self.assertEqual(d2.baked_time, datetime.time(16, 19, 59))
 
     def test_year_boundaries(self):
-        """Year boundary tests (ticket #3689)"""
+        """
+        Tests the correct handling of year boundaries in Donut model date filtering, ensuring that queries using the `baked_date` and `consumed_at` fields properly account for the start and end of a year.
+        """
         Donut.objects.create(
             name="Date Test 2007",
             baked_date=datetime.datetime(year=2007, month=12, day=31),
@@ -91,8 +104,9 @@ class DataTypesTestCase(TestCase):
 
     @skipIfDBFeature("supports_timezones")
     def test_error_on_timezone(self):
-        """Regression test for #8354: the MySQL and Oracle backends should raise
-        an error if given a timezone-aware datetime object."""
+        """
+        Tests that a ValueError is raised when trying to save a datetime object with timezone information to backends that do not support timezones, such as MySQL and Oracle.
+        """
         dt = datetime.datetime(2008, 8, 31, 16, 20, tzinfo=datetime.timezone.utc)
         d = Donut(name="Bear claw", consumed_at=dt)
         # MySQL backend does not support timezone-aware datetimes.
@@ -100,8 +114,9 @@ class DataTypesTestCase(TestCase):
             d.save()
 
     def test_datefield_auto_now_add(self):
-        """Regression test for #10970, auto_now_add for DateField should store
-        a Python datetime.date, not a datetime.datetime"""
+        """
+        Verifies the correct storage of datetime values for DateField with auto_now_add, ensuring a datetime.date object is stored instead of a datetime.datetime object.
+        """
         b = RumBaba.objects.create()
         # Verify we didn't break DateTimeField behavior
         self.assertIsInstance(b.baked_timestamp, datetime.datetime)

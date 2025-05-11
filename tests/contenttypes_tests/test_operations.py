@@ -36,6 +36,13 @@ class ContentTypeOperationsTests(TransactionTestCase):
         )
 
     def assertOperationsInjected(self, plan, **kwargs):
+        """
+        .Asserts that RenameModel operations in a migration plan are followed by corresponding RenameContentType operations.
+
+        #:param plan: Migration plan to check
+        #:param kwargs: Additional keyword arguments
+        #:raises AssertionError: If the operations are not correctly injected
+        """
         for migration, _backward in plan:
             operations = iter(migration.operations)
             for operation in operations:
@@ -49,6 +56,11 @@ class ContentTypeOperationsTests(TransactionTestCase):
                     self.assertEqual(next_operation.new_model, operation.new_name_lower)
 
     def test_existing_content_type_rename(self):
+        """
+        Tests renaming of existing content types via migrations.
+
+         Verifies that an existing content type can be renamed and then reverted back to its original name through database migrations.
+        """
         ContentType.objects.create(app_label="contenttypes_tests", model="foo")
         call_command(
             "migrate",
@@ -88,6 +100,10 @@ class ContentTypeOperationsTests(TransactionTestCase):
 
     @override_settings(DATABASE_ROUTERS=[TestRouter()])
     def test_existing_content_type_rename_other_database(self):
+        """
+        Tests that the content type rename operation works correctly when applied to a database other than the default. 
+        Verifies that content types are renamed during a migration and restored to their original name when the migration is reversed.
+        """
         ContentType.objects.using("other").create(
             app_label="contenttypes_tests", model="foo"
         )
@@ -115,6 +131,11 @@ class ContentTypeOperationsTests(TransactionTestCase):
         self.assertFalse(other_content_types.filter(model="renamedfoo").exists())
 
     def test_missing_content_type_rename_ignore(self):
+        """
+        Tests the behavior of renaming content types with missing content types, 
+        ensuring that the model 'foo' is correctly renamed to 'renamedfoo' and 
+        restored after migration and reversal.
+        """
         call_command(
             "migrate",
             "contenttypes_tests",
@@ -152,6 +173,14 @@ class ContentTypeOperationsTests(TransactionTestCase):
         )
 
     def test_content_type_rename_conflict(self):
+        """
+
+        Tests that content types with conflicting names can coexist after migration.
+
+        This test case verifies that content types with clashing model names can be preserved
+        when migrating the 'contenttypes_tests' app, without any renaming conflicts.
+
+        """
         ContentType.objects.create(app_label="contenttypes_tests", model="foo")
         ContentType.objects.create(app_label="contenttypes_tests", model="renamedfoo")
         call_command(

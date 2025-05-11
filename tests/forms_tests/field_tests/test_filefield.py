@@ -17,6 +17,9 @@ else:
 
 class FileFieldTest(SimpleTestCase):
     def test_filefield_1(self):
+        """
+        Tests the functionality of a FileField instance, specifically its clean method, by validating various input scenarios, including empty strings, None values, and uploaded files with different content and encoding, to ensure the field behaves as expected and raises the correct validation errors when necessary.
+        """
         f = FileField()
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -67,6 +70,9 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_filefield_2(self):
+        """
+        Tests the validation and cleaning behavior of a FileField instance with a specified max length.
+        """
         f = FileField(max_length=5)
         with self.assertRaisesMessage(
             ValidationError,
@@ -88,9 +94,7 @@ class FileFieldTest(SimpleTestCase):
 
     def test_filefield_changed(self):
         """
-        The value of data will more than likely come from request.FILES. The
-        value of initial data will likely be a filename stored in the database.
-        Since its value is of no use to a FileField it is ignored.
+        Tests whether a FileField has changed based on its initial value and new data, typically comparing a stored filename with a newly uploaded file.
         """
         f = FileField()
 
@@ -131,6 +135,9 @@ class MultipleFileField(FileField):
         super().__init__(*args, **kwargs)
 
     def clean(self, data, initial=None):
+        """
+        Cleans the provided data, handling both single items and collections, by calling the parent class's clean method on each item. If an initial value is specified, it is passed to the parent class's clean method.
+        """
         single_file_clean = super().clean
         if isinstance(data, (list, tuple)):
             result = [single_file_clean(d, initial) for d in data]
@@ -149,6 +156,9 @@ class MultipleFileFieldTest(SimpleTestCase):
         self.assertEqual(f.clean(files), files)
 
     def test_file_multiple_empty(self):
+        """
+        Tests that the MultipleFileField correctly raises a ValidationError when an empty file is submitted, regardless of its position in the list of files.
+        """
         f = MultipleFileField()
         files = [
             SimpleUploadedFile("empty", b""),
@@ -162,6 +172,11 @@ class MultipleFileFieldTest(SimpleTestCase):
 
     @unittest.skipUnless(HAS_PILLOW, "Pillow not installed")
     def test_file_multiple_validation(self):
+        """
+        Tests the validation of multiple files using the MultipleFileField.
+
+        Verifies that valid image files are accepted, while files with invalid extensions are rejected and raise a ValidationError with the allowed extensions listed in the error message.
+        """
         f = MultipleFileField(validators=[validate_image_file_extension])
 
         good_files = [

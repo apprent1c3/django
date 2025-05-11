@@ -16,6 +16,9 @@ class TanTests(TestCase):
         self.assertIsNone(obj.null_tan)
 
     def test_decimal(self):
+        """
+        Verdana test for Decimal-based tangent calculation, verifying the correctness of the Tan database function by comparing its results with the math.tan function.
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_tan=Tan("n1"), n2_tan=Tan("n2")).first()
         self.assertIsInstance(obj.n1_tan, Decimal)
@@ -24,6 +27,9 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.n2_tan, Decimal(math.tan(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the calculation of the tangent of floating-point numbers using the Tan function.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_tan=Tan("f1"), f2_tan=Tan("f2")).first()
         self.assertIsInstance(obj.f1_tan, float)
@@ -32,6 +38,11 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.f2_tan, math.tan(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the calculation of the tangent function on IntegerModel fields.
+
+        Verifies that the Tan database function correctly computes the tangent of small, normal, and large integer values and returns a float result, matching the math.tan function from the Python standard library.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_tan=Tan("small"),
@@ -46,6 +57,11 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.big_tan, math.tan(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of DecimalField values using the Tan lookup function.
+
+        Verifies that the Tan lookup correctly filters DecimalField values based on the tangent of the value.
+        """
         with register_lookup(DecimalField, Tan):
             DecimalModel.objects.create(n1=Decimal("0.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))

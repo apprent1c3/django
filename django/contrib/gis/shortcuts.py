@@ -13,7 +13,9 @@ except ImportError:
 
 
 def compress_kml(kml):
-    "Return compressed KMZ from the given KML string."
+    """
+    Converts a KML string into a compressed KMZ binary data, packaging the KML content into a zip archive with a single 'doc.kml' file, utilizing deflated compression for efficient storage.
+    """
     kmz = BytesIO()
     with zipfile.ZipFile(kmz, "a", zipfile.ZIP_DEFLATED) as zf:
         zf.writestr("doc.kml", kml.encode(settings.DEFAULT_CHARSET))

@@ -2,6 +2,11 @@ import datetime
 
 
 def _get_duration_components(duration):
+    """
+    Break down a duration into its constituent time components.
+
+    Returns a tuple containing the number of days, hours, minutes, seconds, and microseconds in the given duration.
+    """
     days = duration.days
     seconds = duration.seconds
     microseconds = duration.microseconds
@@ -16,7 +21,9 @@ def _get_duration_components(duration):
 
 
 def duration_string(duration):
-    """Version of str(timedelta) which is not English specific."""
+    """
+    Returns a string representation of a duration that is not specific to the English language, providing a format that includes days, hours, minutes, seconds, and microseconds.
+    """
     days, hours, minutes, seconds, microseconds = _get_duration_components(duration)
 
     string = "{:02d}:{:02d}:{:02d}".format(hours, minutes, seconds)
@@ -29,6 +36,13 @@ def duration_string(duration):
 
 
 def duration_iso_string(duration):
+    """
+    Returns a duration as an ISO 8601 duration string.
+
+    The duration is formatted as 'PnDTnHnMnS', where 'n' represents the number of days, hours, minutes, and seconds.
+    If the duration is negative, the string is prefixed with a minus sign.
+    The function preserves microseconds accuracy by appending them to the seconds, if present.
+    """
     if duration < datetime.timedelta(0):
         sign = "-"
         duration *= -1

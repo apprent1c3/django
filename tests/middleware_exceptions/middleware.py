@@ -117,6 +117,9 @@ class PaymentMiddleware(BaseMiddleware):
 
 @async_only_middleware
 def async_payment_middleware(get_response):
+    """
+    Sets the HTTP status code of all responses to 402 (Payment Required) for asynchronous requests, effectively overriding any existing status code set by the application.
+    """
     async def middleware(request):
         response = await get_response(request)
         response.status_code = 402

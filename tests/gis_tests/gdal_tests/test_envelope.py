@@ -14,7 +14,9 @@ class EnvelopeTest(unittest.TestCase):
         self.e = Envelope(0, 0, 5, 5)
 
     def test01_init(self):
-        "Testing Envelope initialization."
+        """
+        Tests the initialization of the Envelope class, covering various valid and invalid input scenarios.
+        """
         e1 = Envelope((0, 0, 5, 5))
         Envelope(0, 0, 5, 5)
         Envelope(0, "0", "5", 5)  # Thanks to ww for this
@@ -37,7 +39,9 @@ class EnvelopeTest(unittest.TestCase):
         Envelope(0, 0, 0, 0)
 
     def test02_properties(self):
-        "Testing Envelope properties."
+        """
+        Testing Envelope properties, verifying its data attributes and string representations are correctly generated from the initial bounds.
+        """
         e = Envelope(0, 0, 2, 3)
         self.assertEqual(0, e.min_x)
         self.assertEqual(0, e.min_y)
@@ -50,21 +54,27 @@ class EnvelopeTest(unittest.TestCase):
         self.assertEqual("(0.0, 0.0, 2.0, 3.0)", str(e))
 
     def test03_equivalence(self):
-        "Testing Envelope equivalence."
+        """
+        Tests the equivalence of Envelope instances, ensuring they can be created and compared correctly regardless of input format.
+        """
         e1 = Envelope(0.523, 0.217, 253.23, 523.69)
         e2 = Envelope((0.523, 0.217, 253.23, 523.69))
         self.assertEqual(e1, e2)
         self.assertEqual((0.523, 0.217, 253.23, 523.69), e1)
 
     def test04_expand_to_include_pt_2_params(self):
-        "Testing Envelope expand_to_include -- point as two parameters."
+        """
+        Tests the expand_to_include method of the Envelope class when passing a point as two parameters, ensuring it correctly updates the envelope boundaries to include the given point.
+        """
         self.e.expand_to_include(2, 6)
         self.assertEqual((0, 0, 5, 6), self.e)
         self.e.expand_to_include(-1, -1)
         self.assertEqual((-1, -1, 5, 6), self.e)
 
     def test05_expand_to_include_pt_2_tuple(self):
-        "Testing Envelope expand_to_include -- point as a single 2-tuple parameter."
+        """
+        Tests the Envelope class method expand_to_include when passing a point as a single 2-tuple parameter, verifying that the envelope expands correctly to include the specified points.
+        """
         self.e.expand_to_include((10, 10))
         self.assertEqual((0, 0, 10, 10), self.e)
         self.e.expand_to_include((-10, -10))
@@ -86,7 +96,9 @@ class EnvelopeTest(unittest.TestCase):
         self.assertEqual((-1, 0, 5, 7), self.e)
 
     def test08_expand_to_include_point(self):
-        "Testing Envelope expand_to_include with Point as parameter."
+        """
+        Tests the expand_to_include method of the Envelope class with a Point as input, verifying that the envelope correctly adjusts its bounds to include the specified point.
+        """
         self.e.expand_to_include(TestPoint(-1, 1))
         self.assertEqual((-1, 0, 5, 5), self.e)
         self.e.expand_to_include(TestPoint(10, 10))

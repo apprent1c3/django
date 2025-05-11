@@ -78,6 +78,11 @@ class LoginView(RedirectURLMixin, FormView):
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
+        """
+        Dispatches the request to the view, handling redirection for authenticated users. 
+        If the user is authenticated and the view is configured to redirect them, it redirects the user to a specified success URL, preventing potential redirection loops. 
+        Otherwise, it calls the parent class's dispatch method to handle the request as usual.
+        """
         if self.redirect_authenticated_user and self.request.user.is_authenticated:
             redirect_to = self.get_success_url()
             if redirect_to == self.request.path:
@@ -89,7 +94,11 @@ class LoginView(RedirectURLMixin, FormView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_default_redirect_url(self):
-        """Return the default redirect URL."""
+        """
+        Return the default URL to redirect to after a successful action, 
+        preferring a previously specified next page if available, 
+        otherwise defaulting to the login redirect URL.
+        """
         if self.next_page:
             return resolve_url(self.next_page)
         else:
@@ -137,7 +146,9 @@ class LogoutView(RedirectURLMixin, TemplateView):
         return super().dispatch(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
-        """Logout may be done via POST."""
+        """
+        Handles a logout request via POST method, logs out the user and redirects to a success URL if it differs from the current URL.
+        """
         auth_logout(request)
         redirect_to = self.get_success_url()
         if redirect_to != request.get_full_path():
@@ -146,7 +157,10 @@ class LogoutView(RedirectURLMixin, TemplateView):
         return super().get(request, *args, **kwargs)
 
     def get_default_redirect_url(self):
-        """Return the default redirect URL."""
+        """
+        Returns the URL to redirect to by default, prioritizing the next page, 
+        then the logout redirect URL defined in settings, and finally the current request path.
+        """
         if self.next_page:
             return resolve_url(self.next_page)
         elif settings.LOGOUT_REDIRECT_URL:
@@ -179,7 +193,13 @@ def logout_then_login(request, login_url=None):
 
 def redirect_to_login(next, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):
     """
+
     Redirect the user to the login page, passing the given 'next' page.
+
+    This function is used to redirect unauthenticated users to the login page, while preserving the original destination URL.
+    The 'next' page is passed as a query parameter to the login URL, allowing the login view to redirect the user back
+    to their original destination after a successful login.
+
     """
     resolved_url = resolve_url(login_url or settings.LOGIN_URL)
 
@@ -266,6 +286,9 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
     @method_decorator(sensitive_post_parameters())
     @method_decorator(never_cache)
     def dispatch(self, *args, **kwargs):
+        """
+        Dispatches a password reset request, verifying the provided token and user ID to ensure the link is valid. If the token is valid, it proceeds with the password reset process; otherwise, it renders an error response.
+        """
         if "uidb64" not in kwargs or "token" not in kwargs:
             raise ImproperlyConfigured(
                 "The URL path must contain 'uidb64' and 'token' parameters."
@@ -298,6 +321,11 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return self.render_to_response(self.get_context_data())
 
     def get_user(self, uidb64):
+        """
+        Retrieves a user instance from the database based on a URL-safe base64-encoded user ID. 
+
+        Returns the user instance if found, otherwise returns None. This function handles potential decoding errors and exceptions that may occur during the retrieval process, ensuring a safe and reliable user lookup mechanism.
+        """
         try:
             # urlsafe_base64_decode() decodes to bytestring
             uid = urlsafe_base64_decode(uidb64).decode()
@@ -318,6 +346,9 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
+        """
+        Handles a valid password reset form submission, saves the form data to create a new user, and logs them in if post-reset login is enabled.
+        """
         user = form.save()
         del self.request.session[INTERNAL_RESET_SESSION_TOKEN]
         if self.post_reset_login:
@@ -325,6 +356,9 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
+        """
+        Adds context data to be used in templates, specifically handling password reset links by setting their validity status and updating forms and title accordingly.
+        """
         context = super().get_context_data(**kwargs)
         if self.validlink:
             context["validlink"] = True

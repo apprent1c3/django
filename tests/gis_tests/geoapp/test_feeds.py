@@ -23,7 +23,9 @@ class GeoFeedTest(TestCase):
         self.assertEqual(actual, expected)
 
     def test_geofeed_rss(self):
-        "Tests geographic feeds using GeoRSS over RSSv2."
+        """
+        Tests geographic feeds using GeoRSS over RSSv2, verifying feed structure, GeoRSS namespace and the presence of expected channel and item elements.
+        """
         # Uses `GEOSGeometry` in `item_geometry`
         doc1 = minidom.parseString(self.client.get("/feeds/rss1/").content)
         # Uses a 2-tuple in `item_geometry`
@@ -62,7 +64,10 @@ class GeoFeedTest(TestCase):
                 )
 
     def test_geofeed_atom(self):
-        "Testing geographic feeds using GeoRSS over Atom."
+        """
+        Tests the generation of geographic feeds using GeoRSS over Atom, 
+        verifying the structure and content of the feed against expected values.
+        """
         doc1 = minidom.parseString(self.client.get("/feeds/atom1/").content)
         doc2 = minidom.parseString(self.client.get("/feeds/atom2/").content)
         feed1, feed2 = doc1.firstChild, doc2.firstChild
@@ -87,7 +92,9 @@ class GeoFeedTest(TestCase):
                 )
 
     def test_geofeed_w3c(self):
-        "Testing geographic feeds using W3C Geo."
+        """
+        Tests the functionality of geographic feeds using W3C Geo, verifying feed structure and content against the City model data.
+        """
         doc = minidom.parseString(self.client.get("/feeds/w3cgeo1/").content)
         feed = doc.firstChild
         # Ensuring the geo namespace was added to the <feed> element.

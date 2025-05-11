@@ -11,8 +11,7 @@ from .management import _get_builtin_permissions
 
 def _subclass_index(class_path, candidate_paths):
     """
-    Return the index of dotted class path (or a subclass of that class) in a
-    list of candidate paths. If it does not exist, return -1.
+    Return the index of a class or its subclass within a list of candidate class paths, allowing for flexible matching of class hierarchies.
     """
     cls = import_string(class_path)
     for index, path in enumerate(candidate_paths):
@@ -26,6 +25,11 @@ def _subclass_index(class_path, candidate_paths):
 
 
 def check_user_model(app_configs=None, **kwargs):
+    """
+    Checks a user model for potential configuration issues and returns a list of errors or warnings.
+    It verifies that the REQUIRED_FIELDS is a list or tuple, the USERNAME_FIELD is not included in REQUIRED_FIELDS,
+    the USERNAME_FIELD is unique, and that is_anonymous and is_authenticated are attributes or properties rather than methods.
+    """
     if app_configs is None:
         cls = apps.get_model(settings.AUTH_USER_MODEL)
     else:
@@ -122,6 +126,9 @@ def check_user_model(app_configs=None, **kwargs):
 
 
 def check_models_permissions(app_configs=None, **kwargs):
+    """
+    Checks the permissions of the given Django application models for any errors, such as permission name or codename exceeding maximum allowed length, or duplicate permission codenames, and returns a list of any errors found.
+    """
     if app_configs is None:
         models = apps.get_models()
     else:
@@ -238,6 +245,12 @@ def check_models_permissions(app_configs=None, **kwargs):
 
 
 def check_middleware(app_configs, **kwargs):
+    """
+    Checks if the LoginRequiredMiddleware is correctly configured in the MIDDLEWARE setting.
+
+    Ensures that AuthenticationMiddleware is defined before LoginRequiredMiddleware.
+    Returns a list of errors if the middleware configuration is invalid.
+    """
     errors = []
 
     login_required_index = _subclass_index(

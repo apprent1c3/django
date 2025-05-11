@@ -29,6 +29,10 @@ class FileBasedCache(BaseCache):
         return True
 
     def get(self, key, default=None, version=None):
+        """
+        Retrieves a value by its key, optionally from a specific version, 
+        and returns the default value if it does not exist or is expired.
+        """
         fname = self._key_to_file(key, version)
         try:
             with open(fname, "rb") as f:
@@ -44,6 +48,15 @@ class FileBasedCache(BaseCache):
         file.write(zlib.compress(pickle.dumps(value, self.pickle_protocol)))
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Sets a key-value pair in the storage, optionally with a version and timeout.
+
+        :param key: The key to set
+        :param value: The value to associate with the key
+        :param timeout: The timeout for the key, defaults to DEFAULT_TIMEOUT
+        :param version: The version of the key, defaults to None
+        :return: None
+        """
         self._createdir()  # Cache dir can be deleted at any time.
         fname = self._key_to_file(key, version)
         self._cull()  # make some room if necessary
@@ -59,6 +72,9 @@ class FileBasedCache(BaseCache):
                 os.remove(tmp_path)
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Renews the lock on a cached value by updating its timeout, returning True if the lock was successfully renewed, False otherwise.
+        """
         try:
             with open(self._key_to_file(key, version), "r+b") as f:
                 try:
@@ -79,6 +95,15 @@ class FileBasedCache(BaseCache):
         return self._delete(self._key_to_file(key, version))
 
     def _delete(self, fname):
+        """
+        Deletes a file if it exists within the configured directory.
+
+        Args:
+            fname (str): The name of the file to delete.
+
+        Returns:
+            bool: True if the file was deleted, False otherwise.
+        """
         if not fname.startswith(self._dir) or not os.path.exists(fname):
             return False
         try:
@@ -89,6 +114,13 @@ class FileBasedCache(BaseCache):
         return True
 
     def has_key(self, key, version=None):
+        """
+        Checks if a key exists and its corresponding file is not expired.
+
+        :param key: The key to be checked.
+        :param version: Optional version of the key.
+        :return: True if the key exists and is not expired, False otherwise.
+        """
         fname = self._key_to_file(key, version)
         try:
             with open(fname, "rb") as f:
@@ -98,9 +130,10 @@ class FileBasedCache(BaseCache):
 
     def _cull(self):
         """
-        Remove random cache entries if max_entries is reached at a ratio
-        of num_entries / cull_frequency. A value of 0 for CULL_FREQUENCY means
-        that the entire cache will be purged.
+
+        Manages cache size by removing a subset of entries when the maximum allowed number is reached, 
+        according to the cull frequency ratio, or purging the entire cache if cull frequency is zero.
+
         """
         filelist = self._list_cache_files()
         num_entries = len(filelist)
@@ -116,6 +149,12 @@ class FileBasedCache(BaseCache):
     def _createdir(self):
         # Set the umask because os.makedirs() doesn't apply the "mode" argument
         # to intermediate-level directories.
+        """
+        Create the directory at the specified path with specific permissions.
+
+        This method ensures the directory exists and sets its permissions to a restricted mode.
+        It temporarily adjusts the umask to achieve the desired permissions, reverting to the original setting afterwards.
+        """
         old_umask = os.umask(0o077)
         try:
             os.makedirs(self._dir, 0o700, exist_ok=True)
@@ -147,7 +186,7 @@ class FileBasedCache(BaseCache):
 
     def _is_expired(self, f):
         """
-        Take an open cache file `f` and delete it if it's expired.
+        Checks if an open cache file is expired and deletes it if necessary.
         """
         try:
             exp = pickle.load(f)

@@ -30,6 +30,16 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        **:param args: Additional positional arguments (not used).**
+        **:param options: Additional keyword arguments (see below).**
+        **:option verbosity: Verbosity level of output (integer).**
+        **:option app_label: Name of the Django app containing the migration.**
+        **:option migration_name: Name of the migration to optimize.**
+        **:option check: Check for optimization without modifying the migration file.**
+
+        Optimizes a Django migration by reducing the number of operations. The function takes an app label and migration name, optimizes the migration operations, and writes the optimized migration to a new file. If no optimizations are possible, it reports this and returns. If optimizations are found, it writes the new migration file and optionally runs code formatters on the resulting file. If manual porting of migration code is required, it generates a new migration file that replaces the original and provides guidance on next steps.
+        """
         verbosity = options["verbosity"]
         app_label = options["app_label"]
         migration_name = options["migration_name"]

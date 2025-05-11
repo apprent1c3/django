@@ -30,6 +30,11 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
+        """
+        #: Sends a test email to the specified recipient and optionally notifies site managers and admins. 
+        #: The email subject includes the hostname and current timestamp. 
+        #: Keyword arguments: email (recipient's email), managers (boolean flag to notify managers), admins (boolean flag to notify admins).
+        """
         subject = "Test email from %s on %s" % (socket.gethostname(), timezone.now())
 
         send_mail(

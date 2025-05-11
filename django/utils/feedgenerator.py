@@ -46,10 +46,12 @@ def rfc3339_date(date):
 
 def get_tag_uri(url, date):
     """
-    Create a TagURI.
 
-    See
-    https://web.archive.org/web/20110514113830/http://diveintomark.org/archives/2004/05/28/howto-atom-id
+    Create a TagURI from a given URL and optional date.
+
+    The generated TagURI is a unique identifier that combines the hostname, path, and fragment of the URL,
+    with an optional date component for versioning.
+
     """
     bits = urlparse(url)
     d = ""
@@ -94,6 +96,13 @@ class Stylesheet:
         return self._mimetype
 
     def __str__(self):
+        """
+
+        Returns a string representation of the object, formatted as a HTML link tag attributes.
+
+        This string can be used to generate a HTML link tag, including the URL, mimetype, and media type if available.
+
+        """
         data = [f'href="{self.url}"']
         if self.mimetype is not None:
             data.append(f'type="{self.mimetype}"')
@@ -126,6 +135,25 @@ class SyndicationFeed:
         stylesheets=None,
         **kwargs,
     ):
+        """
+        Initializes a feed object with metadata.
+
+        :param title: The title of the feed.
+        :param link: The link to the feed.
+        :param description: A brief description of the feed.
+        :param language: The language of the feed.
+        :param author_email: The email of the feed author.
+        :param author_name: The name of the feed author.
+        :param author_link: The link to the feed author.
+        :param subtitle: A subtitle for the feed.
+        :param categories: A list of categories for the feed.
+        :param feed_url: The URL of the feed.
+        :param feed_copyright: Copyright information for the feed.
+        :param feed_guid: A unique identifier for the feed.
+        :param ttl: The time-to-live for the feed.
+        :param stylesheets: A list of stylesheets to apply to the feed.
+
+        """
         def to_str(s):
             return str(s) if s is not None else s
 
@@ -180,9 +208,7 @@ class SyndicationFeed:
         **kwargs,
     ):
         """
-        Add an item to the feed. All args are expected to be strings except
-        pubdate and updateddate, which are datetime.datetime objects, and
-        enclosures, which is an iterable of instances of the Enclosure class.
+        Add an item to the feed, supporting various metadata such as title, link, description, author information, categories, and more, allowing for customization and extension through keyword arguments.
         """
 
         def to_str(s):
@@ -264,8 +290,7 @@ class SyndicationFeed:
 
     def latest_post_date(self):
         """
-        Return the latest item's pubdate or updateddate. If no items
-        have either of these attributes this return the current UTC date/time.
+        Return the latest publication or update date among all items, or the current UTC date and time if no items have a publication or update date.
         """
         latest_date = None
         date_keys = ("updateddate", "pubdate")
@@ -293,6 +318,13 @@ class RssFeed(SyndicationFeed):
     content_type = "application/rss+xml; charset=utf-8"
 
     def write(self, outfile, encoding):
+        """
+        Write the RSS structure to the specified output file.
+
+        Generates an RSS feed, including stylesheets, channel information, and item entries,
+        using the provided output file and character encoding.
+
+        """
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         # Any stylesheet must come after the start of the document but before any tag.
@@ -322,6 +354,9 @@ class RssFeed(SyndicationFeed):
             handler.processingInstruction("xml-stylesheet", stylesheet)
 
     def add_root_elements(self, handler):
+        """
+        Adds root elements to the feed, including metadata such as title, link, description, and other attributes like language, categories, and copyright information.
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement("link", self.feed["link"])
         handler.addQuickElement("description", self.feed["description"])
@@ -358,6 +393,9 @@ class Rss201rev2Feed(RssFeed):
     _version = "2.0"
 
     def add_item_elements(self, handler, item):
+        """
+        Adds key elements from an RSS item to a handler, including title, link, description, author, publication date, and other metadata, in accordance with RSS feed specifications.
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
         if item["description"] is not None:
@@ -419,6 +457,12 @@ class Atom1Feed(SyndicationFeed):
     ns = "http://www.w3.org/2005/Atom"
 
     def write(self, outfile, encoding):
+        """
+        Writes the RSS feed to the specified output file using the given encoding.
+
+        The output file will contain the feed's root elements and items in a XML structure.
+
+        """
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         handler.startElement("feed", self.root_attributes())
@@ -433,6 +477,9 @@ class Atom1Feed(SyndicationFeed):
             return {"xmlns": self.ns}
 
     def add_root_elements(self, handler):
+        """
+        Adds root-level elements to the XML feed, including metadata such as title, links, author information, and categories, based on the provided feed data.
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement(
             "link", "", {"rel": "alternate", "href": self.feed["link"]}
@@ -465,6 +512,9 @@ class Atom1Feed(SyndicationFeed):
             handler.endElement("entry")
 
     def add_item_elements(self, handler, item):
+        """
+        Adds standard elements to an item being processed by a handler, including title, link, publication and update dates, author information, unique identifier, description, enclosures, categories, and copyright notice.
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", "", {"href": item["link"], "rel": "alternate"})
 

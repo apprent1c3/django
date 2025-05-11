@@ -49,7 +49,13 @@ STATES = ["Texas", "Texas", "Texas", "Hawaii", "Colorado"]
 
 class LayerMapTest(TestCase):
     def test_init(self):
-        "Testing LayerMapping initialization."
+        """
+
+        Tests the initialization of the LayerMapping class by validating its input parameters.
+
+        Checks for invalid field mappings and unsupported encoding values, ensuring that the class raises the correct exceptions when encountered.
+
+        """
 
         # Model field that does not exist.
         bad1 = copy(city_mapping)
@@ -74,7 +80,10 @@ class LayerMapTest(TestCase):
             LayerMapping(City, city_shp, city_mapping, encoding="foobar")
 
     def test_simple_layermap(self):
-        "Test LayerMapping import of a simple point shapefile."
+        """
+        Verifies the import of a simple point shapefile using LayerMapping, 
+        checking that all expected cities are created with correct attributes and geometry.
+        """
         # Setting up for the LayerMapping.
         lm = LayerMapping(City, city_shp, city_mapping)
         lm.save()
@@ -103,7 +112,11 @@ class LayerMapTest(TestCase):
         self.assertEqual(City.objects.count(), 3)
 
     def test_layermap_strict(self):
-        "Testing the `strict` keyword, and import of a LineString shapefile."
+        """
+        Verifies the functionality of the LayerMapping class with strict validation, 
+        ensuring invalid decimal values raise an exception and testing the import of 
+        a LineString shapefile into the Interstate model.
+        """
         # When the `strict` keyword is set an error encountered will force
         # the importation to stop.
         with self.assertRaises(InvalidDecimal):
@@ -138,7 +151,9 @@ class LayerMapTest(TestCase):
                 self.assertAlmostEqual(p1[1], p2[1], 6)
 
     def county_helper(self, county_feat=True):
-        "Helper function for ensuring the integrity of the mapped County models."
+        """
+        Verifies the consistency of County models by checking the number of polygons, state association, and optional feature existence.
+        """
         for name, n, st in zip(NAMES, NUMS, STATES):
             # Should only be one record b/c of `unique` keyword.
             c = County.objects.get(name=name)
@@ -152,8 +167,7 @@ class LayerMapTest(TestCase):
 
     def test_layermap_unique_multigeometry_fk(self):
         """
-        The `unique`, and `transform`, geometry collection conversion, and
-        ForeignKey mappings.
+        Tests the LayerMapping functionality with respect to unique multi-geometry fields and ForeignKey mappings, covering various edge cases such as invalid input, transformation, and invalid foreign key mappings.
         """
         # All the following should work.
 
@@ -232,7 +246,9 @@ class LayerMapTest(TestCase):
         self.county_helper()
 
     def test_test_fid_range_step(self):
-        "Tests the `fid_range` keyword and the `step` keyword of .save()."
+        """
+        Tests the functionality of the `fid_range` and `step` keywords in the `save()` method, ensuring they handle various input types and ranges correctly.
+        """
 
         # Function for clearing out all the counties before testing.
         def clear_counties():
@@ -290,7 +306,9 @@ class LayerMapTest(TestCase):
             self.county_helper(county_feat=False)
 
     def test_model_inheritance(self):
-        "Tests LayerMapping on inherited models.  See #12093."
+        """
+        Tests the functionality of LayerMapping with inherited models, ensuring proper data import and object count consistency.
+        """
         icity_mapping = {
             "name": "Name",
             "population": "Population",
@@ -316,6 +334,9 @@ class LayerMapTest(TestCase):
         lm.save(silent=True)
 
     def test_charfield_too_short(self):
+        """
+        Tests that saving a City layer mapping raises an InvalidString exception when the 'name' attribute is too short to fit into the 'name_short' field.
+        """
         mapping = copy(city_mapping)
         mapping["name_short"] = "Name"
         lm = LayerMapping(City, city_shp, mapping)
@@ -323,7 +344,9 @@ class LayerMapTest(TestCase):
             lm.save(silent=True, strict=True)
 
     def test_textfield(self):
-        "String content fits also in a TextField"
+        """
+        Tests the functionality of storing string content in a TextField, ensuring it can be successfully mapped and saved from a shapefile.
+        """
         mapping = copy(city_mapping)
         mapping["name_txt"] = "Name"
         lm = LayerMapping(City, city_shp, mapping)
@@ -332,7 +355,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(City.objects.get(name="Houston").name_txt, "Houston")
 
     def test_encoded_name(self):
-        """Test a layer containing utf-8-encoded name"""
+        """
+        Tests the successful import of a layer containing a UTF-8 encoded name, verifying that it is correctly handled and stored in the database.
+        """
         city_shp = shp_path / "ch-city" / "ch-city.shp"
         lm = LayerMapping(City, city_shp, city_mapping)
         lm.save(silent=True, strict=True)
@@ -340,7 +365,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(City.objects.all()[0].name, "Zürich")
 
     def test_null_geom_with_unique(self):
-        """LayerMapping may be created with a unique and a null geometry."""
+        """
+        Tests the ability of LayerMapping to handle null geometries when creating objects with unique attributes.
+        """
         State.objects.bulk_create(
             [State(name="Colorado"), State(name="Hawaii"), State(name="Texas")]
         )
@@ -353,7 +380,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(hu.mpoly.ogr.num_coords, 449)
 
     def test_null_number_imported(self):
-        """LayerMapping import of GeoJSON with a null numeric value."""
+        """
+        Tests the import of a GeoJSON file with null numeric values using LayerMapping, ensuring that the import correctly handles and stores null values in the database.
+        """
         lm = LayerMapping(HasNulls, has_nulls_geojson, has_nulls_mapping)
         lm.save()
         self.assertEqual(HasNulls.objects.count(), 3)
@@ -361,7 +390,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(HasNulls.objects.filter(num__isnull=True).count(), 1)
 
     def test_null_string_imported(self):
-        "Test LayerMapping import of GeoJSON with a null string value."
+        """
+        Verifies that LayerMapping correctly handles GeoJSON imports containing null string values.
+        """
         lm = LayerMapping(HasNulls, has_nulls_geojson, has_nulls_mapping)
         lm.save()
         self.assertEqual(HasNulls.objects.filter(name="None").count(), 0)
@@ -370,7 +401,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(HasNulls.objects.filter(name__isnull=True).count(), 1)
 
     def test_nullable_boolean_imported(self):
-        """LayerMapping import of GeoJSON with a nullable boolean value."""
+        """
+        Tests the import of a GeoJSON file with a nullable boolean field using LayerMapping, verifying that all possible boolean states (True, False, and null) are correctly imported.
+        """
         lm = LayerMapping(HasNulls, has_nulls_geojson, has_nulls_mapping)
         lm.save()
         self.assertEqual(HasNulls.objects.filter(boolean=True).count(), 1)
@@ -378,7 +411,9 @@ class LayerMapTest(TestCase):
         self.assertEqual(HasNulls.objects.filter(boolean__isnull=True).count(), 1)
 
     def test_nullable_datetime_imported(self):
-        """LayerMapping import of GeoJSON with a nullable date/time value."""
+        """
+        Tests the import of a GeoJSON file containing a nullable date/time value using LayerMapping, verifying that the data is correctly saved to the database and can be filtered by date.
+        """
         lm = LayerMapping(HasNulls, has_nulls_geojson, has_nulls_mapping)
         lm.save()
         self.assertEqual(

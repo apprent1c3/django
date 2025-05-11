@@ -1,6 +1,11 @@
 class StorageSettingsMixin:
     def _clear_cached_properties(self, setting, **kwargs):
-        """Reset setting based property values."""
+        """
+        Reset cached properties related to a specific setting, cleaning up internal state to reflect changes to the setting's value.
+
+            :param setting: The name of the setting to clear cached properties for.
+
+        """
         if setting == "MEDIA_ROOT":
             self.__dict__.pop("base_location", None)
             self.__dict__.pop("location", None)

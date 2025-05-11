@@ -61,6 +61,9 @@ class MediaOrderConflictWarning(RuntimeWarning):
 @html_safe
 class Media:
     def __init__(self, media=None, css=None, js=None):
+        """
+        Initializes the object with media, CSS, and JavaScript resources, allowing for defaults if not provided and integrating media's CSS and JavaScript when available.
+        """
         if media is not None:
             css = getattr(media, "css", {})
             js = getattr(media, "js", [])
@@ -80,6 +83,9 @@ class Media:
 
     @property
     def _css(self):
+        """
+        Returns a compiled CSS dictionary, merging and combining CSS rules from various sources, organized by media type.
+        """
         css = defaultdict(list)
         for css_list in self._css_lists:
             for medium, sublist in css_list.items():
@@ -148,12 +154,10 @@ class Media:
     @staticmethod
     def merge(*lists):
         """
-        Merge lists while trying to keep the relative order of the elements.
-        Warn if the lists have the same elements in a different relative order.
-
-        For static assets it can be important to have them included in the DOM
-        in a certain order. In JavaScript you may not be able to reference a
-        global or in CSS you might want to override a style.
+        Merges multiple lists into a single list while preserving the relative order of elements.
+        Useful for scenarios where the order of elements is crucial, such as static assets in HTML, 
+        where JavaScript references or CSS overrides may depend on the order of global assets or styles. 
+        If conflicting orders are detected, a warning is issued and the lists are merged with duplicates removed.
         """
         ts = TopologicalSorter()
         for head, *tail in filter(None, lists):
@@ -174,6 +178,11 @@ class Media:
             return list(dict.fromkeys(chain.from_iterable(filter(None, lists))))
 
     def __add__(self, other):
+        """
+        Overloads the addition operator to combine two Media instances.
+
+        Returns a new Media object that contains the union of CSS and JavaScript assets from both operands, with duplicates removed.
+        """
         combined = Media()
         combined._css_lists = self._css_lists[:]
         combined._js_lists = self._js_lists[:]
@@ -187,8 +196,20 @@ class Media:
 
 
 def media_property(cls):
+    """
+    .. classmethod:: media_property(cls)
+
+        A class decorator that creates a :attr:`media` property for a class.
+
+        The property returns a Media object representing the CSS and JavaScript resources 
+        required by the class, inheriting from the parent class's media if available and 
+        extending it based on the class's Media definition if present.
+    """
     def _media(self):
         # Get the media property of the superclass, if it exists
+        """
+        Determines the media definition for the current class, extending the base media from the superclass if applicable.
+        """
         sup_cls = super(cls, self)
         try:
             base = sup_cls.media
@@ -253,7 +274,7 @@ class Widget(metaclass=MediaDefiningClass):
 
     def format_value(self, value):
         """
-        Return a value as it should appear when rendered in a template.
+        Return a value as it should appear when rendered in a template, handling empty or None values and potential localization.
         """
         if value == "" or value is None:
             return None
@@ -381,6 +402,14 @@ class MultipleHiddenInput(HiddenInput):
     template_name = "django/forms/widgets/multiple_hidden.html"
 
     def get_context(self, name, value, attrs):
+        """
+        Generates the widget context for a field with multiple hidden input subwidgets.
+
+        It creates a list of subwidgets, each representing a hidden input field, 
+        and assigns them to the 'subwidgets' key in the context dictionary. 
+        The subwidgets' attributes are inherited from the parent widget, 
+        with their IDs modified to include a unique index suffix if an ID is present.
+        """
         context = super().get_context(name, value, attrs)
         final_attrs = context["widget"]["attrs"]
         id_ = context["widget"]["attrs"].get("id")
@@ -400,6 +429,9 @@ class MultipleHiddenInput(HiddenInput):
         return context
 
     def value_from_datadict(self, data, files, name):
+        """
+        Retrieves a value from a dictionary-like data structure, handling both single and list values, to accommodate different input types such as form data or query strings.
+        """
         try:
             getter = data.getlist
         except AttributeError:
@@ -417,6 +449,9 @@ class FileInput(Input):
     template_name = "django/forms/widgets/file.html"
 
     def __init__(self, attrs=None):
+        """
+        Initializes the file input widget, ensuring that the 'multiple' attribute is set correctly based on the widget's configuration and provided attributes, and raising an error if multiple file uploads are not supported.
+        """
         if (
             attrs is not None
             and not self.allow_multiple_selected
@@ -438,7 +473,10 @@ class FileInput(Input):
         return
 
     def value_from_datadict(self, data, files, name):
-        "File widgets take data from FILES, not POST"
+        """
+        Retrieves the value of a field from the files dictionary, 
+        considering the possibility of multiple file uploads if allowed.
+        """
         getter = files.get
         if self.allow_multiple_selected:
             try:
@@ -491,6 +529,9 @@ class ClearableFileInput(FileInput):
             return value
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the template context for rendering a checkbox input widget, including the checkbox name, ID, and additional attributes required for its proper functioning.
+        """
         context = super().get_context(name, value, attrs)
         checkbox_name = self.clear_checkbox_name(name)
         checkbox_id = self.clear_checkbox_id(checkbox_name)
@@ -509,6 +550,13 @@ class ClearableFileInput(FileInput):
         return context
 
     def value_from_datadict(self, data, files, name):
+        """
+        ..: 
+            Processes file uploads from a given data dictionary and handles checkbox behavior.
+
+            Returns the uploaded file, :const:`FILE_INPUT_CONTRADICTION` in case of a contradiction,
+            or :obj:`False` if the corresponding checkbox is checked and the field is not required.
+        """
         upload = super().value_from_datadict(data, files, name)
         self.checked = self.clear_checkbox_name(name) in data
         if not self.is_required and CheckboxInput().value_from_datadict(
@@ -597,6 +645,16 @@ class CheckboxInput(Input):
         return super().get_context(name, value, attrs)
 
     def value_from_datadict(self, data, files, name):
+        """
+
+        Retrieves a boolean value from a dictionary of data, interpreting 'true' and 'false' strings as their respective boolean values.
+
+        :param data: The dictionary to retrieve the value from.
+        :param files: Not used in this function.
+        :param name: The key to look up in the dictionary.
+        :return: The boolean value associated with the given name, or False if the name is not present.
+
+        """
         if name not in data:
             # A missing value means False because HTML form submission does not
             # send results for unselected checkboxes.
@@ -628,6 +686,9 @@ class ChoiceWidget(Widget):
         self.choices = choices
 
     def __deepcopy__(self, memo):
+        """
+        Creates a deep copy of the current object, ensuring that all attributes and choices are properly duplicated to avoid unintended modifications to the original object.
+        """
         obj = copy.copy(self)
         obj.attrs = self.attrs.copy()
         obj.choices = copy.copy(self.choices)
@@ -648,7 +709,13 @@ class ChoiceWidget(Widget):
             yield from group[1]
 
     def optgroups(self, name, value, attrs=None):
-        """Return a list of optgroups for this widget."""
+        """
+        Return a list of optgroups for this widget. The optgroups are structured as 
+        tuples containing the group name, a list of options, and the original index in 
+        the choices list. This function is used to organize and process the widget's 
+        choices, including selecting options based on the provided value and widget 
+        configuration.
+        """
         groups = []
         has_selected = False
 
@@ -690,6 +757,14 @@ class ChoiceWidget(Widget):
     def create_option(
         self, name, value, label, selected, index, subindex=None, attrs=None
     ):
+        """
+        Create a dictionary representing an HTML option element.
+
+        The generated dictionary contains the necessary data to render an option, 
+        including its name, value, label, selection status, and optional attributes.
+        This function encapsulates the logic for creating options with or without sub-options,
+        option inheritance, and checked states, providing a standardized output for further processing.
+        """
         index = str(index) if subindex is None else "%s_%s" % (index, subindex)
         option_attrs = (
             self.build_attrs(self.attrs, attrs) if self.option_inherits_attrs else {}
@@ -727,6 +802,14 @@ class ChoiceWidget(Widget):
         return id_
 
     def value_from_datadict(self, data, files, name):
+        """
+        Retrieves a value from a data dictionary, optionally handling multiple selections if the field allows it. 
+
+        :param data: The data dictionary to retrieve the value from
+        :param files: Not used in this function
+        :param name: The name of the value to retrieve
+        :return: The retrieved value, which may be a single value or a list if multiple selections are allowed
+        """
         getter = data.get
         if self.allow_multiple_selected:
             try:
@@ -736,7 +819,9 @@ class ChoiceWidget(Widget):
         return getter(name)
 
     def format_value(self, value):
-        """Return selected values as a list."""
+        """
+        Return the provided value(s) as a list of strings, handling None and single values, and adapting to the allowance of multiple selections.
+        """
         if value is None and self.allow_multiple_selected:
             return []
         if not isinstance(value, (tuple, list)):
@@ -774,8 +859,8 @@ class Select(ChoiceWidget):
 
     def use_required_attribute(self, initial):
         """
-        Don't render 'required' if the first <option> has a value, as that's
-        invalid HTML.
+        Determines whether the 'required' attribute should be used for the form field, 
+        ensuring valid HTML by checking if the first option has a value.
         """
         use_required_attribute = super().use_required_attribute(initial)
         # 'required' is always okay for <select multiple>.
@@ -836,6 +921,9 @@ class SelectMultiple(Select):
     allow_multiple_selected = True
 
     def value_from_datadict(self, data, files, name):
+        """
+        Retrieves a value from a data dictionary by a given name, handling both single-value and multi-value cases. If the dictionary supports multiple values, it returns all of them; otherwise, it returns the single value or the first value if multiple values are present.
+        """
         try:
             getter = data.getlist
         except AttributeError:
@@ -897,6 +985,14 @@ class MultiWidget(Widget):
     use_fieldset = True
 
     def __init__(self, widgets, attrs=None):
+        """
+
+        Initializes a class instance with a collection of widgets and optional attributes.
+
+        :param widgets: A dictionary or list of widgets, where dictionary keys are used as names and dictionary values or list items are widget instances or classes.
+        :param attrs: Optional attributes to be passed to the parent class.
+
+        """
         if isinstance(widgets, dict):
             self.widgets_names = [("_%s" % name) if name else "" for name in widgets]
             widgets = widgets.values()
@@ -910,6 +1006,11 @@ class MultiWidget(Widget):
         return all(w.is_hidden for w in self.widgets)
 
     def get_context(self, name, value, attrs):
+        """
+        Retrieves and constructs the context for a multi-widget field, configuring 
+        each sub-widget with the required attributes and values, and appending them 
+        to the parent widget's context.
+        """
         context = super().get_context(name, value, attrs)
         if self.is_localized:
             for widget in self.widgets:
@@ -969,8 +1070,7 @@ class MultiWidget(Widget):
 
     def _get_media(self):
         """
-        Media for a multiwidget is the combination of all media of the
-        subwidgets.
+        Returns the combined media requirements of all subwidgets in a multiwidget.
         """
         media = Media()
         for w in self.widgets:
@@ -1063,6 +1163,14 @@ class SelectDateWidget(Widget):
     use_fieldset = True
 
     def __init__(self, attrs=None, years=None, months=None, empty_label=None):
+        """
+        Initializes the date widget with customizable attributes, year and month ranges, and empty label values.
+
+         :param attrs: Custom HTML attributes for the widget
+         :param years: Range of years to display, defaults to the current year and the next 9 years
+         :param months: List of months to display, defaults to all 12 months
+         :param empty_label: Value to display when no date is selected, can be a string or a tuple of three strings for year, month, and day
+        """
         self.attrs = attrs or {}
 
         # Optional list or tuple of years to use in the "year" select box.
@@ -1095,6 +1203,13 @@ class SelectDateWidget(Widget):
             self.day_none_value = self.none_value
 
     def get_context(self, name, value, attrs):
+        """
+        Return the context for a date widget composed of year, month, and day select fields.
+
+        The year, month, and day fields are constructed based on the provided name, value, and attributes.
+        Each field has a set of choices, which can optionally include a \"none\" value if the field is not required.
+        The constructed context includes the subwidgets for each field, which can be used for rendering the date widget.
+        """
         context = super().get_context(name, value, attrs)
         date_context = {}
         year_choices = [(i, str(i)) for i in self.years]
@@ -1139,9 +1254,13 @@ class SelectDateWidget(Widget):
 
     def format_value(self, value):
         """
-        Return a dict containing the year, month, and day of the current value.
-        Use dict instead of a datetime to allow invalid dates such as February
-        31 to display correctly.
+
+            Breaks down a date value into its year, month, and day components.
+
+            This function accepts a date value in various formats, including datetime objects and strings,
+            and returns a dictionary containing the year, month, and day of the date.
+            The output is a dictionary rather than a datetime object to accommodate invalid dates.
+
         """
         year, month, day = None, None, None
         if isinstance(value, (datetime.date, datetime.datetime)):
@@ -1164,6 +1283,9 @@ class SelectDateWidget(Widget):
 
     @staticmethod
     def _parse_date_fmt():
+        """
+        Parse a date format string, yielding the date components (year, month, day) represented by the format characters.
+        """
         fmt = get_format("DATE_FORMAT")
         escaped = False
         for char in fmt:
@@ -1184,6 +1306,9 @@ class SelectDateWidget(Widget):
         return "%s_month" % id_
 
     def value_from_datadict(self, data, files, name):
+        """
+        Extracts a date value from a dictionary of data, prioritizing the use of year, month, and day fields if available, and falling back to a default field if not. The extracted date is returned in a sanitized format. If the date components are empty or invalid, returns None or a default date string.
+        """
         y = data.get(self.year_field % name)
         m = data.get(self.month_field % name)
         d = data.get(self.day_field % name)

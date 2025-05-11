@@ -24,6 +24,12 @@ class AuthTemplateTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the class, creating a user and populating a request object
+        with an authenticated user, providing a basic setup for subsequent tests.
+
+        """
         user = User.objects.create_user("jsmith", "jsmith@example.com", "pass")
         user = authenticate(username=user.username, password="pass")
         request = cls.request_factory.get("/somepath/")
@@ -46,6 +52,9 @@ class AuthTemplateTests(TestCase):
 
     def test_password_reset_confirm_view_invalid_token(self):
         # PasswordResetConfirmView invalid token
+        """
+        ..: Tests the password reset confirm view with an invalid token, verifying that the response indicates an unsuccessful password reset attempt.
+        """
         client = PasswordResetConfirmClient()
         url = reverse(
             "password_reset_confirm", kwargs={"uidb64": "Bad", "token": "Bad-Token"}
@@ -58,6 +67,9 @@ class AuthTemplateTests(TestCase):
 
     def test_password_reset_confirm_view_valid_token(self):
         # PasswordResetConfirmView valid token
+        """
+        Tests that the password reset confirmation view functions correctly when given a valid token, ensuring the page loads with the correct title, heading, and pre-filled username.
+        """
         client = PasswordResetConfirmClient()
         default_token_generator = PasswordResetTokenGenerator()
         token = default_token_generator.make_token(self.user)
@@ -79,6 +91,9 @@ class AuthTemplateTests(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUser")
     def test_password_reset_confirm_view_custom_username_hint(self):
+        """
+        Tests the password reset confirm view when using a custom user model with a non-username field as the username hint.
+        """
         custom_user = CustomUser.custom_objects.create_user(
             email="joe@example.com",
             date_of_birth=date(1986, 11, 11),

@@ -25,6 +25,14 @@ from .models import Author, Book, Publisher
 class FilteredAggregateTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the application.
+
+        Creates and populates the database with predefined authors, publishers, and books,
+        establishing relationships between them, to facilitate testing of the application's functionality.
+
+        """
         cls.a1 = Author.objects.create(name="test", age=40)
         cls.a2 = Author.objects.create(name="test2", age=60)
         cls.a3 = Author.objects.create(name="test3", age=100)

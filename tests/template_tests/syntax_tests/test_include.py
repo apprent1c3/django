@@ -90,6 +90,9 @@ class IncludeTagTests(SimpleTestCase):
 
     @setup({"include10": '{% include "basic-syntax03" only %}'}, basic_templates)
     def test_include10(self):
+        """
+        Tests the rendering of an included template with the \"include10\" setup, verifying that it correctly handles invalid template references.
+        """
         output = self.engine.render_to_string("include10", {"first": "1"})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID --- INVALID")
@@ -101,6 +104,9 @@ class IncludeTagTests(SimpleTestCase):
         basic_templates,
     )
     def test_include11(self):
+        """
+        Tests the rendering of an included template with a specified variable value, verifying that the output matches the expected string.
+        """
         output = self.engine.render_to_string("include11", {"first": "1"})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID --- 2")
@@ -112,6 +118,9 @@ class IncludeTagTests(SimpleTestCase):
         basic_templates,
     )
     def test_include12(self):
+        """
+        Tests the inclusion of templates in a rendered string, verifying that the included content is displayed correctly and that any invalid references are handled as expected.
+        """
         output = self.engine.render_to_string("include12", {"second": "2"})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "1 --- INVALID")
@@ -127,6 +136,9 @@ class IncludeTagTests(SimpleTestCase):
         basic_templates,
     )
     def test_include13(self):
+        """
+        Tests the behavior of the rendering engine when including a template with autoescape disabled, ensuring proper handling of special characters and invalid template references.
+        """
         output = self.engine.render_to_string("include13", {"first": "&"})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "& --- INVALID")
@@ -142,6 +154,13 @@ class IncludeTagTests(SimpleTestCase):
         basic_templates,
     )
     def test_include14(self):
+        """
+
+        Test the include tag with autoescape off.
+
+        Verifies the engine's rendering behavior when an included template's variable is set to an HTML special character.
+
+        """
         output = self.engine.render_to_string("include14", {"var1": "&"})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "& --- INVALID")
@@ -232,8 +251,7 @@ class IncludeTagTests(SimpleTestCase):
 class IncludeTests(SimpleTestCase):
     def test_include_missing_template(self):
         """
-        The correct template is identified as not existing
-        when {% include %} specifies a template that does not exist.
+        Tests that the template engine correctly raises an exception when the `{% include %}` tag specifies a non-existent template.
         """
         engine = Engine(app_dirs=True, debug=True)
         template = engine.get_template("test_include_error.html")
@@ -242,9 +260,7 @@ class IncludeTests(SimpleTestCase):
 
     def test_extends_include_missing_baseloader(self):
         """
-        #12787 -- The correct template is identified as not existing
-        when {% extends %} specifies a template that does exist, but that
-        template has an {% include %} of something that does not exist.
+        Tests if the correct template is identified as missing when an extends template with a valid name includes a non-existent template, raising a TemplateDoesNotExist exception with the expected missing template name.
         """
         engine = Engine(app_dirs=True, debug=True)
         template = engine.get_template("test_extends_error.html")
@@ -252,6 +268,9 @@ class IncludeTests(SimpleTestCase):
             template.render(Context())
 
     def test_extends_include_missing_cachedloader(self):
+        """
+        Tests that the cached template loader correctly handles missing templates when using the extends directive in a template, ensuring it raises a TemplateDoesNotExist exception as expected.
+        """
         engine = Engine(
             debug=True,
             loaders=[
@@ -275,7 +294,13 @@ class IncludeTests(SimpleTestCase):
 
     def test_include_template_argument(self):
         """
-        Support any render() supporting object
+
+        Verifies that template arguments can be successfully included using the render method.
+
+        This test case ensures that objects supporting the render method can be used as template arguments,
+        allowing for dynamic inclusion of templates. It validates the inclusion process by comparing
+        the rendered output with the expected result.
+
         """
         engine = Engine()
         ctx = Context(
@@ -288,6 +313,9 @@ class IncludeTests(SimpleTestCase):
         self.assertEqual(output, "This worked!")
 
     def test_include_template_iterable(self):
+        """
+        Tests the include template tag with iterable template names, ensuring it renders the first template that exists.
+        """
         engine = Engine.get_default()
         outer_temp = engine.from_string("{% include var %}")
         tests = [
@@ -300,6 +328,9 @@ class IncludeTests(SimpleTestCase):
                 self.assertEqual(output, "index\n")
 
     def test_include_template_none(self):
+        """
+        Tests that a TemplateDoesNotExist exception is raised when the 'include' tag in a template is given a variable that evaluates to None.
+        """
         engine = Engine.get_default()
         outer_temp = engine.from_string("{% include var %}")
         ctx = Context({"var": None})

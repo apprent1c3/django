@@ -60,6 +60,9 @@ class ListMixin:
     # ### Python initialization and special list interface methods ###
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, setting default internal methods if they are not already defined, and then proceeds with the standard initialization of the parent class.
+        """
         if not hasattr(self, "_get_single_internal"):
             self._get_single_internal = self._get_single_external
 
@@ -70,7 +73,9 @@ class ListMixin:
         super().__init__(*args, **kwargs)
 
     def __getitem__(self, index):
-        "Get the item(s) at the specified index/slice."
+        """
+        Retrieve one or more items from the collection by their index or a slice of indices, returning the corresponding external representations.
+        """
         if isinstance(index, slice):
             return [
                 self._get_single_external(i) for i in range(*index.indices(len(self)))
@@ -80,7 +85,9 @@ class ListMixin:
             return self._get_single_external(index)
 
     def __delitem__(self, index):
-        "Delete the item(s) at the specified index/slice."
+        """
+        Remove item(s) from the collection at the specified position or range, updating the collection's internal state accordingly.
+        """
         if not isinstance(index, (int, slice)):
             raise TypeError("%s is not a legal index" % index)
 
@@ -100,7 +107,9 @@ class ListMixin:
         self._rebuild(newLen, newItems)
 
     def __setitem__(self, index, val):
-        "Set the item(s) at the specified index/slice."
+        """
+        Sets the value at a specified index or slice in the collection, replacing existing content.
+        """
         if isinstance(index, slice):
             self._set_slice(index, val)
         else:
@@ -131,7 +140,9 @@ class ListMixin:
         return self.__class__(list(self) * n)
 
     def __imul__(self, n):
-        "multiply"
+        """
+         flashy_repeat = repeats the list elements n times
+        """
         if n <= 0:
             del self[:]
         else:
@@ -141,6 +152,10 @@ class ListMixin:
         return self
 
     def __eq__(self, other):
+        """
+        Checks if the current object is equal to another object by comparing their elements.
+        Returns True if all elements match and both objects have the same length, False otherwise.
+        """
         olen = len(other)
         for i in range(olen):
             try:
@@ -153,6 +168,9 @@ class ListMixin:
         return len(self) == olen
 
     def __lt__(self, other):
+        """
+        Compares this object with another object for less-than ordering, comparing elements at corresponding indices and falling back to length comparison if one object is shorter than the other.
+        """
         olen = len(other)
         for i in range(olen):
             try:
@@ -169,7 +187,9 @@ class ListMixin:
     # ### Public list interface Methods ###
     # ## Non-mutating ##
     def count(self, val):
-        "Standard list count method"
+        """
+        Return the number of occurrences of a specified value in the sequence.
+        """
         count = 0
         for i in self:
             if val == i:
@@ -177,7 +197,14 @@ class ListMixin:
         return count
 
     def index(self, val):
-        "Standard list index method"
+        """
+        Return the index of the first occurrence of the specified value in the object.
+
+            :param val: The value to search for.
+            :raises ValueError: If the value is not found in the object.
+            :return: The index of the first occurrence of the value.
+
+        """
         for i in range(0, len(self)):
             if self[i] == val:
                 return i
@@ -218,6 +245,19 @@ class ListMixin:
 
     # ### Private routines ###
     def _rebuild(self, newLen, newItems):
+        """
+        Rebuilds the internal list while enforcing minimum and maximum length constraints.
+
+        Args:
+            newLen (int): The desired length of the new list.
+            newItems: The items to populate the new list.
+
+        Raises:
+            ValueError: If the new length is less than the minimum length or exceeds the maximum length.
+
+        Note:
+            The length constraints are defined by the instance's `minlength` and `maxlength` attributes.
+        """
         if newLen and newLen < self._minlength:
             raise ValueError("Must have at least %d items" % self._minlength)
         if self._maxlength is not None and newLen > self._maxlength:
@@ -229,6 +269,11 @@ class ListMixin:
         self._set_slice(slice(index, index + 1, 1), [value])
 
     def _checkindex(self, index):
+        """
+        Validate and normalize an index for the current object.
+
+        Ensures the given index is within bounds and converts negative indices to their corresponding positive equivalents, raising an IndexError for invalid indices.
+        """
         length = len(self)
         if 0 <= index < length:
             return index
@@ -242,7 +287,11 @@ class ListMixin:
                 raise TypeError("Invalid type encountered in the arguments.")
 
     def _set_slice(self, index, values):
-        "Assign values to a slice of the object"
+        """
+        Assign values to a specified slice of the object, replacing the existing values. 
+        The values to be assigned must be an iterable. The slice is defined by the given index, 
+        which can use standard Python slice syntax (e.g., start:stop:step).
+        """
         try:
             valueList = list(values)
         except TypeError:
@@ -261,7 +310,22 @@ class ListMixin:
             self._assign_extended_slice(start, stop, step, valueList)
 
     def _assign_extended_slice_rebuild(self, start, stop, step, valueList):
-        "Assign an extended slice by rebuilding entire list"
+        """
+        Assigns an extended slice of a list by rebuilding the entire list.
+
+        Args:
+            start (int): The start index of the slice.
+            stop (int): The stop index of the slice.
+            step (int): The step size of the slice.
+            valueList (list): The new values to be assigned to the slice.
+
+        Raises:
+            ValueError: If the length of the value list does not match the length of the slice.
+
+        Note:
+            This is an internal method and should not be called directly.
+
+        """
         indexList = range(start, stop, step)
         # extended slice, only allow assigning slice of same size
         if len(valueList) != len(indexList):
@@ -275,6 +339,9 @@ class ListMixin:
         newVals = dict(zip(indexList, valueList))
 
         def newItems():
+            """
+            Generates a sequence of new items by yielding values from a predefined mapping or fetching default values when no mapping exists.
+            """
             for i in range(newLen):
                 if i in newVals:
                     yield newVals[i]
@@ -284,7 +351,11 @@ class ListMixin:
         self._rebuild(newLen, newItems())
 
     def _assign_extended_slice(self, start, stop, step, valueList):
-        "Assign an extended slice by re-assigning individual items"
+        """
+        Assigns a list of values to an extended slice of a sequence.
+
+        This method sets the values at the specified range of indices, defined by start, stop, and step, to the corresponding values in the provided list. The length of the value list must match the length of the slice or a ValueError is raised.
+        """
         indexList = range(start, stop, step)
         # extended slice, only allow assigning slice of same size
         if len(valueList) != len(indexList):
@@ -297,12 +368,24 @@ class ListMixin:
             self._set_single(i, val)
 
     def _assign_simple_slice(self, start, stop, valueList):
-        "Assign a simple slice; Can assign slice of any length"
+        """
+        Assigns a slice of values to the object, replacing existing elements in the specified range.
+
+        :start: The starting index of the slice to replace.
+        :stop: The ending index of the slice to replace.
+        :valueList: The list of values to assign to the slice.
+
+        """
         origLen = len(self)
         stop = max(start, stop)
         newLen = origLen - stop + start + len(valueList)
 
         def newItems():
+            """
+            Generates a sequence of new items by combining externally provided values with internal values.
+            It yields values from an external list at a specified start position and internal values at other positions,
+            excluding the range specified by stop.
+            """
             for i in range(origLen + 1):
                 if i == start:
                     yield from valueList

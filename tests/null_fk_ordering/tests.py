@@ -6,9 +6,7 @@ from .models import Article, Author, Comment, Forum, Post, SystemInfo
 class NullFkOrderingTests(TestCase):
     def test_ordering_across_null_fk(self):
         """
-        Regression test for #7512
-
-        ordering across nullable Foreign Keys shouldn't exclude results
+        Tests that ordering across nullable foreign keys does not exclude results, addressing regression issue #7512.
         """
         author_1 = Author.objects.create(name="Tom Jones")
         author_2 = Author.objects.create(name="Bob Smith")

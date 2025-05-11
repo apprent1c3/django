@@ -8,6 +8,9 @@ class BasicFieldsTests(SimpleTestCase):
         self.assertFalse(Field(required=False).widget.is_required)
 
     def test_cooperative_multiple_inheritance(self):
+        """
+        Checks if cooperative multiple inheritance works correctly by verifying that the base class A is properly initialized and its attributes are accessible through the ComplexField class.
+        """
         class A:
             def __init__(self):
                 self.class_a_var = True
@@ -21,6 +24,10 @@ class BasicFieldsTests(SimpleTestCase):
         self.assertTrue(f.class_a_var)
 
     def test_field_deepcopies_widget_instance(self):
+        """
+        Tests that the widget instance in a form field is deeply copied, 
+        ensuring that each field has its own independent instance of the widget.
+        """
         class CustomChoiceField(ChoiceField):
             widget = Select(attrs={"class": "my-custom-class"})
 

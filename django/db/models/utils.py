@@ -4,9 +4,9 @@ from collections import namedtuple
 
 def make_model_tuple(model):
     """
-    Take a model or a string of the form "app_label.ModelName" and return a
-    corresponding ("app_label", "modelname") tuple. If a tuple is passed in,
-    assume it's a valid model tuple already and return it unchanged.
+    Take a model or a string of the form \"app_label.ModelName\" and return a 
+    corresponding (\"app_label\", \"modelname\") tuple. If a tuple is passed in, 
+    it is assumed to be a valid model tuple already and returned unchanged.
     """
     try:
         if isinstance(model, tuple):
@@ -58,6 +58,11 @@ class AltersData:
     """
 
     def __init_subclass__(cls, **kwargs):
+        """
+        Inherit 'alters_data' attribute from parent class methods to ensure consistency across the class hierarchy.
+
+        Automatically propagates 'alters_data' attribute from base class methods to subclass methods with the same name, if not already set.
+        """
         for fn_name, fn in vars(cls).items():
             if callable(fn) and not hasattr(fn, "alters_data"):
                 for base in cls.__bases__:

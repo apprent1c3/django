@@ -87,6 +87,11 @@ class NrOfMembersFilter(admin.SimpleListFilter):
         ]
 
     def queryset(self, request, queryset):
+        """
+        Filters a queryset based on the number of members.
+
+        Returns a filtered queryset where the number of members is either less than or equal to 5 or more than 5, depending on the current value of the filter.
+        """
         value = self.value()
         if value == "5":
             return queryset.filter(nr_of_members__lte=5)
@@ -127,6 +132,12 @@ class DynamicListDisplayChildAdmin(admin.ModelAdmin):
     list_display = ("parent", "name", "age")
 
     def get_list_display(self, request):
+        """
+        Return a list of fields to be displayed in the admin interface.
+
+        This method customizes the displayed fields based on the current user, hiding
+        the 'parent' field for the 'noparents' user.
+        """
         my_list_display = super().get_list_display(request)
         if request.user.username == "noparents":
             my_list_display = list(my_list_display)
@@ -169,6 +180,10 @@ class DynamicListFilterChildAdmin(admin.ModelAdmin):
     list_filter = ("parent", "name", "age")
 
     def get_list_filter(self, request):
+        """
+        Returns a list of filter options for the current view, 
+        with the 'parent' option removed if the current user is 'noparents'.
+        """
         my_list_filter = super().get_list_filter(request)
         if request.user.username == "noparents":
             my_list_filter = list(my_list_filter)

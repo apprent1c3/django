@@ -192,6 +192,14 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests the rendering of a form fieldset with a ChoiceField widget.
+
+        This test case verifies that the ChoiceField is correctly rendered as a select multiple
+        element within a div, and that the use_fieldset attribute of the widget is respected.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(

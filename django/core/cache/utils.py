@@ -4,6 +4,9 @@ TEMPLATE_FRAGMENT_KEY_TEMPLATE = "template.cache.%s.%s"
 
 
 def make_template_fragment_key(fragment_name, vary_on=None):
+    """
+    Generate a unique key for a template fragment, allowing optional variation based on additional arguments.
+    """
     hasher = md5(usedforsecurity=False)
     if vary_on is not None:
         for arg in vary_on:

@@ -42,7 +42,9 @@ class AdminActionsTest(TestCase):
         self.client.force_login(self.superuser)
 
     def test_model_admin_custom_action(self):
-        """A custom action defined in a ModelAdmin method."""
+        """
+        Tests the custom 'mail_admin' action in the ModelAdmin interface, verifying it successfully sends an email when executed.
+        """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk],
             "action": "mail_admin",
@@ -55,6 +57,9 @@ class AdminActionsTest(TestCase):
         self.assertEqual(mail.outbox[0].subject, "Greetings from a ModelAdmin action")
 
     def test_model_admin_default_delete_action(self):
+        """
+        Tests the default delete action in the model admin, ensuring a confirmation page is displayed and that the deletion operation is successfully executed after confirmation.
+        """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk, self.s2.pk],
             "action": "delete_selected",
@@ -95,6 +100,9 @@ class AdminActionsTest(TestCase):
         self.assertEqual(Subscriber.objects.count(), 0)
 
     def test_default_delete_action_nonexistent_pk(self):
+        """
+        Tests that the delete action in the admin changelist view handles a nonexistent primary key correctly, ensuring the view responds as expected when attempting to delete an object that does not exist.
+        """
         self.assertFalse(Subscriber.objects.filter(id=9998).exists())
         action_data = {
             ACTION_CHECKBOX_NAME: ["9998"],
@@ -112,8 +120,7 @@ class AdminActionsTest(TestCase):
     @override_settings(USE_THOUSAND_SEPARATOR=True, NUMBER_GROUPING=3)
     def test_non_localized_pk(self):
         """
-        If USE_THOUSAND_SEPARATOR is set, the ids for the objects selected for
-        deletion are rendered without separators.
+        Tests that the delete selected confirmation page renders primary keys without thousand separators when the USE_THOUSAND_SEPARATOR setting is enabled.
         """
         s = ExternalSubscriber.objects.create(id=9999)
         action_data = {
@@ -130,8 +137,7 @@ class AdminActionsTest(TestCase):
 
     def test_model_admin_default_delete_action_protected(self):
         """
-        The default delete action where some related objects are protected
-        from deletion.
+        Tests that attempting to delete questions with related protected answers from the admin interface triggers the correct warnings and prevents deletion.
         """
         q1 = Question.objects.create(question="Why?")
         a1 = Answer.objects.create(question=q1, answer="Because.")
@@ -174,8 +180,7 @@ class AdminActionsTest(TestCase):
 
     def test_model_admin_default_delete_action_no_change_url(self):
         """
-        The default delete action doesn't break if a ModelAdmin removes the
-        change_view URL (#20640).
+        Tests that the default delete action works correctly when a ModelAdmin instance removes the change view URL, ensuring no errors occur during deletion.
         """
         obj = UnchangeableObject.objects.create()
         action_data = {
@@ -193,6 +198,9 @@ class AdminActionsTest(TestCase):
         )
 
     def test_delete_queryset_hook(self):
+        """
+        Tests if the delete queryset hook correctly overrides the default delete behavior in the admin interface, resulting in no subscribers being left after deletion.
+        """
         delete_confirmation_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk, self.s2.pk],
             "action": "delete_selected",
@@ -208,7 +216,9 @@ class AdminActionsTest(TestCase):
         self.assertEqual(Subscriber.objects.count(), 0)
 
     def test_delete_selected_uses_get_deleted_objects(self):
-        """The delete_selected action uses ModelAdmin.get_deleted_objects()."""
+        """
+        Tests whether the delete_selected action in the admin interface uses ModelAdmin.get_deleted_objects to determine deletable objects.
+        """
         book = Book.objects.create(name="Test Book")
         data = {
             ACTION_CHECKBOX_NAME: [book.pk],
@@ -220,7 +230,9 @@ class AdminActionsTest(TestCase):
         self.assertContains(response, "a deletable object")
 
     def test_custom_function_mail_action(self):
-        """A custom action may be defined in a function."""
+        """
+        Tests the functionality of a custom email action triggered from the admin interface, verifying that it sends a single email with the expected subject.
+        """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk],
             "action": "external_mail",
@@ -246,8 +258,7 @@ class AdminActionsTest(TestCase):
 
     def test_default_redirect(self):
         """
-        Actions which don't return an HttpResponse are redirected to the same
-        page, retaining the querystring (which may contain changelist info).
+        Checks that actions without an explicit HttpResponse redirect to the original page, preserving any query string parameters.
         """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk],
@@ -259,7 +270,9 @@ class AdminActionsTest(TestCase):
         self.assertRedirects(response, url)
 
     def test_custom_function_action_streaming_response(self):
-        """A custom action may return a StreamingHttpResponse."""
+        """
+        Tests that a custom function action in the admin interface can return a streaming HTTP response.
+        """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk],
             "action": "download",
@@ -273,7 +286,9 @@ class AdminActionsTest(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_custom_function_action_no_perm_response(self):
-        """A custom action may returns an HttpResponse with a 403 code."""
+        """
+        Tests that a custom action in the admin interface correctly returns a 403 Forbidden response when the user lacks permission to perform the action.
+        """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk],
             "action": "no_perm",
@@ -306,7 +321,9 @@ action)</option>
         )
 
     def test_model_without_action(self):
-        """A ModelAdmin might not have any actions."""
+        """
+        Tests that a ModelAdmin without actions behaves correctly by verifying the absence of an action form and action toggle checkboxes in the response.
+        """
         response = self.client.get(
             reverse("admin:admin_views_oldsubscriber_changelist")
         )
@@ -342,7 +359,7 @@ action)</option>
 
     def test_multiple_actions_form(self):
         """
-        Actions come from the form whose submit button was pressed (#10618).
+        Tests that the correct actions are performed when multiple actions are selected in the admin form, specifically checking that the 'external mail' and 'delete selected' actions are executed as expected.
         """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk],
@@ -360,7 +377,7 @@ action)</option>
 
     def test_media_from_actions_form(self):
         """
-        The action form's media is included in the changelist view's media.
+        Tests that the media required by the action form is correctly included in the changelist view's media when the view is rendered.
         """
         response = self.client.get(reverse("admin:admin_views_subscriber_changelist"))
         media_path = MediaActionForm.Media.js[0]
@@ -371,7 +388,7 @@ action)</option>
 
     def test_user_message_on_none_selected(self):
         """
-        User sees a warning when 'Go' is pressed and no items are selected.
+        Tests that the admin interface correctly displays a warning message when the 'Go' button is pressed with no items selected for deletion.
         """
         action_data = {
             ACTION_CHECKBOX_NAME: [],
@@ -391,7 +408,7 @@ action)</option>
 
     def test_user_message_on_no_action(self):
         """
-        User sees a warning when 'Go' is pressed and no action is selected.
+        Tests that a warning message is displayed to the user when the 'Go' button is pressed without selecting an action in the admin interface.
         """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk, self.s2.pk],
@@ -411,7 +428,9 @@ action)</option>
         self.assertContains(response, "0 of 2 selected")
 
     def test_popup_actions(self):
-        """Actions aren't shown in popups."""
+        """
+        Verifies that actions are not displayed in popup views by checking the presence of the action form in the response context under normal and popup conditions.
+        """
         changelist_url = reverse("admin:admin_views_subscriber_changelist")
         response = self.client.get(changelist_url)
         self.assertIsNotNone(response.context["action_form"])
@@ -420,8 +439,7 @@ action)</option>
 
     def test_popup_template_response_on_add(self):
         """
-        Success on popups shall be rendered from template in order to allow
-        easy customization.
+        Tests that the popup template response is correctly rendered when adding an actor, allowing for easy customization of the success message.
         """
         response = self.client.post(
             reverse("admin:admin_views_actor_add") + "?%s=1" % IS_POPUP_VAR,
@@ -439,6 +457,9 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_response_on_change(self):
+        """
+        Tests the response of the actor change view when opened as a popup template, verifying that the request is handled correctly and the expected template is used.
+        """
         instance = Actor.objects.create(name="David Tennant", age=45)
         response = self.client.post(
             reverse("admin:admin_views_actor_change", args=(instance.pk,))
@@ -457,6 +478,12 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_response_on_delete(self):
+        """
+
+        Verify that deleting an actor instance in the admin interface, while the popup template flag is set, 
+        returns a successful response with the correct popup response template.
+
+        """
         instance = Actor.objects.create(name="David Tennant", age=45)
         response = self.client.post(
             reverse("admin:admin_views_actor_delete", args=(instance.pk,))
@@ -475,6 +502,9 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_escaping(self):
+        """
+        Tests that the popup template correctly escapes special characters in the popup response data.
+        """
         popup_response_data = json.dumps(
             {
                 "new_value": "new_value\\",
@@ -495,6 +525,9 @@ action)</option>
 class AdminActionsPermissionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class, creating external subscribers, a subscriber, and a staff user with permission to change subscribers.
+        """
         cls.s1 = ExternalSubscriber.objects.create(
             name="John Doe", email="john@example.org"
         )
@@ -515,8 +548,7 @@ class AdminActionsPermissionTests(TestCase):
 
     def test_model_admin_no_delete_permission(self):
         """
-        Permission is denied if the user doesn't have delete permission for the
-        model (Subscriber).
+        Tests that the model admin interface correctly denies delete permission to users without the necessary permission for the Subscriber model, redirecting them instead of performing the action.
         """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk],
@@ -530,8 +562,7 @@ class AdminActionsPermissionTests(TestCase):
 
     def test_model_admin_no_delete_permission_externalsubscriber(self):
         """
-        Permission is denied if the user doesn't have delete permission for a
-        related model (ExternalSubscriber).
+        Checks that a user without delete permission for ExternalSubscriber models cannot delete them from the admin interface, even if they have delete permission for other related models.
         """
         permission = Permission.objects.get(codename="delete_subscriber")
         self.user.user_permissions.add(permission)

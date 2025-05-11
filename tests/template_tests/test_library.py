@@ -71,6 +71,9 @@ class InclusionTagRegistrationTests(SimpleTestCase):
     def test_inclusion_tag_wrapped(self):
         @self.library.inclusion_tag("template.html")
         @functools.lru_cache(maxsize=32)
+        """
+        Tests whether an inclusion tag wrapped with a decorator retains its original function and caching capabilities.
+        """
         def func():
             return ""
 
@@ -112,6 +115,9 @@ class SimpleTagRegistrationTests(SimpleTestCase):
     def test_simple_tag_wrapped(self):
         @self.library.simple_tag
         @functools.lru_cache(maxsize=32)
+        """
+        Verifies that a simple tag is correctly wrapped and retains its original function and caching properties when decorated with :meth:`~library.simple_tag` and :func:`~functools.lru_cache`.
+        """
         def func():
             return ""
 

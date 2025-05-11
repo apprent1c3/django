@@ -25,6 +25,16 @@ class GISLookup(Lookup):
         self.process_rhs_params()
 
     def process_rhs_params(self):
+        """
+        Processes the right-hand side parameters based on the lookup name.
+
+        Validates the length of the RHS parameters and triggers the processing of band indices
+        if the length is valid. If the LHS is a RasterBandTransform and there are no RHS parameters,
+        it processes the band indices for the LHS only.
+
+        Raises a ValueError if the length of the RHS parameters exceeds the expected length
+        for the given lookup name.
+        """
         if self.rhs_params:
             # Check if a band index was passed in the query argument.
             if len(self.rhs_params) == (2 if self.lookup_name == "relate" else 1):
@@ -36,8 +46,7 @@ class GISLookup(Lookup):
 
     def process_band_indices(self, only_lhs=False):
         """
-        Extract the lhs band index from the band transform class and the rhs
-        band index from the input tuple.
+        Extract the left-hand side (LHS) and right-hand side (RHS) band indices from the band transform class and input tuple, setting instance properties accordingly. The `only_lhs` parameter allows to skip RHS processing and set default values.
         """
         # PostGIS band indices are 1-based, so the band index needs to be
         # increased to be consistent with the GDALRaster band indices.
@@ -58,6 +67,9 @@ class GISLookup(Lookup):
         return ("%s", [connection.ops.Adapter(value)])
 
     def process_rhs(self, compiler, connection):
+        """
+        Process the right-hand side of a spatial database query, handling different types of input and generating a placeholder for the query. Returns a formatted string and parameters for execution.
+        """
         if isinstance(self.rhs, Query):
             # If rhs is some Query, don't touch it.
             return super().process_rhs(compiler, connection)
@@ -76,6 +88,9 @@ class GISLookup(Lookup):
         return connection.ops.gis_operators[self.lookup_name]
 
     def as_sql(self, compiler, connection):
+        """
+        Generates the SQL representation of a database operation, combining the processed left and right hand side SQL and parameters, and using a template to construct the final query.
+        """
         lhs_sql, lhs_params = self.process_lhs(compiler, connection)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
         sql_params = (*lhs_params, *rhs_params)
@@ -277,6 +292,9 @@ class RelateLookup(GISLookup):
 
     def process_rhs(self, compiler, connection):
         # Check the pattern argument
+        """
+        Processes the right-hand side (RHS) of a geographical lookup expression, validating the intersection matrix pattern and incorporating it into the SQL query. The pattern is checked against a predefined regular expression or using the backend operator's validation method, if available.
+        """
         pattern = self.rhs_params[0]
         backend_op = connection.ops.gis_operators[self.lookup_name]
         if hasattr(backend_op, "check_relate_argument"):
@@ -302,6 +320,14 @@ class DistanceLookupBase(GISLookup):
     sql_template = "%(func)s(%(lhs)s, %(rhs)s) %(op)s %(value)s"
 
     def process_rhs_params(self):
+        """
+        .. method:: process_rhs_params()
+
+            Validates and processes the right-hand side parameters. 
+            It checks the number of parameters and their values, raising a ValueError for invalid inputs.
+            If parameters are valid, it may trigger the processing of band indices. 
+            This is a crucial step in configuring the lookup configuration.
+        """
         if not 1 <= len(self.rhs_params) <= 3:
             raise ValueError(
                 "2, 3, or 4-element tuple required for '%s' lookup." % self.lookup_name
@@ -357,6 +383,9 @@ class DWithinLookup(DistanceLookupBase):
 
 class DistanceLookupFromFunction(DistanceLookupBase):
     def as_sql(self, compiler, connection):
+        """
+        Generates SQL for a distance-based lookup, taking into account geodetic distances and the spheroid model if required. Returns a tuple containing the generated SQL string and the corresponding parameters.
+        """
         spheroid = (
             len(self.rhs_params) == 2 and self.rhs_params[-1] == "spheroid"
         ) or None

@@ -37,12 +37,17 @@ register = Library()
 
 def stringfilter(func):
     """
-    Decorator for filters which should only receive strings. The object
-    passed as the first positional argument will be converted to a string.
+    Ensures that the decorated function receives a string as its first positional argument, converting it if necessary, and optionally marks the result as safe if the original input was safe data and the function is marked as safe.
     """
 
     @wraps(func)
     def _dec(first, *args, **kwargs):
+        """
+
+        Decorator function to wrap another function, ensuring the result is marked as safe 
+        if the original function is marked as safe and the input is an instance of SafeData.
+
+        """
         first = str(first)
         result = func(first, *args, **kwargs)
         if isinstance(first, SafeData) and getattr(unwrap(func), "is_safe", False):
@@ -94,46 +99,7 @@ def json_script(value, element_id=None):
 @register.filter(is_safe=True)
 def floatformat(text, arg=-1):
     """
-    Display a float to a specified number of decimal places.
-
-    If called without an argument, display the floating point number with one
-    decimal place -- but only if there's a decimal place to be displayed:
-
-    * num1 = 34.23234
-    * num2 = 34.00000
-    * num3 = 34.26000
-    * {{ num1|floatformat }} displays "34.2"
-    * {{ num2|floatformat }} displays "34"
-    * {{ num3|floatformat }} displays "34.3"
-
-    If arg is positive, always display exactly arg number of decimal places:
-
-    * {{ num1|floatformat:3 }} displays "34.232"
-    * {{ num2|floatformat:3 }} displays "34.000"
-    * {{ num3|floatformat:3 }} displays "34.260"
-
-    If arg is negative, display arg number of decimal places -- but only if
-    there are places to be displayed:
-
-    * {{ num1|floatformat:"-3" }} displays "34.232"
-    * {{ num2|floatformat:"-3" }} displays "34"
-    * {{ num3|floatformat:"-3" }} displays "34.260"
-
-    If arg has the 'g' suffix, force the result to be grouped by the
-    THOUSAND_SEPARATOR for the active locale. When the active locale is
-    en (English):
-
-    * {{ 6666.6666|floatformat:"2g" }} displays "6,666.67"
-    * {{ 10000|floatformat:"g" }} displays "10,000"
-
-    If arg has the 'u' suffix, force the result to be unlocalized. When the
-    active locale is pl (Polish):
-
-    * {{ 66666.6666|floatformat:"2" }} displays "66666,67"
-    * {{ 66666.6666|floatformat:"2u" }} displays "66666.67"
-
-    If the input float is infinity or NaN, display the string representation
-    of that value.
+    Formats a float number to display a specified number of decimal places, with options for localized formatting and grouping by thousands.
     """
     force_grouping = False
     use_l10n = True
@@ -216,7 +182,14 @@ def iriencode(value):
 @register.filter(is_safe=True, needs_autoescape=True)
 @stringfilter
 def linenumbers(value, autoescape=True):
-    """Display text with line numbers."""
+    """
+    Display text with line numbers. 
+
+    This filter takes a text string as input, splits it into lines, 
+    and prefixes each line with a zero-padded line number, 
+    ensuring the line numbers are aligned for easy reading. 
+    The filter also handles autoescaping to prevent XSS attacks.
+    """
     lines = value.split("\n")
     # Find the maximum width of the line count, for use with zero padding
     # string format command
@@ -263,13 +236,9 @@ def slugify(value):
 @register.filter(is_safe=True)
 def stringformat(value, arg):
     """
-    Format the variable according to the arg, a string formatting specifier.
-
-    This specifier uses Python string formatting syntax, with the exception
-    that the leading "%" is dropped.
-
-    See https://docs.python.org/library/stdtypes.html#printf-style-string-formatting
-    for documentation of Python string formatting.
+    Format the input value according to the provided string formatting specifier, 
+    supporting Python's printf-style string formatting, with the exception of the 
+    leading \"%\" symbol. If formatting fails, an empty string is returned.
     """
     if isinstance(value, tuple):
         value = str(value)
@@ -290,7 +259,9 @@ def title(value):
 @register.filter(is_safe=True)
 @stringfilter
 def truncatechars(value, arg):
-    """Truncate a string after `arg` number of characters."""
+    """
+    Truncates a string to a specified length, removing excess characters. The resulting string is truncated after the specified number of characters, effectively shortening the original string.
+    """
     try:
         length = int(arg)
     except ValueError:  # Invalid literal for int().
@@ -302,8 +273,7 @@ def truncatechars(value, arg):
 @stringfilter
 def truncatechars_html(value, arg):
     """
-    Truncate HTML after `arg` number of chars.
-    Preserve newlines in the HTML.
+    Truncates HTML text to a specified number of characters while preserving newlines, ensuring safe rendering of the truncated HTML.
     """
     try:
         length = int(arg)
@@ -316,8 +286,7 @@ def truncatechars_html(value, arg):
 @stringfilter
 def truncatewords(value, arg):
     """
-    Truncate a string after `arg` number of words.
-    Remove newlines within the string.
+    Truncates a given string to a specified number of words and removes newlines, appending an ellipsis if shortened.
     """
     try:
         length = int(arg)
@@ -330,8 +299,7 @@ def truncatewords(value, arg):
 @stringfilter
 def truncatewords_html(value, arg):
     """
-    Truncate HTML after `arg` number of words.
-    Preserve newlines in the HTML.
+    Truncates HTML content after a specified number of words, preserving newlines and indicating truncation with an ellipsis.
     """
     try:
         length = int(arg)
@@ -351,12 +319,7 @@ def upper(value):
 @stringfilter
 def urlencode(value, safe=None):
     """
-    Escape a value for use in a URL.
-
-    The ``safe`` parameter determines the characters which should not be
-    escaped by Python's quote() function. If not provided, use the default safe
-    characters (but an empty string can be provided when *all* characters
-    should be escaped).
+    Escape a value for use in a URL, optionally specifying characters that should not be escaped.
     """
     kwargs = {}
     if safe is not None:
@@ -423,7 +386,9 @@ def center(value, arg):
 @register.filter
 @stringfilter
 def cut(value, arg):
-    """Remove all values of arg from the given string."""
+    """
+    Remove all occurrences of a specified substring from a given string, handling cases where the original string was marked as safe for HTML rendering.
+    """
     safe = isinstance(value, SafeData)
     value = value.replace(arg, "")
     if safe and arg != ";":
@@ -480,8 +445,7 @@ def linebreaks_filter(value, autoescape=True):
 @stringfilter
 def linebreaksbr(value, autoescape=True):
     """
-    Convert all newlines in a piece of plain text to HTML line breaks
-    (``<br>``).
+    Converts plain text newlines to HTML line breaks for display in a web page, optionally escaping special characters to prevent XSS attacks.
     """
     autoescape = autoescape and not isinstance(value, SafeData)
     value = normalize_newlines(value)
@@ -521,21 +485,17 @@ def striptags(value):
 
 def _property_resolver(arg):
     """
-    When arg is convertible to float, behave like operator.itemgetter(arg)
-    Otherwise, chain __getitem__() and getattr().
+    ```python
+    def _property_resolver(arg):
+        \"\"\"
+        Resolves an attribute or index from an object.
 
-    >>> _property_resolver(1)('abc')
-    'b'
-    >>> _property_resolver('1')('abc')
-    Traceback (most recent call last):
-    ...
-    TypeError: string indices must be integers
-    >>> class Foo:
-    ...     a = 42
-    ...     b = 3.14
-    ...     c = 'Hey!'
-    >>> _property_resolver('b')(Foo())
-    3.14
+        If the provided argument can be converted to a float, it acts as an index getter.
+        Otherwise, it attempts to access the attribute or key of the object using a chain of __getitem__() and getattr() methods.
+
+        This function is designed to handle both numerical and string-based attribute or index access in a flexible manner, while also respecting private variable access restrictions.
+        \"\"\"
+    ```
     """
     try:
         float(arg)
@@ -545,6 +505,17 @@ def _property_resolver(arg):
         parts = arg.split(VARIABLE_ATTRIBUTE_SEPARATOR)
 
         def resolve(value):
+            """
+
+            Resolves a nested attribute or item from a given value.
+
+            The function iterates through a predefined sequence of parts, attempting to access the value as an attribute or item until it is successfully resolved.
+
+            It handles various exceptions that may occur during attribute or item access, including attribute and key errors.
+
+            Returns the resolved value or the attribute that matches the sequence of parts.
+
+            """
             for part in parts:
                 try:
                     value = value[part]
@@ -560,8 +531,12 @@ def _property_resolver(arg):
 @register.filter(is_safe=False)
 def dictsort(value, arg):
     """
-    Given a list of dicts, return that list sorted by the property given in
-    the argument.
+    Sorts a list of dictionaries by a specified property.
+
+    :param value: The list of dictionaries to be sorted
+    :param arg: The property to sort by
+    :returns: A new sorted list of dictionaries, or an empty string if sorting fails
+    :rtype: list or str
     """
     try:
         return sorted(value, key=_property_resolver(arg))
@@ -572,8 +547,7 @@ def dictsort(value, arg):
 @register.filter(is_safe=False)
 def dictsortreversed(value, arg):
     """
-    Given a list of dicts, return that list sorted in reverse order by the
-    property given in the argument.
+    Given a list of dictionaries, sorts the list in reverse order by the specified property and returns the sorted list. If the sorting fails, an empty string is returned.
     """
     try:
         return sorted(value, key=_property_resolver(arg), reverse=True)
@@ -583,7 +557,9 @@ def dictsortreversed(value, arg):
 
 @register.filter(is_safe=False)
 def first(value):
-    """Return the first item in a list."""
+    """
+    Return the first item of a given list, or an empty string if the list is empty.
+    """
     try:
         return value[0]
     except IndexError:
@@ -592,7 +568,14 @@ def first(value):
 
 @register.filter(is_safe=True, needs_autoescape=True)
 def join(value, arg, autoescape=True):
-    """Join a list with a string, like Python's ``str.join(list)``."""
+    """
+
+    Join a list of values into a single string, using a specified separator.
+
+    This filter concatenates all elements of the input list with the provided string 
+    in between each element, similar to the ``str.join()`` method in Python.
+
+    """
     try:
         if autoescape:
             data = conditional_escape(arg).join([conditional_escape(v) for v in value])
@@ -605,7 +588,9 @@ def join(value, arg, autoescape=True):
 
 @register.filter(is_safe=True)
 def last(value):
-    """Return the last item in a list."""
+    """
+    Returns the last item in a given list, or an empty string if the list is empty.
+    """
     try:
         return value[-1]
     except IndexError:
@@ -614,7 +599,9 @@ def last(value):
 
 @register.filter(is_safe=False)
 def length(value):
-    """Return the length of the value - useful for lists."""
+    """
+    Return the length of the input value, primarily intended for use with lists and other iterable objects. If the input is not a valid object for determining length, returns 0.
+    """
     try:
         return len(value)
     except (ValueError, TypeError):
@@ -623,7 +610,9 @@ def length(value):
 
 @register.filter(is_safe=True)
 def random(value):
-    """Return a random item from the list."""
+    """
+    Returns a random item from a given list, or an empty string if the list is empty.
+    """
     try:
         return random_module.choice(value)
     except IndexError:
@@ -633,7 +622,7 @@ def random(value):
 @register.filter("slice", is_safe=True)
 def slice_filter(value, arg):
     """
-    Return a slice of the list using the same syntax as Python's list slicing.
+    Return a slice of the input list using Python's list slicing syntax, for example \"1:3\", \":5\", or \":-1\". Handles invalid inputs by returning the original list.
     """
     try:
         bits = []
@@ -651,24 +640,10 @@ def slice_filter(value, arg):
 @register.filter(is_safe=True, needs_autoescape=True)
 def unordered_list(value, autoescape=True):
     """
-    Recursively take a self-nested list and return an HTML unordered list --
-    WITHOUT opening and closing <ul> tags.
-
-    Assume the list is in the proper format. For example, if ``var`` contains:
-    ``['States', ['Kansas', ['Lawrence', 'Topeka'], 'Illinois']]``, then
-    ``{{ var|unordered_list }}`` returns::
-
-        <li>States
-        <ul>
-                <li>Kansas
-                <ul>
-                        <li>Lawrence</li>
-                        <li>Topeka</li>
-                </ul>
-                </li>
-                <li>Illinois</li>
-        </ul>
-        </li>
+    Recursively generates an HTML unordered list from a self-nested list, 
+    excluding opening and closing <ul> tags. The input list is assumed to 
+    be in a proper format, where each sublist is interpreted as a nested 
+    unordered list in the resulting HTML.
     """
     if autoescape:
         escaper = conditional_escape
@@ -678,6 +653,10 @@ def unordered_list(value, autoescape=True):
             return x
 
     def walk_items(item_list):
+        """
+        Iterate through items in a list, yielding each item along with the next item 
+        if it is a collection (list, tuple, or generator), otherwise yield the item with None.
+        """
         item_iterator = iter(item_list)
         try:
             item = next(item_iterator)
@@ -702,6 +681,13 @@ def unordered_list(value, autoescape=True):
             pass
 
     def list_formatter(item_list, tabs=1):
+        """
+        Formats a list of items into an HTML unordered list with nested lists and indentation.
+
+        :param item_list: The list of items to format, potentially containing nested lists
+        :param int tabs: The number of tabs to use for indentation (default: 1)
+        :returns: A string of HTML representing the formatted list
+        """
         indent = "\t" * tabs
         output = []
         for item, children in walk_items(item_list):
@@ -726,7 +712,9 @@ def unordered_list(value, autoescape=True):
 
 @register.filter(is_safe=False)
 def add(value, arg):
-    """Add the arg to the value."""
+    """
+    Concatenates or adds two values together, attempting integer addition if possible, falling back to string concatenation if not, and returning an empty string on failure.
+    """
     try:
         return int(value) + int(arg)
     except (ValueError, TypeError):
@@ -739,10 +727,7 @@ def add(value, arg):
 @register.filter(is_safe=False)
 def get_digit(value, arg):
     """
-    Given a whole number, return the requested digit of it, where 1 is the
-    right-most digit, 2 is the second-right-most digit, etc. Return the
-    original value for invalid input (if input or argument is not an integer,
-    or if argument is less than 1). Otherwise, output is always an integer.
+    Extracts a specific digit from a given whole number, counting from the right. Returns the original value if the input or argument is invalid, or the specified digit if valid.
     """
     try:
         arg = int(arg)
@@ -764,7 +749,9 @@ def get_digit(value, arg):
 
 @register.filter(expects_localtime=True, is_safe=False)
 def date(value, arg=None):
-    """Format a date according to the given format."""
+    """
+    Formats a date using the specified format string, returning an empty string if the input date is invalid or missing.
+    """
     if value in (None, ""):
         return ""
     try:
@@ -778,7 +765,9 @@ def date(value, arg=None):
 
 @register.filter(expects_localtime=True, is_safe=False)
 def time(value, arg=None):
-    """Format a time according to the given format."""
+    """
+    Formats a given time value according to a specified format, returning an empty string if the input value is empty or formatting fails.
+    """
     if value in (None, ""):
         return ""
     try:
@@ -792,7 +781,13 @@ def time(value, arg=None):
 
 @register.filter("timesince", is_safe=False)
 def timesince_filter(value, arg=None):
-    """Format a date as the time since that date (i.e. "4 days, 6 hours")."""
+    """
+
+    Format a date as the time since that date, providing a human-readable representation 
+    of the elapsed time (e.g. \"4 days, 6 hours\"). If no time has elapsed, an empty string 
+    is returned. Accepts an optional argument for custom date comparison. 
+
+    """
     if not value:
         return ""
     try:
@@ -805,7 +800,15 @@ def timesince_filter(value, arg=None):
 
 @register.filter("timeuntil", is_safe=False)
 def timeuntil_filter(value, arg=None):
-    """Format a date as the time until that date (i.e. "4 days, 6 hours")."""
+    """
+
+    Format a date as the time until that date, displaying the difference in human-readable format.
+
+    :param value: The date to calculate the time until
+    :param arg: Optional argument to customize the calculation
+    :return: A string representing the time until the given date, or an empty string if the input is invalid
+
+    """
     if not value:
         return ""
     try:
@@ -842,18 +845,7 @@ def divisibleby(value, arg):
 @register.filter(is_safe=False)
 def yesno(value, arg=None):
     """
-    Given a string mapping values for true, false, and (optionally) None,
-    return one of those strings according to the value:
-
-    ==========  ======================  ==================================
-    Value       Argument                Outputs
-    ==========  ======================  ==================================
-    ``True``    ``"yeah,no,maybe"``     ``yeah``
-    ``False``   ``"yeah,no,maybe"``     ``no``
-    ``None``    ``"yeah,no,maybe"``     ``maybe``
-    ``None``    ``"yeah,no"``           ``"no"`` (converts None to False
-                                        if no mapping for None is given.
-    ==========  ======================  ==================================
+    Given a boolean or null value, returns a string representing a human-readable interpretation of that value based on a customizable mapping of true, false, and optional null values.
     """
     if arg is None:
         # Translators: Please do not add spaces around commas.
@@ -881,8 +873,7 @@ def yesno(value, arg=None):
 @register.filter(is_safe=True)
 def filesizeformat(bytes_):
     """
-    Format the value like a 'human-readable' file size (i.e. 13 KB, 4.1 MB,
-    102 bytes, etc.).
+    Format the given number of bytes into a human-readable file size string.
     """
     try:
         bytes_ = int(bytes_)
@@ -924,25 +915,7 @@ def filesizeformat(bytes_):
 @register.filter(is_safe=False)
 def pluralize(value, arg="s"):
     """
-    Return a plural suffix if the value is not 1, '1', or an object of
-    length 1. By default, use 's' as the suffix:
-
-    * If value is 0, vote{{ value|pluralize }} display "votes".
-    * If value is 1, vote{{ value|pluralize }} display "vote".
-    * If value is 2, vote{{ value|pluralize }} display "votes".
-
-    If an argument is provided, use that string instead:
-
-    * If value is 0, class{{ value|pluralize:"es" }} display "classes".
-    * If value is 1, class{{ value|pluralize:"es" }} display "class".
-    * If value is 2, class{{ value|pluralize:"es" }} display "classes".
-
-    If the provided argument contains a comma, use the text before the comma
-    for the singular case and the text after the comma for the plural case:
-
-    * If value is 0, cand{{ value|pluralize:"y,ies" }} display "candies".
-    * If value is 1, cand{{ value|pluralize:"y,ies" }} display "candy".
-    * If value is 2, cand{{ value|pluralize:"y,ies" }} display "candies".
+    Return the singular or plural suffix for the given value, depending on whether the value is 1 or not. The suffix can be customized using the provided argument, allowing for flexible pluralization rules.
     """
     if "," not in arg:
         arg = "," + arg
@@ -971,7 +944,9 @@ def phone2numeric_filter(value):
 
 @register.filter(is_safe=True)
 def pprint(value):
-    """A wrapper around pprint.pprint -- for debugging, really."""
+    """
+    Pretty-prints the given value for debugging purposes, returning a formatted string representation of the input value, or an error message if formatting fails.
+    """
     try:
         return pformat(value)
     except Exception as e:

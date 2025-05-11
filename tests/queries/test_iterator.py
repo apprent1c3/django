@@ -25,6 +25,9 @@ class QuerySetIteratorTests(TestCase):
                     Article.objects.iterator(chunk_size=size)
 
     def test_default_iterator_chunk_size(self):
+        """
+        Tests the default chunk size used by the iterator when fetching data from the database.
+        """
         qs = Article.objects.iterator()
         with mock.patch(
             "django.db.models.sql.compiler.cursor_iter", side_effect=cursor_iter
@@ -35,6 +38,11 @@ class QuerySetIteratorTests(TestCase):
         self.assertEqual(mock_args[self.itersize_index_in_mock_args], 2000)
 
     def test_iterator_chunk_size(self):
+        """
+        Test the chunk size used by an iterator.
+
+        Verifies that the cursor iterator is called with the correct chunk size when retrieving a query set in batches.
+        """
         batch_size = 3
         qs = Article.objects.iterator(chunk_size=batch_size)
         with mock.patch(
@@ -47,8 +55,7 @@ class QuerySetIteratorTests(TestCase):
 
     def test_no_chunked_reads(self):
         """
-        If the database backend doesn't support chunked reads, then the
-        result of SQLCompiler.execute_sql() is a list.
+        Tests the behavior of executing SQL queries when the database backend does not support chunked reads, verifying that the result is returned as a list.
         """
         qs = Article.objects.all()
         compiler = qs.query.get_compiler(using=qs.db)

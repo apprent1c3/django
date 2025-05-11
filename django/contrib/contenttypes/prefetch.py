@@ -4,6 +4,18 @@ from django.db.models.query import ModelIterable, RawQuerySet
 
 class GenericPrefetch(Prefetch):
     def __init__(self, lookup, querysets, to_attr=None):
+        """
+
+        Initializes a prefetch object for efficient database query handling.
+
+        :param lookup: The lookup field for the prefetch operation.
+        :param querysets: A list of querysets to be prefetched.
+        :param to_attr: The attribute to store the prefetched results in.
+
+        Validates the querysets to ensure they do not use raw(), values(), or values_list() methods,
+        which are not supported for prefetch operations.
+
+        """
         for queryset in querysets:
             if queryset is not None and (
                 isinstance(queryset, RawQuerySet)
@@ -19,6 +31,9 @@ class GenericPrefetch(Prefetch):
         super().__init__(lookup, to_attr=to_attr)
 
     def __getstate__(self):
+        """
+        Returns a dictionary representation of the object's state, suitable for serialization, by copying the object's attributes and transforming its querysets to a serializable form.
+        """
         obj_dict = self.__dict__.copy()
         obj_dict["querysets"] = []
         for queryset in self.querysets:

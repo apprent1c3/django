@@ -7,8 +7,9 @@ class TemplateUtilsTests(SimpleTestCase):
     @override_settings(TEMPLATES=[{"BACKEND": "raise.import.error"}])
     def test_backend_import_error(self):
         """
-        Failing to import a backend keeps raising the original import error
-        (#24265).
+
+        Tests that ImportError is re-raised when a template backend fails to import.
+
         """
         with self.assertRaisesMessage(ImportError, "No module named 'raise"):
             engines.all()
@@ -27,8 +28,7 @@ class TemplateUtilsTests(SimpleTestCase):
     )
     def test_backend_improperly_configured(self):
         """
-        Failing to initialize a backend keeps raising the original exception
-        (#24265).
+        Tests that setting 'APP_DIRS' to True in template configuration raises an ImproperlyConfigured exception when 'loaders' is defined.
         """
         msg = "app_dirs must not be set when loaders is defined."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):

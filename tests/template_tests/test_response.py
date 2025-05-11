@@ -41,6 +41,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
         return SimpleTemplateResponse(template, *args, **kwargs)
 
     def test_template_resolving(self):
+        """
+        Checks the template resolving functionality of the SimpleTemplateResponse class, verifying that it correctly selects and renders the first available template from a given list.
+        """
         response = SimpleTemplateResponse("first/test.html")
         response.render()
         self.assertEqual(response.content, b"First template\n")
@@ -63,6 +66,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_render(self):
         # response is not re-rendered without the render call
+        """
+        Tests the rendering of a response, verifying that the content is rendered correctly from a Django template and that the content attribute can be set manually.
+        """
         response = self._response().render()
         self.assertEqual(response.content, b"foo")
 
@@ -79,6 +85,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_iteration_unrendered(self):
         # unrendered response raises an exception on iteration
+        """
+        Tests that attempting to iterate over an unrendered response raises a ContentNotRenderedError, ensuring the response content is rendered before it can be iterated over.
+        """
         response = self._response()
         self.assertFalse(response.is_rendered)
 
@@ -97,6 +106,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_content_access_unrendered(self):
         # unrendered response raises an exception when content is accessed
+        """
+        Tests that accessing the content of an unrendered response raises an error and does not render the response.
+        """
         response = self._response()
         self.assertFalse(response.is_rendered)
         with self.assertRaises(ContentNotRenderedError):
@@ -110,6 +122,14 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_set_content(self):
         # content can be overridden
+        """
+
+        Verifies correct behavior of response content manipulation.
+
+        Tests setting and updating of content in a response, ensuring that the
+        is_rendered flag is correctly updated and the content is properly stored.
+
+        """
         response = self._response()
         self.assertFalse(response.is_rendered)
         response.content = "spam"
@@ -139,6 +159,14 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     @require_jinja2
     def test_using(self):
+        """
+
+        Verifies the functionality of template rendering with different template engines.
+
+        Tests the rendering of a template using the default template engine and the 'django' and 'jinja2' engines, 
+        ensuring the expected output is produced in each case.
+
+        """
         response = SimpleTemplateResponse("template_tests/using.html").render()
         self.assertEqual(response.content, b"DTL\n")
         response = SimpleTemplateResponse(
@@ -151,7 +179,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
         self.assertEqual(response.content, b"Jinja2\n")
 
     def test_post_callbacks(self):
-        "Rendering a template response triggers the post-render callbacks"
+        """
+        Tests that rendering a template response triggers all registered post-render callbacks in the correct order
+        """
         post = []
 
         def post1(obj):
@@ -172,6 +202,13 @@ class SimpleTemplateResponseTest(SimpleTestCase):
     def test_pickling(self):
         # Create a template response. The context is
         # known to be unpicklable (e.g., a function).
+        """
+        Tests that a SimpleTemplateResponse can be pickled after rendering, but not before.
+
+        The test ensures that pickling a response before rendering raises a ContentNotRenderedError,
+        and that after rendering, the response can be pickled and unpickled without losing data,
+        while also verifying that certain template attributes are not retained after unpickling.
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {
@@ -205,6 +242,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
                 getattr(unpickled_response, attr)
 
     def test_repickling(self):
+        """
+        Tests the repickling of a SimpleTemplateResponse object, ensuring that it can be successfully pickled after rendering, but raises an error if attempted before rendering.
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {
@@ -221,6 +261,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
         pickle.dumps(unpickled_response)
 
     def test_pickling_cookie(self):
+        """
+        Tests the ability to pickle and unpickle a response object containing a cookie, ensuring the cookie's value is preserved through the serialization process.
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {
@@ -294,6 +337,11 @@ class TemplateResponseTest(SimpleTestCase):
 
     @require_jinja2
     def test_using(self):
+        """
+        Tests template rendering using different engine backends. 
+
+        Verifies that a template can be rendered correctly with both Django template language (DTL) and Jinja2 templating engines, ensuring proper output for each case.
+        """
         request = self.factory.get("/")
         response = TemplateResponse(request, "template_tests/using.html").render()
         self.assertEqual(response.content, b"DTL\n")
@@ -309,6 +357,16 @@ class TemplateResponseTest(SimpleTestCase):
     def test_pickling(self):
         # Create a template response. The context is
         # known to be unpicklable (e.g., a function).
+        """
+
+        Tests the pickling of a TemplateResponse object.
+
+        Ensures that a TemplateResponse cannot be pickled before it is rendered,
+        and that after rendering, it can be successfully pickled and unpickled
+        with all relevant attributes preserved, while sensitive template attributes
+        are discarded.
+
+        """
         response = TemplateResponse(
             self.factory.get("/"),
             "first/test.html",
@@ -348,6 +406,9 @@ class TemplateResponseTest(SimpleTestCase):
                 getattr(unpickled_response, attr)
 
     def test_repickling(self):
+        """
+        Tests that a SimpleTemplateResponse can be pickled after rendering, but raises an exception if attempted before rendering, and that the pickled and unpickled response can also be pickled again.
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {
@@ -396,6 +457,9 @@ class CustomURLConfTest(SimpleTestCase):
 )
 class CacheMiddlewareTest(SimpleTestCase):
     def test_middleware_caching(self):
+        """
+        Tests the caching behavior of middleware by making multiple requests to a view and verifying the response contents are the same when cached and different when the cache is expired.
+        """
         response = self.client.get("/template_response_view/")
         self.assertEqual(response.status_code, 200)
 

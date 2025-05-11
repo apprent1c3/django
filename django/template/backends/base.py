@@ -10,9 +10,7 @@ class BaseEngine:
 
     def __init__(self, params):
         """
-        Initialize the template engine.
-
-        `params` is a dict of configuration settings.
+        Initialize the template engine with a set of configuration settings, including the engine name, template directories, and application directories.
         """
         params = params.copy()
         self.name = params.pop("NAME")
@@ -59,7 +57,7 @@ class BaseEngine:
     @cached_property
     def template_dirs(self):
         """
-        Return a list of directories to search for templates.
+        Returns a list of directories where templates will be searched for, including both global and application-specific directories.
         """
         # Immutable return value because it's cached and shared by callers.
         template_dirs = tuple(self.dirs)
@@ -69,10 +67,7 @@ class BaseEngine:
 
     def iter_template_filenames(self, template_name):
         """
-        Iterate over candidate files for template_name.
-
-        Ignore files that don't lie inside configured template dirs to avoid
-        directory traversal attacks.
+        Iterate over candidate template files for the given template name, ensuring they reside within configured template directories to prevent directory traversal attacks.
         """
         for template_dir in self.template_dirs:
             try:

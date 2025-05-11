@@ -10,8 +10,14 @@ from django.contrib.gis.gdal.geometries import GEO_CLASSES
 
 def ogrinfo(data_source, num_features=10):
     """
-    Walk the available layers in the supplied `data_source`, displaying
-    the fields for the first `num_features` features.
+    Display information about the layers and features within a geographic data source.
+
+    :param data_source: The path to a geographic data source or a DataSource object.
+    :param num_features: The number of features to display per layer (default is 10).
+
+    This function walks through the available layers in the data source, printing out details such as 
+    the layer's shape type, number of features, spatial reference system, and extent. For each layer, 
+    it also displays the fields and values of the first 'num_features' features.
     """
 
     # Checking the parameters.

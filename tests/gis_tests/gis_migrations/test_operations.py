@@ -58,6 +58,9 @@ class OperationTestCase(TransactionTestCase):
             return migration.apply(project_state, editor)
 
     def set_up_test_model(self, force_raster_creation=False):
+        """
+        Sets up a test model for geographic information system (GIS) operations, optionally including a raster field if the database supports it or if forced. The model includes fields for a unique identifier, name, and geometry, and the raster field if applicable.
+        """
         test_fields = [
             ("id", models.AutoField(primary_key=True)),
             ("name", models.CharField(max_length=100, unique=True)),
@@ -79,6 +82,13 @@ class OperationTestCase(TransactionTestCase):
         )
 
     def assertSpatialIndexExists(self, table, column, raster=False):
+        """
+
+        Verifies that a spatial index exists on the specified column of a given table.
+
+        If raster is True, checks for a convex hull constraint; otherwise, checks for a standard spatial index.
+
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(cursor, table)
         if raster:
@@ -100,6 +110,15 @@ class OperationTestCase(TransactionTestCase):
         field_class=None,
         field_class_kwargs=None,
     ):
+        """
+        Alter a Geographic Information System (GIS) model by applying the specified migration operation.
+
+        :param migration_class: The class of the migration operation to apply
+        :param model_name: The name of the model to alter
+        :param field_name: The name of the field to alter
+        :param field_class: The class of the new field (optional)
+        :param field_class_kwargs: Keyword arguments for the new field class (optional)
+        """
         args = [model_name, field_name]
         if field_class:
             field_class_kwargs = field_class_kwargs or {}
@@ -118,7 +137,7 @@ class OperationTests(OperationTestCase):
 
     def test_add_geom_field(self):
         """
-        Test the AddField operation with a geometry-enabled column.
+        Tests the addition of a geometry field to a model, verifying the field's existence and spatial index creation.
         """
         self.alter_gis_model(
             migrations.AddField, "Neighborhood", "path", fields.LineStringField
@@ -136,6 +155,9 @@ class OperationTests(OperationTestCase):
     @skipUnless(connection.vendor == "mysql", "MySQL specific test")
     def test_remove_geom_field_nullable_with_index(self):
         # MySQL doesn't support spatial indexes on NULL columns.
+        """
+        Tests the removal of a nullable geometry field with an index on a MySQL database, verifying that the column is removed without generating a spatial index creation query.
+        """
         with self.assertNumQueries(1) as ctx:
             self.alter_gis_model(
                 migrations.AddField,
@@ -161,7 +183,12 @@ class OperationTests(OperationTestCase):
     @skipUnlessDBFeature("supports_raster")
     def test_add_raster_field(self):
         """
-        Test the AddField operation with a raster-enabled column.
+
+            Tests adding a raster field to a model using the AddField migration operation.
+
+            Verifies that the operation successfully adds the field to the model and creates
+            the necessary spatial index if supported by the database.
+
         """
         self.alter_gis_model(
             migrations.AddField, "Neighborhood", "heatmap", fields.RasterField
@@ -174,7 +201,7 @@ class OperationTests(OperationTestCase):
 
     def test_add_blank_geom_field(self):
         """
-        Should be able to add a GeometryField with blank=True.
+        Tests the ability to add a GeometryField with blank=True to a model, verifying that the column and geometry columns exist, and a spatial index is created if applicable.
         """
         self.alter_gis_model(
             migrations.AddField,
@@ -196,7 +223,7 @@ class OperationTests(OperationTestCase):
     @skipUnlessDBFeature("supports_raster")
     def test_add_blank_raster_field(self):
         """
-        Should be able to add a RasterField with blank=True.
+        Tests the ability to add a RasterField to a GIS model with the blank attribute set to True, verifying the field's existence and spatial index creation if supported.
         """
         self.alter_gis_model(
             migrations.AddField,
@@ -213,7 +240,7 @@ class OperationTests(OperationTestCase):
 
     def test_remove_geom_field(self):
         """
-        Test the RemoveField operation with a geometry-enabled column.
+        Tests the removal of a geometry field from a model using the RemoveField operation, verifying the column is deleted and geometry columns are updated accordingly.
         """
         self.alter_gis_model(migrations.RemoveField, "Neighborhood", "geom")
         self.assertColumnNotExists("gis_neighborhood", "geom")
@@ -231,6 +258,9 @@ class OperationTests(OperationTestCase):
         self.assertColumnNotExists("gis_neighborhood", "rast")
 
     def test_create_model_spatial_index(self):
+        """
+        Tests the creation of a spatial index on the 'gis_neighborhood' model, verifying its existence for both geometry and raster fields, if supported by the database connection.
+        """
         if not self.has_spatial_indexes:
             self.skipTest("No support for Spatial indexes")
 
@@ -241,6 +271,9 @@ class OperationTests(OperationTestCase):
 
     @skipUnlessDBFeature("supports_3d_storage")
     def test_add_3d_field_opclass(self):
+        """
+        Tests the addition of a 3D field with the correct opclass in a PostGIS-enabled database, verifying both the column and spatial index existence, as well as the opclass specified on the index.
+        """
         if not connection.ops.postgis:
             self.skipTest("PostGIS-specific test.")
 
@@ -264,6 +297,11 @@ class OperationTests(OperationTestCase):
 
     @skipUnlessDBFeature("can_alter_geometry_field", "supports_3d_storage")
     def test_alter_geom_field_dim(self):
+        """
+        Verifies that the dimension of a geometry field can be altered and that it correctly reflects in the geometry data stored in the database.
+
+        Tests transitioning between 2D and 3D geometry storage and checks for the presence or absence of Z coordinates in the geometry data after each alteration.
+        """
         Neighborhood = self.current_state.apps.get_model("gis", "Neighborhood")
         p1 = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
         Neighborhood.objects.create(name="TestDim", geom=MultiPolygon(p1, p1))
@@ -290,6 +328,9 @@ class OperationTests(OperationTestCase):
         "supports_column_check_constraints", "can_introspect_check_constraints"
     )
     def test_add_check_constraint(self):
+        """
+        Tests the addition of a check constraint to a model, verifying that the constraint can be successfully applied and introspected from the database.
+        """
         Neighborhood = self.current_state.apps.get_model("gis", "Neighborhood")
         poly = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
         constraint = models.CheckConstraint(

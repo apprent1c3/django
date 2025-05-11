@@ -30,6 +30,25 @@ class EmailBackend(BaseEmailBackend):
         ssl_certfile=None,
         **kwargs,
     ):
+        """
+        Initializes an email backend connection.
+
+        This constructor sets up the connection parameters, including the host, port, username, password, and encryption settings, 
+        using provided values or default settings if available. It also checks for conflicting encryption settings and acquires a lock 
+        for thread-safe operations. 
+
+        :param host: Hostname or IP address of the email server.
+        :param port: Port number of the email server.
+        :param username: Username for authentication.
+        :param password: Password for authentication.
+        :param use_tls: Whether to use Transport Layer Security encryption.
+        :param fail_silently: Whether to fail silently or raise an exception on errors.
+        :param use_ssl: Whether to use Secure Sockets Layer encryption.
+        :param timeout: Timeout in seconds for the email server connection.
+        :param ssl_keyfile: Path to the SSL key file.
+        :param ssl_certfile: Path to the SSL certificate file.
+
+        """
         super().__init__(fail_silently=fail_silently)
         self.host = host or settings.EMAIL_HOST
         self.port = port or settings.EMAIL_PORT
@@ -58,6 +77,9 @@ class EmailBackend(BaseEmailBackend):
 
     @cached_property
     def ssl_context(self):
+        """
+        Returns a configured SSL context for secure connections, either loaded from specified certificate and key files or a default context if none are provided.
+        """
         if self.ssl_certfile or self.ssl_keyfile:
             ssl_context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
             ssl_context.load_cert_chain(self.ssl_certfile, self.ssl_keyfile)
@@ -67,9 +89,7 @@ class EmailBackend(BaseEmailBackend):
 
     def open(self):
         """
-        Ensure an open connection to the email server. Return whether or not a
-        new connection was required (True or False) or None if an exception
-        passed silently.
+        Ensures an open connection to the email server, returning True if a new connection was established, False if an existing connection was reused, or None if an exception occurred silently.
         """
         if self.connection:
             # Nothing to do if the connection is already open.
@@ -99,7 +119,9 @@ class EmailBackend(BaseEmailBackend):
                 raise
 
     def close(self):
-        """Close the connection to the email server."""
+        """
+        Close the connection to the email server, releasing system resources associated with it. If the connection is already closed, this method does nothing. Any errors that occur during connection closure are handled according to the fail_silently flag.
+        """
         if self.connection is None:
             return
         try:
@@ -119,8 +141,7 @@ class EmailBackend(BaseEmailBackend):
 
     def send_messages(self, email_messages):
         """
-        Send one or more EmailMessage objects and return the number of email
-        messages sent.
+        Send one or more email messages and return the total number sent, handling connection management and synchronization for thread safety.
         """
         if not email_messages:
             return 0
@@ -142,7 +163,12 @@ class EmailBackend(BaseEmailBackend):
         return num_sent
 
     def _send(self, email_message):
-        """A helper method that does the actual sending."""
+        """
+        Sends an email message to specified recipients using the established connection.
+
+        :param email_message: The email message to be sent.
+        :return: True if the email was sent successfully, False otherwise.
+        """
         if not email_message.recipients():
             return False
         encoding = email_message.encoding or settings.DEFAULT_CHARSET

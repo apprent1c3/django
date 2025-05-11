@@ -18,6 +18,12 @@ except ImportError:
 
 class BulkSaveTests(PostgreSQLTestCase):
     def test_bulk_update(self):
+        """
+        Tests the bulk update functionality for various models.
+
+        This test case creates multiple instances of different models, updates a specific field on each instance, 
+        and then verifies that the bulk update operation successfully updates the field in the database.
+        """
         test_data = [
             (IntegerArrayModel, "field", [], [1, 2, 3]),
             (NullableIntegerArrayModel, "field", [1, 2, 3], None),

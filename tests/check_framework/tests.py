@@ -24,6 +24,14 @@ class DummyObj:
 
 class SystemCheckFrameworkTests(SimpleTestCase):
     def test_register_and_run_checks(self):
+        """
+
+        Tests the registration and execution of checks using the CheckRegistry class.
+
+        Verifies that checks can be registered and run with various tags and deployment options,
+        and that the results are consistent across different registration methods.
+
+        """
         def f(**kwargs):
             calls[0] += 1
             return [1, 2, 3]
@@ -70,6 +78,12 @@ class SystemCheckFrameworkTests(SimpleTestCase):
         self.assertEqual(sorted(errors), [4, 5])
 
     def test_register_no_kwargs_error(self):
+        """
+
+        Tests that a TypeError is raised when attempting to register a check function 
+        that does not accept keyword arguments (**kwargs).
+
+        """
         registry = CheckRegistry()
         msg = "Check functions must accept keyword arguments (**kwargs)."
         with self.assertRaisesMessage(TypeError, msg):
@@ -79,6 +93,9 @@ class SystemCheckFrameworkTests(SimpleTestCase):
                 pass
 
     def test_register_run_checks_non_iterable(self):
+        """
+        Tests that the registry run checks fail when a registered function returns a non-iterable value, as all registered functions must return a list.
+        """
         registry = CheckRegistry()
 
         @registry.register
@@ -198,6 +215,9 @@ class CheckCommandTests(SimpleTestCase):
 
     @override_system_checks([simple_system_check, tagged_system_check])
     def test_given_app(self):
+        """
+        Test the system checks for the given application, verifying the app configs are passed correctly to the check functions.
+        """
         call_command("check", "auth", "admin")
         auth_config = apps.get_app_config("auth")
         admin_config = apps.get_app_config("admin")
@@ -289,6 +309,9 @@ class SilencingCheckTests(SimpleTestCase):
     @override_settings(SILENCED_SYSTEM_CHECKS=["myerrorcheck.E001"])
     @override_system_checks([custom_error_system_check])
     def test_silenced_error(self):
+        """
+        Tests the functionality of silencing system checks by overriding settings to ignore a specific error check and verifying the expected output when running the 'check' command.
+        """
         out = StringIO()
         err = StringIO()
         call_command("check", stdout=out, stderr=err)
@@ -300,6 +323,9 @@ class SilencingCheckTests(SimpleTestCase):
     @override_settings(SILENCED_SYSTEM_CHECKS=["mywarningcheck.E001"])
     @override_system_checks([custom_warning_system_check])
     def test_silenced_warning(self):
+        """
+        Tests that a custom system check warning is properly silenced when specified in SILENCED_SYSTEM_CHECKS setting.
+        """
         out = StringIO()
         err = StringIO()
         call_command("check", stdout=out, stderr=err)
@@ -313,6 +339,9 @@ class CheckFrameworkReservedNamesTests(SimpleTestCase):
     @isolate_apps("check_framework", kwarg_name="apps")
     @override_system_checks([checks.model_checks.check_all_models])
     def test_model_check_method_not_shadowed(self, apps):
+        """
+        Tests that model check method is not shadowed by model attributes, fields, related managers or descriptors. Verifies that the system checks correctly detect and report such method overrides on various model instances.
+        """
         class ModelWithAttributeCalledCheck(models.Model):
             check = 42
 

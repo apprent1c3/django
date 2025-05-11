@@ -10,6 +10,9 @@ class InclusionAdminNode(InclusionNode):
     """
 
     def __init__(self, parser, token, func, template_name, takes_context=True):
+        """
+        Initializes a template tag with the given parser, token, function, and template name, parsing the function's arguments and storing them for later use.
+        """
         self.template_name = template_name
         params, varargs, varkw, defaults, kwonly, kwonly_defaults, _ = getfullargspec(
             func
@@ -30,6 +33,9 @@ class InclusionAdminNode(InclusionNode):
         super().__init__(func, takes_context, args, kwargs, filename=None)
 
     def render(self, context):
+        """
+        Renders the template for the current view, selecting the most specific template available based on the app label, model name, and template name.
+        """
         opts = context["opts"]
         app_label = opts.app_label.lower()
         object_name = opts.model_name

@@ -51,9 +51,7 @@ class LazySettings(LazyObject):
 
     def _setup(self, name=None):
         """
-        Load the settings module pointed to by the environment variable. This
-        is used the first time settings are needed, if the user hasn't
-        configured settings manually.
+        Initializes settings by loading the settings module specified in the environment variable, raising an error if no module is configured.
         """
         settings_module = os.environ.get(ENVIRONMENT_VARIABLE)
         if not settings_module:
@@ -76,7 +74,10 @@ class LazySettings(LazyObject):
         }
 
     def __getattr__(self, name):
-        """Return the value of a setting and cache it in self.__dict__."""
+        """
+        Return a wrapper object's attribute, caching it locally for future access, 
+        and performing additional setup or validation as necessary for specific settings.
+        """
         if (_wrapped := self._wrapped) is empty:
             self._setup(name)
             _wrapped = self._wrapped
@@ -94,8 +95,10 @@ class LazySettings(LazyObject):
 
     def __setattr__(self, name, value):
         """
-        Set the value of setting. Clear all cached values if _wrapped changes
-        (@override_settings does this) or clear single values when set.
+        Override the default attribute setting behavior to manage caching.
+
+         Clears all cached values when the _wrapped attribute is updated, and removes
+         the current value's cache when any other attribute is set.
         """
         if name == "_wrapped":
             self.__dict__.clear()
@@ -110,9 +113,9 @@ class LazySettings(LazyObject):
 
     def configure(self, default_settings=global_settings, **options):
         """
-        Called to manually configure the settings. The 'default_settings'
-        parameter sets where to retrieve any unspecified values from (its
-        argument must support attribute access (__getattr__)).
+        Configure the instance settings manually.
+
+        The configuration is done by specifying override options, which will be used in place of any default values obtained from the `default_settings` object. All option names must be uppercase. If the instance has already been configured, a `RuntimeError` is raised.
         """
         if self._wrapped is not empty:
             raise RuntimeError("Settings already configured.")
@@ -126,10 +129,7 @@ class LazySettings(LazyObject):
     @staticmethod
     def _add_script_prefix(value):
         """
-        Add SCRIPT_NAME prefix to relative paths.
-
-        Useful when the app is being served at a subpath and manually prefixing
-        subpath to STATIC_URL and MEDIA_URL in settings is inconvenient.
+        Add SCRIPT_NAME prefix to relative paths, making it convenient for serving applications at subpaths without manual prefixing in settings.
         """
         # Don't apply prefix to absolute paths and URLs.
         if value.startswith(("http://", "https://", "/")):
@@ -156,6 +156,16 @@ class LazySettings(LazyObject):
 class Settings:
     def __init__(self, settings_module):
         # update this dict from global settings (but only for ALL_CAPS settings)
+        """
+
+        Initializes a settings object with global and project-specific settings.
+
+        This class constructor loads default settings from the global settings module,
+        then overrides them with project-specific settings from the specified settings module.
+        It also performs validation on certain settings, such as those requiring a list or tuple,
+        and sets up time zone configuration.
+
+        """
         for setting in dir(global_settings):
             if setting.isupper():
                 setattr(self, setting, getattr(global_settings, setting))

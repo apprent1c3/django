@@ -6,6 +6,13 @@ from django.http.request import MediaType
 
 class MediaTypeTests(TestCase):
     def test_empty(self):
+        """
+
+        Tests the MediaType class with empty media types.
+
+        Verifies that empty media types (None, '') are correctly represented and do not match all media types.
+
+        """
         for empty_media_type in (None, ""):
             with self.subTest(media_type=empty_media_type):
                 media_type = MediaType(empty_media_type)
@@ -93,6 +100,14 @@ class AcceptHeaderTests(TestCase):
         self.assertEqual(request.accepted_types, [])
 
     def test_request_accepts_some(self):
+        """
+
+        Tests if the HttpRequest accepts certain mime types based on the 'HTTP_ACCEPT' header.
+
+        The function verifies that the request correctly interprets the 'HTTP_ACCEPT' header
+        and returns True for accepted mime types and False for unaccepted ones.
+
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = (
             "text/html,application/xhtml+xml,application/xml;q=0.9"

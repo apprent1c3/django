@@ -12,6 +12,16 @@ def copytree(src, dst):
 
 class POFileAssertionMixin:
     def _assertPoKeyword(self, keyword, expected_value, haystack, use_quotes=True):
+        """
+
+        Asserts that a specific keyword with an expected value exists in a PO file string.
+
+        :param keyword: The keyword to search for.
+        :param expected_value: The expected value associated with the keyword.
+        :param haystack: The PO file string to search in.
+        :param use_quotes: Whether to enclose the expected value in quotes (defaults to True).
+
+        """
         q = '"'
         if use_quotes:
             expected_value = '"%s"' % expected_value
@@ -43,6 +53,9 @@ class RunInTmpDirMixin:
     """
 
     def setUp(self):
+        """
+        Setup the environment for a test by creating a temporary working directory, copying a subset of source code into it, and switching the current working directory to the test location. The original working directory and test directory are saved to be restored after the test is completed.
+        """
         self._cwd = os.getcwd()
         self.work_dir = tempfile.mkdtemp(prefix="i18n_")
         # Resolve symlinks, if any, in test directory paths.

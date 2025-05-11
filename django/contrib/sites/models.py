@@ -32,6 +32,10 @@ class SiteManager(models.Manager):
         return SITE_CACHE[site_id]
 
     def _get_site_by_request(self, request):
+        """
+        Retrieve a Site instance from the database based on the host from the given request, 
+        caching the result for future lookups to improve performance.
+        """
         host = request.get_host()
         try:
             # First attempt to look up the site by host with or without port.
@@ -47,10 +51,7 @@ class SiteManager(models.Manager):
 
     def get_current(self, request=None):
         """
-        Return the current Site based on the SITE_ID in the project's settings.
-        If SITE_ID isn't defined, return the site with domain matching
-        request.get_host(). The ``Site`` object is cached the first time it's
-        retrieved from the database.
+        Returns the current Site instance based on the SITE_ID setting or the domain from a given request, caching the result for future queries.
         """
         from django.conf import settings
 

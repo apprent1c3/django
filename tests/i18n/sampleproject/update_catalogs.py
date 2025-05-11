@@ -35,7 +35,10 @@ sys.path.append(os.path.abspath(os.path.join(proj_dir, "..", "..", "..")))
 
 
 def update_translation_catalogs():
-    """Run makemessages and compilemessages in sampleproject."""
+    """
+    Updates the translation catalogs in the project by running makemessages and compilemessages, 
+    and then cleans the 'POT-Creation-Date' lines from the French translation file.
+    """
     from django.core.management import call_command
 
     prev_cwd = os.getcwd()

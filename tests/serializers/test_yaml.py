@@ -49,7 +49,10 @@ class NoYamlSerializerTestCase(SimpleTestCase):
 
     @classmethod
     def setUpClass(cls):
-        """Removes imported yaml and stubs importlib.import_module"""
+        """
+        Configures the test class setup by mocking the importlib.import_module function 
+        to use a YamlImportModuleMock and resets the serializers registry.
+        """
         super().setUpClass()
 
         cls._import_module_mock = YamlImportModuleMock()
@@ -119,6 +122,12 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Checks if a given string is valid YAML.
+
+         :param serial_str: The string to be validated.
+         :return: True if the string is valid YAML, False otherwise.
+        """
         try:
             yaml.safe_load(StringIO(serial_str))
         except Exception:
@@ -128,6 +137,12 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        Extracts primary key values from a YAML-formatted string.
+
+        :param serial_str: A YAML-formatted string containing object dictionaries with a 'pk' key.
+        :return: A list of primary key values extracted from the input string.
+        """
         ret_list = []
         stream = StringIO(serial_str)
         for obj_dict in yaml.safe_load(stream):
@@ -136,6 +151,15 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_field_values(serial_str, field_name):
+        """
+
+        Extracts field values from a YAML-formatted string.
+
+        Given a serialized YAML string and a field name, returns a list of values 
+        for the specified field found in the string. If a field value is not a string, 
+        it is converted to a string before being added to the list.
+
+        """
         ret_list = []
         stream = StringIO(serial_str)
         for obj_dict in yaml.safe_load(stream):

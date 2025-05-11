@@ -21,9 +21,7 @@ class SessionMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         """
-        If request.session was modified, or if the configuration is to save the
-        session every time, save the changes and set a session cookie or delete
-        the session cookie if the session has been emptied.
+        Manage session state by saving session data and setting or deleting session cookies based on session modifications, configuration settings, and response status.
         """
         try:
             accessed = request.session.accessed

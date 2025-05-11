@@ -88,15 +88,7 @@ class Node:
 
     def add(self, data, conn_type):
         """
-        Combine this tree and the data represented by data using the
-        connector conn_type. The combine is done by squashing the node other
-        away if possible.
-
-        This tree (self) will never be pushed to a child node of the
-        combined tree, nor will the connector or negated properties change.
-
-        Return a node which can be used in place of data regardless if the
-        node other got squashed or not.
+        Combine two tree-like structures, preserving the current tree's connector and negation properties, and return the resulting node.
         """
         if self.connector != conn_type:
             obj = self.copy()

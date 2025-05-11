@@ -15,7 +15,9 @@ class GeometryCollection(GEOSGeometry):
     _typeid = 7
 
     def __init__(self, *args, **kwargs):
-        "Initialize a Geometry Collection from a sequence of Geometry objects."
+        """
+        Initialize a Geometry Collection from a sequence of Geometry objects.
+        """
         # Checking the arguments
         if len(args) == 1:
             # If only one geometry provided or a list of geometries is provided
@@ -68,7 +70,9 @@ class GeometryCollection(GEOSGeometry):
         )
 
     def _set_list(self, length, items):
-        "Create a new collection, and destroy the contents of the previous pointer."
+        """
+        Replaces the current geometric collection with a new one of specified length and items, releasing any previously allocated resources.
+        """
         prev_ptr = self.ptr
         srid = self.srid
         self.ptr = self._create_collection(length, items)

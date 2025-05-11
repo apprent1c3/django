@@ -10,8 +10,10 @@ from django.test import TestCase
 class IntrospectionTests(TestCase):
     def test_get_primary_key_column(self):
         """
-        Get the primary key column regardless of whether or not it has
-        quotation.
+
+        Test the ability to retrieve the primary key column from a database table,
+        regardless of whether the column name is quoted or not.
+
         """
         testable_column_strings = (
             ("id", "id"),
@@ -36,6 +38,9 @@ class IntrospectionTests(TestCase):
                         cursor.execute("DROP TABLE test_primary")
 
     def test_get_primary_key_column_pk_constraint(self):
+        """
+        Tests the retrieval of the primary key column for a given table, verifying that the introspection correctly identifies the column defined with a PRIMARY KEY constraint.
+        """
         sql = """
             CREATE TABLE test_primary(
                 id INTEGER NOT NULL,
@@ -58,7 +63,13 @@ class IntrospectionTests(TestCase):
 @unittest.skipUnless(connection.vendor == "sqlite", "SQLite tests")
 class ParsingTests(TestCase):
     def parse_definition(self, sql, columns):
-        """Parse a column or constraint definition."""
+        """
+        Parse a column or constraint definition from SQL.
+
+        This function takes a SQL statement and a set of column names, and returns a parsed representation of the definition.
+        It handles the complexities of SQL syntax, allowing for accurate interpretation of column and constraint definitions.
+        Used internally for database introspection and schema analysis.
+        """
         statement = sqlparse.parse(sql)[0]
         tokens = (token for token in statement.flatten() if not token.is_whitespace)
         with connection.cursor():
@@ -80,6 +91,9 @@ class ParsingTests(TestCase):
         )
 
     def test_unique_column(self):
+        """
+        Tests that the :meth:`parse_definition` method correctly handles SQL definitions of columns with a UNIQUE constraint, verifying that the constraint is identified and that no additional constraints are reported.
+        """
         tests = (
             ('"ref" integer UNIQUE,', ["ref"]),
             ("ref integer UNIQUE,", ["ref"]),
@@ -94,6 +108,9 @@ class ParsingTests(TestCase):
                 self.assertIsNone(check)
 
     def test_unique_constraint(self):
+        """
+        Tests the parser's ability to extract unique constraints from SQL definitions, verifying that the constraint name, columns, and uniqueness are correctly identified.
+        """
         tests = (
             ('CONSTRAINT "ref" UNIQUE ("ref"),', "ref", ["ref"]),
             ("CONSTRAINT ref UNIQUE (ref),", "ref", ["ref"]),
@@ -116,6 +133,12 @@ class ParsingTests(TestCase):
                 self.assertIsNone(check)
 
     def test_unique_constraint_multicolumn(self):
+        """
+        Tests that unique constraints across multiple columns are correctly parsed and validated.
+
+        Verifies that the constraint name and referenced columns are accurately extracted from the SQL definition,
+        and that the constraint is properly identified as a unique constraint with no check condition.
+        """
         tests = (
             (
                 'CONSTRAINT "ref" UNIQUE ("ref", "customname"),',
@@ -132,6 +155,12 @@ class ParsingTests(TestCase):
                 self.assertIsNone(check)
 
     def test_check_column(self):
+        """
+        Checks that the parser correctly handles CHECK constraints on columns in SQL definitions.
+
+        Verifies that no error is raised when parsing CHECK constraints with different naming conventions and formats, 
+        and that the check constraint and affected columns are correctly identified.
+        """
         tests = (
             ('"ref" varchar(255) CHECK ("ref" != \'test\'),', ["ref"]),
             ("ref varchar(255) CHECK (ref != 'test'),", ["ref"]),
@@ -152,6 +181,10 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_constraint(self):
+        """
+        ..: 
+            Tests the parsing of SQL CHECK constraints and verifies that the constraint name and referenced columns are correctly extracted.
+        """
         tests = (
             ('CONSTRAINT "ref" CHECK ("ref" != \'test\'),', "ref", ["ref"]),
             ("CONSTRAINT ref CHECK (ref != 'test'),", "ref", ["ref"]),
@@ -174,6 +207,12 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_column_with_operators_and_functions(self):
+        """
+        Tests the parsing of SQL columns with CHECK constraints containing operators and functions.
+
+        Verifies that the parser correctly identifies the column names and checks the constraint definition
+        in various scenarios, including range checks and string pattern matching.
+        """
         tests = (
             ('"ref" integer CHECK ("ref" BETWEEN 1 AND 10),', ["ref"]),
             ('"ref" varchar(255) CHECK ("ref" LIKE \'test%\'),', ["ref"]),
@@ -190,6 +229,9 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_and_unique_column(self):
+        """
+        Tests the parsing of SQL definitions containing both a UNIQUE constraint and a CHECK constraint on a single column to ensure that both constraints are correctly identified and their details are properly extracted.
+        """
         tests = (
             ('"ref" varchar(255) CHECK ("ref" != \'test\') UNIQUE,', ["ref"]),
             ("ref varchar(255) UNIQUE CHECK (ref != 'test'),", ["ref"]),

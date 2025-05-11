@@ -33,6 +33,11 @@ class SafeStringTest(SimpleTestCase):
         self.assertIsInstance(str(s), type(s))
 
     def test_mark_safe_object_implementing_dunder_html(self):
+        """
+        Test that an object implementing __html__ is correctly handled as mark_safe.
+        Verifies that such an object is not escaped by default but can be escaped when
+        using the force_escape filter.
+        """
         e = customescape("<a&b>")
         s = mark_safe(e)
         self.assertIs(s, e)
@@ -54,6 +59,9 @@ class SafeStringTest(SimpleTestCase):
             self.assertEqual(tpl.render(Context({"s": s})), "nom")
 
     def test_mark_safe_object_implementing_dunder_str(self):
+        """
+        Tests that the mark_safe function correctly handles objects implementing __str__.
+        """
         class Obj:
             def __str__(self):
                 return "<obj>"
@@ -69,6 +77,9 @@ class SafeStringTest(SimpleTestCase):
         self.assertEqual(mark_safe(lazystr("a&b")).__html__(), "a&b")
 
     def test_add_lazy_safe_text_and_safe_text(self):
+        """
+        Tests the addition of lazy safe text and safe text, ensuring proper escaping and rendering of HTML and JavaScript content.
+        """
         s = html.escape(lazystr("a"))
         s += mark_safe("&b")
         self.assertRenderEqual("{{ s }}", "a&b", s=s)
@@ -79,8 +90,7 @@ class SafeStringTest(SimpleTestCase):
 
     def test_mark_safe_as_decorator(self):
         """
-        mark_safe used as a decorator leaves the result of a function
-        unchanged.
+        Tests that the mark_safe function, when used as a decorator, does not alter the result of the decorated function.
         """
 
         def clean_string_provider():
@@ -90,7 +100,7 @@ class SafeStringTest(SimpleTestCase):
 
     def test_mark_safe_decorator_does_not_affect_dunder_html(self):
         """
-        mark_safe doesn't affect a callable that has an __html__() method.
+        Verifies that the mark_safe decorator does not alter the behavior of objects with an __html__ method.
         """
 
         class SafeStringContainer:
@@ -101,7 +111,9 @@ class SafeStringTest(SimpleTestCase):
 
     def test_mark_safe_decorator_does_not_affect_promises(self):
         """
-        mark_safe doesn't affect lazy strings (Promise objects).
+
+        Verifies that the mark_safe decorator does not alter the behavior of lazy strings, such as those encapsulated in Promise objects, when resolving to their actual string values.
+
         """
 
         def html_str():

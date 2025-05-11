@@ -25,6 +25,11 @@ class BaseManager:
         return obj
 
     def __init__(self):
+        """
+        .. method:: __init__(self)
+
+           Initializes a database model instance. Sets up internal state, including a creation counter, and placeholders for a model, name, database, and hints.
+        """
         super().__init__()
         self._set_creation_counter()
         self.model = None
@@ -41,10 +46,16 @@ class BaseManager:
 
     def deconstruct(self):
         """
-        Return a 5-tuple of the form (as_manager (True), manager_class,
-        queryset_class, args, kwargs).
 
-        Raise a ValueError if the manager is dynamically generated.
+        Deconstructs the manager instance into its core components.
+
+        Returns a 5-tuple containing information about the manager's construction, 
+        including whether it was created using `as_manager()`, its class, 
+        queryset class, and any arguments or keyword arguments used in its creation.
+
+        Raises a ValueError if the manager was dynamically generated and cannot be found 
+        in its module, typically due to not inheriting from the dynamically generated manager.
+
         """
         qs_class = self._queryset_class
         if getattr(self, "_built_with_as_manager", False):
@@ -81,6 +92,9 @@ class BaseManager:
 
     @classmethod
     def _get_queryset_methods(cls, queryset_class):
+        """
+        Generate a dictionary of methods to be added to a class, delegating calls to the corresponding methods of a queryset_class, filtered to exclude methods already present on the class, starting with underscore, or marked as queryset-only.
+        """
         def create_method(name, method):
             @wraps(method)
             def manager_method(self, *args, **kwargs):
@@ -182,6 +196,9 @@ class ManagerDescriptor:
         self.manager = manager
 
     def __get__(self, instance, cls=None):
+        """
+        Access the manager for a class, raising exceptions for instances, abstract models, or swapped models.
+        """
         if instance is not None:
             raise AttributeError(
                 "Manager isn't accessible via %s instances" % cls.__name__

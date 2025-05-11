@@ -15,8 +15,7 @@ def matches_patterns(path, patterns):
 
 def get_files(storage, ignore_patterns=None, location=""):
     """
-    Recursively walk the storage directories yielding the paths
-    of all files that should be copied.
+    Recursively traverses storage directories, yielding paths of files that pass a set of ignore patterns, allowing for selective file discovery. The function facilitates filtering of files based on patterns, simplifying the process of identifying and processing files within a storage structure.
     """
     if ignore_patterns is None:
         ignore_patterns = []
@@ -41,7 +40,7 @@ def get_files(storage, ignore_patterns=None, location=""):
 
 def check_settings(base_url=None):
     """
-    Check if the staticfiles settings have sane values.
+    Verify that the staticfiles and media settings are properly configured, raising exceptions if settings are missing, duplicate, or conflicting.
     """
     if base_url is None:
         base_url = settings.STATIC_URL

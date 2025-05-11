@@ -66,7 +66,9 @@ class OGRGeometry(GDALBase):
     destructor = capi.destroy_geom
 
     def __init__(self, geom_input, srs=None):
-        """Initialize Geometry on either WKT or an OGR pointer as input."""
+        """
+        Initializes a Geometry object from various input formats, including Well-Known Text (WKT), JSON, binary Well-Known Binary (WKB), or an OGR pointer, optionally specifying a Spatial Reference System (SRS).
+        """
         str_instance = isinstance(geom_input, str)
 
         # If HEX, unpack input to a binary buffer.
@@ -132,6 +134,9 @@ class OGRGeometry(GDALBase):
 
     # Pickle routines
     def __getstate__(self):
+        """
+        Returns a tuple representing the object's state for serialization purposes, containing the object's geometry data and spatial reference system details.
+        """
         srs = self.srs
         if srs:
             srs = srs.wkt
@@ -140,6 +145,13 @@ class OGRGeometry(GDALBase):
         return bytes(self.wkb), srs
 
     def __setstate__(self, state):
+        """
+
+        Restores the object's state from a pickled representation.
+
+        This method is used for deserialization, loading the object's geometry and spatial reference system from a serialized form.
+
+        """
         wkb, srs = state
         ptr = capi.from_wkb(wkb, None, byref(c_void_p()), len(wkb))
         if not ptr:
@@ -217,7 +229,10 @@ class OGRGeometry(GDALBase):
     # RemovedInDjango60Warning
     @coord_dim.setter
     def coord_dim(self, dim):
-        "Set the coordinate dimension of this Geometry."
+        """
+        Sets the coordinate dimension of this Geometry, either 2D or 3D, 
+        although this method is deprecated in favor of using set_3d().
+        """
         msg = "coord_dim setter is deprecated. Use set_3d() instead."
         warnings.warn(msg, RemovedInDjango60Warning, stacklevel=2)
         if dim not in (2, 3):
@@ -280,7 +295,12 @@ class OGRGeometry(GDALBase):
         return capi.is_3d(self.ptr)
 
     def set_3d(self, value):
-        """Set if this geometry has Z coordinates."""
+        """
+        Sets whether this geometry includes Z coordinates.
+
+         /:param bool value: Whether to enable or disable Z coordinates.
+         /:raises ValueError: If the input value is not a boolean.
+        """
         if value is True:
             capi.set_3d(self.ptr, 1)
         elif value is False:
@@ -294,7 +314,16 @@ class OGRGeometry(GDALBase):
         return capi.is_measured(self.ptr)
 
     def set_measured(self, value):
-        """Set if this geometry has M coordinates."""
+        """
+        Set whether this geometry has measured (M) coordinates.
+
+        Args:
+            value (bool): Whether the geometry has measured coordinates.
+
+        Raises:
+            ValueError: If the input value is not a boolean.
+
+        """
         if value is True:
             capi.set_measured(self.ptr, 1)
         elif value is False:
@@ -308,7 +337,9 @@ class OGRGeometry(GDALBase):
 
     # The SRS property
     def _get_srs(self):
-        "Return the Spatial Reference for this Geometry."
+        """
+        Return the Spatial Reference System (SRS) associated with this geometry, or None if it is not defined.
+        """
         try:
             srs_ptr = capi.get_geom_srs(self.ptr)
             return SpatialReference(srs_api.clone_srs(srs_ptr))
@@ -316,7 +347,9 @@ class OGRGeometry(GDALBase):
             return None
 
     def _set_srs(self, srs):
-        "Set the SpatialReference for this geometry."
+        """
+        Sets the Spatial Reference System (SRS) for this geometry, accepting a SpatialReference object, a spatial reference ID, or a spatial reference string, and supports removal by passing None.
+        """
         # Do not have to clone the `SpatialReference` object pointer because
         # when it is assigned to this `OGRGeometry` it's internal OGR
         # reference count is incremented, and will likewise be released
@@ -395,7 +428,10 @@ class OGRGeometry(GDALBase):
 
     @property
     def wkb(self):
-        "Return the WKB representation of the Geometry."
+        """
+        Returns the Well-Known Binary (WKB) representation of the geometry object, 
+        a binary format used to exchange geometric data between systems.
+        """
         if sys.byteorder == "little":
             byteorder = 1  # wkbNDR (from ogr_core.h)
         else:
@@ -422,7 +458,9 @@ class OGRGeometry(GDALBase):
 
     @property
     def ewkt(self):
-        "Return the EWKT representation of the Geometry."
+        """
+        Return the Extended Well-Known Text (EWKT) representation of the Geometry, including the Spatial Reference System Identifier (SRID) if available, otherwise the standard Well-Known Text (WKT) representation.
+        """
         srs = self.srs
         if srs and srs.srid:
             return "SRID=%s;%s" % (srs.srid, self.wkt)
@@ -446,10 +484,12 @@ class OGRGeometry(GDALBase):
     def transform(self, coord_trans, clone=False):
         """
         Transform this geometry to a different spatial reference system.
-        May take a CoordTransform object, a SpatialReference object, string
-        WKT or PROJ, and/or an integer SRID.  By default, return nothing
-        and transform the geometry in-place. However, if the `clone` keyword is
-        set, return a transformed clone of this geometry.
+
+        Accepts various types of coordinate transformation specifications, including 
+        CoordTransform objects, SpatialReference objects, WKT/PROJ strings, and integer SRIDs.
+
+        Optionally returns a transformed clone of the geometry if `clone` is True; 
+        otherwise, transforms the geometry in-place and returns None.
         """
         if clone:
             klone = self.clone()
@@ -518,7 +558,15 @@ class OGRGeometry(GDALBase):
 
     # #### Geometry-generation Methods ####
     def _geomgen(self, gen_func, other=None):
-        "A helper routine for the OGR routines that generate geometries."
+        """
+        Generates a new OGRGeometry by applying the given geometric function.
+
+        This helper routine assists OGR routines in creating new geometries from the current geometry and optionally another geometry.
+
+        :param gen_func: The geometric function to apply.
+        :param other: The optional second geometry used in the function (must be an OGRGeometry instance, default is None).
+        :returns: The resulting OGRGeometry instance with the applied function and matching spatial reference system (SRS).
+        """
         if isinstance(other, OGRGeometry):
             return OGRGeometry(gen_func(self.ptr, other.ptr), self.srs)
         else:
@@ -609,7 +657,9 @@ class Point(OGRGeometry):
 
     @property
     def tuple(self):
-        "Return the tuple of this point."
+        """
+        Returns a tuple representation of the point, with dimensions and measurement values included as applicable.
+        """
         if self.is_3d and self.is_measured:
             return self.x, self.y, self.z, self.m
         if self.is_3d:
@@ -623,7 +673,10 @@ class Point(OGRGeometry):
 
 class LineString(OGRGeometry):
     def __getitem__(self, index):
-        "Return the Point at the given index."
+        """
+        Returns the Point at the specified index in the line string, 
+        with the number and types of coordinates depending on the line string's dimension and measurement status.
+        """
         if 0 <= index < self.point_count:
             x, y, z, m = c_double(), c_double(), c_double(), c_double()
             capi.get_point(self.ptr, index, byref(x), byref(y), byref(z), byref(m))
@@ -695,7 +748,9 @@ class Polygon(OGRGeometry):
         return self.geom_count
 
     def __getitem__(self, index):
-        "Get the ring at the specified index."
+        """
+        Return the ring at the specified index within a polygon, allowing access to individual rings that comprise the polygon's geometry.
+        """
         if 0 <= index < self.geom_count:
             return OGRGeometry(
                 capi.clone_geom(capi.get_geom_ref(self.ptr, index)), self.srs
@@ -732,7 +787,13 @@ class GeometryCollection(OGRGeometry):
     "The Geometry Collection class."
 
     def __getitem__(self, index):
-        "Get the Geometry at the specified index."
+        """
+        Retrieve a geometry object at the specified index within a collection.
+
+        :raises IndexError: If the index is out of range.
+        :returns: An OGRGeometry object at the specified index, or raises an IndexError if index is invalid.
+
+        """
         if 0 <= index < self.geom_count:
             return OGRGeometry(
                 capi.clone_geom(capi.get_geom_ref(self.ptr, index)), self.srs
@@ -748,7 +809,14 @@ class GeometryCollection(OGRGeometry):
         return self.geom_count
 
     def add(self, geom):
-        "Add the geometry to this Geometry Collection."
+        """
+        Add a geometry or a geometry collection to this collection.
+
+         Accepts an OGRGeometry object, a string representing a geometry (WKT), 
+         or another Geometry Collection. The geometry is added to the current collection.
+
+         Raises a GDALException if the input is not a valid geometry or collection.
+        """
         if isinstance(geom, OGRGeometry):
             if isinstance(geom, self.__class__):
                 for g in geom:

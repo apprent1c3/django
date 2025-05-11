@@ -26,6 +26,9 @@ class TemplateDoesNotExist(Exception):
     """
 
     def __init__(self, msg, tried=None, backend=None, chain=None):
+        """
+        Initializes an exception object with a message and optional metadata about attempted actions and a chain of exceptions. The metadata includes a list of attempts made, a chain of related exceptions, and information about the backend.
+        """
         self.backend = backend
         if tried is None:
             tried = []

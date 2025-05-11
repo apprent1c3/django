@@ -67,6 +67,9 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
 
     @classmethod
     def _make_connections_override(cls):
+        """
+        Overrides database connection settings to disable connection aging for the default database alias.
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         cls.conn = conn
         cls.old_conn_max_age = conn.settings_dict["CONN_MAX_AGE"]
@@ -91,6 +94,15 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
     def test_closes_connections(self):
         # The server's request thread sets this event after closing
         # its database connections.
+        """
+
+        Verifies that connections to the server are properly closed after use.
+
+        This test checks the server's ability to manage connections by connecting to the server,
+        performing a request, and then verifying that the connection is closed after the request
+        completes.
+
+        """
         closed_event = self.server_thread.httpd._connections_closed
         conn = self.conn
         # Open a connection to the database.
@@ -110,10 +122,7 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
 class LiveServerInMemoryDatabaseLockTest(LiveServerBase):
     def test_in_memory_database_lock(self):
         """
-        With a threaded LiveServer and an in-memory database, an error can
-        occur when 2 requests reach the server and try to lock the database
-        at the same time, if the requests do not share the same database
-        connection.
+        Tests that the application can handle concurrent requests to create model instances with an in-memory database, verifying that the database lock does not cause errors when the requests do not share the same database connection.
         """
         conn = self.server_thread.connections_override[DEFAULT_DB_ALIAS]
         source_connection = conn.connection
@@ -148,6 +157,13 @@ class LiveServerTestCaseSetupTest(LiveServerBase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class by checking allowed hosts and handling potential RuntimeErrors.
+
+        This class method initializes the necessary settings for the class, including 
+        checking if 'testserver' is an allowed host, and ensures proper cleanup and 
+        error handling in case of exceptions during superclass setup.
+        """
         cls.check_allowed_hosts(["testserver"])
         try:
             super().setUpClass()
@@ -194,16 +210,7 @@ class LiveServerViews(LiveServerBase):
 
     def test_closes_connection_without_content_length(self):
         """
-        An HTTP 1.1 server is supposed to support keep-alive. Since our
-        development server is rather simple we support it only in cases where
-        we can detect a content length from the response. This should be doable
-        for all simple views and streaming responses where an iterable with
-        length of one is passed. The latter follows as result of `set_content_length`
-        from https://github.com/python/cpython/blob/main/Lib/wsgiref/handlers.py.
-
-        If we cannot detect a content length we explicitly set the `Connection`
-        header to `close` to notify the client that we do not actually support
-        it.
+        Tests that the HTTP connection is closed when a response does not have a detectable content length, by checking the 'Connection' header and the connection state after a request to a streaming example view.
         """
         conn = HTTPConnection(
             LiveServerViews.server_thread.host,
@@ -233,9 +240,7 @@ class LiveServerViews(LiveServerBase):
 
     def test_keep_alive_on_connection_with_content_length(self):
         """
-        See `test_closes_connection_without_content_length` for details. This
-        is a follow up test, which ensure that we do not close the connection
-        if not needed, hence allowing us to take advantage of keep-alive.
+        Verifies the correct handling of keep-alive connections when a content length is provided, ensuring the connection remains open for subsequent requests when possible.
         """
         conn = HTTPConnection(
             LiveServerViews.server_thread.host, LiveServerViews.server_thread.port
@@ -258,6 +263,9 @@ class LiveServerViews(LiveServerBase):
             conn.close()
 
     def test_keep_alive_connection_clears_previous_request_data(self):
+        """
+        Tests that a keep-alive connection clears any previous request data after being switched to a close connection
+        """
         conn = HTTPConnection(
             LiveServerViews.server_thread.host, LiveServerViews.server_thread.port
         )
@@ -296,9 +304,7 @@ class LiveServerViews(LiveServerBase):
 
     def test_no_collectstatic_emulation(self):
         """
-        LiveServerTestCase reports a 404 status code when HTTP client
-        tries to access a static file that isn't explicitly put under
-        STATIC_ROOT.
+        Verifies that LiveServerTestCase correctly handles requests for static files not explicitly placed under STATIC_ROOT, ensuring a 404 status code is reported.
         """
         with self.assertRaises(HTTPError) as err:
             self.urlopen("/static/another_app/another_app_static_file.txt")
@@ -320,9 +326,7 @@ class SingleThreadLiveServerViews(SingleThreadLiveServerTestCase):
 
     def test_closes_connection_with_content_length(self):
         """
-        Contrast to
-        LiveServerViews.test_keep_alive_on_connection_with_content_length().
-        Persistent connections require threading server.
+        Tests that a connection is properly closed after a content length is specified in the response, in contrast to persistent connections.
         """
         conn = HTTPConnection(
             SingleThreadLiveServerViews.server_thread.host,
@@ -364,8 +368,7 @@ class LiveServerDatabase(LiveServerBase):
 class LiveServerPort(LiveServerBase):
     def test_port_bind(self):
         """
-        Each LiveServerTestCase binds to a unique port or fails to start a
-        server thread when run concurrently (#26011).
+        Tests that concurrent LiveServerTestCase instances bind to unique ports.
         """
         TestCase = type("TestCase", (LiveServerBase,), {})
         try:
@@ -388,7 +391,9 @@ class LiveServerPort(LiveServerBase):
             TestCase.doClassCleanups()
 
     def test_specified_port_bind(self):
-        """LiveServerTestCase.port customizes the server's port."""
+        """
+        Tests the behavior of LiveServerTestCase when a custom port is specified, verifying that the server binds to the designated port as expected.
+        """
         TestCase = type("TestCase", (LiveServerBase,), {})
         # Find an open port and tell TestCase to use it.
         s = socket.socket()

@@ -58,6 +58,9 @@ class LoadDataWithNaturalKeysAndMultipleDatabasesTestCase(TestCase):
 
     def test_load_data_with_user_permissions(self):
         # Create test contenttypes for both databases
+        """
+        Verifies that data is loaded correctly with user permissions across different databases, ensuring proper mapping of permissions to their corresponding content types in both default and other databases.
+        """
         default_objects = [
             ContentType.objects.db_manager("default").create(
                 model="examplemodela",
@@ -115,6 +118,9 @@ class UserManagerTestCase(TransactionTestCase):
     ]
 
     def test_create_user(self):
+        """
+        Verify that creating a new user with an email address results in the correct user attributes being set, including the email address and username, and that the user does not have a usable password by default.
+        """
         email_lowercase = "normal@normal.com"
         user = User.objects.create_user("user", email_lowercase)
         self.assertEqual(user.email, email_lowercase)
@@ -140,6 +146,9 @@ class UserManagerTestCase(TransactionTestCase):
             User.objects.create_user(username="")
 
     def test_create_user_is_staff(self):
+        """
+        Tests that creating a user with is_staff=True correctly sets the user's email, username, and staff status.
+        """
         email = "normal@normal.com"
         user = User.objects.create_user("user", email, is_staff=True)
         self.assertEqual(user.email, email)
@@ -167,6 +176,11 @@ class UserManagerTestCase(TransactionTestCase):
             )
 
     def test_runpython_manager_methods(self):
+        """
+        Tests the functionality of custom manager methods in the context of Django database migrations.
+
+        Verifies that a user can be created and their password can be checked correctly after applying a migration operation that creates a new user using the RunPython method.
+        """
         def forwards(apps, schema_editor):
             UserModel = apps.get_model("auth", "User")
             user = UserModel.objects.create_user("user1", password="secure")
@@ -204,6 +218,9 @@ class AbstractBaseUserTests(SimpleTestCase):
 
     def test_clean_normalize_username(self):
         # The normalization happens in AbstractBaseUser.clean()
+        """
+        Test that the username normalization process correctly converts non-ASCII characters to their ASCII equivalents, ensuring usernames are cleaned and standardized regardless of the user model in use.
+        """
         ohm_username = "iamtheΩ"  # U+2126 OHM SIGN
         for model in ("auth.User", "auth_tests.CustomUser"):
             with self.subTest(model=model), self.settings(AUTH_USER_MODEL=model):
@@ -227,6 +244,11 @@ class AbstractBaseUserTests(SimpleTestCase):
 class AbstractUserTestCase(TestCase):
     def test_email_user(self):
         # valid send_mail parameters
+        """
+        Tests that the email_user method of the User class sends an email to the user's email address.
+
+        Verifies that the subject, message body, and sender's email address are correctly set, and that the email is delivered to the user's inbox.
+        """
         kwargs = {
             "fail_silently": False,
             "auth_user": None,
@@ -262,7 +284,7 @@ class AbstractUserTestCase(TestCase):
 
     def test_user_double_save(self):
         """
-        Calling user.save() twice should trigger password_changed() once.
+        Tests whether saving a user instance twice triggers the password_changed function only once when the password has been changed.
         """
         user = User.objects.create_user(username="user", password="foo")
         user.set_password("bar")
@@ -277,8 +299,7 @@ class AbstractUserTestCase(TestCase):
     @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
     def test_check_password_upgrade(self):
         """
-        password_changed() shouldn't be called if User.check_password()
-        triggers a hash iteration upgrade.
+        Tests that the password_changed signal is not sent when the check_password method triggers a hash iteration upgrade.
         """
         user = User.objects.create_user(username="user", password="foo")
         initial_password = user.password
@@ -301,6 +322,10 @@ class AbstractUserTestCase(TestCase):
 
     @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
     async def test_acheck_password_upgrade(self):
+        """
+        Tests that a user's password is upgraded when the default password hasher's iterations increase, 
+        without triggering a password change signal, ensuring the user can still log in successfully.
+        """
         user = await sync_to_async(User.objects.create_user)(
             username="user", password="foo"
         )
@@ -335,6 +360,9 @@ class CustomModelBackend(ModelBackend):
 class UserWithPermTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for testing user permissions, including users, groups, and a custom permission, to simulate various scenarios and edge cases.
+        """
         content_type = ContentType.objects.get_for_model(Group)
         cls.permission = Permission.objects.create(
             name="test",
@@ -383,6 +411,9 @@ class UserWithPermTestCase(TestCase):
                 User.objects.with_perm(perm)
 
     def test_invalid_backend_type(self):
+        """
+        Tests that User.objects.with_perm raises a TypeError when an invalid backend type is provided.
+        """
         msg = "backend must be a dotted import path string (got %r)."
         for backend in (b"auth_tests.CustomModelBackend", object()):
             with self.subTest(backend):
@@ -390,6 +421,9 @@ class UserWithPermTestCase(TestCase):
                     User.objects.with_perm("auth.test", backend=backend)
 
     def test_basic(self):
+        """
+        Tests the User.objects.with_perm method to ensure it correctly filters users based on the provided permissions and keyword arguments, covering various scenarios including active status and superuser inclusion.
+        """
         active_users = [self.user1, self.user2]
         tests = [
             ({}, [*active_users, self.superuser]),
@@ -462,6 +496,9 @@ class UserWithPermTestCase(TestCase):
         ]
     )
     def test_multiple_backends(self):
+        """
+        Tests Django's permission system when multiple authentication backends are configured, ensuring that the `backend` argument is required in this scenario.
+        """
         msg = (
             "You have multiple authentication backends configured and "
             "therefore must provide the `backend` argument."
@@ -482,6 +519,9 @@ class IsActiveTestCase(TestCase):
     """
 
     def test_builtin_user_isactive(self):
+        """
+        Verify that the is_active attribute of a User instance is correctly retrieved and updated, ensuring that changes are persisted to the database.
+        """
         user = User.objects.create(username="foo", email="foo@bar.com")
         # is_active is true by default
         self.assertIs(user.is_active, True)
@@ -494,7 +534,7 @@ class IsActiveTestCase(TestCase):
     @override_settings(AUTH_USER_MODEL="auth_tests.IsActiveTestUser1")
     def test_is_active_field_default(self):
         """
-        tests that the default value for is_active is provided
+        Tests that the 'is_active' field of a user model defaults to True after saving, overriding any explicitly set value of False.
         """
         UserModel = get_user_model()
         user = UserModel(username="foo")
@@ -537,6 +577,9 @@ class AnonymousUserTests(SimpleTestCase):
         self.user = AnonymousUser()
 
     def test_properties(self):
+        """
+        Tests the default properties of a newly created user, ensuring they match the expected initial state.
+        """
         self.assertIsNone(self.user.pk)
         self.assertEqual(self.user.username, "")
         self.assertEqual(self.user.get_username(), "")

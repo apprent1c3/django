@@ -13,15 +13,7 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
 
     def __init__(self, *args, **kwargs):
         """
-        Initialize on the given sequence -- may take lists, tuples, NumPy arrays
-        of X,Y pairs, or Point objects.  If Point objects are used, ownership is
-        _not_ transferred to the LineString object.
-
-        Examples:
-         ls = LineString((1, 1), (2, 2))
-         ls = LineString([(1, 1), (2, 2)])
-         ls = LineString(array([(1, 1), (2, 2)]))
-         ls = LineString(Point(1, 1), Point(2, 2))
+        Initializes a LineString object from a sequence of X,Y pairs or Point objects, allowing for different input formats such as lists, tuples, NumPy arrays, or individual points. Validating the input ensures the correct dimension and number of points, ultimately setting up the geometric representation.
         """
         # If only one argument provided, set the coords array appropriately
         if len(args) == 1:
@@ -111,6 +103,15 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
     _get_single_internal = _get_single_external
 
     def _set_list(self, length, items):
+        """
+        #: Set a new list of coordinates on this geometry object.
+        #: 
+        #: :param length: The number of coordinates in the list.
+        #: :param items: A list of coordinates to be set.
+        #: 
+        #: Updates the geometry object in-place by replacing its coordinate sequence with a new one.
+        #: It checks the validity of the resulting geometry and raises an exception if it is invalid.
+        """
         ndim = self._cs.dims
         hasz = self._cs.hasz  # I don't understand why these are different
         srid = self.srid
@@ -148,8 +149,11 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
 
     def _listarr(self, func):
         """
-        Return a sequence (list) corresponding with the given function.
-        Return a numpy array if possible.
+
+            Generate a list or numpy array by applying a given function to each element index.
+
+            The function returns a numpy array if the library is available, otherwise a standard list is returned.
+
         """
         lst = [func(i) for i in range(len(self))]
         if numpy:
@@ -174,7 +178,9 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
 
     @property
     def z(self):
-        "Return a list or numpy array of the Z variable."
+        """
+        Returns the Z variable as a list or numpy array, or None if it is not available.
+        """
         if not self.hasz:
             return None
         else:

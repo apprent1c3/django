@@ -337,6 +337,9 @@ class FabricAdmin(admin.ModelAdmin):
 
 class BasePersonModelFormSet(BaseModelFormSet):
     def clean(self):
+        """
+        Validates the cleanliness of the data by checking for a specific condition, raising a ValidationError if 'Grace Hopper' is marked as alive (i.e., a 'zombie').
+        """
         for person_dict in self.cleaned_data:
             person = person_dict.get("id")
             alive = person_dict.get("alive")
@@ -456,6 +459,14 @@ class ParentAdmin(admin.ModelAdmin):
     list_editable = ("name",)
 
     def save_related(self, request, form, formsets, change):
+        """
+
+        Updates child objects' names by appending the parent's last name if their names are single-word.
+
+        This method extends the standard :meth:`save_related` behavior by synchronizing
+        the names of child objects with their parent, ensuring consistency in naming conventions.
+
+        """
         super().save_related(request, form, formsets, change)
         first_name, last_name = form.instance.name.split()
         for child in form.instance.child_set.all():
@@ -774,6 +785,14 @@ class PluggableSearchPersonAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
     def get_search_results(self, request, queryset, search_term):
+        """
+        Extends the default search functionality to also find model instances by exact age match.
+
+        :param request: The current request object
+        :param queryset: The initial queryset to filter
+        :param search_term: The term to search for
+        :returns: A tuple containing the updated queryset and a boolean indicating whether the results may contain duplicates
+        """
         queryset, may_have_duplicates = super().get_search_results(
             request,
             queryset,
@@ -1160,6 +1179,19 @@ class GetFormsetsArgumentCheckingAdmin(admin.ModelAdmin):
         return super().change_view(request, *args, **kwargs)
 
     def get_formsets_with_inlines(self, request, obj=None):
+        """
+
+        Returns formsets with inlines for the given request and object.
+
+        This method enforces obj to be None during add views and not None during change views.
+        It then delegates to the parent class to fetch the formsets.
+
+        :param request: The current request
+        :param obj: The object being edited, required for change views and forbidden for add views
+        :raises Exception: If obj is incorrectly provided for the current view type
+        :return: Formsets with inlines for the given request and object
+
+        """
         if request.is_add_view and obj is not None:
             raise Exception(
                 "'obj' passed to get_formsets_with_inlines wasn't None during add_view"

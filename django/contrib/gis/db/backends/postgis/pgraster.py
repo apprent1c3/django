@@ -36,7 +36,7 @@ def chunk(data, index):
 
 def from_pgraster(data):
     """
-    Convert a PostGIS HEX String into a dictionary.
+    Convert a PostGIS HEX String into a dictionary containing raster metadata, such as spatial reference system, dimensions, data type, and pixel data for each band.
     """
     if data is None:
         return
@@ -99,7 +99,7 @@ def from_pgraster(data):
 
 def to_pgraster(rast):
     """
-    Convert a GDALRaster into PostGIS Raster format.
+    Convert a GDALRaster into PostGIS Raster format, creating a binary representation that includes raster metadata and pixel data.
     """
     # Prepare the raster header data as a tuple. The first two numbers are
     # the endianness and the PostGIS Raster Version, both are fixed by

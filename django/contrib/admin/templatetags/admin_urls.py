@@ -20,6 +20,18 @@ def admin_urlquote(value):
 
 @register.simple_tag(takes_context=True)
 def add_preserved_filters(context, url, popup=False, to_field=None):
+    """
+    Add preserved filters to a URL, updating the query string with existing filters from the context.
+
+    Args:
+        context: The template context
+        url: The URL to update
+        popup (bool): Whether this is a popup link
+        to_field: The field to use as the \"to\" field in the URL
+
+    Returns:
+        str: The updated URL with preserved filters.
+    """
     opts = context.get("opts")
     preserved_filters = context.get("preserved_filters")
     preserved_qsl = context.get("preserved_qsl")

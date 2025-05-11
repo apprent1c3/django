@@ -7,6 +7,11 @@ from .tests import CsrfFunctionTestMixin
 
 class TestContextProcessor(CsrfFunctionTestMixin, SimpleTestCase):
     def test_force_token_to_string(self):
+        """
+
+        Verifies that the CSRF token is properly masked to prevent exposure of the underlying secret.
+
+        """
         request = HttpRequest()
         test_secret = 32 * "a"
         request.META["CSRF_COOKIE"] = test_secret

@@ -15,7 +15,10 @@ class ExtraRegressTests(TestCase):
 
     def test_regression_7314_7372(self):
         """
-        Regression tests for #7314 and #7372
+
+        Tests for regression issues #7314 and #7372, covering revisioning functionality 
+        and query behavior for revisionable models.
+
         """
         rm = RevisionableModel.objects.create(
             title="First Revision", when=datetime.datetime(2008, 9, 28, 10, 30, 0)
@@ -191,8 +194,11 @@ class ExtraRegressTests(TestCase):
 
     def test_values_with_extra(self):
         """
-        Regression test for #10256... If there is a values() clause, Extra
-        columns are only returned if they are explicitly mentioned.
+
+            Tests the behavior of QuerySet extra columns with values() clause.
+            Ensures that extra columns are only returned when explicitly mentioned.
+            Covers various scenarios, including values(), values_list(), and combinations with extra select.
+
         """
         obj = TestObject(first="first", second="second", third="third")
         obj.save()
@@ -385,10 +391,8 @@ class ExtraRegressTests(TestCase):
 
     def test_regression_10847(self):
         """
-        Regression for #10847: the list of extra columns can always be
-        accurately evaluated. Using an inner query ensures that as_sql() is
-        producing correct output without requiring full evaluation and
-        execution of the inner query.
+        Tests that the list of extra columns can be accurately evaluated in various query scenarios, 
+        ensuring the correctness of the output produced by as_sql() without requiring full query execution.
         """
         obj = TestObject(first="first", second="second", third="third")
         obj.save()
@@ -425,8 +429,7 @@ class ExtraRegressTests(TestCase):
 
     def test_regression_17877(self):
         """
-        Extra WHERE clauses get correctly ANDed, even when they
-        contain OR operations.
+        Tests that extra WHERE clauses are correctly ANDed when they contain OR operations, ensuring the correct filtering of database query results.
         """
         # Test Case 1: should appear in queryset.
         t1 = TestObject.objects.create(first="a", second="a", third="a")
@@ -453,6 +456,12 @@ class ExtraRegressTests(TestCase):
         )
 
     def test_extra_values_distinct_ordering(self):
+        """
+
+        Tests the ordering and distinct values functionality of an extra select query.
+        Verifies that results can be ordered in ascending and descending order by an extra field.
+
+        """
         t1 = TestObject.objects.create(first="a", second="a", third="a")
         t2 = TestObject.objects.create(first="a", second="b", third="b")
         qs = (

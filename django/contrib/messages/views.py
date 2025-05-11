@@ -9,6 +9,13 @@ class SuccessMessageMixin:
     success_message = ""
 
     def form_valid(self, form):
+        """
+
+        Handles form submission when it is valid.
+
+        Overrides the default behavior to display a success message after form validation.
+
+        """
         response = super().form_valid(form)
         success_message = self.get_success_message(form.cleaned_data)
         if success_message:

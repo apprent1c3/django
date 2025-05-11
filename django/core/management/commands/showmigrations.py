@@ -11,6 +11,13 @@ class Command(BaseCommand):
     help = "Shows all available migrations for the current project"
 
     def add_arguments(self, parser):
+        """
+        Add command-line arguments for filtering and formatting migration output.
+
+        This function populates the parser with options for limiting output to specific
+        applications, selecting a database, and choosing a format for displaying
+        migration information.
+        """
         parser.add_argument(
             "app_label",
             nargs="*",
@@ -55,6 +62,20 @@ class Command(BaseCommand):
         parser.set_defaults(format="list")
 
     def handle(self, *args, **options):
+        """
+        Handle a management command, processing options and forwarding to display a list or plan based on the provided format.\"\"\"
+
+         Args:
+             *args: Variable number of non-keyword arguments.
+             **options: Keyword arguments, including:
+                 - verbosity (int): Control the verbosity of output.
+                 - database (str): Name of the database to use.
+                 - format (str): Output format, either 'plan' or another value.
+                 - app_label (str): Application label for the command. 
+
+         Returns:
+             Result of the show_plan or show_list function based on the format.
+        """
         self.verbosity = options["verbosity"]
 
         # Get the database we're operating from
@@ -67,6 +88,9 @@ class Command(BaseCommand):
             return self.show_list(connection, options["app_label"])
 
     def _validate_app_names(self, loader, app_names):
+        """
+        Checks if the provided application names are valid by attempting to retrieve their configuration, and exits the program if any are invalid.
+        """
         has_bad_names = False
         for app_name in app_names:
             try:
@@ -79,8 +103,7 @@ class Command(BaseCommand):
 
     def show_list(self, connection, app_names=None):
         """
-        Show a list of all migrations on the system, or only those of
-        some named apps.
+        Show a list of all migrations on the system, or only those of specified applications, indicating their applied status.
         """
         # Load migrations from disk/DB
         loader = MigrationLoader(connection, ignore_no_migrations=True)
@@ -134,8 +157,11 @@ class Command(BaseCommand):
 
     def show_plan(self, connection, app_names=None):
         """
-        Show all known migrations (or only those of the specified app_names)
-        in the order they will be applied.
+        Show all known migrations in the order they will be applied.
+
+        :param connection: Database connection
+        :param app_names: Optional list of application names to filter migrations by
+        :return: None
         """
         # Load migrations from disk/DB
         loader = MigrationLoader(connection)
@@ -158,6 +184,9 @@ class Command(BaseCommand):
 
         # Output
         def print_deps(node):
+            """
+            Returns a string listing the dependencies of a given node, formatted as a comma-separated list of parent keys, or an empty string if no dependencies exist.
+            """
             out = []
             for parent in sorted(node.parents):
                 out.append("%s.%s" % parent.key)

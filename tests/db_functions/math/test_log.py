@@ -9,6 +9,9 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class LogTests(TestCase):
     def test_null(self):
+        """
+        Tests the handling of null values in Log annotations on IntegerModel instances.
+        """
         IntegerModel.objects.create(big=100)
         obj = IntegerModel.objects.annotate(
             null_log_small=Log("small", "normal"),
@@ -32,6 +35,11 @@ class LogTests(TestCase):
         self.assertAlmostEqual(obj.f_log, math.log(obj.f2, obj.f1))
 
     def test_integer(self):
+        """
+        Tests the functionality of the Log database function with integer values.
+
+        Verifies that the logarithm calculation is performed correctly and returns a float result.
+        """
         IntegerModel.objects.create(small=4, normal=8, big=2)
         obj = IntegerModel.objects.annotate(
             small_log=Log("small", "big"),

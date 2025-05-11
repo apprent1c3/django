@@ -6,6 +6,11 @@ from .models import Child, Parent, Poem, Poet, School
 
 class DeletionTests(TestCase):
     def test_deletion(self):
+        """
+
+        Tests that a poem can be deleted through the poem formset.
+
+        """
         PoemFormSet = inlineformset_factory(
             Poet, Poem, can_delete=True, fields="__all__"
         )
@@ -27,8 +32,7 @@ class DeletionTests(TestCase):
 
     def test_add_form_deletion_when_invalid(self):
         """
-        Make sure that an add form that is filled out, but marked for deletion
-        doesn't cause validation errors.
+        Tests that a formset containing an invalid form marked for deletion does not prevent the formset from validating, and that the invalid form is not saved when the formset is saved.
         """
         PoemFormSet = inlineformset_factory(
             Poet, Poem, can_delete=True, fields="__all__"
@@ -57,8 +61,7 @@ class DeletionTests(TestCase):
 
     def test_change_form_deletion_when_invalid(self):
         """
-        Make sure that a change form that is filled out, but marked for deletion
-        doesn't cause validation errors.
+        Test that a change form marked for deletion does not cause validation errors, even if it is filled out with invalid data.
         """
         PoemFormSet = inlineformset_factory(
             Poet, Poem, can_delete=True, fields="__all__"
@@ -88,8 +91,7 @@ class DeletionTests(TestCase):
 
     def test_save_new(self):
         """
-        Make sure inlineformsets respect commit=False
-        regression for #10750
+        Tests that inline formsets respect the commit=False argument, ensuring that objects are not saved to the database until manually committed, as a regression check for issue #10750.
         """
         # exclude some required field from the forms
         ChildFormSet = inlineformset_factory(
@@ -162,6 +164,9 @@ class InlineFormsetFactoryTest(TestCase):
     @skipUnlessDBFeature("allows_auto_pk_0")
     def test_zero_primary_key(self):
         # Regression test for #21472
+        """
+        Tests the behavior of a formset when a model instance with a primary key of zero is used, ensuring that the formset correctly generates a single form for the associated inline model instances.
+        """
         poet = Poet.objects.create(id=0, name="test")
         poet.poem_set.create(name="test poem")
         PoemFormSet = inlineformset_factory(Poet, Poem, fields="__all__", extra=0)
@@ -169,6 +174,9 @@ class InlineFormsetFactoryTest(TestCase):
         self.assertEqual(len(formset.forms), 1)
 
     def test_unsaved_fk_validate_unique(self):
+        """
+        Tests that the unique validation for a foreign key field is properly triggered when an unsaved instance is used, ensuring that duplicate data is not allowed.
+        """
         poet = Poet(name="unsaved")
         PoemFormSet = inlineformset_factory(Poet, Poem, fields=["name"])
         data = {
@@ -186,7 +194,7 @@ class InlineFormsetFactoryTest(TestCase):
 
     def test_fk_not_duplicated_in_form_fields(self):
         """
-        A foreign key name isn't duplicated in form._meta fields (#21332).
+        Tests that a foreign key is not duplicated in form fields when using an inline formset.
         """
         poet = Poet.objects.create(name="test")
         poet.poem_set.create(name="first test poem")
@@ -199,7 +207,9 @@ class InlineFormsetFactoryTest(TestCase):
 
     def test_fk_in_all_formset_forms(self):
         """
-        A foreign key field is in Meta for all forms in the formset (#26538).
+
+        Tests that a foreign key field is included in the Meta for all forms within a formset.
+
         """
 
         class PoemModelForm(ModelForm):

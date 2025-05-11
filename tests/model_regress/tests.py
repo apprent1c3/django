@@ -44,7 +44,7 @@ class ModelTests(TestCase):
 
     def test_sql_insert_compiler_return_id_attribute(self):
         """
-        Regression test for #14019: SQLInsertCompiler.as_sql() failure
+        Verifies that SQLInsertCompiler correctly handles the 'return_id' attribute to prevent failures during SQL insertion, addressing regression issue #14019.
         """
         db = router.db_for_write(Party)
         query = InsertQuery(Party)
@@ -89,6 +89,9 @@ class ModelTests(TestCase):
 
     def test_date_lookup(self):
         # Regression test for #659
+        """
+        Tests the date lookup functionality of the Party model, verifying that filtering by month, year, and day returns the expected results.
+        """
         Party.objects.create(when=datetime.datetime(1999, 12, 31))
         Party.objects.create(when=datetime.datetime(1998, 12, 31))
         Party.objects.create(when=datetime.datetime(1999, 1, 1))
@@ -161,6 +164,14 @@ class ModelTests(TestCase):
     def test_date_filter_null(self):
         # Date filtering was failing with NULL date values in SQLite
         # (regression test for #3501, among other things).
+        """
+
+        Test that filter by date works correctly even when null values are present.
+
+        Verifies that the `dates` queryset method returns the expected month when 
+        filtering by a date field that contains null values.
+
+        """
         Party.objects.create(when=datetime.datetime(1999, 1, 1))
         Party.objects.create()
         p = Party.objects.filter(when__month=1)[0]
@@ -174,6 +185,12 @@ class ModelTests(TestCase):
     def test_get_next_prev_by_field(self):
         # get_next_by_FIELD() and get_previous_by_FIELD() don't crash when
         # microseconds values are stored in the database.
+        """
+        Tests the functionality of getting the next and previous events by the 'when' field.
+
+        Verifies that the `get_next_by_when` and `get_previous_by_when` methods correctly
+        retrieve the adjacent events in chronological order based on the 'when' field.
+        """
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 16, 0, 0))
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 6, 1, 1))
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 13, 1, 1))
@@ -186,6 +203,9 @@ class ModelTests(TestCase):
         )
 
     def test_get_next_prev_by_field_unsaved(self):
+        """
+        Tests that unimplemented functionality raises a ValueError when attempting to get next or previous objects by field on unsaved instances.
+        """
         msg = "get_next/get_previous cannot be used on unsaved objects."
         with self.assertRaisesMessage(ValueError, msg):
             Event().get_next_by_when()
@@ -204,6 +224,13 @@ class ModelTests(TestCase):
         # Regression test for #10443.
         # The idea is that all these creations and saving should work without
         # crashing. It's not rocket science.
+        """
+
+        Tests the support for timezones in the database by creating and updating a model instance with datetime objects in different timezones.
+
+        Checks if the database correctly handles timezone conversions and updates.
+
+        """
         dt1 = datetime.datetime(2008, 8, 31, 16, 20, tzinfo=get_fixed_timezone(600))
         dt2 = datetime.datetime(2008, 8, 31, 17, 20, tzinfo=get_fixed_timezone(600))
         obj = Article.objects.create(
@@ -217,7 +244,7 @@ class ModelTests(TestCase):
 
     def test_chained_fks(self):
         """
-        Chained foreign keys with to_field produce incorrect query.
+        Tests chained foreign key relationships with a to_field, ensuring the generated query is correct when retrieving objects through multiple model relationships.
         """
 
         m1 = Model1.objects.create(pkey=1000)
@@ -231,8 +258,7 @@ class ModelTests(TestCase):
     @isolate_apps("model_regress")
     def test_metaclass_can_access_attribute_dict(self):
         """
-        Model metaclasses have access to the class attribute dict in
-        __init__() (#30254).
+        Checks that a model metaclass can access the class attribute dictionary during initialization, allowing it to dynamically set class attributes based on the presence of specific attributes.
         """
 
         class HorseBase(models.base.ModelBase):
@@ -271,6 +297,12 @@ class EvaluateMethodTest(TestCase):
 
 class ModelFieldsCacheTest(TestCase):
     def test_fields_cache_reset_on_copy(self):
+        """
+
+        Tests that the fields cache is properly reset when a Worker object is copied,
+        ensuring that changes to the copied object's attributes do not affect the original object.
+
+        """
         department1 = Department.objects.create(id=1, name="department1")
         department2 = Department.objects.create(id=2, name="department2")
         worker1 = Worker.objects.create(name="worker", department=department1)

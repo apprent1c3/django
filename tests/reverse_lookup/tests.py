@@ -7,6 +7,9 @@ from .models import Choice, Poll, User
 class ReverseLookupTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up initial test data for the application, creating two users and two polls with a choice linking them, to facilitate testing of poll-related functionality.
+        """
         john = User.objects.create(name="John Doe")
         jim = User.objects.create(name="Jim Bo")
         first_poll = Poll.objects.create(

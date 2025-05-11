@@ -103,6 +103,9 @@ bbox_data = (
 class Geo3DLoadingHelper:
     def _load_interstate_data(self):
         # Interstate (2D / 3D and Geographic/Projected variants)
+        """
+        Loads interstate data into the database, creating 3D and 2D geometric representations of each interstate line and storing them in their respective models.
+        """
         for name, line, exp_z in interstate_data:
             line_3d = GEOSGeometry(line, srid=4269)
             line_2d = LineString([coord[:2] for coord in line_3d.coords], srid=4269)
@@ -123,6 +126,12 @@ class Geo3DLoadingHelper:
             )
 
     def _load_polygon_data(self):
+        """
+        Loads and creates 2D and 3D polygon data from the bounding box information.
+
+        Creates two new Polygon objects: a 2D bounding box and a 3D bounding box, 
+        stored in the database as '2D BBox' and '3D BBox' respectively.
+        """
         bbox_wkt, bbox_z = bbox_data
         bbox_2d = GEOSGeometry(bbox_wkt, srid=32140)
         bbox_3d = Polygon(
@@ -145,8 +154,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 
     def test_3d_hasz(self):
         """
-        Make sure data is 3D and has expected Z values -- shouldn't change
-        because of coordinate system.
+        Verify that 3D geographic data remains consistent across different coordinate systems, specifically checking that Z values are preserved for interstates and cities.
         """
         self._load_interstate_data()
         for name, line, exp_z in interstate_data:
@@ -167,7 +175,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 
     def test_3d_polygons(self):
         """
-        Test the creation of polygon 3D models.
+        Tests the creation of 3D polygon models by verifying their properties, such as the presence of a z-coordinate and SRID.
         """
         self._load_polygon_data()
         p3d = Polygon3D.objects.get(name="3D BBox")
@@ -177,7 +185,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 
     def test_3d_layermapping(self):
         """
-        Testing LayerMapping on 3D models.
+        Tests the functionality of LayerMapping on 3D models, including Point3D and MultiPoint3D, to ensure correct import of geographic data from a VRT file.
         """
         # Import here as GDAL is required for those imports
         from django.contrib.gis.utils import LayerMapError, LayerMapping
@@ -209,7 +217,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
     @skipUnlessDBFeature("supports_3d_functions")
     def test_union(self):
         """
-        Testing the Union aggregate of 3D models.
+        Tests the union aggregate operation for 3D models, verifying that it correctly combines multiple 3D points into a single geometry.
         """
         # PostGIS query that returned the reference EWKT for this test:
         #  `SELECT ST_AsText(ST_Union(point)) FROM geo3d_city3d;`
@@ -228,7 +236,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
     @skipUnlessDBFeature("supports_3d_functions")
     def test_extent(self):
         """
-        Testing the Extent3D aggregate for 3D models.
+        Tests the Extent3D aggregate function by comparing its output to a predefined reference extent for a 3D city model, verifying its correctness and handling of empty querysets.
         """
         self._load_city_data()
         # `SELECT ST_Extent3D(point) FROM geo3d_city3d;`
@@ -246,6 +254,11 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 
     @skipUnlessDBFeature("supports_3d_functions")
     def test_extent3d_filter(self):
+        """
+
+        Tests the 3D extent filter functionality by aggregating City3D objects and comparing the result with a reference extent.
+
+        """
         self._load_city_data()
         extent3d = City3D.objects.aggregate(
             ll_cities=Extent3D("point", filter=Q(name__contains="ll"))
@@ -259,7 +272,7 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
     def test_kml(self):
         """
-        Test KML() function with Z values.
+        Tests the KML function by generating a KML representation for a geographic point with a Z value and verifying it matches the expected format.
         """
         self._load_city_data()
         h = City3D.objects.annotate(kml=AsKML("point", precision=6)).get(name="Houston")
@@ -272,7 +285,7 @@ class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
 
     def test_geojson(self):
         """
-        Test GeoJSON() function with Z values.
+        Tests the generation of GeoJSON data with Z values by loading city data and verifying the GeoJSON representation of a specific city's location matches the expected format.
         """
         self._load_city_data()
         h = City3D.objects.annotate(geojson=AsGeoJSON("point", precision=6)).get(
@@ -287,7 +300,7 @@ class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
 
     def test_perimeter(self):
         """
-        Testing Perimeter() function on 3D fields.
+        Tests the calculation of perimeters for 2D and 3D polygon objects to ensure accuracy within a specified tolerance.
         """
         self._load_polygon_data()
         # Reference query for values below:
@@ -306,7 +319,7 @@ class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
 
     def test_length(self):
         """
-        Testing Length() function on 3D fields.
+        Tests the Length() function's accuracy in calculating the length of 3D and 2D fields, specifically interstate highway geometries, by comparing calculated lengths with known reference values.
         """
         # ST_Length_Spheroid Z-aware, and thus does not need to use
         # a separate function internally.
@@ -338,7 +351,7 @@ class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
 
     def test_scale(self):
         """
-        Testing Scale() function on Z values.
+        Checks the correctness of the Scale function for scaling 3D city models, specifically the Z-axis, by comparing expected and actual scale values for a set of pre-defined Z scales across multiple cities.
         """
         self._load_city_data()
         # Mapping of City name to reference Z values.
@@ -349,7 +362,7 @@ class Geo3DFunctionsTests(FuncTestMixin, Geo3DLoadingHelper, TestCase):
 
     def test_translate(self):
         """
-        Testing Translate() function on Z values.
+        Tests the translation of 3D city objects along the Z-axis.
         """
         self._load_city_data()
         ztranslations = (5.23, 23, -17)

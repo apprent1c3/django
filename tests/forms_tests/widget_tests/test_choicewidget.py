@@ -32,7 +32,8 @@ class ChoiceWidgetTest(WidgetTest):
 
     def test_deepcopy(self):
         """
-        __deepcopy__() should copy all attributes properly.
+        Tests that the __deepcopy__() method correctly copies all attributes of a widget, 
+        including nested structures like choices and attributes, without copying the original instance.
         """
         widget = self.widget()
         obj = copy.deepcopy(widget)
@@ -43,6 +44,12 @@ class ChoiceWidgetTest(WidgetTest):
         self.assertIsNot(widget.attrs, obj.attrs)
 
     def test_options(self):
+        """
+        Tests the generation of widget options for a list of Beatles members.
+
+        Verifies that the options are correctly formatted and contain the expected attributes,
+        such as name, value, label, index, and selection status.
+        """
         options = list(
             self.widget(choices=self.beatles).options(
                 "name",

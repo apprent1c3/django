@@ -23,6 +23,9 @@ def get_img_path(path):
 @unittest.skipUnless(Image, "Pillow is required to test ImageField")
 class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_imagefield_annotate_with_image_after_clean(self):
+        """
+        Tests that an ImageField correctly annotates an image file after cleaning, ensuring the image format and content type are properly determined.
+        """
         f = ImageField()
 
         img_path = get_img_path("filepath_test_files/1x1.png")
@@ -39,8 +42,7 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     def test_imagefield_annotate_with_bitmap_image_after_clean(self):
         """
-        This also tests the situation when Pillow doesn't detect the MIME type
-        of the image (#24948).
+        Tests that an ImageField properly handles bitmap images after cleaning, even when the MIME type is not detected by Pillow.
         """
         from PIL.BmpImagePlugin import BmpImageFile
 
@@ -62,6 +64,9 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             Image.register_mime(BmpImageFile.format, "image/bmp")
 
     def test_file_extension_validation(self):
+        """
+        Tests the validation of file extensions for an ImageField, ensuring that only permitted extensions are accepted and that an error is raised for non-image file types.
+        """
         f = ImageField()
         img_path = get_img_path("filepath_test_files/1x1.png")
         with open(img_path, "rb") as img_file:
@@ -73,6 +78,9 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean(img_file)
 
     def test_corrupted_image(self):
+        """
+        Tests that the ImageField validates and raises an error when a corrupted or non-image file is uploaded.
+        """
         f = ImageField()
         img_file = SimpleUploadedFile("not_an_image.jpg", b"not an image")
         msg = (
@@ -88,6 +96,10 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 f.clean(tmp_file)
 
     def test_widget_attrs_default_accept(self):
+        """
+        Checks that the widget attributes for an ImageField are correctly set, 
+        specifically that the 'accept' attribute is set to 'image/*' for FileInput and ClearableFileInput widgets.
+        """
         f = ImageField()
         # Nothing added for non-FileInput widgets.
         self.assertEqual(f.widget_attrs(Widget()), {})

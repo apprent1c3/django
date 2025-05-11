@@ -37,7 +37,9 @@ class PermWrapper:
 
     def __contains__(self, perm_name):
         """
-        Lookup by "someapp" or "someapp.someperm" in perms.
+        Checks if a permission is present in the permissions dictionary.
+
+        The permission can be looked up by its name alone (e.g. \"someperm\") or by its fully qualified name (e.g. \"someapp.someperm\").
         """
         if "." not in perm_name:
             # The name refers to module.
@@ -48,11 +50,7 @@ class PermWrapper:
 
 def auth(request):
     """
-    Return context variables required by apps that use Django's authentication
-    system.
-
-    If there is no 'user' attribute in the request, use AnonymousUser (from
-    django.contrib.auth).
+    Return context variables required by apps that use Django's authentication system, including the current user and their permissions. If the request does not contain a user attribute, an AnonymousUser is used instead.
     """
     if hasattr(request, "user"):
         user = request.user

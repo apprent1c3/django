@@ -9,6 +9,9 @@ from django.test.utils import extend_sys_path
 
 class TestStartProjectSettings(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up a temporary directory with a test settings file for testing purposes, ensuring the directory is cleaned up after use.
+        """
         self.temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp_dir.cleanup)
         template_settings_py = os.path.join(
@@ -22,9 +25,7 @@ class TestStartProjectSettings(SimpleTestCase):
 
     def test_middleware_headers(self):
         """
-        Ensure headers sent by the default MIDDLEWARE don't inadvertently
-        change. For example, we never want "Vary: Cookie" to appear in the list
-        since it prevents the caching of responses.
+        Ensure default middleware headers do not inadvertently change, potentially breaking response caching, by verifying their expected values.
         """
         with extend_sys_path(self.temp_dir.name):
             from test_settings import MIDDLEWARE

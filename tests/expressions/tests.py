@@ -207,6 +207,9 @@ class BasicExpressionsTests(TestCase):
         )
 
     def _test_slicing_of_f_expressions(self, model):
+        """
+        Tests the slicing functionality of F-expressions when used to assign values to a model's field, ensuring that the resulting value after saving the model is as expected.
+        """
         tests = [
             (F("name")[:], "Example Inc."),
             (F("name")[:7], "Example"),
@@ -241,6 +244,10 @@ class BasicExpressionsTests(TestCase):
         self._test_slicing_of_f_expressions(Text)
 
     def test_slicing_of_f_expressions_with_annotate(self):
+        """
+        Tests the slicing functionality of F-expressions used in the annotate method of a Django QuerySet. 
+        Verifies that various slice operations, such as extracting a subset of characters from a string field, produce the expected results.
+        """
         qs = Company.objects.annotate(
             first_three=F("name")[:3],
             after_three=F("name")[3:],
@@ -273,6 +280,9 @@ class BasicExpressionsTests(TestCase):
         )
 
     def test_slicing_of_f_expressions_with_negative_index(self):
+        """
+        Tests that attempting to slice F expressions with a negative index raises a ValueError, as negative indexing is not supported.
+        """
         msg = "Negative indexing is not supported."
         indexes = [slice(0, -4), slice(-4, 0), slice(-4), -5]
         for i in indexes:
@@ -365,6 +375,9 @@ class BasicExpressionsTests(TestCase):
 
     def test_filter_with_join(self):
         # F Expressions can also span joins
+        """
+        Tests filtering and updating Company objects using a join with F expressions, verifying that joined field references are not permitted in F expressions used for updating.
+        """
         Company.objects.update(point_of_contact=F("ceo"))
         c = Company.objects.first()
         c.point_of_contact = Employee.objects.create(
@@ -437,6 +450,13 @@ class BasicExpressionsTests(TestCase):
     def test_object_update_fk(self):
         # F expressions cannot be used to update attributes which are foreign
         # keys, or attributes which involve joins.
+        """
+        Tests that foreign key updates are handled correctly.
+
+        Verifies that a foreign key field can only be assigned an instance of the
+        related model and that joined field references are not allowed in certain
+        queries.
+        """
         test_gmbh = Company.objects.get(pk=self.gmbh.pk)
         msg = 'F(ceo)": "Company.point_of_contact" must be a "Employee" instance.'
         with self.assertRaisesMessage(ValueError, msg):
@@ -457,6 +477,9 @@ class BasicExpressionsTests(TestCase):
     def test_object_update_unsaved_objects(self):
         # F expressions cannot be used to update attributes on objects which do
         # not yet exist in the database
+        """
+        Tests that F() expressions, typically used for updating existing objects, cannot be used when inserting new objects into the database.
+        """
         acme = Company(
             name="The Acme Widget Co.", num_employees=12, num_chairs=5, ceo=self.max
         )
@@ -488,6 +511,9 @@ class BasicExpressionsTests(TestCase):
         self.assertSequenceEqual(queryset, [test])
 
     def test_ticket_16731_startswith_lookup(self):
+        """
+        Tests the case-insensitive and exact string matching behavior of the startswith lookup with F-expressions, ensuring that Employees whose last name starts with their first name are correctly retrieved from the database.
+        """
         Employee.objects.create(firstname="John", lastname="Doe")
         e2 = Employee.objects.create(firstname="Jack", lastname="Jackson")
         e3 = Employee.objects.create(firstname="Jack", lastname="jackson")
@@ -581,6 +607,12 @@ class BasicExpressionsTests(TestCase):
                 )
 
     def test_outerref(self):
+        """
+        Tests the usage of OuterRef in a subquery to reference an outer query.
+
+        Verifies that using a queryset with an OuterRef outside of a subquery raises a ValueError,
+        and that using it correctly within a subquery (e.g., with Exists) succeeds and returns the expected results.
+        """
         inner = Company.objects.filter(point_of_contact=OuterRef("pk"))
         msg = (
             "This queryset contains a reference to an outer query and may only "
@@ -597,6 +629,12 @@ class BasicExpressionsTests(TestCase):
         self.assertIsInstance(Exists(queryset).output_field, BooleanField)
 
     def test_subquery(self):
+        """
+
+        Tests the use of subqueries in Django ORM queries to annotate Employee objects with various flags
+        and retrieve the largest company they are associated with, either as point of contact or CEO.
+
+        """
         Company.objects.filter(name="Example Inc.").update(
             point_of_contact=Employee.objects.get(firstname="Joe", lastname="Smith"),
             ceo=self.max,
@@ -709,6 +747,9 @@ class BasicExpressionsTests(TestCase):
         )
 
     def test_subquery_sql(self):
+        """
+        Verify that a subquery is correctly generated as a SQL subquery statement.
+        """
         employees = Employee.objects.all()
         employees_subquery = Subquery(employees)
         self.assertIs(employees_subquery.query.subquery, True)
@@ -720,6 +761,9 @@ class BasicExpressionsTests(TestCase):
     def test_in_subquery(self):
         # This is a contrived test (and you really wouldn't write this query),
         # but it is a succinct way to test the __in=Subquery() construct.
+        """
+        Verifies the correct usage of subqueries in filtering database queries, specifically testing that companies with certain criteria are correctly included or excluded.
+        """
         small_companies = Company.objects.filter(num_employees__lt=200).values("pk")
         subquery_test = Company.objects.filter(pk__in=Subquery(small_companies))
         self.assertCountEqual(subquery_test, [self.foobar_ltd, self.gmbh])
@@ -761,6 +805,10 @@ class BasicExpressionsTests(TestCase):
         )
 
     def test_nested_subquery_outer_ref_2(self):
+        """
+        Tests the correctness of a nested subquery that references an outer relation, 
+        ensuring that all relevant time objects are returned when joined with simulation runs.
+        """
         first = Time.objects.create(time="09:00")
         second = Time.objects.create(time="17:00")
         third = Time.objects.create(time="21:00")
@@ -782,6 +830,14 @@ class BasicExpressionsTests(TestCase):
         self.assertCountEqual(outer, [first, second, third])
 
     def test_nested_subquery_outer_ref_with_autofield(self):
+        """
+        Tests the functionality of a nested subquery that references an outer field with an auto field.
+
+        Verifies that the query correctly retrieves related Time objects through a SimulationRun instance, 
+        using a subquery that annotates the Time objects with the corresponding SimulationRun start time.
+
+        Checks that the result set matches the expected Time objects, specifically the ones used to create the SimulationRun instance.
+        """
         first = Time.objects.create(time="09:00")
         second = Time.objects.create(time="17:00")
         SimulationRun.objects.create(start=first, end=second, midpoint="12:00")
@@ -841,6 +897,9 @@ class BasicExpressionsTests(TestCase):
         self.assertEqual(qs.get().float, 1.2)
 
     def test_subquery_filter_by_lazy(self):
+        """
+        Tests filtering a queryset using a subquery and a lazily loaded related object. Verifies that the correct results are returned when using a Subquery filter with a lazy object reference.
+        """
         self.max.manager = Manager.objects.create(name="Manager")
         self.max.save()
         max_manager = SimpleLazyObject(
@@ -856,6 +915,9 @@ class BasicExpressionsTests(TestCase):
         self.assertEqual(qs.get(), self.gmbh)
 
     def test_aggregate_subquery_annotation(self):
+        """
+        Tests the use of a subquery annotation with an aggregate query, verifying that it executes in a single database query and generates efficient SQL without a GROUP BY clause.
+        """
         with self.assertNumQueries(1) as ctx:
             aggregate = Company.objects.annotate(
                 ceo_salary=Subquery(
@@ -895,6 +957,13 @@ class BasicExpressionsTests(TestCase):
 
     @skipUnlessDBFeature("supports_over_clause")
     def test_aggregate_rawsql_annotation(self):
+        """
+
+        Tests that raw SQL annotations with OVER clause are executed correctly without introducing unnecessary GROUP BY statements.
+
+        Verifies the generated SQL query does not contain a GROUP BY clause when aggregating data.
+
+        """
         with self.assertNumQueries(1) as ctx:
             aggregate = Company.objects.annotate(
                 salary=RawSQL("SUM(num_chairs) OVER (ORDER BY num_employees)", []),
@@ -906,6 +975,9 @@ class BasicExpressionsTests(TestCase):
         self.assertNotIn("GROUP BY", sql)
 
     def test_explicit_output_field(self):
+        """
+        Tests if the output field of a function expression is inherited from its innermost function when not explicitly defined.
+        """
         class FuncA(Func):
             output_field = CharField()
 
@@ -926,6 +998,9 @@ class BasicExpressionsTests(TestCase):
         self.assertEqual(outer.get().name, "Test GmbH")
 
     def test_nested_outerref_with_function(self):
+        """
+        Tests the usage of nested OuterRef in a Django ORM query with a subquery, verifying that the correct company name is retrieved based on the point of contact's last name.
+        """
         self.gmbh.point_of_contact = Employee.objects.get(lastname="Meyer")
         self.gmbh.save()
         inner = Employee.objects.filter(
@@ -955,6 +1030,9 @@ class BasicExpressionsTests(TestCase):
         self.assertEqual(gmbh_salary.max_ceo_salary_raise, 2332)
 
     def test_annotation_with_nested_outerref(self):
+        """
+        Tests annotation with a nested OuterRef to verify company name retrieval based on employee details.
+        """
         self.gmbh.point_of_contact = Employee.objects.get(lastname="Meyer")
         self.gmbh.save()
         inner = Employee.objects.annotate(
@@ -971,6 +1049,10 @@ class BasicExpressionsTests(TestCase):
         self.assertEqual(qs.get().ceo_company, "Test GmbH")
 
     def test_annotation_with_deeply_nested_outerref(self):
+        """
+        Tests the correct usage of annotations with deeply nested OuterRef objects 
+        in database queries to filter employees based on their manager's secretary's location.
+        """
         bob = Employee.objects.create(firstname="Bob", based_in_eu=True)
         self.max.manager = Manager.objects.create(name="Rock", secretary=bob)
         self.max.save()
@@ -1018,6 +1100,13 @@ class BasicExpressionsTests(TestCase):
             list(Company.objects.filter(ceo__pk=F("point_of_contact__nope")))
 
     def test_exists_in_filter(self):
+        """
+        Tests the Exists lookup in Django's ORM.
+
+        Verifies that the Exists lookup is correctly applied to a QuerySet, returning
+        employees whose company CEO matches the outer query, and that the same result
+        can be achieved using both filter and annotate methods.
+        """
         inner = Company.objects.filter(ceo=OuterRef("pk")).values("pk")
         qs1 = Employee.objects.filter(Exists(inner))
         qs2 = Employee.objects.annotate(found=Exists(inner)).filter(found=True)
@@ -1059,6 +1148,9 @@ class BasicExpressionsTests(TestCase):
         self.assertCountEqual(qs, [self.example_inc.ceo, self.foobar_ltd.ceo, self.max])
 
     def test_boolean_expression_combined(self):
+        """
+        Verifies the boolean expressions that filter Employee objects based on their roles as CEOs or points of contact in companies, and their salary ranges. Tests various logical combinations of these conditions, ensuring correct filtering of employees.
+        """
         is_ceo = Company.objects.filter(ceo=OuterRef("pk"))
         is_poc = Company.objects.filter(point_of_contact=OuterRef("pk"))
         self.gmbh.point_of_contact = self.max
@@ -1089,6 +1181,14 @@ class BasicExpressionsTests(TestCase):
         )
 
     def test_boolean_expression_combined_with_empty_Q(self):
+        """
+        Tests the application of boolean expressions combined with Exists subqueries containing an empty Q object, 
+        verifying correct query results when interacting with Company and Employee models.\"\"\"
+
+        Note: The context of this function is testing Django model query behavior, and it may be beneficial to include the 
+        parameter types and instance references for enhanced clarity in more complex functions, however, in this instance 
+        the purpose of the function is straightforward and requires minimal additional explanation.
+        """
         is_poc = Company.objects.filter(point_of_contact=OuterRef("pk"))
         self.gmbh.point_of_contact = self.max
         self.gmbh.save()
@@ -1116,6 +1216,9 @@ class BasicExpressionsTests(TestCase):
 class IterableLookupInnerExpressionsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a set of companies with varying employee and chair counts, all sharing the same CEO.
+        """
         ceo = Employee.objects.create(firstname="Just", lastname="Doit", salary=30)
         # MySQL requires that the values calculated for expressions don't pass
         # outside of the field's range, so it's inconvenient to use the values
@@ -1156,6 +1259,9 @@ class IterableLookupInnerExpressionsTests(TestCase):
         )
 
     def test_expressions_range_lookups_join_choice(self):
+        """
+        Tests the correct application of range lookups with join choice in SimulationRun querysets, ensuring that the midpoint of a simulation run falls within the range of the start and end times, and that the correct join type (inner or left outer) is used in the query.
+        """
         midpoint = datetime.time(13, 0)
         t1 = Time.objects.create(time=datetime.time(12, 0))
         t2 = Time.objects.create(time=datetime.time(14, 0))
@@ -1182,6 +1288,9 @@ class IterableLookupInnerExpressionsTests(TestCase):
 
     def test_range_lookup_allows_F_expressions_and_expressions_for_integers(self):
         # Range lookups can use F() expressions for integers.
+        """
+        Tests that the range lookup in the ORM allows F-expressions and expressions for integer fields, verifying that companies are correctly filtered based on their number of employees and chairs.
+        """
         Company.objects.filter(num_employees__exact=F("num_chairs"))
         self.assertCountEqual(
             Company.objects.filter(num_employees__range=(F("num_chairs"), 100)),
@@ -1230,6 +1339,9 @@ class IterableLookupInnerExpressionsTests(TestCase):
         self.assertQuerySetEqual(queryset, [], ordered=False)
 
     def test_range_lookup_allows_F_expressions_and_expressions_for_dates(self):
+        """
+        Tests if range lookup in the Result model allows F-expressions and date-based lookups for filtering results by date.
+        """
         start = datetime.datetime(2016, 2, 3, 15, 0, 0)
         end = datetime.datetime(2016, 2, 5, 15, 0, 0)
         experiment_1 = Experiment.objects.create(
@@ -1282,6 +1394,9 @@ class FTests(SimpleTestCase):
         self.assertEqual(f.name, g.name)
 
     def test_deconstruct(self):
+        """
+        Tests the deconstruction of a database function, ensuring it returns the correct path, arguments and keyword arguments.
+        """
         f = F("name")
         path, args, kwargs = f.deconstruct()
         self.assertEqual(path, "django.db.models.F")
@@ -1289,6 +1404,11 @@ class FTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_equal(self):
+        """
+        :type self: object
+        :rtype: None
+        Checks that the equality of :class:`F` instances is based on their string value.
+        """
         f = F("name")
         same_f = F("name")
         other_f = F("username")
@@ -1314,6 +1434,9 @@ class FTests(SimpleTestCase):
 
 class ExpressionsTests(TestCase):
     def test_F_reuse(self):
+        """
+        Tests the reusability of the F expression by applying it to different model instances and verifying correct filtering results.
+        """
         f = F("id")
         n = Number.objects.create(integer=-1)
         c = Company.objects.create(
@@ -1331,10 +1454,8 @@ class ExpressionsTests(TestCase):
         self.assertEqual(c_qs.get(), c)
 
     def test_patterns_escape(self):
-        r"""
-        Special characters (e.g. %, _ and \) stored in database are
-        properly escaped when using a pattern lookup with an expression
-        refs #16731
+        """
+        Tests if special characters in database are correctly escaped during pattern lookups with expressions, ensuring proper query results
         """
         Employee.objects.bulk_create(
             [
@@ -1363,10 +1484,8 @@ class ExpressionsTests(TestCase):
         )
 
     def test_insensitive_patterns_escape(self):
-        r"""
-        Special characters (e.g. %, _ and \) stored in database are
-        properly escaped when using a case insensitive pattern lookup with an
-        expression -- refs #16731
+        """
+        Verifies that special characters in database values are properly escaped when using case-insensitive pattern lookups, ensuring accurate results.
         """
         Employee.objects.bulk_create(
             [
@@ -1398,6 +1517,9 @@ class ExpressionsTests(TestCase):
 @isolate_apps("expressions")
 class SimpleExpressionTests(SimpleTestCase):
     def test_equal(self):
+        """
+        Checks the equality of Expressions based on their underlying fields, ensuring that identical fields are considered equal while different fields are not, regardless of their field types.
+        """
         self.assertEqual(Expression(), Expression())
         self.assertEqual(
             Expression(IntegerField()), Expression(output_field=IntegerField())
@@ -1415,6 +1537,9 @@ class SimpleExpressionTests(SimpleTestCase):
         )
 
     def test_hash(self):
+        """
+        Checks that the hash value of an Expression instance is calculated correctly, ensuring that identical expressions have the same hash value, while expressions with different output fields or referencing different model fields have distinct hash values.
+        """
         self.assertEqual(hash(Expression()), hash(Expression()))
         self.assertEqual(
             hash(Expression(IntegerField())),
@@ -1435,6 +1560,9 @@ class SimpleExpressionTests(SimpleTestCase):
         )
 
     def test_get_expression_for_validation_only_one_source_expression(self):
+        """
+        Tests that an Expression raises a ValueError when attempting to retrieve an expression for validation if it has multiple source expressions and is not compatible with constraint validation.
+        """
         expression = Expression()
         expression.constraint_validation_compatible = False
         msg = (
@@ -1503,7 +1631,7 @@ class ExpressionsNumericTests(TestCase):
 
     def test_complex_expressions(self):
         """
-        Complex expressions of different connection types are possible.
+        Tests the ability to create and update complex expressions involving different field types, such as integers and floats, using database functions.
         """
         n = Number.objects.create(integer=10, float=123.45)
         self.assertEqual(
@@ -1517,6 +1645,9 @@ class ExpressionsNumericTests(TestCase):
         )
 
     def test_decimal_expression(self):
+        """
+        Tests the correctness of decimal arithmetic expressions by updating a Number object's decimal value and verifying the result.
+        """
         n = Number.objects.create(integer=1, decimal_value=Decimal("0.5"))
         n.decimal_value = F("decimal_value") - Decimal("0.4")
         n.save()
@@ -1716,6 +1847,9 @@ class ExpressionOperatorTests(TestCase):
 class FTimeDeltaTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for experiments with varying durations, start and end times, and assigned dates, creating multiple experiment instances and storing their relevant attributes in class attributes for later use.
+        """
         cls.sday = sday = datetime.date(2010, 6, 25)
         cls.stime = stime = datetime.datetime(2010, 6, 25, 12, 15, 30, 747000)
         midnight = datetime.time(0)
@@ -1844,6 +1978,11 @@ class FTimeDeltaTests(TestCase):
         # Intentionally no assert
 
     def test_delta_add(self):
+        """
+        Tests the delta addition functionality in date-based filtering of experiments.
+
+        Verifies that adding a delta to the start date of experiments correctly filters out experiments based on their end dates, and that the filtering behaves as expected with both less-than and less-than-or-equal-to comparisons.
+        """
         for i, delta in enumerate(self.deltas):
             test_set = [
                 e.name for e in Experiment.objects.filter(end__lt=F("start") + delta)
@@ -1861,6 +2000,12 @@ class FTimeDeltaTests(TestCase):
             self.assertEqual(test_set, self.expnames[: i + 1])
 
     def test_delta_subtract(self):
+        """
+        Test delta subtraction functionality for experiment start times.
+
+        Verifies that experiments are correctly filtered based on the subtracted delta value,
+        both for greater than (exclusive) and greater than or equal to (inclusive) comparisons.
+        """
         for i, delta in enumerate(self.deltas):
             test_set = [
                 e.name for e in Experiment.objects.filter(start__gt=F("end") - delta)
@@ -1873,6 +2018,15 @@ class FTimeDeltaTests(TestCase):
             self.assertEqual(test_set, self.expnames[: i + 1])
 
     def test_exclude(self):
+        """
+
+        Tests exclusion of experiments based on their start and end times.
+
+        Verifies that the exclude method correctly filters experiments 
+        where the end time is either less than or less than or equal to 
+        the start time plus a given time delta.
+
+        """
         for i, delta in enumerate(self.deltas):
             test_set = [
                 e.name for e in Experiment.objects.exclude(end__lt=F("start") + delta)
@@ -1885,6 +2039,9 @@ class FTimeDeltaTests(TestCase):
             self.assertEqual(test_set, self.expnames[i + 1 :])
 
     def test_date_comparison(self):
+        """
+        Tests the comparison of dates in Experiment objects, specifically the filtering of experiments based on their completion dates relative to their assigned dates.
+        """
         for i, days in enumerate(self.days_long):
             test_set = [
                 e.name
@@ -1932,6 +2089,12 @@ class FTimeDeltaTests(TestCase):
         )
 
     def test_mixed_comparisons1(self):
+        """
+        Tests mixed comparisons for Experiment objects with varying delay values.
+
+        Verifies that the assigned and start times of Experiment objects are correctly filtered
+        using greater-than and greater-than-or-equal-to comparisons with a given delay.
+        """
         for i, delay in enumerate(self.delays):
             test_set = [
                 e.name
@@ -1946,6 +2109,12 @@ class FTimeDeltaTests(TestCase):
             self.assertEqual(test_set, self.expnames[: i + 1])
 
     def test_mixed_comparisons2(self):
+        """
+        Tests mixed comparisons with delayed experiment start times.
+
+        Verifies that experiments are correctly filtered based on start time relative to their assigned time, 
+        with varying delays, and including boundary cases (less than, less than or equal to).
+        """
         for i, delay in enumerate(self.delays):
             delay = datetime.timedelta(delay.days)
             test_set = [
@@ -1963,6 +2132,12 @@ class FTimeDeltaTests(TestCase):
             self.assertEqual(test_set, self.expnames[: i + 1])
 
     def test_delta_update(self):
+        """
+        Test that updating the start and end times of all experiments by a given delta does not modify their durations.
+
+        Checks that after updating the start and end times of all experiments by each delta value,
+        the new start times, end times, and durations match the expected values calculated before the update.
+        """
         for delta in self.deltas:
             exps = Experiment.objects.all()
             expected_durations = [e.duration() for e in exps]
@@ -1983,6 +2158,14 @@ class FTimeDeltaTests(TestCase):
             list(Experiment.objects.filter(start=F("start") * datetime.timedelta(0)))
 
     def test_durationfield_add(self):
+        """
+
+        Tests the functionality of the DurationField in the Experiment model.
+
+        Verifies that adding a DurationField to the start time of an experiment produces the expected results,
+        including handling cases where the addition results in a null value.
+
+        """
         zeros = [
             e.name
             for e in Experiment.objects.filter(start=F("start") + F("estimated_time"))
@@ -2012,6 +2195,11 @@ class FTimeDeltaTests(TestCase):
         self.assertIsNone(queryset.first().shifted)
 
     def test_durationfield_multiply_divide(self):
+        """
+        Tests the multiplication and division of DurationField values with various scalars.
+
+        Ensures that multiplying and dividing DurationField values by a given scalar produces the expected results, using both numeric and field values as scalars.
+        """
         Experiment.objects.update(scalar=2)
         tests = [
             (Decimal("2"), 2),
@@ -2049,6 +2237,14 @@ class FTimeDeltaTests(TestCase):
 
     @skipUnlessDBFeature("supports_temporal_subtraction")
     def test_date_subtraction(self):
+        """
+        Tests the subtraction of temporal fields in database queries.
+
+        Verifies that date and time fields can be subtracted from each other to produce durations,
+        and that the resulting durations can be filtered and compared.
+        Additionally, tests the behavior of subtracting None from a date field and checks for correct handling of different output fields.
+
+        """
         queryset = Experiment.objects.annotate(
             completion_duration=F("completed") - F("assigned"),
         )
@@ -2113,6 +2309,12 @@ class FTimeDeltaTests(TestCase):
 
     @skipUnlessDBFeature("supports_temporal_subtraction")
     def test_time_subtraction(self):
+        """
+        Tests the subtraction of time objects in a query.
+
+        Verifies that the database supports temporal subtraction, subtracts times and checks the result.
+        Also tests the behavior when subtracting from None, ensuring that the result is also None.
+        """
         Time.objects.create(time=datetime.time(12, 30, 15, 2345))
         queryset = Time.objects.annotate(
             difference=F("time") - Value(datetime.time(11, 15, 0)),
@@ -2146,6 +2348,9 @@ class FTimeDeltaTests(TestCase):
 
     @skipUnlessDBFeature("supports_temporal_subtraction")
     def test_datetime_subtraction(self):
+        """
+        Tests the functionality of temporal subtraction operations on datetime fields in the Experiment model, including under and over estimated times, and annotation with null values.
+        """
         under_estimate = [
             e.name
             for e in Experiment.objects.filter(estimated_time__gt=F("end") - F("start"))
@@ -2181,6 +2386,9 @@ class FTimeDeltaTests(TestCase):
 
     @skipUnlessDBFeature("supports_temporal_subtraction")
     def test_datetime_subtraction_microseconds(self):
+        """
+        Tests the subtraction of datetime fields with microseconds precision by updating an Experiment object's end datetime and verifying the calculated time delta.
+        """
         delta = datetime.timedelta(microseconds=8999999999999999)
         Experiment.objects.update(end=F("start") + delta)
         qs = Experiment.objects.annotate(delta=F("end") - F("start"))
@@ -2219,6 +2427,10 @@ class FTimeDeltaTests(TestCase):
 
     def test_negative_timedelta_update(self):
         # subtract 30 seconds, 30 minutes, 2 hours and 2 days
+        """
+        Tests updating the start time of an experiment with a negative timedelta, 
+        ensuring correct calculation and assignment of the new start time.
+        """
         experiments = (
             Experiment.objects.filter(name="e0")
             .annotate(
@@ -2264,6 +2476,9 @@ class ValueTests(TestCase):
         )
 
     def test_deconstruct(self):
+        """
+        Tests the deconstruction of a Value object into its constituent parts.
+        """
         value = Value("name")
         path, args, kwargs = value.deconstruct()
         self.assertEqual(path, "django.db.models.Value")
@@ -2271,6 +2486,13 @@ class ValueTests(TestCase):
         self.assertEqual(kwargs, {})
 
     def test_deconstruct_output_field(self):
+        """
+
+        Tests the deconstruction of a Value object with an output field.
+
+        Verifies that the deconstructed path, arguments, and keywords are correctly generated.
+
+        """
         value = Value("name", output_field=CharField())
         path, args, kwargs = value.deconstruct()
         self.assertEqual(path, "django.db.models.Value")
@@ -2307,6 +2529,9 @@ class ValueTests(TestCase):
         self.assertEqual(d[Value("name")], "Bob")
 
     def test_equal_output_field(self):
+        """
+        Verifies that Value instances with the same output field type are considered equal, while instances with different output field types or no output field are not.
+        """
         value = Value("name", output_field=CharField())
         same_value = Value("name", output_field=CharField())
         other_value = Value("name", output_field=TimeField())
@@ -2322,6 +2547,9 @@ class ValueTests(TestCase):
 
     def test_compile_unresolved(self):
         # This test might need to be revisited later on if #25425 is enforced.
+        """
+        Checks that the as_sql method of a Value object correctly compiles to SQL when using a Time object query compiler.
+        """
         compiler = Time.objects.all().query.get_compiler(connection=connection)
         value = Value("foo")
         self.assertEqual(value.as_sql(compiler, connection), ("%s", ["foo"]))
@@ -2334,6 +2562,14 @@ class ValueTests(TestCase):
         self.assertEqual(time.one, 1)
 
     def test_resolve_output_field(self):
+        """
+
+        Tests the resolution of output fields for various value types.
+
+        Verifies that the correct output field type is assigned based on the input value type,
+        including strings, booleans, integers, floats, dates, times, durations, decimals, binaries, and UUIDs.
+
+        """
         value_types = [
             ("str", CharField),
             (True, BooleanField),
@@ -2359,9 +2595,7 @@ class ValueTests(TestCase):
 
     def test_output_field_does_not_create_broken_validators(self):
         """
-        The output field for a given Value doesn't get cleaned & validated,
-        however validators may still be instantiated for a given field type
-        and this demonstrates that they don't throw an exception.
+        Verifies that the output field for a given Value does not create broken validators, ensuring that validation does not throw exceptions for various data types.
         """
         value_types = [
             "str",
@@ -2384,6 +2618,14 @@ class ValueTests(TestCase):
 
 class ExistsTests(TestCase):
     def test_optimizations(self):
+        """
+
+        Tests the optimization of queries on Experiment objects, specifically ensuring 
+        that only one query is executed and that it is correctly optimized to exclude 
+        the primary key from the select clause and order by clause, and to include 
+        a limit offset.
+
+        """
         with CaptureQueriesContext(connection) as context:
             list(
                 Experiment.objects.values(
@@ -2462,6 +2704,12 @@ class FieldTransformTests(TestCase):
 
 class ReprTests(SimpleTestCase):
     def test_expressions(self):
+        """
+        Tests string representations of various database expressions and operations.\"\"\"
+        \"\"\"Ensures that each expression and operation is correctly represented as a string.\"\"\"
+        \"\"\"Verifies that string representations of Case, When, Col, F, CombinedExpression, ExpressionWrapper, Func, Sliced, OuterRef, OrderBy, RawSQL, Ref, Value, and ExpressionList are correctly formatted.\"\"\"
+        \"\"\"Checks `__repr__` method of each expression for accurate string representation.
+        """
         self.assertEqual(
             repr(Case(When(a=1))),
             "<Case: CASE WHEN <Q: (AND: ('a', 1))> THEN Value(None), ELSE Value(None)>",
@@ -2505,6 +2753,14 @@ class ReprTests(SimpleTestCase):
         )
 
     def test_functions(self):
+        """
+
+        Tests the representation of various SQL functions.
+
+        Verifies that the repr method returns the expected string representation
+        for Coalesce, Concat, Length, Lower, Substr, and Upper functions.
+
+        """
         self.assertEqual(repr(Coalesce("a", "b")), "Coalesce(F(a), F(b))")
         self.assertEqual(repr(Concat("a", "b")), "Concat(ConcatPair(F(a), F(b)))")
         self.assertEqual(repr(Length("a")), "Length(F(a))")
@@ -2513,6 +2769,9 @@ class ReprTests(SimpleTestCase):
         self.assertEqual(repr(Upper("a")), "Upper(F(a))")
 
     def test_aggregates(self):
+        """
+        Tests the string representation of various aggregate functions.
+        """
         self.assertEqual(repr(Avg("a")), "Avg(F(a))")
         self.assertEqual(repr(Count("a")), "Count(F(a))")
         self.assertEqual(repr(Count("*")), "Count('*')")
@@ -2529,6 +2788,9 @@ class ReprTests(SimpleTestCase):
         self.assertEqual(repr(Count("*", distinct=True)), "Count('*', distinct=True)")
 
     def test_filtered_aggregates(self):
+        """
+        Tests the representation of aggregate functions with filters applied, verifying that the correct string representation is returned for various aggregation types and filter configurations.
+        """
         filter = Q(a=1)
         self.assertEqual(
             repr(Avg("a", filter=filter)), "Avg(F(a), filter=(AND: ('a', 1)))"
@@ -2595,6 +2857,9 @@ class CombinableTests(SimpleTestCase):
 
 class CombinedExpressionTests(SimpleTestCase):
     def test_resolve_output_field_positive_integer(self):
+        """
+        Tests that the output field of a combined expression with a positive integer field and a specified connector is a PositiveIntegerField.
+        """
         connectors = [
             Combinable.ADD,
             Combinable.MUL,
@@ -2612,6 +2877,9 @@ class CombinedExpressionTests(SimpleTestCase):
                 self.assertIsInstance(expr.output_field, PositiveIntegerField)
 
     def test_resolve_output_field_number(self):
+        """
+        Tests that the output field of a CombinedExpression is resolved correctly for various input field types and operators, verifying that the resulting field type is as expected after combining two expressions with different field types and arithmetic operations.
+        """
         tests = [
             (IntegerField, AutoField, IntegerField),
             (AutoField, IntegerField, IntegerField),
@@ -2640,6 +2908,9 @@ class CombinedExpressionTests(SimpleTestCase):
                     self.assertIsInstance(expr.output_field, combined)
 
     def test_resolve_output_field_with_null(self):
+        """
+        Tests that attempting to resolve the output field of a combined expression involving null values raises a FieldError, covering various field types and operations.
+        """
         def null():
             return Value(None)
 
@@ -2674,6 +2945,9 @@ class CombinedExpressionTests(SimpleTestCase):
                     expr.output_field
 
     def test_resolve_output_field_numbers_with_null(self):
+        """
+        Tests whether the CombinedExpression class correctly determines the output field when at least one operand is null, covering various arithmetic operations and field types.
+        """
         test_values = [
             (3.14159, None, FloatField),
             (None, 3.14159, FloatField),
@@ -2697,6 +2971,9 @@ class CombinedExpressionTests(SimpleTestCase):
                     self.assertIsInstance(expr.output_field, expected_output_field)
 
     def test_resolve_output_field_dates(self):
+        """
+        Tests the resolution of output field dates for combined expressions involving date, time, and duration fields, ensuring that the output field type is correctly inferred or that an error is raised when the operation is not supported.
+        """
         tests = [
             # Add - same type.
             (DateField, Combinable.ADD, DateField, FieldError),
@@ -2755,6 +3032,10 @@ class ExpressionWrapperTests(SimpleTestCase):
         self.assertEqual(expr.get_group_by_cols(), [])
 
     def test_non_empty_group_by(self):
+        """
+        Tests that a non-empty group by clause is correctly generated for an ExpressionWrapper instance, 
+        where the expression contains a Lower function and is wrapped with a different field type than the original value.
+        """
         value = Value("f")
         value.output_field = None
         expr = ExpressionWrapper(Lower(value), output_field=IntegerField())
@@ -2789,6 +3070,9 @@ class NegatedExpressionTests(TestCase):
         self.assertEqual(~~f, f)
 
     def test_filter(self):
+        """
+        Tests the filtering of companies based on their geographical location, specifically checking the usage of Django's F expressions for dynamic filtering and negation.
+        """
         self.assertSequenceEqual(
             Company.objects.filter(~F("based_in_eu")),
             [self.non_eu_company],
@@ -2840,6 +3124,9 @@ class OrderByTests(SimpleTestCase):
         )
 
     def test_nulls_false(self):
+        """
+        Tests that OrderBy and F expressions raise a ValueError when nulls_first or nulls_last is set to False.
+        """
         msg = "nulls_first and nulls_last values must be True or None."
         with self.assertRaisesMessage(ValueError, msg):
             OrderBy(F("field"), nulls_first=False)

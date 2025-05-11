@@ -92,6 +92,11 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_skips(self):
+        """
+        Returns a dictionary of skip reasons with corresponding Django test cases that should be skipped for MySQL database.
+
+        The skipped tests are identified based on various conditions such as MySQL version, MariaDB version, and SQL mode settings. The returned dictionary can be used to filter out tests that are known to fail or are not supported on MySQL database.
+        """
         skips = {
             "This doesn't work on MySQL.": {
                 "db_functions.comparison.test_greatest.GreatestTests."
@@ -291,6 +296,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def supports_index_column_ordering(self):
+        """
+        Determines whether the database supports ordering of index columns. This is only supported by InnoDB storage engine, and for MariaDB, it requires version 10.8 or later.
+        """
         if self._mysql_storage_engine != "InnoDB":
             return False
         if self.connection.mysql_is_mariadb:

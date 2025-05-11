@@ -27,6 +27,9 @@ class Command(BaseCommand):
     help = "Creates new migration(s) for apps."
 
     def add_arguments(self, parser):
+        """
+        Adds command-line arguments to the parser for creating migrations in Django, including options for specifying app labels, dry-running, merging conflicts, and customizing migration file generation.
+        """
         parser.add_argument(
             "args",
             metavar="app_label",
@@ -103,6 +106,19 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *app_labels, **options):
+        """
+
+        Handle the creation of new migrations based on changes detected in the project.
+
+        This function takes various options and app labels as input and creates new migration files
+        accordingly. It checks for conflicts in the migration graph, allows for interactive and non-interactive
+        questioning, and supports dry runs. The function also supports merging of conflicting migrations and
+        empty migration creation.
+
+        The primary goal of this function is to facilitate the creation and management of database migrations
+        in a Django project.
+
+        """
         self.written_files = []
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
@@ -261,6 +277,18 @@ class Command(BaseCommand):
                 sys.exit(1)
 
     def write_to_last_migration_files(self, changes):
+        """
+        .. method:: write_to_last_migration_files(changes)
+
+            Updates the last migration files for the given application changes.
+
+            This function takes a dictionary of changes, where each key is an application label and the corresponding value is a list of migrations.
+            It applies these changes to the last migration of each application, optimizes the operations, and renames the migration.
+            The updated migration files are then written to disk. 
+
+            :param changes: A dictionary of application changes, where each key is an application label and the corresponding value is a list of migrations
+            :raises CommandError: If an application has no migration, if the migration is applied, if the migration is a squash migration, or if other migrations depend on it.
+        """
         loader = MigrationLoader(connections[DEFAULT_DB_ALIAS])
         new_changes = {}
         update_previous_migration_paths = {}
@@ -333,7 +361,15 @@ class Command(BaseCommand):
 
     def write_migration_files(self, changes, update_previous_migration_paths=None):
         """
-        Take a changes dict and write them out as migration files.
+        Write migration files based on the provided changes dictionary.
+
+        Generates migration files for each application, including any necessary directory creation and file writing.
+        Optionally updates previous migration paths and removes outdated files.
+        Logs migration details and warnings for any migrations requiring manual porting.
+
+        :arg changes: A dictionary of changes to be written as migration files
+        :arg update_previous_migration_paths: An optional dictionary mapping app labels to previous migration paths to update
+
         """
         directory_created = {}
         for app_label, app_migrations in changes.items():
@@ -395,6 +431,13 @@ class Command(BaseCommand):
 
     @staticmethod
     def get_relative_path(path):
+        """
+        Return the relative path of the given absolute or relative path.
+
+        The relative path is calculated relative to the current working directory.
+        If the path is already relative and does not start with '..', it is returned as is.
+        Otherwise, the absolute path is returned. This prevents accessing paths outside the current directory.
+        """
         try:
             migration_string = os.path.relpath(path)
         except ValueError:
@@ -405,8 +448,7 @@ class Command(BaseCommand):
 
     def handle_merge(self, loader, conflicts):
         """
-        Handles merging together conflicted migrations interactively,
-        if it's safe; otherwise, advises on how to fix it.
+        Handles merging together conflicted migrations, either interactively or according to predefined defaults, and creates a new migration that resolves the conflicts. If the merge is not possible, it advises on how to fix the issue.
         """
         if self.interactive:
             questioner = InteractiveMigrationQuestioner(prompt_output=self.log_output)

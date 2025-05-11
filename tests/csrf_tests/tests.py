@@ -45,7 +45,12 @@ MASKED_TEST_SECRET2 = "2JgchWvM1tpxT2lfz9aydoXW9yT1DN3NdLiejYxOOlzzV4nhBbYqmqZYb
 class CsrfFunctionTestMixin:
     # This method depends on _unmask_cipher_token() being correct.
     def assertMaskedSecretCorrect(self, masked_secret, secret):
-        """Test that a string is a valid masked version of a secret."""
+        """
+        Verify that a masked string is a correct representation of a secret token.
+
+        Checks the length and character set of the masked and secret strings, and ensures 
+        that the unmasked version of the input matches the expected secret.
+        """
         self.assertEqual(len(masked_secret), CSRF_TOKEN_LENGTH)
         self.assertEqual(len(secret), CSRF_SECRET_LENGTH)
         self.assertTrue(
@@ -58,6 +63,11 @@ class CsrfFunctionTestMixin:
 
 class CsrfFunctionTests(CsrfFunctionTestMixin, SimpleTestCase):
     def test_unmask_cipher_token(self):
+        """
+        Tests the _unmask_cipher_token function to ensure correct unmasking of cipher tokens.
+
+        Verifies that the function correctly unmasked various cipher tokens and matches the expected original secrets.
+        """
         cases = [
             (TEST_SECRET, MASKED_TEST_SECRET1),
             (TEST_SECRET, MASKED_TEST_SECRET2),
@@ -77,6 +87,9 @@ class CsrfFunctionTests(CsrfFunctionTestMixin, SimpleTestCase):
                 self.assertEqual(actual, secret)
 
     def test_mask_cipher_secret(self):
+        """
+        Tests that the _mask_cipher_secret function correctly masks a cipher secret by checking multiple test cases with different secret values.
+        """
         cases = [
             32 * "a",
             TEST_SECRET,
@@ -88,6 +101,11 @@ class CsrfFunctionTests(CsrfFunctionTestMixin, SimpleTestCase):
                 self.assertMaskedSecretCorrect(masked, secret)
 
     def test_get_token_csrf_cookie_set(self):
+        """
+        Tests the get_token function when the CSRF cookie is set, verifying 
+        that the token is correctly generated from the secret and the 
+        CSRF_COOKIE_NEEDS_UPDATE flag is set after token generation.
+        """
         request = HttpRequest()
         request.META["CSRF_COOKIE"] = TEST_SECRET
         self.assertNotIn("CSRF_COOKIE_NEEDS_UPDATE", request.META)
@@ -98,6 +116,9 @@ class CsrfFunctionTests(CsrfFunctionTestMixin, SimpleTestCase):
         self.assertIs(request.META["CSRF_COOKIE_NEEDS_UPDATE"], True)
 
     def test_get_token_csrf_cookie_not_set(self):
+        """
+        Tests that get_token properly sets the CSRF cookie and returns a valid token when the cookie is not initially set.
+        """
         request = HttpRequest()
         self.assertNotIn("CSRF_COOKIE", request.META)
         self.assertNotIn("CSRF_COOKIE_NEEDS_UPDATE", request.META)
@@ -107,6 +128,9 @@ class CsrfFunctionTests(CsrfFunctionTestMixin, SimpleTestCase):
         self.assertIs(request.META["CSRF_COOKIE_NEEDS_UPDATE"], True)
 
     def test_rotate_token(self):
+        """
+        Tests the rotation of a CSRF token, ensuring a new token is generated and the update flag is set.
+        """
         request = HttpRequest()
         request.META["CSRF_COOKIE"] = TEST_SECRET
         self.assertNotIn("CSRF_COOKIE_NEEDS_UPDATE", request.META)
@@ -118,6 +142,10 @@ class CsrfFunctionTests(CsrfFunctionTestMixin, SimpleTestCase):
         self.assertIs(request.META["CSRF_COOKIE_NEEDS_UPDATE"], True)
 
     def test_check_token_format_valid(self):
+        """
+        Verifies that the _check_token_format function returns None for valid token formats.\"\"\"
+        ```
+        """
         cases = [
             # A token of length CSRF_SECRET_LENGTH.
             TEST_SECRET,
@@ -131,6 +159,11 @@ class CsrfFunctionTests(CsrfFunctionTestMixin, SimpleTestCase):
                 self.assertIsNone(actual)
 
     def test_check_token_format_invalid(self):
+        """
+        Tests that the _check_token_format function correctly handles invalid token formats, 
+        including invalid characters and incorrect length, by raising an InvalidTokenFormat exception 
+        with an appropriate error message.
+        """
         cases = [
             (64 * "*", "has invalid characters"),
             (16 * "a", "has incorrect length"),
@@ -141,6 +174,14 @@ class CsrfFunctionTests(CsrfFunctionTestMixin, SimpleTestCase):
                     _check_token_format(token)
 
     def test_does_token_match(self):
+        """
+
+        Verify if a given token matches a secret.
+
+        This function checks the token-secret pairing logic and ensures correct 
+        matching of tokens with their respective secrets.
+
+        """
         cases = [
             # Masked tokens match.
             ((MASKED_TEST_SECRET1, TEST_SECRET), True),
@@ -237,6 +278,15 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         raise NotImplementedError("This method must be implemented by a subclass.")
 
     def _get_request(self, method=None, cookie=None, request_class=None):
+        """
+        Creates and configures a mock HTTP request object.
+
+        :param method: The request method (defaults to 'GET' if not specified)
+        :param cookie: The value to set for the CSRF cookie
+        :param request_class: The class to use for creating the request object (defaults to TestingHttpRequest)
+
+        Returns a configured request object of the specified class.
+        """
         if method is None:
             method = "GET"
         if request_class is None:
@@ -257,12 +307,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         request_class=None,
     ):
         """
-        The method argument defaults to "GET". The cookie argument defaults to
-        this class's default test cookie. The post_token and meta_token
-        arguments are included in the request's req.POST and req.META headers,
-        respectively, when that argument is provided and non-None. The
-        token_header argument is the header key to use for req.META, defaults
-        to "HTTP_X_CSRFTOKEN".
+        Returns a request object with CSRF cookie and token setup.
+        The request is created with the specified method, cookie, and CSRF token settings.
+        It can include a token in the request's POST data or META headers, or both.
         """
         if cookie is None:
             cookie = self._csrf_id_cookie
@@ -306,6 +353,14 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     # This method depends on _unmask_cipher_token() being correct.
     def _check_token_present(self, response, csrf_secret=None):
+        """
+
+        Checks if the CSRF token is present in the response and validates its correctness.
+
+        Verifies that the response contains a CSRF token in the expected format and
+        checks if the token's secret part matches the provided or default secret.
+
+        """
         if csrf_secret is None:
             csrf_secret = TEST_SECRET
         text = str(response.content, response.charset)
@@ -319,8 +374,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_process_response_get_token_not_used(self):
         """
-        If get_token() is not called, the view middleware does not
-        add a cookie.
+        Tests that the CSRF view middleware does not add a cookie when the get_token() method is not called.
         """
         # This is important to make pages cacheable.  Pages which do call
         # get_token(), assuming they use the token, are not cacheable because
@@ -339,7 +393,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         self.assertIs(csrf_cookie, False)
 
     def _check_bad_or_missing_cookie(self, cookie, expected):
-        """Passing None for cookie includes no cookie."""
+        """
+        Checks that a POST request with either a bad or missing CSRF cookie returns a 403 Forbidden response with a corresponding warning message, validating that the CSRF protection is functioning correctly.
+        """
         req = self._get_request(method="POST", cookie=cookie)
         mw = CsrfViewMiddleware(post_form_view)
         mw.process_request(req)
@@ -362,6 +418,17 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         meta_token=None,
         token_header=None,
     ):
+        """
+        Checks for bad or missing CSRF token.
+
+        Verifies that a request with a malformed or missing token is rejected and a 403 Forbidden response is returned.
+        The test expects a specific warning message in the logs indicating the reason for the rejection.
+
+        :param expected: The expected reason for the rejection
+        :param post_token: Optional POST token to include in the request
+        :param meta_token: Optional meta token to include in the request
+        :param token_header: Optional token header to include in the request
+        """
         req = self._get_POST_csrf_cookie_request(
             post_token=post_token,
             meta_token=meta_token,
@@ -377,8 +444,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_csrf_cookie_bad_or_missing_token(self):
         """
-        If a CSRF cookie is present but the token is missing or invalid, the
-        middleware rejects the incoming request.
+        Tests the CSRF middleware's behavior when a cookie is present but the token is missing, invalid, or malformed, covering various scenarios such as missing tokens, incorrect lengths, and invalid characters.
         """
         cases = [
             (None, None, REASON_CSRF_TOKEN_MISSING),
@@ -427,7 +493,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_process_request_csrf_cookie_and_token(self):
         """
-        If both a cookie and a token is present, the middleware lets it through.
+        Checks if CSRF middleware allows a request to proceed when both a CSRF token and a CSRF cookie are present.
         """
         req = self._get_POST_request_with_token()
         mw = CsrfViewMiddleware(post_form_view)
@@ -437,8 +503,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_process_request_csrf_cookie_no_token_exempt_view(self):
         """
-        If a CSRF cookie is present and no token, but the csrf_exempt decorator
-        has been applied to the view, the middleware lets it through
+        Tests that the CSRF view middleware allows a request to proceed when a CSRF cookie is present but no token is provided, and the view is exempt from CSRF validation.
         """
         req = self._get_POST_csrf_cookie_request()
         mw = CsrfViewMiddleware(post_form_view)
@@ -448,7 +513,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_csrf_token_in_header(self):
         """
-        The token may be passed in a header instead of in the form.
+        Verifies that a CSRF token can be successfully passed in a request header rather than in the form body, ensuring the view processes the request without interruption.
         """
         req = self._get_POST_csrf_cookie_request(meta_token=self._csrf_id_token)
         mw = CsrfViewMiddleware(post_form_view)
@@ -459,7 +524,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     @override_settings(CSRF_HEADER_NAME="HTTP_X_CSRFTOKEN_CUSTOMIZED")
     def test_csrf_token_in_header_with_customized_name(self):
         """
-        settings.CSRF_HEADER_NAME can be used to customize the CSRF header name
+        Tests that CsrfViewMiddleware correctly handles a CSRF token provided in a request header with a customized name, set via settings.CSRF_HEADER_NAME.
         """
         req = self._get_POST_csrf_cookie_request(
             meta_token=self._csrf_id_token,
@@ -472,7 +537,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_put_and_delete_rejected(self):
         """
-        HTTP PUT and DELETE methods have protection
+        Tests that HTTP PUT and DELETE requests are rejected by the CsrfViewMiddleware when no valid CSRF cookie is present, ensuring protection against cross-site request forgery attacks.
         """
         req = self._get_request(method="PUT")
         mw = CsrfViewMiddleware(post_form_view)
@@ -493,7 +558,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_put_and_delete_allowed(self):
         """
-        HTTP PUT and DELETE can get through with X-CSRFToken and a cookie.
+        Tests that HTTP PUT and DELETE requests are allowed to pass through when both a valid X-CSRFToken header and a corresponding CSRF cookie are present.
         """
         req = self._get_csrf_cookie_request(
             method="PUT", meta_token=self._csrf_id_token
@@ -512,9 +577,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_rotate_token_triggers_second_reset(self):
         """
-        If rotate_token() is called after the token is reset in
-        CsrfViewMiddleware's process_response() and before another call to
-        the same process_response(), the cookie is reset a second time.
+        Tests that calling rotate_token after the token is reset by CsrfViewMiddleware triggers a second token reset.
         """
         req = self._get_POST_request_with_token()
         resp = sandwiched_rotate_token_view(req)
@@ -530,7 +593,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     # Tests for the template tag method
     def test_token_node_no_csrf_cookie(self):
         """
-        CsrfTokenNode works when no CSRF cookie is set.
+        Tests that CsrfTokenNode functions correctly in the absence of a CSRF cookie, verifying the generation and presence of a token in the response.
         """
         req = self._get_request()
         resp = token_view(req)
@@ -542,7 +605,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_token_node_empty_csrf_cookie(self):
         """
-        A new token is sent if the csrf_cookie is the empty string.
+        Tests whether a new CSRF token is generated and correctly included in the response when the CSRF cookie is empty.
         """
         req = self._get_request(cookie="")
         mw = CsrfViewMiddleware(token_view)
@@ -556,7 +619,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_token_node_with_csrf_cookie(self):
         """
-        CsrfTokenNode works when a CSRF cookie is set.
+        Tests the functionality of CsrfTokenNode when a CSRF cookie is present in the request.
         """
         req = self._get_csrf_cookie_request()
         mw = CsrfViewMiddleware(token_view)
@@ -567,7 +630,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_get_token_for_exempt_view(self):
         """
-        get_token still works for a view decorated with 'csrf_exempt'.
+        Verifies that CsrfViewMiddleware correctly handles token generation for views decorated with 'csrf_exempt'.
         """
         req = self._get_csrf_cookie_request()
         mw = CsrfViewMiddleware(token_view)
@@ -586,8 +649,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_token_node_with_new_csrf_cookie(self):
         """
-        CsrfTokenNode works when a CSRF cookie is created by
-        the middleware (when one was not already present)
+        Verifies that CsrfTokenNode functions correctly when a new CSRF cookie is created by the middleware, ensuring the token is properly set and included in the response.
         """
         req = self._get_request()
         mw = CsrfViewMiddleware(token_view)
@@ -598,9 +660,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_cookie_not_reset_on_accepted_request(self):
         """
-        The csrf token used in posts is changed on every request (although
-        stays equivalent). The csrf cookie should not change on accepted
-        requests. If it appears in the response, it should keep its value.
+        Verifies that the CSRF cookie remains unchanged when a request is accepted by the CSRF view middleware.
         """
         req = self._get_POST_request_with_token()
         mw = CsrfViewMiddleware(token_view)
@@ -617,7 +677,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     @override_settings(DEBUG=True, ALLOWED_HOSTS=["www.example.com"])
     def test_https_bad_referer(self):
         """
-        A POST HTTPS request with a bad referer is rejected
+        Tests that a POST request over HTTPS with a bad referer is correctly rejected by the CSRF view middleware, returning a 403 Forbidden response.
         """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
@@ -639,7 +699,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     @override_settings(DEBUG=True)
     def test_https_no_referer(self):
-        """A POST HTTPS request with a missing referer is rejected."""
+        """
+        Verifies that a POST request over HTTPS without a referer header is rejected with a 403 status code.
+        """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
         mw = CsrfViewMiddleware(post_form_view)
@@ -653,8 +715,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_https_malformed_host(self):
         """
-        CsrfViewMiddleware generates a 403 response if it receives an HTTPS
-        request with a bad host.
+        Tests that CsrfViewMiddleware correctly rejects an HTTPS request with a malformed host, returning a 403 response.
         """
         req = self._get_request(method="POST")
         req._is_secure_override = True
@@ -672,6 +733,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         self.assertEqual(response.status_code, 403)
 
     def test_origin_malformed_host(self):
+        """
+        Tests that the CsrfViewMiddleware correctly rejects requests with a malformed HTTP_HOST header and a suspicious HTTP_ORIGIN header, ensuring protection against potential CSRF attacks.
+        """
         req = self._get_request(method="POST")
         req._is_secure_override = True
         req.META["HTTP_HOST"] = "@malformed"
@@ -684,7 +748,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     @override_settings(DEBUG=True)
     def test_https_malformed_referer(self):
         """
-        A POST HTTPS request with a bad referer is rejected.
+        Tests CsrfViewMiddleware's behavior when handling POST HTTPS requests with malformed referer headers, ensuring that invalid or insecure referers are rejected with a 403 status code.
         """
         malformed_referer_msg = "Referer checking failed - Referer is malformed."
         req = self._get_POST_request_with_token()
@@ -733,7 +797,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     @override_settings(ALLOWED_HOSTS=["www.example.com"])
     def test_https_good_referer(self):
         """
-        A POST HTTPS request with a good referer is accepted.
+        Tests that a POST request over HTTPS with a valid referer is successfully processed by the CSRF view middleware.
         """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
@@ -747,8 +811,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     @override_settings(ALLOWED_HOSTS=["www.example.com"])
     def test_https_good_referer_2(self):
         """
-        A POST HTTPS request with a good referer is accepted where the referer
-        contains no trailing slash.
+        Tests if a POST HTTPS request is successfully processed when the referer URL does not have a trailing slash, verifying the correctness of CSRF protection in this scenario.
         """
         # See ticket #15617
         req = self._get_POST_request_with_token()
@@ -761,6 +824,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         self.assertIsNone(resp)
 
     def _test_https_good_referer_behind_proxy(self):
+        """
+        Tests the CSRF middleware behind a proxy with a good HTTPS referer.
+        """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
         req.META.update(
@@ -780,8 +846,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     @override_settings(CSRF_TRUSTED_ORIGINS=["https://dashboard.example.com"])
     def test_https_good_referer_malformed_host(self):
         """
-        A POST HTTPS request is accepted if it receives a good referer with
-        a bad host.
+        Tests that a POST HTTPS request with a good referer and a malformed host is accepted by the CSRF view middleware.
         """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
@@ -798,8 +863,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     )
     def test_https_csrf_trusted_origin_allowed(self):
         """
-        A POST HTTPS request with a referer added to the CSRF_TRUSTED_ORIGINS
-        setting is accepted.
+        Tests that a POST HTTPS request with a referer matching a CSRF trusted origin is allowed, confirming CSRF protection compatibility with secure requests from trusted sources.
         """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
@@ -816,8 +880,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     )
     def test_https_csrf_wildcard_trusted_origin_allowed(self):
         """
-        A POST HTTPS request with a referer that matches a CSRF_TRUSTED_ORIGINS
-        wildcard is accepted.
+        Tests whether a secure POST request with a referer matching a CSRF trusted origin wildcard is successfully processed without being blocked by CSRF protection.
         """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
@@ -829,6 +892,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         self.assertIsNone(response)
 
     def _test_https_good_referer_matches_cookie_domain(self):
+        """
+        Tests whether the CSRF view middleware allows a request when the referer and cookie domain match over a secure connection.
+        """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
         req.META["HTTP_REFERER"] = "https://foo.example.com/"
@@ -839,6 +905,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         self.assertIsNone(response)
 
     def _test_https_good_referer_matches_cookie_domain_with_different_port(self):
+        """
+        Checks that the CSRF view middleware does not block a request when the referer and cookie domains match, but the port numbers are different, to ensure secure HTTPS requests are not incorrectly blocked.
+        """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
         req.META["HTTP_HOST"] = "www.example.com"
@@ -859,8 +928,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_reading_post_data_raises_unreadable_post_error(self):
         """
-        An UnreadablePostError raised while reading the POST data should be
-        handled by the middleware.
+        Tests the handling of UnreadablePostError exceptions raised during the reading of POST data by the CSRF view middleware, ensuring a 403 response is returned and a warning is logged when such an error occurs.
         """
         req = self._get_POST_request_with_token()
         mw = CsrfViewMiddleware(post_form_view)
@@ -881,8 +949,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     def test_reading_post_data_raises_os_error(self):
         """
-        An OSError raised while reading the POST data should not be handled by
-        the middleware.
+        Tests that an OSError raised while reading POST data is not caught by the middleware, allowing it to propagate up the call stack.
         """
         mw = CsrfViewMiddleware(post_form_view)
         req = self._get_POST_request_with_token(request_class=PostErrorRequest)
@@ -893,7 +960,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     @override_settings(ALLOWED_HOSTS=["www.example.com"])
     def test_bad_origin_bad_domain(self):
-        """A request with a bad origin is rejected."""
+        """
+        Tests that a request with an invalid origin is properly rejected by the CSRF view middleware, ensuring protection against cross-site request forgery attacks from unauthorized domains.
+        """
         req = self._get_POST_request_with_token()
         req.META["HTTP_HOST"] = "www.example.com"
         req.META["HTTP_ORIGIN"] = "https://www.evil.org"
@@ -908,7 +977,11 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     @override_settings(ALLOWED_HOSTS=["www.example.com"])
     def test_bad_origin_null_origin(self):
-        """A request with a null origin is rejected."""
+        """
+        Verifies the rejection of a request with a null origin, ensuring the CSRF view 
+        middleware correctly identifies and rejects such requests, logging a warning 
+        and returning a 403 Forbidden response.
+        """
         req = self._get_POST_request_with_token()
         req.META["HTTP_HOST"] = "www.example.com"
         req.META["HTTP_ORIGIN"] = "null"
@@ -923,7 +996,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     @override_settings(ALLOWED_HOSTS=["www.example.com"])
     def test_bad_origin_bad_protocol(self):
-        """A request with an origin with wrong protocol is rejected."""
+        """
+        Tests that a request with an origin containing an incorrect protocol (e.g. http instead of https) is properly rejected by the CSRF view middleware, resulting in a 403 Forbidden response.
+        """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
         req.META["HTTP_HOST"] = "www.example.com"
@@ -948,8 +1023,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     )
     def test_bad_origin_csrf_trusted_origin_bad_protocol(self):
         """
-        A request with an origin with the wrong protocol compared to
-        CSRF_TRUSTED_ORIGINS is rejected.
+        Tests that a request with an origin having a mismatched protocol compared to the trusted origins in CSRF_TRUSTED_ORIGINS is correctly rejected by the CSRF view middleware.
         """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
@@ -975,8 +1049,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     @override_settings(ALLOWED_HOSTS=["www.example.com"])
     def test_bad_origin_cannot_be_parsed(self):
         """
-        A POST request with an origin that can't be parsed by urlsplit() is
-        rejected.
+        Tests that a POST request with an origin header that cannot be parsed is correctly rejected due to a bad origin, triggering a 403 Forbidden response.
         """
         req = self._get_POST_request_with_token()
         req.META["HTTP_HOST"] = "www.example.com"
@@ -992,7 +1065,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     @override_settings(ALLOWED_HOSTS=["www.example.com"])
     def test_good_origin_insecure(self):
-        """A POST HTTP request with a good origin is accepted."""
+        """
+        Tests that a POST request is accepted when the origin is considered good and the CSRF check is disabled due to an insecure origin, verifying the CSRF view middleware's behavior under these conditions.
+        """
         req = self._get_POST_request_with_token()
         req.META["HTTP_HOST"] = "www.example.com"
         req.META["HTTP_ORIGIN"] = "http://www.example.com"
@@ -1003,7 +1078,9 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
 
     @override_settings(ALLOWED_HOSTS=["www.example.com"])
     def test_good_origin_secure(self):
-        """A POST HTTPS request with a good origin is accepted."""
+        """
+        Tests whether a POST request over HTTPS with a valid origin is successfully verified by the CSRF view middleware.
+        """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
         req.META["HTTP_HOST"] = "www.example.com"
@@ -1019,8 +1096,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     )
     def test_good_origin_csrf_trusted_origin_allowed(self):
         """
-        A POST request with an origin added to the CSRF_TRUSTED_ORIGINS
-        setting is accepted.
+        Verifies that a POST request is accepted when the request's origin is listed in the CSRF_TRUSTED_ORIGINS setting.
         """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
@@ -1039,8 +1115,7 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
     )
     def test_good_origin_wildcard_csrf_trusted_origin_allowed(self):
         """
-        A POST request with an origin that matches a CSRF_TRUSTED_ORIGINS
-        wildcard is accepted.
+        Tests that a POST request from an origin matching a wildcard in CSRF_TRUSTED_ORIGINS is successfully verified and allowed by the CsrfViewMiddleware.
         """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
@@ -1060,7 +1135,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def _read_csrf_cookie(self, req, resp):
         """
-        Return the CSRF cookie as a string, or False if no cookie is present.
+        Retrieves the CSRF cookie value from the response cookies, returning it as a string if present, or False otherwise.
         """
         if settings.CSRF_COOKIE_NAME not in resp.cookies:
             return False
@@ -1072,7 +1147,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_ensures_csrf_cookie_no_middleware(self):
         """
-        The ensure_csrf_cookie() decorator works without middleware.
+        Tests that the ensure_csrf_cookie decorator adds a CSRF cookie to the response without requiring CSRF protection middleware.
         """
         req = self._get_request()
         resp = ensure_csrf_cookie_view(req)
@@ -1082,8 +1157,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_ensures_csrf_cookie_with_middleware(self):
         """
-        The ensure_csrf_cookie() decorator works with the CsrfViewMiddleware
-        enabled.
+        Tests that the ensure_csrf_cookie decorator correctly sets the CSRF cookie when CsrfViewMiddleware is enabled.
         """
         req = self._get_request()
         mw = CsrfViewMiddleware(ensure_csrf_cookie_view)
@@ -1095,7 +1169,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_csrf_cookie_age(self):
         """
-        CSRF cookie age can be set using settings.CSRF_COOKIE_AGE.
+        Tests that the CSRF cookie's age is correctly set as defined in project settings.
         """
         req = self._get_request()
 
@@ -1117,8 +1191,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_csrf_cookie_age_none(self):
         """
-        CSRF cookie age does not have max age set and therefore uses
-        session-based cookies.
+        Tests that the CSRF cookie age is not set when using session-based cookies.
         """
         req = self._get_request()
 
@@ -1139,6 +1212,9 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
             self.assertEqual(max_age, "")
 
     def test_csrf_cookie_samesite(self):
+        """
+        Tests that the CSRF cookie's SameSite attribute is correctly set to 'Strict' when the CSRF_COOKIE_SAMESITE setting is enabled.
+        """
         req = self._get_request()
         with self.settings(
             CSRF_COOKIE_NAME="csrfcookie", CSRF_COOKIE_SAMESITE="Strict"
@@ -1166,8 +1242,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_process_view_token_too_long(self):
         """
-        If the token is longer than expected, it is ignored and a new token is
-        created.
+        Tests the handling of an overly long CSRF token, verifying that it is ignored and a new token of the expected length is generated.
         """
         req = self._get_request(cookie="x" * 100000)
         mw = CsrfViewMiddleware(token_view)
@@ -1178,8 +1253,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_process_view_token_invalid_chars(self):
         """
-        If the token contains non-alphanumeric characters, it is ignored and a
-        new token is created.
+        Tests the behavior of CsrfViewMiddleware when a token containing invalid characters is provided, verifying that it is ignored and a new token is generated.
         """
         token = ("!@#" + self._csrf_id_token)[:CSRF_TOKEN_LENGTH]
         req = self._get_request(cookie=token)
@@ -1192,9 +1266,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_masked_unmasked_combinations(self):
         """
-        All combinations are allowed of (1) masked and unmasked cookies,
-        (2) masked and unmasked tokens, and (3) tokens provided via POST and
-        the X-CSRFToken header.
+        Tests all possible combinations of masked and unmasked cookies, tokens, and CSRF tokens sent via POST request or X-CSRFToken header to ensure proper functioning of the CSRF view middleware.
         """
         cases = [
             (TEST_SECRET, TEST_SECRET, None),
@@ -1221,8 +1293,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_set_cookie_called_only_once(self):
         """
-        set_cookie() is called only once when the view is decorated with both
-        ensure_csrf_cookie and csrf_protect.
+        Tests that the set_cookie function is called only once when a view is decorated with both ensure_csrf_cookie and csrf_protect, ensuring proper CSRF protection without redundant cookie setting.
         """
         req = self._get_POST_request_with_token()
         resp = ensured_and_protected_view(req)
@@ -1235,7 +1306,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_invalid_cookie_replaced_on_GET(self):
         """
-        A CSRF cookie with the wrong format is replaced during a GET request.
+        Verifies that a CSRF cookie with an invalid format is replaced with a valid one during a GET request.
         """
         req = self._get_request(cookie="badvalue")
         resp = protected_view(req)
@@ -1246,7 +1317,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_valid_secret_not_replaced_on_GET(self):
         """
-        Masked and unmasked CSRF cookies are not replaced during a GET request.
+        Verifies that a valid secret in a CSRF cookie is not replaced during a GET request, with tests covering both masked and unmasked cookies.
         """
         cases = [
             TEST_SECRET,
@@ -1262,8 +1333,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_masked_secret_accepted_and_replaced(self):
         """
-        For a view that uses the csrf_token, the csrf cookie is replaced with
-        the unmasked version if originally masked.
+        Verifies that a masked CSRF secret in a cookie is accepted and replaced with its unmasked version when processed by a view that uses CSRF protection.
         """
         req = self._get_POST_request_with_token(cookie=MASKED_TEST_SECRET1)
         mw = CsrfViewMiddleware(token_view)
@@ -1277,7 +1347,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
 
     def test_bare_secret_accepted_and_not_replaced(self):
         """
-        The csrf cookie is left unchanged if originally not masked.
+        Verifies that an unmasked CSRF token in a cookie is accepted and remains unchanged after processing a request.
         """
         req = self._get_POST_request_with_token(cookie=TEST_SECRET)
         mw = CsrfViewMiddleware(token_view)
@@ -1323,7 +1393,7 @@ class CsrfViewMiddlewareTests(CsrfViewMiddlewareTestMixin, SimpleTestCase):
     @override_settings(CSRF_COOKIE_DOMAIN=".example.com", DEBUG=True)
     def test_https_reject_insecure_referer(self):
         """
-        A POST HTTPS request from an insecure referer should be rejected.
+        Tests that a POST request over HTTPS is rejected when it originates from an insecure referer.
         """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
@@ -1370,8 +1440,7 @@ class CsrfViewMiddlewareUseSessionsTests(CsrfViewMiddlewareTestMixin, SimpleTest
 
     def test_masked_unmasked_combinations(self):
         """
-        Masked and unmasked tokens are allowed both as POST and as the
-        X-CSRFToken header.
+        Tests various combinations of masked and unmasked tokens in POST requests and the X-CSRFToken header to ensure they are validly processed by the CsrfViewMiddleware.
         """
         cases = [
             # Bare secrets are not allowed when CSRF_USE_SESSIONS=True.
@@ -1394,14 +1463,18 @@ class CsrfViewMiddlewareUseSessionsTests(CsrfViewMiddlewareTestMixin, SimpleTest
                 self.assertIsNone(resp)
 
     def test_process_response_get_token_used(self):
-        """The ensure_csrf_cookie() decorator works without middleware."""
+        """
+        Tests that the ensure_csrf_cookie decorator successfully sets a CSRF cookie without requiring middleware.
+        """
         req = self._get_request()
         ensure_csrf_cookie_view(req)
         csrf_cookie = self._read_csrf_cookie(req)
         self.assertTrue(csrf_cookie)
 
     def test_session_modify(self):
-        """The session isn't saved if the CSRF cookie is unchanged."""
+        """
+        Verifies that a session remains unmodified if the CSRF cookie has not changed, ensuring that unnecessary session saves are avoided.
+        """
         req = self._get_request()
         mw = CsrfViewMiddleware(ensure_csrf_cookie_view)
         mw.process_view(req, ensure_csrf_cookie_view, (), {})
@@ -1415,8 +1488,7 @@ class CsrfViewMiddlewareUseSessionsTests(CsrfViewMiddlewareTestMixin, SimpleTest
 
     def test_ensures_csrf_cookie_with_middleware(self):
         """
-        The ensure_csrf_cookie() decorator works with the CsrfViewMiddleware
-        enabled.
+        Verifies that the ensure_csrf_cookie decorator functions correctly with CsrfViewMiddleware enabled, ensuring a CSRF cookie is set in the response.
         """
         req = self._get_request()
         mw = CsrfViewMiddleware(ensure_csrf_cookie_view)
@@ -1460,7 +1532,7 @@ class CsrfViewMiddlewareUseSessionsTests(CsrfViewMiddlewareTestMixin, SimpleTest
     @override_settings(SESSION_COOKIE_DOMAIN=".example.com", DEBUG=True)
     def test_https_reject_insecure_referer(self):
         """
-        A POST HTTPS request from an insecure referer should be rejected.
+        Tests that a POST request over HTTPS from an insecure referer (HTTP) is rejected, as expected, returning a 403 Forbidden error with a referer checking failure message.
         """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
@@ -1478,6 +1550,9 @@ class CsrfViewMiddlewareUseSessionsTests(CsrfViewMiddlewareTestMixin, SimpleTest
 @override_settings(ROOT_URLCONF="csrf_tests.csrf_token_error_handler_urls", DEBUG=False)
 class CsrfInErrorHandlingViewsTests(CsrfFunctionTestMixin, SimpleTestCase):
     def test_csrf_token_on_404_stays_constant(self):
+        """
+        Checks that the CSRF token remains constant when a 404 status code is returned, verifying the token's consistency across multiple requests for a non-existent URL.
+        """
         response = self.client.get("/does not exist/")
         # The error handler returns status code 599.
         self.assertEqual(response.status_code, 599)

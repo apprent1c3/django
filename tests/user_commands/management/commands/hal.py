@@ -14,6 +14,9 @@ class Command(BaseCommand):
         parser.add_argument("--empty", action="store_true", help="Do nothing.")
 
     def handle(self, *app_labels, **options):
+        """
+        Handles command execution for the specified application labels, taking into account command-line options and inputs, and performing validation on the provided labels.
+        """
         app_labels = set(app_labels)
 
         if options["empty"]:

@@ -36,6 +36,11 @@ class PathNotImplementedStorage(storage.Storage):
         return os.path.exists(self._path(name))
 
     def listdir(self, path):
+        """
+        Lists the contents of a directory, separating directories and files into two lists. 
+
+        :returns: A tuple containing two lists: the first list contains the names of subdirectories and the second list contains the names of files.
+        """
         path = self._path(path)
         directories, files = [], []
         with os.scandir(path) as entries:
@@ -47,6 +52,9 @@ class PathNotImplementedStorage(storage.Storage):
         return directories, files
 
     def delete(self, name):
+        """
+        Deletes a file specified by the given name, handling the case where the file does not exist.
+        """
         name = self._path(name)
         try:
             os.remove(name)
